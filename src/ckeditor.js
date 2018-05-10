@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 // TODO: set initial data using constructor.
 // TODO: prop types.
@@ -64,3 +65,19 @@ export default class CKEditor extends React.Component {
 		}
 	}
 }
+
+// Properties definition.
+CKEditor.propTypes = {
+	editor: PropTypes.func.isRequired,
+	data: PropTypes.string,
+	config: PropTypes.object,
+	onChange: PropTypes.func
+};
+
+// Default values for non-required properties.
+CKEditor.defaultProps = {
+	data: '',
+	config: {},
+	onChange: () => {}
+};
+
