@@ -1,16 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// TODO: set initial data using constructor.
-// TODO: prop types.
-// TODO: throw when configuration changes during execution.
 export default class CKEditor extends React.Component {
+
 	constructor( props ) {
 		super( props );
 
-		this.domContainer = null;
 		this.editorInstance = null;
-		this.constructor = this.props.editor;
 	}
 
 	// This component should never be updated by React itself.
@@ -41,7 +37,7 @@ export default class CKEditor extends React.Component {
 	}
 
 	_initializeEditor() {
-		this.constructor
+		this.props.editor
 			.create( this.domContainer, this.props.config )
 			.then( editor => {
 				this.editorInstance = editor;
