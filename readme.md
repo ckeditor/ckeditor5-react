@@ -144,7 +144,22 @@ npm install --save \
 	@ckeditor/ckeditor5-heading
 ```
 
-Use CKEditor component inside your project:
+### Changes in webpack.config.prod.js only
+CKEditor 5 files are not transpiled to ES5 by default. Add CKEditor 5 files to be processed by Babel:
+
+```js
+// Process JS with Babel.
+{
+  test: /\.(js|jsx|mjs)$/,
+  include: [ 
+    paths.appSrc,
+    path.resolve( 'node_modules', '@ckeditor' )
+  ],
+  (...)
+```
+
+
+### Use CKEditor component inside your project:
 
 ```js
 import React, { Component } from 'react';
