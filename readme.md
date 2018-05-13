@@ -67,15 +67,46 @@ We need to modify webpack configuration scripts to load CKEditor 5 svg icons pro
 <project_root>/config/webpack.config.prod.js
 ```
 
-In both files we need to add new element to exported object under `module.rules` array:
+### Changes that need to be made to both config files (webpack.config.dev.js and webpack.config.prod.js)
+
+In both files add two new elements to exported object under `module.rules` array, these are SVG and CSS loaders only for CKEditor 5 code:
 ```js 
 {
   test: /ckeditor5-[^/]+\/theme\/icons\/[^/]+\.svg$/,
   use: [ 'raw-loader' ]
-}
+},
+{
+  test: /ckeditor5-[^/]+\/theme\/.+\.css/,
+  use: [
+    {
+      loader: 'style-loader',
+      options: {
+        singleton: true
+      }
+    },
+    {
+      loader: 'postcss-loader',
+      options: styles.getPostCssConfig( {
+        themeImporter: {
+          themePath: require.resolve( '@ckeditor/ckeditor5-theme-lark' )
+        },
+        minify: true
+      } )
+    }
+  ]
+},
 ```
 
-and exclude CKEditor 5 svg files from `file-loader` (usually the last item in `module.rules` array) so it looks like this:
+Exclude CSS files used by CKEditor 5 from project's CSS loader:
+
+```js
+{
+  test: /\.css$/,
+  exclude: /ckeditor5-[^/]+\/theme\/.+\.css/,
+  (...)
+```
+
+and exclude CKEditor 5 SVG and CSS files from `file-loader` (usually the last item in `module.rules` array) so it looks like this:
 
 ```js
 {
@@ -84,9 +115,15 @@ and exclude CKEditor 5 svg files from `file-loader` (usually the last item in `m
   // it's runtime that would otherwise processed through "file" loader.
   // Also exclude `html` and `json` extensions so they get processed
   // by webpacks internal loaders.
-  exclude: [/\.(js|jsx|mjs)$/, /\.html$/, /\.json$/, /ckeditor5-[^/]+\/theme\/icons\/[^/]+\.svg$/],
+  exclude: [
+  	/\.(js|jsx|mjs)$/, 
+  	/\.html$/, 
+  	/\.json$/, 
+  	/ckeditor5-[^/]+\/theme\/icons\/[^/]+\.svg$/,
+  	/ckeditor5-[^/]+\/theme\/.+\.css/
+  ],
   options: {
-    name: 'static/media/[name].[hash:8].[ext]',
+    name: 'static/media/[name].[hash:8].[ext]'
   }
 }
 ```
