@@ -43,12 +43,18 @@ export default class CKEditor extends React.Component {
 				this.editorInstance = editor;
 				this.editorInstance.setData( this.props.data );
 
-				const document = this.editorInstance.model.document;
-				document.on( 'change', () => {
-					if ( document.differ.getChanges().length > 0 ) {
-						this.props.onChange( editor.getData() );
-					}
-				} );
+				if ( this.props.onInit ) {
+					this.props.onInit( editor );
+				}
+
+				if ( this.props.onChange ) {
+					const document = this.editorInstance.model.document;
+					document.on( 'change', () => {
+						if ( document.differ.getChanges().length > 0 ) {
+							this.props.onChange( editor.getData() );
+						}
+					} );
+				}
 			} )
 			.catch( error => {
 				console.error( error );
@@ -67,13 +73,13 @@ CKEditor.propTypes = {
 	editor: PropTypes.func.isRequired,
 	data: PropTypes.string,
 	config: PropTypes.object,
-	onChange: PropTypes.func
+	onChange: PropTypes.func,
+	onInit: PropTypes.func
 };
 
 // Default values for non-required properties.
 CKEditor.defaultProps = {
 	data: '',
-	config: {},
-	onChange: () => {}
+	config: {}
 };
 

@@ -10,7 +10,7 @@ There are pre-build versions of CKEditor 5 that you can choose from:
 Install bindings and one of the builds:
 
 ```
-npm install --save cke5-react @ckeditor/ckeditor5-editor-classic
+npm install --save cke5-react @ckeditor/ckeditor5-build-classic
 ```
 
 Use CKEditor component inside your project:
@@ -61,7 +61,7 @@ More information about ejecting can be found [here](https://github.com/facebook/
 npm run eject
 ```
 
-We need to modify webpack configuration scripts to load CKEditor 5 svg icons properly. After ejecting they are located at
+We need to modify webpack configuration scripts to load CKEditor 5 SVG icons properly. After ejecting they are located at
 ```
 <project_root>/config/webpack.config.dev.js
 <project_root>/config/webpack.config.prod.js
