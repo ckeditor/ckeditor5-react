@@ -39,6 +39,11 @@ class App extends Component {
 export default App;	
 ```
 
+##### TODO: Even after adding CKEditor 5 build to the babel process it producess some errors in Create React App production:
+```js
+41:13-31 "export 'default' (imported as 'ClassicEditorBuild') was not found in '@ckeditor/ckeditor5-build-classic/build/ckeditor'
+```
+
 ## Building custom editor together with your React project
 
 This guide is assuming that you are using [Create React App CLI](https://github.com/facebook/create-react-app) as your 
