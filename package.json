@@ -1,8 +1,15 @@
 {
-  "name": "cke5-react",
+  "name": "@ckeditor/ckeditor5-react",
   "version": "0.1.0",
-  "description": "CKEditor 5 bindings for react.",
-  "main": "lib/ckeditor.js",
+  "description": "Official CKEditor 5 React component.",
+  "main": "dist/ckeditor.js",
+  "keywords": [
+    "ckeditor",
+    "ckeditor5",
+    "ckeditor 5",
+    "ckeditor5-feature",
+    "react"
+  ],
   "dependencies": {
     "prop-types": "^15.6.1",
     "react": "^16.3.2"
@@ -13,18 +20,18 @@
     "babel-preset-react": "^6.24.1"
   },
   "scripts": {
-    "prepublish": "babel --out-dir ./lib ./src",
-    "develop": "babel --out-dir ./lib ./src --watch",
+    "build": "babel --out-dir ./dist ./src",
+    "develop": "babel --out-dir ./dist ./src --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/szymonkups/cke5-react.git"
+    "url": "https://github.com/ckeditor/ckeditor5-react.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "CKSource (http://cksource.com/)",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/szymonkups/cke5-react/issues"
+    "url": "https://github.com/ckeditor/ckeditor5-react/issues"
   },
-  "homepage": "https://github.com/szymonkups/cke5-react#readme"
+  "homepage": "https://github.com/ckeditor/ckeditor5-react"
 }
