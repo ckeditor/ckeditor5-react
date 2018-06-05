@@ -1,5 +1,11 @@
 # CKEditor 5 bindings for React
 
+<p align=center>⚠⚠ ⚠⚠ ⚠⚠
+
+<p align=center><strong>NOTE:</strong> This package is not yet published on npm. It's a developer's preview available only through GitHub.
+	
+<p align=center>See <a href="https://github.com/ckeditor/ckeditor5-react/issues/5">https://github.com/ckeditor/ckeditor5-react/issues/5</a> for more information.
+
 ## Using with ready to use CKEditor 5 builds
 
 There are pre-build versions of CKEditor 5 that you can choose from:
