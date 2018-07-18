@@ -10,19 +10,14 @@ export default class CKEditor extends React.Component {
 	constructor( props ) {
 		super( props );
 
-		this.editorInstance = null;
+		// After mounting the editor, the variable will contain a reference to created editor.
+		// @see: https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editor-Editor.html
+		this.editor = null;
 	}
 
 	// This component should never be updated by React itself.
 	shouldComponentUpdate() {
 		return false;
-	}
-
-	// Update editor data if data property is changed.
-	componentWillReceiveProps( newProps ) {
-		if ( this.editorInstance && newProps.data ) {
-			this.editorInstance.setData( newProps.data );
-		}
 	}
 
 	// Initialize editor when component is mounted.
@@ -37,25 +32,25 @@ export default class CKEditor extends React.Component {
 
 	// Render <div> element which will be replaced by CKEditor.
 	render() {
-		return <div ref={ ref => ( this.domContainer = ref ) }></div>;
+		return (
+			<div ref={ ref => ( this.domContainer = ref ) }></div>
+		);
 	}
 
 	_initializeEditor() {
 		this.props.editor
 			.create( this.domContainer, this.props.config )
 			.then( editor => {
-				this.editorInstance = editor;
+				this.editor = editor;
+				this.editor.setData( this.props.data );
 
-				// TODO: Pass data via constructor.
-				this.editorInstance.setData( this.props.data );
-
-				// TODO: Add example using it.
 				if ( this.props.onInit ) {
-					this.props.onInit( editor );
+					this.props.onInit( this.editor );
 				}
 
 				if ( this.props.onChange ) {
-					const document = this.editorInstance.model.document;
+					const document = this.editor.model.document;
+
 					document.on( 'change', () => {
 						if ( document.differ.getChanges().length > 0 ) {
 							this.props.onChange( editor.getData() );
@@ -69,8 +64,8 @@ export default class CKEditor extends React.Component {
 	}
 
 	_destroyEditor() {
-		if ( this.editorInstance ) {
-			this.editorInstance.destroy();
+		if ( this.editor ) {
+			this.editor.destroy();
 		}
 	}
 }
