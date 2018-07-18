@@ -21,8 +21,9 @@
     "babel-preset-react": "^6.24.1"
   },
   "scripts": {
-    "build": "babel --out-dir ./dist ./src",
-    "develop": "babel --out-dir ./dist ./src --watch",
+    "build": "babel --out-dir ./dist ./src --source-maps",
+    "develop": "babel --out-dir ./dist ./src --source-maps --watch",
+    "preversion": "npm run build; if [ -n \"$(git status dist/ --porcelain)\" ]; then git add -u build/ && git commit -m 'Internal: Build.'; fi",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
