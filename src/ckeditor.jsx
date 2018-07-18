@@ -15,9 +15,10 @@ export default class CKEditor extends React.Component {
 		this.editor = null;
 	}
 
-	// This component should never be updated by React itself.
-	shouldComponentUpdate() {
-		return false;
+	componentDidUpdate( newProps ) {
+		if ( this.editor && newProps.data ) {
+			this.editor.setData( newProps.data );
+		}
 	}
 
 	// Initialize editor when component is mounted.
