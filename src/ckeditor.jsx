@@ -43,21 +43,23 @@ export default class CKEditor extends React.Component {
 			.create( this.domContainer, this.props.config )
 			.then( editor => {
 				this.editor = editor;
-				this.editor.setData( this.props.data );
+
+				if ( this.props.data ) {
+					this.editor.setData( this.props.data );
+				}
 
 				if ( this.props.onInit ) {
 					this.props.onInit( this.editor );
 				}
 
-				if ( this.props.onChange ) {
-					const document = this.editor.model.document;
+				const document = this.editor.model.document;
 
-					document.on( 'change', () => {
-						if ( document.differ.getChanges().length > 0 ) {
-							this.props.onChange( editor.getData() );
-						}
-					} );
-				}
+				document.on( 'change:data', event => {
+					/* istanbul ignore else */
+					if ( this.props.onChange ) {
+						this.props.onChange( { event, editor } );
+					}
+				} );
 			} )
 			.catch( error => {
 				console.error( error );
