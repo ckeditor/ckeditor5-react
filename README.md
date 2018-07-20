@@ -56,7 +56,10 @@ export default App;
 * `data` - an initial data for the created editor, see the [`DataApi#setData()`](https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_utils_dataapimixin-DataApi.html#function-setData) method,
 * `config` - an object that represents the [`EditorConfig`](https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editorconfig-EditorConfig.html) interface,
 * `onChange` - a function that will be called when the editor's document was changed, see the [`model.Document#change`](https://docs.ckeditor.com/ckeditor5/latest/api/module_engine_model_document-Document.html#event-change) event,
-* `onInit` - a function that is calling once immediately when the editor was initialized. It receives the initialized editor as a parameter.
+  It receives two parameters:
+    1. an [`EventInfo`](https://docs.ckeditor.com/ckeditor5/latest/api/module_utils_eventinfo-EventInfo.html) object,
+    2. an [`Editor`](https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editor-Editor.html) instance.
+* `onInit` - a function that is calling once immediately when the editor was initialized. It receives the initialized [`editor`](https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editor-Editor.html) as a parameter.
 
 #### `npm run build` from Create React App produces an error:
 
