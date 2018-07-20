@@ -22,7 +22,7 @@ There are pre-build versions of CKEditor 5 that you can choose from:
 Install bindings and one of the builds:
 
 ```bash
-npm install --save @ckeditor/ckeditor5-react @ckeditor/ckeditor5-build-classic
+npm install --save @ckeditor/ckeditor5-react @ckeditor/ckeditor5-build-classic --production
 ```
 
 Use CKEditor component inside your project:
