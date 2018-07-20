@@ -17,6 +17,7 @@
     "@ckeditor/ckeditor5-build-classic": "^11.0.1",
     "@ckeditor/ckeditor5-dev-env": "^11.1.1",
     "@ckeditor/ckeditor5-dev-utils": "^10.0.3",
+    "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
@@ -63,5 +64,8 @@
   "bugs": {
     "url": "https://github.com/ckeditor/ckeditor5-react/issues"
   },
-  "homepage": "https://github.com/ckeditor/ckeditor5-react"
+  "homepage": "https://github.com/ckeditor/ckeditor5-react",
+  "files": [
+    "dist"
+  ]
 }

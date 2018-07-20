@@ -293,3 +293,56 @@ class App extends Component {
 export default App;
 ```
 
+## Development the repository
+
+#### Executing tests
+
+```bash
+npm run tests -- [additional options]
+# or 
+npm t -- [additional options]
+```
+
+It accepts few options:
+
+* `coverage` (`-c`) - whether generates the code coverage,
+* `source-map` (`-s`) - whether attaches the source maps,
+* `watch` (`-w`) - whether watch testes files,
+* `reporter` (`-r`) - reporter for the Karma (default: `mocha`, can be changed to `dots`)
+* `browsers` (`-b`) - browsers that will be used to run tests (default: `Chrome`, available: `Firefox`, `BrowserStack_Edge` and `BrowserStack_Safari`)
+
+**Note:**
+
+If you would like to use the `BrowserStack_*` browser, you need to specify the `BROWSER_STACK_USERNAME` and `BROWSER_STACK_ACCESS_KEY` as 
+an environment variable, e.g.:
+
+```bass 
+BROWSER_STACK_USERNAME=[...] BROWSER_STACK_ACCESS_KEY=[...] npm t -- -b BrowserStack_Edge,BrowserStack_Safari -c
+```
+
+If you are going to change the source (`src/ckeditor.jsx`) file, remember about rebuilding the package. You can use `npm run develop`
+in order to do it automatically.
+
+#### Generate changelog
+
+```bash
+npm run changelog
+```
+
+#### Creating release
+
+Before starting releasing the package, you need to generate a changelog.
+
+```bash
+npm run release
+```
+
+Note: Only the `dist/` directory will be published.
+
+#### Build the package
+
+It builds a minified version of the package which is ready to publish. 
+
+```bash
+npm run build
+```
