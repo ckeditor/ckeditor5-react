@@ -11,19 +11,25 @@ const path = require( 'path' );
 const webpack = require( 'webpack' );
 const { bundler } = require( '@ckeditor/ckeditor5-dev-utils' );
 const UglifyJsWebpackPlugin = require( 'uglifyjs-webpack-plugin' );
-const cwd = process.cwd();
 
 module.exports = {
-	entry: path.join( cwd, 'src', 'ckeditor.jsx' ),
+	context: __dirname,
+
+	devtool: 'source-map',
+	performance: { hints: false },
+
+	entry: path.join( __dirname, 'src', 'ckeditor.jsx' ),
+
 	output: {
-		path: path.join( cwd, 'dist' ),
+		library: 'CKEditor',
+
+		path: path.join( __dirname, 'dist' ),
 		filename: 'ckeditor.js',
 		libraryTarget: 'umd',
 		libraryExport: 'default',
-		library: 'CKEditor'
+
 	},
-	devtool: 'source-map',
-	performance: { hints: false },
+
 	optimization: {
 		minimizer: [
 			new UglifyJsWebpackPlugin( {
@@ -37,12 +43,14 @@ module.exports = {
 			} )
 		]
 	},
+
 	plugins: [
 		new webpack.BannerPlugin( {
 			banner: bundler.getLicenseBanner(),
 			raw: true
-		} )
+		} ),
 	],
+
 	module: {
 		rules: [
 			{
