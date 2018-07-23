@@ -199,10 +199,8 @@ describe( 'CKEditor Component', () => {
 			fireChanges( event );
 
 			expect( onChange.calledOnce ).to.equal( true );
-			expect( onChange.firstCall.args[ 0 ] ).to.deep.equal( {
-				event,
-				editor: editorInstance
-			} );
+			expect( onChange.firstCall.args[ 0 ] ).to.equal( event );
+			expect( onChange.firstCall.args[ 1 ] ).to.equal( editorInstance );
 
 			done();
 		} );
@@ -225,10 +223,8 @@ describe( 'CKEditor Component', () => {
 			fireChanges( event );
 
 			expect( onChange.calledOnce ).to.equal( true );
-			expect( onChange.firstCall.args[ 0 ] ).to.deep.equal( {
-				event,
-				editor: editorInstance
-			} );
+			expect( onChange.firstCall.args[ 0 ] ).to.equal( event );
+			expect( onChange.firstCall.args[ 1 ] ).to.equal( editorInstance );
 
 			done();
 		} );

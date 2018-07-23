@@ -57,7 +57,7 @@ export default class CKEditor extends React.Component {
 				document.on( 'change:data', event => {
 					/* istanbul ignore else */
 					if ( this.props.onChange ) {
-						this.props.onChange( { event, editor } );
+						this.props.onChange( event, editor );
 					}
 				} );
 			} )
