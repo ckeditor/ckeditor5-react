@@ -61,22 +61,10 @@ export default App;
     2. an [`Editor`](https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editor-Editor.html) instance.
 * `onInit` - a function that is calling once immediately when the editor was initialized. It receives the initialized [`editor`](https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editor-Editor.html) as a parameter.
 
-#### `npm run build` from Create React App produces an error:
-
-```bash
-Failed to minify the code from this file:
-        <project_root>/node_modules/@ckeditor/ckeditor5-utils/src/ckeditorerror.js:26
-
-Failed to minify the code from this file:                                                                                                                                                                                                                                [31/75]
-        <project_root>/node_modules/@ckeditor/ckeditor5-build-classic/build/ckeditor.js:5:2077
-```
-
-It causes because CKEditor 5 packages and builds are written ES6. We are aware of this issue but at this moment we don't have a working solution.
-
 ## Building custom editor together with your React project
 
-This guide is assuming that you are using [Create React App CLI](https://github.com/facebook/create-react-app) as your 
-boilerplate. If not please read more about webpack configuration [here](https://docs.ckeditor.com/ckeditor5/latest/framework/guides/quick-start.html#lets-start).
+This guide is assuming that you are using [Create React App CLI](https://github.com/facebook/create-react-app) as your boilerplate. 
+If not please read more about webpack configuration [here](https://docs.ckeditor.com/ckeditor5/latest/framework/guides/quick-start.html#lets-start).
 
 Install React CLI:
 
@@ -97,7 +85,74 @@ More information about ejecting can be found [here](https://github.com/facebook/
 npm run eject
 ```
 
-We need to modify webpack configuration scripts to load CKEditor 5 SVG icons properly. After ejecting they are located at
+### `npm run build` produces an error:
+
+```bash
+Failed to minify the code from this file:                                              [31/75]
+        <project_root>/node_modules/@ckeditor/ckeditor5-build-classic/build/ckeditor.js:5:2077
+```
+
+The UglifyJS exported by Webpack cannot parse a code written ES6. You need to manually replace it with `uglifyjs-webpack-plugin`. These changes touches `webpack.config.prod.js` file only.
+
+After ejecting this file is placed in `<project_root>/config/webpack.config.prod.js`.
+
+1. Install `uglifyjs-webpack-plugin`.
+
+```bash
+npm install --save-dev uglifyjs-webpack-plugin
+```
+
+2. Load installed package (at the top of `webpack.config.prod.js` file).
+
+```js
+const UglifyJsWebpackPlugin = require( 'uglifyjs-webpack-plugin' );
+```
+
+3. Replace the `webpack.optimize.UglifyJsPlugin` with `UglifyJsWebpackPlugin`
+
+```diff
+- new webpack.optimize.UglifyJsPlugin
++ new UglifyJsWebpackPlugin
+```
+
+Options: `compress`, `mangle` and `output` are invaild for `UglifyJsWebpackPlugin`. You need to wrap these option as `uglifyOptions`.
+The whole plugin definition should look like:
+
+```js
+// Minify the code.
+new UglifyJsWebpackPlugin( {
+  uglifyOptions: {
+    compress: {
+      warnings: false,
+      // Disabled because of an issue with Uglify breaking seemingly valid code:
+      // https://github.com/facebookincubator/create-react-app/issues/2376
+      // Pending further investigation:
+      // https://github.com/mishoo/UglifyJS2/issues/2011
+      comparisons: false,
+    },
+    mangle: {
+        safari10: true,
+    },
+    output: {
+        comments: false,
+        // Turned on because emoji and regex is not minified properly using default
+        // https://github.com/facebookincubator/create-react-app/issues/2488
+        ascii_only: true,
+    },
+  },
+  sourceMap: shouldUseSourceMap,
+})
+```
+
+Now, `npm run build` should not throw any error.
+
+If you use [CKEditor 5 Builds](https://docs.ckeditor.com/ckeditor5/latest/builds/guides/overview.html), you do not have to follow the steps below. 
+
+However, if you need to customize your editor, highly recommended is use [CKEditor 5 Framework](https://docs.ckeditor.com/ckeditor5/latest/framework/index.html).
+
+In order to build your application properly, you need to modify your Webpack configuration files. 
+
+We need to modify webpack configuration scripts to load CKEditor 5 SVG icons properly. After ejecting they are located at:
 
 ```bash
 <project_root>/config/webpack.config.dev.js
@@ -106,21 +161,23 @@ We need to modify webpack configuration scripts to load CKEditor 5 SVG icons pro
 
 ### Changes that need to be made to both config files (`webpack.config.dev.js` and `webpack.config.prod.js`)
 
+**Required if you want to use [CKEditor 5 Framework](https://docs.ckeditor.com/ckeditor5/latest/framework/index.html).**
+
 In both files, at the beginning import an object that creates a configuration for PostCSS:
 
 ```js
 const { styles } = require( '@ckeditor/ckeditor5-dev-utils' );
 ```
 
-Then add two new elements to exported object under `module.rules` array. These are SVG and CSS loaders only for CKEditor 5 code:
+Then add two new elements to exported object under `module.rules` array (as new items for `oneOf` array). These are SVG and CSS loaders only for CKEditor 5 code:
 
 ```js 
 {
-  test: /ckeditor5-[^/\\]+\/theme\/icons\/[^/\\]+\.svg$/,
+  test: /ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg$/,
   use: [ 'raw-loader' ]
 },
 {
-  test: /ckeditor5-[^/\\]+\/theme\/.+\.css/,
+  test: /ckeditor5-[^/\\]+[/\\]theme[/\\].+\.css/,
   use: [
     {
       loader: 'style-loader',
@@ -146,7 +203,7 @@ Exclude CSS files used by CKEditor 5 from project's CSS loader:
 ```js
 {
   test: /\.css$/,
-  exclude: /ckeditor5-[^/\\]+\/theme\/.+\.css/,
+  exclude: /ckeditor5-[^/\\]+[/\\]theme[/\\].+\.css/,
   // (...)
 }
 ```
@@ -165,8 +222,8 @@ and exclude CKEditor 5 SVG and CSS files from `file-loader` because these files 
   	/\.(js|jsx|mjs)$/, 
   	/\.html$/, 
   	/\.json$/, 
-  	/ckeditor5-[^/\\]+\/theme\/icons\/[^/\\]+\.svg$/,
-  	/ckeditor5-[^/\\]+\/theme\/.+\.css/
+  	/ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg$/,
+  	/ckeditor5-[^/\\]+[/\\]theme[/\\].+\.css/
   ],
   options: {
     name: 'static/media/[name].[hash:8].[ext]'
@@ -190,12 +247,6 @@ npm install --save \
 	@ckeditor/ckeditor5-basic-styles \
 	@ckeditor/ckeditor5-heading \
 	@ckeditor/ckeditor5-paragraph
-```
-
-or install [ready-to-use CKEditor 5 builds](https://docs.ckeditor.com/ckeditor5/latest/builds/guides/overview.html#available-builds):
-
-```bash
-npm install --save @ckeditor/ckeditor5-build-classic
 ```
 
 ### Use CKEditor component together with [CKEditor 5 framework](https://docs.ckeditor.com/ckeditor5/latest/framework/):
