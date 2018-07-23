@@ -7,4 +7,10 @@
 
 'use strict';
 
+/* eslint-env node */
+
+/**
+ * Scripts for generating the changelog before starting the release process.
+ */
+
 require( '@ckeditor/ckeditor5-dev-env' ).generateChangelogForSinglePackage();
