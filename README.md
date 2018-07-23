@@ -85,7 +85,8 @@ More information about ejecting can be found [here](https://github.com/facebook/
 npm run eject
 ```
 
-### `npm run build` produces an error:
+### `npm run build` failed to minify the code
+
 
 ```bash
 Failed to minify the code from this file:                                              [31/75]
@@ -144,26 +145,38 @@ new UglifyJsWebpackPlugin( {
 })
 ```
 
-Now, `npm run build` should not throw any error.
+### Changes required for both Webpack configs (`webpack.config.dev.js` and `webpack.config.prod.js`)
 
-If you use [CKEditor 5 Builds](https://docs.ckeditor.com/ckeditor5/latest/builds/guides/overview.html), you do not have to follow the steps below. 
-
-However, if you need to customize your editor, highly recommended is use [CKEditor 5 Framework](https://docs.ckeditor.com/ckeditor5/latest/framework/index.html).
-
-In order to build your application properly, you need to modify your Webpack configuration files. 
-
-We need to modify webpack configuration scripts to load CKEditor 5 SVG icons properly. After ejecting they are located at:
+In order to build your application properly, you need to modify your webpack configuration files. After ejecting they are located at:
 
 ```bash
 <project_root>/config/webpack.config.dev.js
 <project_root>/config/webpack.config.prod.js
 ```
 
-### Changes that need to be made to both config files (`webpack.config.dev.js` and `webpack.config.prod.js`)
+React exports to global scope variable called `React`. CKEditor 5 React Component uses `React` variable but package installed via `npm`
+is called `react`. We need to tell Webpack that `React` and `react` are the same thing.
 
-**Required if you want to use [CKEditor 5 Framework](https://docs.ckeditor.com/ckeditor5/latest/framework/index.html).**
+You need to add an alias for `React` that will be parsed as `react`. Find in your configuration key `resolve.alias` and add:
 
-In both files, at the beginning import an object that creates a configuration for PostCSS:
+```js
+{
+	// Webpack options...
+	resolve: {
+		// ...
+		alias: {
+			// ...
+			React: 'react'
+		}
+		// ...
+	}
+	// Webpack options...
+}
+```
+
+Also, we need to modify webpack configuration to load CKEditor 5 SVG icons properly.
+
+At the beginning import an object that creates a configuration for PostCSS:
 
 ```js
 const { styles } = require( '@ckeditor/ckeditor5-dev-utils' );
@@ -230,6 +243,8 @@ and exclude CKEditor 5 SVG and CSS files from `file-loader` because these files 
   }
 }
 ```
+
+**Remember that the changes above should be done in both configuration files.**
 
 Next, install `raw-loader`, theme for CKEditor 5 and CKEditor 5 dev-utils:
 
