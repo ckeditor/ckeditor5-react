@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import 'react-dom';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 

@@ -18,6 +18,12 @@ module.exports = function getKarmaConfig( config ) {
 	const webpackConfig = {
 		mode: 'development',
 
+		resolve: {
+			alias: {
+				React: 'react',
+			}
+		},
+
 		module: {
 			rules: [
 				{

@@ -17,6 +17,7 @@ module.exports = {
 
 	devtool: 'source-map',
 	performance: { hints: false },
+	externals: { react: 'React' },
 
 	entry: path.join( __dirname, 'src', 'ckeditor.jsx' ),
 
