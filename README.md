@@ -22,7 +22,7 @@ There are pre-build versions of CKEditor 5 that you can choose from:
 Install bindings and one of the builds:
 
 ```bash
-npm install --save @ckeditor/ckeditor5-react @ckeditor/ckeditor5-build-classic --production
+npm install --save @ckeditor/ckeditor5-react @ckeditor/ckeditor5-build-classic
 ```
 
 Use CKEditor component inside your project:
@@ -40,7 +40,7 @@ class App extends Component {
 				<CKEditor
 					editor={ ClassicEditorBuild }
 					data="<p>Hello from CKEditor 5!</p>"
-					onChange={ data => console.log( data ) }
+					onChange={ ( event, editor ) => console.log( { event, editor } ) }
 				/>
 			</div>
 		);
@@ -218,7 +218,7 @@ class App extends Component {
 				<h2>CKEditor 5 using custom build</h2>
 				<CKEditor
 					onInit={ editor => console.log( 'Editor is ready to use!', editor ) }
-					onChange={ data => console.log( data ) }
+					onChange={ ( event, editor ) => console.log( { event, editor } ) }
 					config={ {
 						plugins: [ Essentials, Paragraph, Bold, Italic, Heading ],
 						toolbar: [ 'heading', '|', 'bold', 'italic', '|', 'undo', 'redo', ]
@@ -249,7 +249,7 @@ class App extends Component {
 				<h2>CKEditor 5 using custom build</h2>
 				<CKEditor
 					onInit={ editor => console.log( 'Editor is ready to use!', editor ) }
-					onChange={ data => console.log( data ) }
+					onChange={ ( event, editor ) => console.log( { event, editor } ) }
 					editor={ ClassicEditor }
 					data="<p>Hello from CKEditor 5!</p>"
 				/>
@@ -284,7 +284,7 @@ class App extends Component {
 							editor.ui.view.editable.element
 						);
 					} }
-					onChange={ data => console.log( data ) }
+					onChange={ ( event, editor ) => console.log( { event, editor } ) }
 					editor={ DecoupledEditor }
 					data="<p>Hello from CKEditor 5 as DecoupledEditor!</p>"
 					config={ /* the editor configuration */ }
