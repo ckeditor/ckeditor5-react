@@ -54,7 +54,7 @@ export default App;
 
 * `editor` _required_ - a class that represents the [Editor](https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editor-Editor.html),
 * `data` - an initial data for the created editor, see the [`DataApi#setData()`](https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_utils_dataapimixin-DataApi.html#function-setData) method,
-* `config` - an object that represents the [`EditorConfig`](https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editorconfig-EditorConfig.html) interface,
+* `config` - an object that implements the [`EditorConfig`](https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editorconfig-EditorConfig.html) interface,
 * `onChange` - a function that will be called when the editor's document was changed, see the [`model.Document#change`](https://docs.ckeditor.com/ckeditor5/latest/api/module_engine_model_document-Document.html#event-change) event,
   It receives two parameters:
     1. an [`EventInfo`](https://docs.ckeditor.com/ckeditor5/latest/api/module_utils_eventinfo-EventInfo.html) object,
@@ -86,7 +86,6 @@ npm run eject
 ```
 
 ### `npm run build` failed to minify the code
-
 
 ```bash
 Failed to minify the code from this file:                                              [31/75]
@@ -154,27 +153,7 @@ In order to build your application properly, you need to modify your webpack con
 <project_root>/config/webpack.config.prod.js
 ```
 
-React exports to global scope variable called `React`. CKEditor 5 React Component uses `React` variable but package installed via `npm`
-is called `react`. We need to tell Webpack that `React` and `react` are the same thing.
-
-You need to add an alias for `React` that will be parsed as `react`. Find in your configuration key `resolve.alias` and add:
-
-```js
-{
-	// Webpack options...
-	resolve: {
-		// ...
-		alias: {
-			// ...
-			React: 'react'
-		}
-		// ...
-	}
-	// Webpack options...
-}
-```
-
-Also, we need to modify webpack configuration to load CKEditor 5 SVG icons properly.
+We need to modify webpack configuration to load CKEditor 5 SVG icons properly.
 
 At the beginning import an object that creates a configuration for PostCSS:
 
