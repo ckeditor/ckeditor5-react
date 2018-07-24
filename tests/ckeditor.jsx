@@ -24,7 +24,9 @@ class Editor {
 		}
 	}
 
-	destroy() {}
+	destroy() {
+		return Promise.resolve();
+	}
 
 	// Implements the `DataApi` interface.
 	// See: https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_utils_dataapimixin-DataApi.html
@@ -96,40 +98,38 @@ describe( 'CKEditor Component', () => {
 		} );
 	} );
 
-	it( 'sets editor\'s data if the state has changed and contains the "data" property', done => {
+	it( 'sets editor\'s data if properties have changed and contain the "data" key', done => {
 		const editorInstance = new Editor();
 
 		sandbox.stub( Editor, 'create' ).resolves( editorInstance );
 		sandbox.stub( editorInstance, 'setData' );
+		sandbox.stub( editorInstance, 'getData' ).returns( '<p>&nbsp;</p>' );
 
 		wrapper = mount( <CKEditor editor={ Editor } /> );
 
 		setTimeout( () => {
-			const component = wrapper.instance();
-
-			component.componentDidUpdate( { data: 'Foo Bar.' } );
+			wrapper.setProps( { data: '<p>Foo Bar.</p>' });
 
 			expect( editorInstance.setData.calledOnce ).to.be.true;
-			expect( editorInstance.setData.firstCall.args[ 0 ] ).to.equal( 'Foo Bar.' );
+			expect( editorInstance.setData.firstCall.args[ 0 ] ).to.equal( '<p>Foo Bar.</p>' );
 
 			done();
 		} );
 	} );
 
-	it( 'does not set editor\'s data if the changed state does not contain the "data" property', done => {
+	it( 'does not update the editor\'s data if value under "data" key is equal to editor\'s data', done => {
 		const editorInstance = new Editor();
 
 		sandbox.stub( Editor, 'create' ).resolves( editorInstance );
 		sandbox.stub( editorInstance, 'setData' );
+		sandbox.stub( editorInstance, 'getData' ).returns( '<p>Foo Bar.</p>' );
 
 		wrapper = mount( <CKEditor editor={ Editor } /> );
 
 		setTimeout( () => {
-			const component = wrapper.instance();
+			wrapper.setProps( { data: '<p>Foo Bar.</p>' });
 
-			component.componentDidUpdate( { foo: 'Bar' } );
-
-			expect( editorInstance.setData.called ).to.be.false;
+			expect( editorInstance.setData.calledOnce ).to.be.false;
 
 			done();
 		} );
@@ -252,7 +252,7 @@ describe( 'CKEditor Component', () => {
 		const editorInstance = new Editor();
 
 		sandbox.stub( Editor, 'create' ).resolves( editorInstance );
-		sandbox.stub( editorInstance, 'destroy' );
+		sandbox.stub( editorInstance, 'destroy' ).resolves();
 
 		wrapper = mount( <CKEditor editor={ Editor } /> );
 
@@ -263,6 +263,30 @@ describe( 'CKEditor Component', () => {
 			expect( editorInstance.destroy.calledOnce ).to.be.true;
 
 			done();
+		} );
+	} );
+
+	it( 'should set to "null" the "editor" property inside the component', done => {
+		const editorInstance = new Editor();
+
+		sandbox.stub( Editor, 'create' ).resolves( editorInstance );
+		sandbox.stub( editorInstance, 'destroy' ).resolves();
+
+		wrapper = mount( <CKEditor editor={ Editor } /> );
+
+		setTimeout( () => {
+			const component = wrapper.instance();
+
+			expect( component.editor ).is.not.null;
+
+			wrapper.unmount();
+			wrapper = null;
+
+			setTimeout( () => {
+				expect( component.editor ).is.null;
+
+				done();
+			} );
 		} );
 	} );
 } );

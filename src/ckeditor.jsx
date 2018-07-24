@@ -15,9 +15,9 @@ export default class CKEditor extends React.Component {
 		this.editor = null;
 	}
 
-	componentDidUpdate( newProps ) {
-		if ( this.editor && newProps.data ) {
-			this.editor.setData( newProps.data );
+	componentDidUpdate() {
+		if ( this.editor && this.editor.getData() !== this.props.data ) {
+			this.editor.setData( this.props.data );
 		}
 	}
 
@@ -68,7 +68,10 @@ export default class CKEditor extends React.Component {
 
 	_destroyEditor() {
 		if ( this.editor ) {
-			this.editor.destroy();
+			this.editor.destroy()
+				.then( () => {
+					this.editor = null;
+				} );
 		}
 	}
 }
