@@ -62,7 +62,7 @@
     "url": "https://github.com/ckeditor/ckeditor5-react.git"
   },
   "author": "CKSource (http://cksource.com/)",
-  "license": "MIT",
+  "license": "GPL-2.0-or-later",
   "bugs": {
     "url": "https://github.com/ckeditor/ckeditor5-react/issues"
   },
