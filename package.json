@@ -51,8 +51,8 @@
   "scripts": {
     "build": "webpack --mode production",
     "develop": "webpack --mode development --watch",
-    "preversion": "npm run build; if [ -n \"$(git status dist/ --porcelain)\" ]; then git add -u dist/ && git commit -m 'Internal: Build.'; fi",
     "changelog": "node ./scripts/changelog.js",
+    "prerelease": "npm run build; if [ -n \"$(git status dist/ --porcelain)\" ]; then git add -u dist/ && git commit -m 'Internal: Build.'; fi",
     "release": "node ./scripts/release.js",
     "test": "karma start",
     "coverage": "karma start --coverage"
@@ -66,8 +66,5 @@
   "bugs": {
     "url": "https://github.com/ckeditor/ckeditor5-react/issues"
   },
-  "homepage": "https://github.com/ckeditor/ckeditor5-react",
-  "files": [
-    "dist"
-  ]
+  "homepage": "https://github.com/ckeditor/ckeditor5-react"
 }
