@@ -27,8 +27,7 @@ module.exports = function getKarmaConfig( config ) {
 		module: {
 			rules: [
 				{
-					test: /\.jsx?$/,
-					exclude: /@ckeditor\/ckeditor5-build/,
+					test: /\.jsx$/,
 					loader: 'babel-loader',
 					query: {
 						compact: false,
@@ -146,7 +145,7 @@ module.exports = function getKarmaConfig( config ) {
 		};
 
 		webpackConfig.module.rules.push( {
-			test: /\.jsx?$/,
+			test: /\.jsx$/,
 			loader: 'istanbul-instrumenter-loader',
 			include: /src/,
 			exclude: [
