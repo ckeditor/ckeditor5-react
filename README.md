@@ -315,7 +315,7 @@ npm install --save-dev raw-loader @ckeditor/ckeditor5-theme-lark @ckeditor/ckedi
 Install component, editor and plugins you need:
 
 ```bash
-npm install --save-dev \
+npm install --save \
 	@ckeditor/ckeditor5-react \
 	@ckeditor/ckeditor5-editor-classic \
 	@ckeditor/ckeditor5-essentials \
