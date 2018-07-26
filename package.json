@@ -1,6 +1,6 @@
 {
   "name": "@ckeditor/ckeditor5-react",
-  "version": "0.1.0",
+  "version": "1.0.0-beta.1",
   "description": "Official CKEditor 5 React component.",
   "main": "dist/ckeditor.js",
   "keywords": [
