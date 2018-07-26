@@ -312,7 +312,7 @@ Next, install `raw-loader`, the theme for CKEditor 5 and CKEditor 5 dev-utils:
 npm install --save-dev raw-loader @ckeditor/ckeditor5-theme-lark @ckeditor/ckeditor5-dev-utils
 ```
 
-Install bindings, editor and plugins you need:
+Install component, editor and plugins you need:
 
 ```bash
 npm install --save-dev \
