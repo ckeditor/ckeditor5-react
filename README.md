@@ -362,6 +362,12 @@ export default App;
 
 ## Contributing
 
+Having cloned this repository, install necessary dependencies:
+
+```bash
+npm install
+```
+
 ### Executing tests
 
 ```bash
