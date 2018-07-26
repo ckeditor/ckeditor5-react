@@ -13,6 +13,9 @@ export default class CKEditor extends React.Component {
 		// After mounting the editor, the variable will contain a reference to created editor.
 		// @see: https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editor-Editor.html
 		this.editor = null;
+
+		// A reference to the created element which on the editor will be initialized.
+		this.domContainer = React.createRef();
 	}
 
 	componentDidUpdate() {
@@ -33,14 +36,14 @@ export default class CKEditor extends React.Component {
 
 	// Render <div> element which will be replaced by CKEditor.
 	render() {
-		return (
-			<div ref={ ref => ( this.domContainer = ref ) }></div>
-		);
+		return React.createElement( 'div', {
+			ref: this.domContainer
+		} );
 	}
 
 	_initializeEditor() {
 		this.props.editor
-			.create( this.domContainer, this.props.config )
+			.create( this.domContainer.current, this.props.config )
 			.then( editor => {
 				this.editor = editor;
 
