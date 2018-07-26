@@ -112,7 +112,7 @@ Then, you can customize `UglifyJsPlugin`'s options in the webpack configuration.
 If you use the [Document editor](https://docs.ckeditor.com/ckeditor5/latest/framework/guides/ui/document-editor.html), [you need to add the toolbar to the DOM manually](https://docs.ckeditor.com/ckeditor5/latest/api/module_editor-decoupled_decouplededitor-DecoupledEditor.html#static-function-create):
 
 ```jsx
-import DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document;
+import DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document';
 
 class App extends Component {
 	render() {
