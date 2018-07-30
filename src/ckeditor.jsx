@@ -10,7 +10,7 @@ export default class CKEditor extends React.Component {
 	constructor( props ) {
 		super( props );
 
-		// After mounting the editor, the variable will contain a reference to created editor.
+		// After mounting the editor, the variable will contain a reference to the created editor.
 		// @see: https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editor-Editor.html
 		this.editor = null;
 	}
@@ -21,17 +21,17 @@ export default class CKEditor extends React.Component {
 		}
 	}
 
-	// Initialize editor when component is mounted.
+	// Initialize the editor when the component is mounted.
 	componentDidMount() {
 		this._initializeEditor();
 	}
 
-	// Destroy editor before unmouting component.
+	// Destroy the editor before unmouting the component.
 	componentWillUnmount() {
 		this._destroyEditor();
 	}
 
-	// Render <div> element which will be replaced by CKEditor.
+	// Render a <div> element which will be replaced by CKEditor.
 	render() {
 		return (
 			<div ref={ ref => ( this.domContainer = ref ) }></div>
