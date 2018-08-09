@@ -55,8 +55,8 @@
     "changelog": "node ./scripts/changelog.js",
     "prerelease": "npm run build; if [ -n \"$(git status dist/ --porcelain)\" ]; then git add -u dist/ && git commit -m 'Internal: Build.'; fi",
     "release": "node ./scripts/release.js",
-    "test": "karma start",
-    "coverage": "karma start --coverage"
+    "test": "node ./scripts/test.js",
+    "coverage": "node ./scripts/test.js --coverage"
   },
   "repository": {
     "type": "git",
