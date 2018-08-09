@@ -11,7 +11,7 @@ const path = require( 'path' );
 
 const options = parseArguments( process.argv.slice( 2 ) );
 
-module.exports = function getKarmaConfig( config ) {
+module.exports = function getKarmaConfig() {
 	const basePath = process.cwd();
 	const coverageDir = path.join( basePath, 'coverage' );
 
@@ -157,7 +157,7 @@ module.exports = function getKarmaConfig( config ) {
 		webpackConfig.devtool = 'inline-source-map';
 	}
 
-	config.set( karmaConfig );
+	return karmaConfig;
 };
 
 /**
