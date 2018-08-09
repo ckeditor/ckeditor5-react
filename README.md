@@ -54,7 +54,7 @@ class App extends Component {
 				<CKEditor
 					editor={ ClassicEditor }
 					data="<p>Hello from CKEditor 5!</p>"
-					onChange={ ( event, editor ) => console.log( { event, editor } ) }
+					onChange={ ( event, editor ) => console.log( { event, editor, text: editor.getData() } ) }
 				/>
 			</div>
 		);
