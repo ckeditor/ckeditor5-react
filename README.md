@@ -47,18 +47,25 @@ import CKEditor from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 class App extends Component {
-	render() {
-		return (
-			<div className="App">
-				<h2>Using CKEditor 5 build in React</h2>
-				<CKEditor
-					editor={ ClassicEditor }
-					data="<p>Hello from CKEditor 5!</p>"
-					onChange={ ( event, editor ) => console.log( { event, editor, text: editor.getData() } ) }
-				/>
-			</div>
-		);
-	}
+    render() {
+        return (
+            <div className="App">
+                <h2>Using CKEditor 5 build in React</h2>
+                <CKEditor
+                    editor={ ClassicEditor }
+                    data="<p>Hello from CKEditor 5!</p>"
+                    onInit={ editor => {
+                        // You can store the "editor" and use when it's needed.
+                        console.log( 'Editor is ready to use!', editor );
+                    } }
+                    onChange={ ( event, editor ) => {
+                        const data = editor.getData();
+                        console.log( { event, editor, data } );
+                    } ) }
+                />
+            </div>
+        );
+    }
 }
 
 export default App;
@@ -116,27 +123,27 @@ If you use the [Document editor](https://docs.ckeditor.com/ckeditor5/latest/fram
 import DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document';
 
 class App extends Component {
-	render() {
-		return (
-			<div className="App">
-				<h2>CKEditor 5 using a custom build - DecoupledEditor</h2>
-				<CKEditor
-					onInit={ editor => {
-						console.log( 'Editor is ready to use!', editor );
+    render() {
+        return (
+            <div className="App">
+                <h2>CKEditor 5 using a custom build - DecoupledEditor</h2>
+                <CKEditor
+                    onInit={ editor => {
+                        console.log( 'Editor is ready to use!', editor );
 
-						// Insert the toolbar before the editable area.
-						editor.ui.view.editable.element.parentElement.insertBefore(
-							editor.ui.view.toolbar.element,
-							editor.ui.view.editable.element
-						);
-					} }
-					onChange={ ( event, editor ) => console.log( { event, editor } ) }
-					editor={ DecoupledEditor }
-					data="<p>Hello from CKEditor 5's DecoupledEditor!</p>"
-					config={ /* the editor configuration */ }
-				/>
-		);
-	}
+                        // Insert the toolbar before the editable area.
+                        editor.ui.view.editable.element.parentElement.insertBefore(
+                            editor.ui.view.toolbar.element,
+                            editor.ui.view.editable.element
+                        );
+                    } }
+                    onChange={ ( event, editor ) => console.log( { event, editor } ) }
+                    editor={ DecoupledEditor }
+                    data="<p>Hello from CKEditor 5's DecoupledEditor!</p>"
+                    config={ /* the editor configuration */ }
+                />
+        );
+    }
 }
 
 export default App;
@@ -339,23 +346,23 @@ import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
 
 class App extends Component {
-	render() {
-		return (
-			<div className="App">
-				<h2>Using CKEditor 5 Framework in React</h2>
-				<CKEditor
-					onInit={ editor => console.log( 'Editor is ready to use!', editor ) }
-					onChange={ ( event, editor ) => console.log( { event, editor } ) }
-					config={ {
-						plugins: [ Essentials, Paragraph, Bold, Italic, Heading ],
-						toolbar: [ 'heading', '|', 'bold', 'italic', '|', 'undo', 'redo', ]
-					} }
-					editor={ ClassicEditor }
-					data="<p>Hello from CKEditor 5!</p>"
-				/>
-			</div>
-		);
-	}
+    render() {
+        return (
+            <div className="App">
+                <h2>Using CKEditor 5 Framework in React</h2>
+                <CKEditor
+                    onInit={ editor => console.log( 'Editor is ready to use!', editor ) }
+                    onChange={ ( event, editor ) => console.log( { event, editor } ) }
+                    config={ {
+                        plugins: [ Essentials, Paragraph, Bold, Italic, Heading ],
+                        toolbar: [ 'heading', '|', 'bold', 'italic', '|', 'undo', 'redo', ]
+                    } }
+                    editor={ ClassicEditor }
+                    data="<p>Hello from CKEditor 5!</p>"
+                />
+            </div>
+        );
+    }
 }
 
 export default App;
