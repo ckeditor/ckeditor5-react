@@ -26,7 +26,7 @@ Official [CKEditor 5](https://ckeditor.com/ckeditor-5/) React component.
 
 ## Quick start: Using CKEditor 5 builds
 
-The easiest way to use CKEditor 5 in your React application is by choosing one of the [editor builds](https://docs.ckeditor.com/ckeditor5/latest/builds/guides/overview.html). There are four official builds which you can choose from:
+The easiest way to use CKEditor 5 in your React application is by choosing one of the [editor builds](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/overview.html). There are four official builds which you can choose from:
 
 * [CKEditor 5 classic editor build](https://www.npmjs.com/package/@ckeditor/ckeditor5-build-classic)
 * [CKEditor 5 inline editor build](https://www.npmjs.com/package/@ckeditor/ckeditor5-build-inline)
@@ -75,27 +75,27 @@ export default App;
 
 The `<CKEditor>` component supports the following properties:
 
-* `editor` (required) &ndash; The [`Editor`](https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editor-Editor.html) constructor to use.
-* `data` &ndash; The initial data for the created editor. See the [`DataApi#setData()`](https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_utils_dataapimixin-DataApi.html#function-setData) method.
-* `config` &ndash; The editor configuration. See the [Configuration](https://docs.ckeditor.com/ckeditor5/latest/builds/guides/integration/configuration.html) guide.
-* `onChange` &ndash; A function called when the editor's data changed. See the [`model.Document#change:data`](https://docs.ckeditor.com/ckeditor5/latest/api/module_engine_model_document-Document.html#event-change:data) event.
+* `editor` (required) &ndash; The [`Editor`](https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html) constructor to use.
+* `data` &ndash; The initial data for the created editor. See the [`DataApi#setData()`](https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_utils_dataapimixin-DataApi.html#function-setData) method.
+* `config` &ndash; The editor configuration. See the [Configuration](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/configuration.html) guide.
+* `onChange` &ndash; A function called when the editor's data changed. See the [`model.Document#change:data`](https://ckeditor.com/docs/ckeditor5/latest/api/module_engine_model_document-Document.html#event-change:data) event.
 
 	The callback receives two parameters:
 
-	1. an [`EventInfo`](https://docs.ckeditor.com/ckeditor5/latest/api/module_utils_eventinfo-EventInfo.html) object,
-	2. an [`Editor`](https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editor-Editor.html) instance.
-* `onInit` &ndash; A function called when the editor was initialized. It receives the initialized [`editor`](https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editor-Editor.html) as a parameter.
+	1. an [`EventInfo`](https://ckeditor.com/docs/ckeditor5/latest/api/module_utils_eventinfo-EventInfo.html) object,
+	2. an [`Editor`](https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html) instance.
+* `onInit` &ndash; A function called when the editor was initialized. It receives the initialized [`editor`](https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html) as a parameter.
 
 ### Customizing the builds
 
-[CKEditor 5 builds](https://docs.ckeditor.com/ckeditor5/latest/builds/guides/overview.htm) come ready to use, with a set of built-in plugins and a predefined configuration. While you can change the configuration easily by using the `config` property of the `<CKEditor>` component which allows you to change the [toolbar](https://docs.ckeditor.com/ckeditor5/latest/builds/guides/integration/configuration.html#toolbar-setup) or [remove some plugins](https://docs.ckeditor.com/ckeditor5/latest/builds/guides/integration/configuration.html#removing-features), in order to add plugins you need to rebuild the editor.
+[CKEditor 5 builds](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/overview.htm) come ready to use, with a set of built-in plugins and a predefined configuration. While you can change the configuration easily by using the `config` property of the `<CKEditor>` component which allows you to change the [toolbar](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/configuration.html#toolbar-setup) or [remove some plugins](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/configuration.html#removing-features), in order to add plugins you need to rebuild the editor.
 
 There are two main ways to do that.
 
-* [Customize one of the existing builds](https://docs.ckeditor.com/ckeditor5/latest/builds/guides/development/custom-builds.html).
+* [Customize one of the existing builds](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html).
 
-	This option does not require any changes in your project's configuration. You will create a new build somewhere next to your project and include it like you included one of the existing builds. Therefore, it is the easiest way to add missing features. Read more about this method in [Installing plugins](https://docs.ckeditor.com/ckeditor5/latest/builds/guides/integration/installing-plugins.html).
-* [Integrate the editor from source](https://docs.ckeditor.com/ckeditor5/latest/builds/guides/integration/advanced-setup.html).
+	This option does not require any changes in your project's configuration. You will create a new build somewhere next to your project and include it like you included one of the existing builds. Therefore, it is the easiest way to add missing features. Read more about this method in [Installing plugins](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/installing-plugins.html).
+* [Integrate the editor from source](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/advanced-setup.html).
 
 	In this approach you will include CKEditor 5 from source &mdash; so you will choose the editor creator you want and the list of plugins, etc. It is more powerful and creates a tighter integration between your application and CKEditor 5, however, it requires adjusting your `webpack.config.js` to CKEditor 5 needs.
 
@@ -117,7 +117,7 @@ Then, you can customize `UglifyJsPlugin` options in the webpack configuration. R
 
 ### Note: Using the document editor build
 
-If you use the [Document editor](https://docs.ckeditor.com/ckeditor5/latest/framework/guides/ui/document-editor.html), [you need to add the toolbar to the DOM manually](https://docs.ckeditor.com/ckeditor5/latest/api/module_editor-decoupled_decouplededitor-DecoupledEditor.html#static-function-create):
+If you use the [Document editor](https://ckeditor.com/docs/ckeditor5/latest/framework/guides/ui/document-editor.html), [you need to add the toolbar to the DOM manually](https://ckeditor.com/docs/ckeditor5/latest/api/module_editor-decoupled_decouplededitor-DecoupledEditor.html#static-function-create):
 
 ```jsx
 import DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document';
@@ -151,9 +151,9 @@ export default App;
 
 ## Integrating CKEditor 5 from source
 
-Integrating the editor from source allows you to use the full power of the [CKEditor 5 Framework](https://docs.ckeditor.com/ckeditor5/latest/framework/guides/overview.html).
+Integrating the editor from source allows you to use the full power of the [CKEditor 5 Framework](https://ckeditor.com/docs/ckeditor5/latest/framework/guides/overview.html).
 
-This guide assumes that you are using [Create React App CLI](https://github.com/facebook/create-react-app) as your boilerplate and it goes through adjusting it to fit CKEditor 5's needs. If you use your custom webpack setup, please read more about [including CKEditor 5 from source](https://docs.ckeditor.com/ckeditor5/latest/builds/guides/integration/advanced-setup.html#scenario-2-building-from-source).
+This guide assumes that you are using [Create React App CLI](https://github.com/facebook/create-react-app) as your boilerplate and it goes through adjusting it to fit CKEditor 5's needs. If you use your custom webpack setup, please read more about [including CKEditor 5 from source](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/advanced-setup.html#scenario-2-building-from-source).
 
 Install React CLI:
 
@@ -332,7 +332,7 @@ npm install --save \
 	@ckeditor/ckeditor5-paragraph
 ```
 
-### Use the CKEditor component together with [CKEditor 5 Framework](https://docs.ckeditor.com/ckeditor5/latest/framework/):
+### Use the CKEditor component together with [CKEditor 5 Framework](https://ckeditor.com/docs/ckeditor5/latest/framework/):
 
 ```jsx
 import React, { Component } from 'react';

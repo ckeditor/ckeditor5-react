@@ -11,7 +11,7 @@ export default class CKEditor extends React.Component {
 		super( props );
 
 		// After mounting the editor, the variable will contain a reference to the created editor.
-		// @see: https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editor-Editor.html
+		// @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
 		this.editor = null;
 	}
 

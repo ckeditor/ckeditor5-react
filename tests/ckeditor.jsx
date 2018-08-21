@@ -29,7 +29,7 @@ class Editor {
 	}
 
 	// Implements the `DataApi` interface.
-	// See: https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_utils_dataapimixin-DataApi.html
+	// See: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_utils_dataapimixin-DataApi.html
 	setData() {}
 	getData() {}
 
