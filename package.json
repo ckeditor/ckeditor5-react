@@ -1,14 +1,20 @@
 {
   "name": "@ckeditor/ckeditor5-react",
   "version": "1.0.0-beta.1",
-  "description": "Official CKEditor 5 React component.",
   "main": "dist/ckeditor.js",
+  "description": "Official React component for CKEditor 5 – the best browser-based rich text editor.",
   "keywords": [
+    "wysiwyg",
+    "rich text",
+    "editor",
+    "html",
+    "contentEditable",
+    "editing",
+    "react",
+    "react-component",
     "ckeditor",
     "ckeditor5",
-    "ckeditor 5",
-    "ckeditor5-feature",
-    "react"
+    "ckeditor 5"
   ],
   "dependencies": {
     "prop-types": "^15.6.1"
