@@ -1,4 +1,4 @@
-# CKEditor 5 rich-text editor component for React
+# CKEditor 5 rich text editor component for React
 
 [![Join the chat at https://gitter.im/ckeditor/ckeditor5](https://badges.gitter.im/ckeditor/ckeditor5.svg)](https://gitter.im/ckeditor/ckeditor5?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![npm version](https://badge.fury.io/js/%40ckeditor%2Fckeditor5-react.svg)](https://www.npmjs.com/package/@ckeditor/ckeditor5-react)
@@ -9,7 +9,7 @@
 [![Dependency Status](https://david-dm.org/ckeditor/ckeditor5-react/status.svg)](https://david-dm.org/ckeditor/ckeditor5-react)
 [![devDependency Status](https://david-dm.org/ckeditor/ckeditor5-react/dev-status.svg)](https://david-dm.org/ckeditor/ckeditor5-react?type=dev)
 
-Official [CKEditor 5](https://ckeditor.com/ckeditor-5/) rich-text editor component for React.
+Official [CKEditor 5](https://ckeditor.com/ckeditor-5/) rich text editor component for React.
 
 ## Documentation
 
