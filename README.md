@@ -1,4 +1,4 @@
-# CKEditor 5 Component for React
+# CKEditor 5 rich-text editor component for React
 
 [![Join the chat at https://gitter.im/ckeditor/ckeditor5](https://badges.gitter.im/ckeditor/ckeditor5.svg)](https://gitter.im/ckeditor/ckeditor5?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![npm version](https://badge.fury.io/js/%40ckeditor%2Fckeditor5-react.svg)](https://www.npmjs.com/package/@ckeditor/ckeditor5-react)
@@ -9,15 +9,15 @@
 [![Dependency Status](https://david-dm.org/ckeditor/ckeditor5-react/status.svg)](https://david-dm.org/ckeditor/ckeditor5-react)
 [![devDependency Status](https://david-dm.org/ckeditor/ckeditor5-react/dev-status.svg)](https://david-dm.org/ckeditor/ckeditor5-react?type=dev)
 
-Official [CKEditor 5](https://ckeditor.com/ckeditor-5/) React component.
+Official [CKEditor 5](https://ckeditor.com/ckeditor-5/) rich-text editor component for React.
 
 ## Documentation
 
-See the [React component](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/react.html) article in the [CKEditor 5 documentation](https://ckeditor.com/docs/ckeditor5/latest) website.
+See the [React component](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/react.html) article in the [CKEditor 5 documentation](https://ckeditor.com/docs/ckeditor5/latest).
 
 ## Contributing
 
-Having cloned this repository, install necessary dependencies:
+After cloning this repository, install necessary dependencies:
 
 ```bash
 npm install
@@ -31,7 +31,7 @@ npm run tests -- [additional options]
 npm t -- [additional options]
 ```
 
-It accepts the following options:
+The command accepts the following options:
 
 * `--coverage` (`-c`) &ndash; Whether to generate the code coverage.
 * `--source-map` (`-s`) &ndash; Whether to attach the source maps.
