@@ -23,6 +23,18 @@ After cloning this repository, install necessary dependencies:
 npm install
 ```
 
+## Props
+
+```
+CKEditor.propTypes = {
+	editor: PropTypes.func.isRequired,
+	data: PropTypes.string,
+	config: PropTypes.object, // Config object comes here.
+	onChange: PropTypes.func,
+	onInit: PropTypes.func
+};
+```
+
 ### Executing tests
 
 ```bash
