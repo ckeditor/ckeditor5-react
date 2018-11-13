@@ -100,7 +100,7 @@ module.exports = function getKarmaConfig() {
 		karmaConfig.browserStack = {
 			username: process.env.BROWSER_STACK_USERNAME,
 			accessKey: process.env.BROWSER_STACK_ACCESS_KEY,
-			build: process.env.TRAVIS_REPO_SLUG,
+			build: getBuildName(),
 			project: 'ckeditor5'
 		};
 
@@ -187,6 +187,23 @@ function getBrowsers( browsers ) {
 	// If the BrowserStack is disabled, all browsers that start with a prefix "BrowserStack" should be filtered out.
 	// See: https://github.com/ckeditor/ckeditor5-dev/issues/358 and https://github.com/ckeditor/ckeditor5-dev/issues/402.
 	return newBrowsers.filter( browser => !browser.startsWith( 'BrowserStack' ) );
+}
+
+// Formats name of the build for BrowserStack. It merges a repository name and current timestamp.
+// If env variable `TRAVIS_REPO_SLUG` is not available, the function returns `undefined`.
+//
+// @returns {String|undefined}
+function getBuildName() {
+	const repoSlug = process.env.TRAVIS_REPO_SLUG;
+
+	if ( !repoSlug ) {
+		return;
+	}
+
+	const repositoryName = repoSlug.split( '/' )[ 1 ].replace( /-/g, '_' );
+	const date = new Date().getTime();
+
+	return `${ repositoryName } ${ date }`;
 }
 
 function shouldEnableBrowserStack() {
