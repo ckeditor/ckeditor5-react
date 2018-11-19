@@ -26,7 +26,7 @@ npm install
 ### Executing tests
 
 ```bash
-npm run tests -- [additional options]
+npm run test -- [additional options]
 # or
 npm t -- [additional options]
 ```
