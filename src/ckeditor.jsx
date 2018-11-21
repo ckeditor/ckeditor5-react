@@ -45,19 +45,34 @@ export default class CKEditor extends React.Component {
 				this.editor = editor;
 
 				if ( this.props.data ) {
-					this.editor.setData( this.props.data );
+					editor.setData( this.props.data );
 				}
 
 				if ( this.props.onInit ) {
-					this.props.onInit( this.editor );
+					this.props.onInit( editor );
 				}
 
-				const document = this.editor.model.document;
+				const modelDocument = editor.model.document;
+				const viewDocument = editor.editing.view.document;
 
-				document.on( 'change:data', event => {
+				modelDocument.on( 'change:data', event => {
 					/* istanbul ignore else */
 					if ( this.props.onChange ) {
 						this.props.onChange( event, editor );
+					}
+				} );
+
+				viewDocument.on( 'focus', event => {
+					/* istanbul ignore else */
+					if ( this.props.onFocus ) {
+						this.props.onFocus( event, editor );
+					}
+				} );
+
+				viewDocument.on( 'blur', event => {
+					/* istanbul ignore else */
+					if ( this.props.onBlur ) {
+						this.props.onBlur( event, editor );
 					}
 				} );
 			} )
@@ -82,7 +97,9 @@ CKEditor.propTypes = {
 	data: PropTypes.string,
 	config: PropTypes.object,
 	onChange: PropTypes.func,
-	onInit: PropTypes.func
+	onInit: PropTypes.func,
+	onFocus: PropTypes.func,
+	onBlur: PropTypes.func
 };
 
 // Default values for non-required properties.
