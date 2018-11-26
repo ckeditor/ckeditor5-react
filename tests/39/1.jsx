@@ -1,3 +1,7 @@
+/**
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md.
+ */
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { configure, mount } from 'enzyme';
@@ -10,7 +14,7 @@ configure( { adapter: new Adapter() } );
 
 const Editor = ( props ) => {
 	return (
-		<CKEditor editor={ ClassicEditor } {...props} />
+		<CKEditor editor={ ClassicEditor } { ...props } />
 	)
 };
 
@@ -35,7 +39,7 @@ class App extends React.Component {
 	}
 }
 
-describe( '#37 - a browser is being freeze', () => {
+describe( '#37 - bug: a browser is being froze', () => {
 	let div, component;
 
 	beforeEach( () => {
@@ -53,7 +57,7 @@ describe( '#37 - a browser is being freeze', () => {
 		div.remove();
 	} );
 
-	it( 'if "data" property is not specified, a browser should not be a frozen', () => {
+	it( 'if "data" property is not specified, a browser should not be freeze', () => {
 		const editor = component.editor;
 
 		editor.model.change( writer => {

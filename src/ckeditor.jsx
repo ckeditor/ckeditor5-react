@@ -15,9 +15,7 @@ export default class CKEditor extends React.Component {
 		this.editor = null;
 	}
 
-	// The component shouldn't update itself. It leads to a browser freezing. See #39.
 	shouldComponentUpdate( nextPros ) {
-		// Not sure about because it makes that a browser is being frozen.
 		if ( 'data' in nextPros ) {
 			return true;
 		}
@@ -26,7 +24,11 @@ export default class CKEditor extends React.Component {
 	}
 
 	componentDidUpdate() {
-		if ( this.editor && this.editor.getData() !== this.props.data ) {
+		if ( !this.editor ) {
+			return;
+		}
+
+		if ( 'data' in this.props && this.props.data !== this.editor.getData() ) {
 			this.editor.setData( this.props.data );
 		}
 	}
@@ -114,7 +116,6 @@ CKEditor.propTypes = {
 
 // Default values for non-required properties.
 CKEditor.defaultProps = {
-	data: '',
 	config: {}
 };
 
