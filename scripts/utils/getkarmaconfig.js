@@ -38,10 +38,12 @@ module.exports = function getKarmaConfig() {
 		frameworks: [ 'mocha', 'chai', 'sinon' ],
 
 		files: [
+			'tests/**/*.js',
 			'tests/**/*.jsx'
 		],
 
 		preprocessors: {
+			'tests/**/*.js': [ 'webpack' ],
 			'tests/**/*.jsx': [ 'webpack' ]
 		},
 
@@ -152,6 +154,7 @@ module.exports = function getKarmaConfig() {
 	}
 
 	if ( options.sourceMap ) {
+		karmaConfig.preprocessors[ 'tests/**/*.js' ].push( 'sourcemap' );
 		karmaConfig.preprocessors[ 'tests/**/*.jsx' ].push( 'sourcemap' );
 
 		webpackConfig.devtool = 'inline-source-map';
