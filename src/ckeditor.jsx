@@ -16,7 +16,11 @@ export default class CKEditor extends React.Component {
 	}
 
 	componentDidUpdate() {
-		if ( this.editor && this.editor.getData() !== this.props.data ) {
+		if ( !this.editor ) {
+			return;
+		}
+
+		if ( 'data' in this.props && this.props.data !== this.editor.getData() ) {
 			this.editor.setData( this.props.data );
 		}
 	}
@@ -104,7 +108,6 @@ CKEditor.propTypes = {
 
 // Default values for non-required properties.
 CKEditor.defaultProps = {
-	data: '',
 	config: {}
 };
 

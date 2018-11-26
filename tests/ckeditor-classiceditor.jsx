@@ -8,7 +8,6 @@ import 'react-dom';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import CKEditor from '../dist/ckeditor';
 
 configure( { adapter: new Adapter() } );
