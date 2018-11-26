@@ -38,6 +38,9 @@ module.exports = function getKarmaConfig() {
 		frameworks: [ 'mocha', 'chai', 'sinon' ],
 
 		files: [
+			// If the file below is imported in tests directly, it leads to an error related to CKEDITOR_VERSION collision.
+			// It may be related to presets that are required for *.jsx files.
+			require.resolve( '@ckeditor/ckeditor5-build-classic' ),
 			'tests/**/*.js',
 			'tests/**/*.jsx'
 		],
