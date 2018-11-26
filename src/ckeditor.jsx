@@ -15,14 +15,6 @@ export default class CKEditor extends React.Component {
 		this.editor = null;
 	}
 
-	shouldComponentUpdate( nextPros ) {
-		if ( 'data' in nextPros ) {
-			return true;
-		}
-
-		return false;
-	}
-
 	componentDidUpdate() {
 		if ( !this.editor ) {
 			return;
