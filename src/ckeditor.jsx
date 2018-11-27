@@ -20,12 +20,10 @@ export default class CKEditor extends React.Component {
 			return;
 		}
 
-		/* istanbul ignore else */
 		if ( 'data' in this.props && this.props.data !== this.editor.getData() ) {
 			this.editor.setData( this.props.data );
 		}
 
-		/* istanbul ignore else */
 		if ( 'disabled' in this.props ) {
 			this.editor.isReadOnly = this.props.disabled;
 		}
@@ -58,7 +56,6 @@ export default class CKEditor extends React.Component {
 					editor.setData( this.props.data );
 				}
 
-				/* istanbul ignore else */
 				if ( 'disabled' in this.props ) {
 					editor.isReadOnly = this.props.disabled;
 				}
@@ -120,7 +117,6 @@ CKEditor.propTypes = {
 
 // Default values for non-required properties.
 CKEditor.defaultProps = {
-	config: {},
-	disabled: false
+	config: {}
 };
 
