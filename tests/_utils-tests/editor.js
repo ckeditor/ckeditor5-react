@@ -13,6 +13,12 @@ describe( 'Editor', () => {
 			expect( editor.model ).is.not.undefined;
 			expect( editor.editing ).is.not.undefined;
 		} );
+
+		it( 'read-only mode is disabled by default', () => {
+			const editor = new Editor();
+
+			expect( editor.isReadOnly ).is.false;
+		} );
 	} );
 
 	describe( 'destroy()', () => {

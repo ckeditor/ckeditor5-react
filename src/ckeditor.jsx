@@ -23,6 +23,10 @@ export default class CKEditor extends React.Component {
 		if ( 'data' in this.props && this.props.data !== this.editor.getData() ) {
 			this.editor.setData( this.props.data );
 		}
+
+		if ( 'disabled' in this.props ) {
+			this.editor.isReadOnly = this.props.disabled;
+		}
 	}
 
 	// Initialize the editor when the component is mounted.
@@ -50,6 +54,10 @@ export default class CKEditor extends React.Component {
 
 				if ( this.props.data ) {
 					editor.setData( this.props.data );
+				}
+
+				if ( 'disabled' in this.props ) {
+					editor.isReadOnly = this.props.disabled;
 				}
 
 				if ( this.props.onInit ) {
@@ -103,7 +111,8 @@ CKEditor.propTypes = {
 	onChange: PropTypes.func,
 	onInit: PropTypes.func,
 	onFocus: PropTypes.func,
-	onBlur: PropTypes.func
+	onBlur: PropTypes.func,
+	disabled: PropTypes.bool
 };
 
 // Default values for non-required properties.
