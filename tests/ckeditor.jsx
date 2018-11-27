@@ -373,7 +373,7 @@ describe( 'CKEditor Component', () => {
 			} );
 		} );
 
-		describe.only( '#disabled', () => {
+		describe( '#disabled', () => {
 			it( 'switches the editor to read-only mode if [disabled="true"]', done => {
 				const onInit = function( editor ) {
 					expect( editor.isReadOnly ).to.be.true;
