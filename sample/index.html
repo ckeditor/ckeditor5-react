@@ -17,7 +17,7 @@
 <body>
 <h1>CKEditor 5 – React Component – development sample</h1>
 <p style="text-align: center;">Component's events are logged to the console.</p>
-<button id="readOnly" class="button_read-only">Switch to read-only mode</button>
+<button id="readOnly" class="button_read-only" disabled>Switch to read-only mode</button>
 <div id="root"></div>
 <script src="../node_modules/react/umd/react.production.min.js"></script>
 <script src="../node_modules/react-dom/umd/react-dom.production.min.js"></script>
@@ -43,6 +43,20 @@
 
 					console.log( 'event: onInit');
 					console.log( 'Editor is ready to use! You can use "editor" variable to play with it.' );
+
+					const readOnlyButton = document.getElementById( 'readOnly' );
+
+					readOnlyButton.disabled = false;
+
+					readOnlyButton.addEventListener( 'click', function() {
+						editor.isReadOnly = !editor.isReadOnly;
+
+						if ( editor.isReadOnly ) {
+							this.innerText = 'Switch to editable mode';
+						} else {
+							this.innerText = 'Switch to read-only mode';
+						}
+					} );
 				},
 				onChange: ( event, editor ) => {
 					console.log( 'event: onChange', { event, editor } );
@@ -56,16 +70,6 @@
 			} ),
 			document.getElementById( 'root' )
 		);
-
-		document.getElementById( 'readOnly' ).addEventListener( 'click', function() {
-			window.editor.isReadOnly = !window.editor.isReadOnly;
-
-			if ( window.editor.isReadOnly ) {
-				this.innerText = 'Switch to editable mode';
-			} else {
-				this.innerText = 'Switch to read-only mode';
-			}
-		} )
 	} );
 </script>
 </body>
