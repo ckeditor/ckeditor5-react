@@ -23,6 +23,10 @@ export default class CKEditor extends React.Component {
 		if ( 'data' in this.props && this.props.data !== this.editor.getData() ) {
 			this.editor.setData( this.props.data );
 		}
+
+		if ( 'disabled' in this.props ) {
+			this.editor.isReadOnly = getBool( this.props.disabled );
+		}
 	}
 
 	// Initialize the editor when the component is mounted.
@@ -50,6 +54,10 @@ export default class CKEditor extends React.Component {
 
 				if ( this.props.data ) {
 					editor.setData( this.props.data );
+				}
+
+				if ( 'disabled' in this.props ) {
+					editor.isReadOnly = getBool( this.props.disabled );
 				}
 
 				if ( this.props.onInit ) {
@@ -95,6 +103,22 @@ export default class CKEditor extends React.Component {
 	}
 }
 
+// Converts a string to bool.
+//
+// @param {String|Boolean} value Value to convert.
+// @returns {Boolean}
+function getBool( value ) {
+	if ( value === 'true' ) {
+		return true;
+	}
+
+	if ( value === 'false' ) {
+		return false;
+	}
+
+	return !!value;
+}
+
 // Properties definition.
 CKEditor.propTypes = {
 	editor: PropTypes.func.isRequired,
@@ -103,11 +127,13 @@ CKEditor.propTypes = {
 	onChange: PropTypes.func,
 	onInit: PropTypes.func,
 	onFocus: PropTypes.func,
-	onBlur: PropTypes.func
+	onBlur: PropTypes.func,
+	disabled: PropTypes.oneOfType( [ PropTypes.bool, PropTypes.string ] )
 };
 
 // Default values for non-required properties.
 CKEditor.defaultProps = {
-	config: {}
+	config: {},
+	disabled: false
 };
 

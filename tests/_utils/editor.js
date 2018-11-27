@@ -12,6 +12,7 @@ export default class Editor {
 	constructor() {
 		this.model = Editor._model;
 		this.editing = Editor._editing;
+		this.isReadOnly = false;
 	}
 
 	destroy() {
