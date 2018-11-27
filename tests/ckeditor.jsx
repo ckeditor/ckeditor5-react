@@ -374,16 +374,6 @@ describe( 'CKEditor Component', () => {
 		} );
 
 		describe( '#disabled', () => {
-			it( 'switches the editor to read-only mode if [disabled="true"]', done => {
-				const onInit = function( editor ) {
-					expect( editor.isReadOnly ).to.be.true;
-
-					done();
-				};
-
-				wrapper = mount( <CKEditor editor={ Editor } disabled="true" onInit={ onInit } /> );
-			} );
-
 			it( 'switches the editor to read-only mode if [disabled={true}]', done => {
 				const onInit = function( editor ) {
 					expect( editor.isReadOnly ).to.be.true;
@@ -392,24 +382,6 @@ describe( 'CKEditor Component', () => {
 				};
 
 				wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onInit={ onInit } /> );
-			} );
-
-			it( 'switches the editor to read-only mode when [disabled="true"] property was set in runtime', done => {
-				let editor;
-
-				const onInit = function( _editor ) {
-					editor = _editor;
-				};
-
-				wrapper = mount( <CKEditor editor={ Editor } onInit={ onInit } /> );
-
-				setTimeout( () => {
-					wrapper.setProps( { disabled: 'true' } );
-
-					expect( editor.isReadOnly ).to.be.true;
-
-					done();
-				} );
 			} );
 
 			it( 'switches the editor to read-only mode when [disabled={true}] property was set in runtime', done => {

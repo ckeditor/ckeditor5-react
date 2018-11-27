@@ -20,12 +20,14 @@ export default class CKEditor extends React.Component {
 			return;
 		}
 
+		/* istanbul ignore else */
 		if ( 'data' in this.props && this.props.data !== this.editor.getData() ) {
 			this.editor.setData( this.props.data );
 		}
 
+		/* istanbul ignore else */
 		if ( 'disabled' in this.props ) {
-			this.editor.isReadOnly = getBool( this.props.disabled );
+			this.editor.isReadOnly = this.props.disabled;
 		}
 	}
 
@@ -56,8 +58,9 @@ export default class CKEditor extends React.Component {
 					editor.setData( this.props.data );
 				}
 
+				/* istanbul ignore else */
 				if ( 'disabled' in this.props ) {
-					editor.isReadOnly = getBool( this.props.disabled );
+					editor.isReadOnly = this.props.disabled;
 				}
 
 				if ( this.props.onInit ) {
@@ -103,22 +106,6 @@ export default class CKEditor extends React.Component {
 	}
 }
 
-// Converts a string to bool.
-//
-// @param {String|Boolean} value Value to convert.
-// @returns {Boolean}
-function getBool( value ) {
-	if ( value === 'true' ) {
-		return true;
-	}
-
-	if ( value === 'false' ) {
-		return false;
-	}
-
-	return !!value;
-}
-
 // Properties definition.
 CKEditor.propTypes = {
 	editor: PropTypes.func.isRequired,
@@ -128,7 +115,7 @@ CKEditor.propTypes = {
 	onInit: PropTypes.func,
 	onFocus: PropTypes.func,
 	onBlur: PropTypes.func,
-	disabled: PropTypes.oneOfType( [ PropTypes.bool, PropTypes.string ] )
+	disabled: PropTypes.bool
 };
 
 // Default values for non-required properties.
