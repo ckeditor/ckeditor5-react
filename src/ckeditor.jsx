@@ -42,11 +42,21 @@ export default class CKEditor extends React.Component {
 		this._destroyEditor();
 	}
 
-	// Render a <div> element which will be replaced by CKEditor.
+	// Render an element which will be replaced by CKEditor.
 	render() {
-		return React.createElement( 'div', {
+		const props = {
 			ref: this.domContainer
-		} );
+		};
+
+		if ( this.props.class ) {
+			props.className = this.props.class;
+		}
+
+		if ( this.props.style ) {
+			props.style = this.props.style;
+		}
+
+		return React.createElement( this.props.tagName, props );
 	}
 
 	_initializeEditor() {
@@ -115,11 +125,15 @@ CKEditor.propTypes = {
 	onInit: PropTypes.func,
 	onFocus: PropTypes.func,
 	onBlur: PropTypes.func,
-	disabled: PropTypes.bool
+	disabled: PropTypes.bool,
+	tagName: PropTypes.string,
+	class: PropTypes.string,
+	style: PropTypes.object
 };
 
 // Default values for non-required properties.
 CKEditor.defaultProps = {
-	config: {}
+	config: {},
+	tagName: 'div'
 };
 
