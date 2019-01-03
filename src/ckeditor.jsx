@@ -10,8 +10,8 @@ export default class CKEditor extends React.Component {
 	constructor( props ) {
 		super( props );
 
-		// After mounting the editor, the variable will contain a reference to created editor.
-		// @see: https://docs.ckeditor.com/ckeditor5/latest/api/module_core_editor_editor-Editor.html
+		// After mounting the editor, the variable will contain a reference to the created editor.
+		// @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
 		this.editor = null;
 
 		// A reference to the created element which on the editor will be initialized.
@@ -19,22 +19,30 @@ export default class CKEditor extends React.Component {
 	}
 
 	componentDidUpdate() {
-		if ( this.editor && this.editor.getData() !== this.props.data ) {
+		if ( !this.editor ) {
+			return;
+		}
+
+		if ( 'data' in this.props && this.props.data !== this.editor.getData() ) {
 			this.editor.setData( this.props.data );
+		}
+
+		if ( 'disabled' in this.props ) {
+			this.editor.isReadOnly = this.props.disabled;
 		}
 	}
 
-	// Initialize editor when component is mounted.
+	// Initialize the editor when the component is mounted.
 	componentDidMount() {
 		this._initializeEditor();
 	}
 
-	// Destroy editor before unmouting component.
+	// Destroy the editor before unmouting the component.
 	componentWillUnmount() {
 		this._destroyEditor();
 	}
 
-	// Render <div> element which will be replaced by CKEditor.
+	// Render a <div> element which will be replaced by CKEditor.
 	render() {
 		return React.createElement( 'div', {
 			ref: this.domContainer
@@ -48,19 +56,38 @@ export default class CKEditor extends React.Component {
 				this.editor = editor;
 
 				if ( this.props.data ) {
-					this.editor.setData( this.props.data );
+					editor.setData( this.props.data );
+				}
+
+				if ( 'disabled' in this.props ) {
+					editor.isReadOnly = this.props.disabled;
 				}
 
 				if ( this.props.onInit ) {
-					this.props.onInit( this.editor );
+					this.props.onInit( editor );
 				}
 
-				const document = this.editor.model.document;
+				const modelDocument = editor.model.document;
+				const viewDocument = editor.editing.view.document;
 
-				document.on( 'change:data', event => {
+				modelDocument.on( 'change:data', event => {
 					/* istanbul ignore else */
 					if ( this.props.onChange ) {
 						this.props.onChange( event, editor );
+					}
+				} );
+
+				viewDocument.on( 'focus', event => {
+					/* istanbul ignore else */
+					if ( this.props.onFocus ) {
+						this.props.onFocus( event, editor );
+					}
+				} );
+
+				viewDocument.on( 'blur', event => {
+					/* istanbul ignore else */
+					if ( this.props.onBlur ) {
+						this.props.onBlur( event, editor );
 					}
 				} );
 			} )
@@ -85,12 +112,14 @@ CKEditor.propTypes = {
 	data: PropTypes.string,
 	config: PropTypes.object,
 	onChange: PropTypes.func,
-	onInit: PropTypes.func
+	onInit: PropTypes.func,
+	onFocus: PropTypes.func,
+	onBlur: PropTypes.func,
+	disabled: PropTypes.bool
 };
 
 // Default values for non-required properties.
 CKEditor.defaultProps = {
-	data: '',
 	config: {}
 };
 
