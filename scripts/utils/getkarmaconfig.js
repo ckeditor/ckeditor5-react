@@ -25,7 +25,7 @@ module.exports = function getKarmaConfig() {
 					loader: 'babel-loader',
 					query: {
 						compact: false,
-						presets: [ 'react', 'env' ]
+						presets: [ '@babel/preset-react', '@babel/preset-env' ]
 					}
 				}
 			]
