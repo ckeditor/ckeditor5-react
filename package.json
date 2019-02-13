@@ -55,6 +55,10 @@
   "peerDependencies": {
     "react": "^16.0.0"
   },
+  "engines": {
+    "node": ">=8.0.0",
+    "npm": ">=5.7.1"
+  },
   "scripts": {
     "build": "webpack --mode production",
     "develop": "webpack --mode development --watch",
