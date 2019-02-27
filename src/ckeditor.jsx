@@ -13,6 +13,7 @@ export default class CKEditor extends React.Component {
 		// After mounting the editor, the variable will contain a reference to the created editor.
 		// @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
 		this.editor = null;
+		this.domContainer = React.createRef();
 	}
 
 	componentDidUpdate() {
@@ -41,20 +42,19 @@ export default class CKEditor extends React.Component {
 
 	// Render a <div> element which will be replaced by CKEditor.
 	render() {
+		// We need to inject initial data to the container where the editable will be enabled. Using `editor.setData()`
+		// is a bad practice because it initializes the data after every new connection (in case of collaboration usage).
+		// It leads to reset the entire content. See: #68
 		return (
-			<div ref={ ref => ( this.domContainer = ref ) }></div>
+			<div ref={ this.domContainer } dangerouslySetInnerHTML={ { __html: this.props.data || '' } }></div>
 		);
 	}
 
 	_initializeEditor() {
 		this.props.editor
-			.create( this.domContainer, this.props.config )
+			.create( this.domContainer.current , this.props.config )
 			.then( editor => {
 				this.editor = editor;
-
-				if ( this.props.data ) {
-					editor.setData( this.props.data );
-				}
 
 				if ( 'disabled' in this.props ) {
 					editor.isReadOnly = this.props.disabled;

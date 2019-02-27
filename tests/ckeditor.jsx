@@ -59,6 +59,20 @@ describe( 'CKEditor Component', () => {
 		} );
 
 		it( 'sets initial data if was specified', done => {
+			sandbox.stub( Editor, 'create' ).resolves( new Editor() );
+
+			wrapper = mount( <CKEditor editor={ Editor } data="<p>Hello CKEditor 5!</p>" /> );
+
+			setTimeout( () => {
+				const component = wrapper.instance();
+
+				expect( component.domContainer.current.innerHTML ).to.equal( '<p>Hello CKEditor 5!</p>' );
+
+				done();
+			} );
+		} );
+
+		it( 'when setting initial data, it must not use "Editor.setData()"', done => {
 			const editorInstance = new Editor();
 
 			sandbox.stub( Editor, 'create' ).resolves( editorInstance );
@@ -67,8 +81,7 @@ describe( 'CKEditor Component', () => {
 			wrapper = mount( <CKEditor editor={ Editor } data="<p>Hello CKEditor 5!</p>" /> );
 
 			setTimeout( () => {
-				expect( editorInstance.setData.calledOnce ).to.be.true;
-				expect( editorInstance.setData.firstCall.args[ 0 ] ).to.equal( '<p>Hello CKEditor 5!</p>' );
+				expect( editorInstance.setData.called ).to.be.false;
 
 				done();
 			} );
