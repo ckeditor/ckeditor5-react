@@ -56,19 +56,35 @@ Build a minified version of the package that is ready to publish:
 npm run build
 ```
 
-### Changelog generator
+## Releasing package
+
+### Changelog
+
+Before starting the release process, you need to generate the changelog:
 
 ```bash
 npm run changelog
 ```
 
-### Releasing
+### Publishing
 
-Before starting to release the package, you need to generate the changelog.
+After generating the changelog, you are able to release the package.
+
+First, you need to bump the version:
 
 ```bash
-npm run release
+npm run release:bump-version
 ```
+
+You can also use the `--dry-run` option in order to see what this task does.
+
+After bumping the version, you can publish the changes:
+
+```bash
+npm run release:publish
+```
+
+As in the previous task, the `--dry-run` option is also available. 
 
 Note: Only the `dist/` directory will be published.
 
