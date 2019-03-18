@@ -17,6 +17,7 @@
     "ckeditor 5"
   ],
   "dependencies": {
+    "lodash-es": "^4.17.11",
     "prop-types": "^15.6.1"
   },
   "devDependencies": {

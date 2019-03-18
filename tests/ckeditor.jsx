@@ -161,6 +161,66 @@ describe( 'CKEditor Component', () => {
 			expect( editorInstance.setData.called ).to.be.false;
 		} );
 
+		describe( '#config', () => {
+			it( 'should replace all react DOM references with the `current` DOM element', done => {
+				const spy = sinon.spy( Editor, 'create' );
+
+				const domElement = document.createElement( 'div' );
+				const domElementRef = React.createRef();
+				const similarToDomElementRef = {
+					current: domElement,
+					foo: 'bar'
+				};
+
+				const config = {
+					domElement,
+					domElementRef,
+					nested: {
+						domElementRef
+					},
+					similarToDomElementRef,
+					array: [
+						domElementRef, domElement, similarToDomElementRef
+					]
+				};
+
+				wrapper = mount(
+					<div>
+						<div ref={ domElementRef }></div>
+						<CKEditor editor={ Editor } config={ config } />
+					</div>
+				);
+
+				setTimeout( () => {
+					const parsedConfig = spy.lastCall.args[ 1 ];
+
+					// Not changed.
+					expect( parsedConfig.domElement ).to.equal( domElement ).to.instanceof( HTMLElement );
+
+					// Changed.
+					expect( parsedConfig.domElementRef ).to.equal( domElementRef.current ).to.instanceof( HTMLElement );
+
+					// Changed.
+					expect( parsedConfig.nested.domElementRef ).to.equal( domElementRef.current ).to.instanceof( HTMLElement );
+
+					// Not changed.
+					expect( parsedConfig.similarToDomElementRef ).to.deep.equal( similarToDomElementRef );
+					expect( parsedConfig.similarToDomElementRef.current ).to.equal( domElement );
+
+					// Changed.
+					expect( parsedConfig.array[ 0 ] ).to.equal( domElementRef.current ).to.instanceof( HTMLElement );
+
+					// Not changed.
+					expect( parsedConfig.array[ 1 ] ).to.equal( domElement );
+					expect( parsedConfig.array[ 2 ] ).to.deep.equal( similarToDomElementRef );
+					expect( parsedConfig.array[ 2 ].current ).to.equal( domElement );
+
+					spy.restore();
+					done();
+				} );
+			} );
+		} );
+
 		describe( '#onInit', () => {
 			it( 'calls "onInit" callback if specified when the editor is ready to use', done => {
 				const editorInstance = new Editor();
