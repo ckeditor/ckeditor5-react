@@ -108,25 +108,6 @@ describe( 'CKEditor Component', () => {
 	} );
 
 	describe( 'properties', () => {
-		it( 'sets editor\'s data if properties have changed and contain the "data" key', done => {
-			const editorInstance = new Editor();
-
-			sandbox.stub( Editor, 'create' ).resolves( editorInstance );
-			sandbox.stub( editorInstance, 'setData' );
-			sandbox.stub( editorInstance, 'getData' ).returns( '<p>&nbsp;</p>' );
-
-			wrapper = mount( <CKEditor editor={ Editor } /> );
-
-			setTimeout( () => {
-				wrapper.setProps( { data: '<p>Foo Bar.</p>' });
-
-				expect( editorInstance.setData.calledOnce ).to.be.true;
-				expect( editorInstance.setData.firstCall.args[ 0 ] ).to.equal( '<p>Foo Bar.</p>' );
-
-				done();
-			} );
-		} );
-
 		it( 'does not update the editor\'s data if value under "data" key is equal to editor\'s data', done => {
 			const editorInstance = new Editor();
 

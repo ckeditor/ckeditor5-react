@@ -22,10 +22,6 @@ export default class CKEditor extends React.Component {
 			return;
 		}
 
-		if ( 'data' in this.props && this.props.data !== this.editor.getData() ) {
-			this.editor.setData( this.props.data );
-		}
-
 		if ( 'disabled' in this.props ) {
 			this.editor.isReadOnly = this.props.disabled;
 		}
