@@ -17,18 +17,13 @@ export default class CKEditor extends React.Component {
 		this.domContainer = React.createRef();
 	}
 
-	componentDidUpdate() {
-		if ( !this.editor ) {
-			return;
+	// This component should never be updated by React itself.
+	shouldComponentUpdate( nextProps ) {
+		if ( 'disabled' in nextProps ) {
+			this.editor.isReadOnly = nextProps.disabled;
 		}
 
-		if ( 'data' in this.props && this.props.data !== this.editor.getData() ) {
-			this.editor.setData( this.props.data );
-		}
-
-		if ( 'disabled' in this.props ) {
-			this.editor.isReadOnly = this.props.disabled;
-		}
+		return false;
 	}
 
 	// Initialize the editor when the component is mounted.

@@ -87,6 +87,21 @@ describe( 'CKEditor Component', () => {
 			} );
 		} );
 
+		it( 'must not update the component by React itself', done => {
+			sandbox.stub( Editor, 'create' ).resolves( new Editor() );
+
+			wrapper = mount( <CKEditor editor={ Editor }/> );
+
+			setTimeout( () => {
+				const component = wrapper.instance();
+
+				// This method always is called with an object with component's properties.
+				expect( component.shouldComponentUpdate( {} ) ).to.equal( false );
+
+				done();
+			} );
+		} );
+
 		it( 'displays an error if something went wrong', done => {
 			const error = new Error( 'Something went wrong.' );
 			const consoleErrorStub = sandbox.stub( console, 'error' );
@@ -108,59 +123,6 @@ describe( 'CKEditor Component', () => {
 	} );
 
 	describe( 'properties', () => {
-		it( 'sets editor\'s data if properties have changed and contain the "data" key', done => {
-			const editorInstance = new Editor();
-
-			sandbox.stub( Editor, 'create' ).resolves( editorInstance );
-			sandbox.stub( editorInstance, 'setData' );
-			sandbox.stub( editorInstance, 'getData' ).returns( '<p>&nbsp;</p>' );
-
-			wrapper = mount( <CKEditor editor={ Editor } /> );
-
-			setTimeout( () => {
-				wrapper.setProps( { data: '<p>Foo Bar.</p>' });
-
-				expect( editorInstance.setData.calledOnce ).to.be.true;
-				expect( editorInstance.setData.firstCall.args[ 0 ] ).to.equal( '<p>Foo Bar.</p>' );
-
-				done();
-			} );
-		} );
-
-		it( 'does not update the editor\'s data if value under "data" key is equal to editor\'s data', done => {
-			const editorInstance = new Editor();
-
-			sandbox.stub( Editor, 'create' ).resolves( editorInstance );
-			sandbox.stub( editorInstance, 'setData' );
-			sandbox.stub( editorInstance, 'getData' ).returns( '<p>Foo Bar.</p>' );
-
-			wrapper = mount( <CKEditor editor={ Editor } /> );
-
-			setTimeout( () => {
-				wrapper.setProps( { data: '<p>Foo Bar.</p>' });
-
-				expect( editorInstance.setData.calledOnce ).to.be.false;
-
-				done();
-			} );
-		} );
-
-		it( 'does not set editor\'s data if the editor is not ready', () => {
-			const editorInstance = new Editor();
-
-			sandbox.stub( Editor, 'create' ).resolves( editorInstance );
-			sandbox.stub( editorInstance, 'setData' );
-
-			wrapper = mount( <CKEditor editor={ Editor } /> );
-
-			const component = wrapper.instance();
-
-			component.componentDidUpdate( { data: 'Foo' } );
-
-			expect( component.editor ).to.be.null;
-			expect( editorInstance.setData.called ).to.be.false;
-		} );
-
 		describe( '#config', () => {
 			it( 'should replace all react DOM references with the `current` DOM element', done => {
 				const spy = sinon.spy( Editor, 'create' );
