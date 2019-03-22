@@ -19,6 +19,10 @@ export default class CKEditor extends React.Component {
 
 	// This component should never be updated by React itself.
 	shouldComponentUpdate( nextProps ) {
+		if ( this._shouldUpdateContent( nextProps ) ) {
+			this.editor.setData( nextProps.data );
+		}
+
 		if ( 'disabled' in nextProps ) {
 			this.editor.isReadOnly = nextProps.disabled;
 		}
@@ -96,6 +100,23 @@ export default class CKEditor extends React.Component {
 					this.editor = null;
 				} );
 		}
+	}
+
+	_shouldUpdateContent( nextProps ) {
+		// Check whether `nextProps.data` is equal to `this.props.data` is required if somebody defined the `#data`
+		// property as a static string and updated a state of component when the editor's content has been changed.
+		// If we avoid checking those properties, the editor's content will back to the initial value because
+		// the state has been changed and React will call this method.
+		if ( this.props.data === nextProps.data ) {
+			return false;
+		}
+
+		// We should not change data if the editor's content is equal to the `#data` property.
+		if ( this.editor.getData() === nextProps.data ) {
+			return false;
+		}
+
+		return true;
 	}
 }
 

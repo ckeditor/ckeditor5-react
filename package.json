@@ -24,7 +24,7 @@
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-react": "^7.0.0",
-    "@ckeditor/ckeditor5-build-classic": "^11.0.1",
+    "@ckeditor/ckeditor5-build-classic": "^12.0.0",
     "@ckeditor/ckeditor5-dev-env": "^13.0.2",
     "@ckeditor/ckeditor5-dev-utils": "^11.0.1",
     "babel-loader": "^8.0.5",
