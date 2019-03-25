@@ -5,6 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { cloneDeepWith, isPlainObject, isElement } from 'lodash-es';
 
 export default class CKEditor extends React.Component {
 	constructor( props ) {
@@ -16,18 +17,17 @@ export default class CKEditor extends React.Component {
 		this.domContainer = React.createRef();
 	}
 
-	componentDidUpdate() {
-		if ( !this.editor ) {
-			return;
+	// This component should never be updated by React itself.
+	shouldComponentUpdate( nextProps ) {
+		if ( this._shouldUpdateContent( nextProps ) ) {
+			this.editor.setData( nextProps.data );
 		}
 
-		if ( 'data' in this.props && this.props.data !== this.editor.getData() ) {
-			this.editor.setData( this.props.data );
+		if ( 'disabled' in nextProps ) {
+			this.editor.isReadOnly = nextProps.disabled;
 		}
 
-		if ( 'disabled' in this.props ) {
-			this.editor.isReadOnly = this.props.disabled;
-		}
+		return false;
 	}
 
 	// Initialize the editor when the component is mounted.
@@ -52,7 +52,7 @@ export default class CKEditor extends React.Component {
 
 	_initializeEditor() {
 		this.props.editor
-			.create( this.domContainer.current , this.props.config )
+			.create( this.domContainer.current , parseConfig( this.props.config ) )
 			.then( editor => {
 				this.editor = editor;
 
@@ -101,6 +101,23 @@ export default class CKEditor extends React.Component {
 				} );
 		}
 	}
+
+	_shouldUpdateContent( nextProps ) {
+		// Check whether `nextProps.data` is equal to `this.props.data` is required if somebody defined the `#data`
+		// property as a static string and updated a state of component when the editor's content has been changed.
+		// If we avoid checking those properties, the editor's content will back to the initial value because
+		// the state has been changed and React will call this method.
+		if ( this.props.data === nextProps.data ) {
+			return false;
+		}
+
+		// We should not change data if the editor's content is equal to the `#data` property.
+		if ( this.editor.getData() === nextProps.data ) {
+			return false;
+		}
+
+		return true;
+	}
 }
 
 // Properties definition.
@@ -120,3 +137,11 @@ CKEditor.defaultProps = {
 	config: {}
 };
 
+function parseConfig( config ) {
+	// Replaces all DOM references created using React.createRef() with the "current" DOM node.
+	return cloneDeepWith( config, value => {
+		if ( isPlainObject( value ) && isElement( value.current ) && Object.keys( value ).length === 1 ) {
+			return value.current;
+		}
+	} );
+}

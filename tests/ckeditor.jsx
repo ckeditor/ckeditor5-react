@@ -87,6 +87,21 @@ describe( 'CKEditor Component', () => {
 			} );
 		} );
 
+		it( 'must not update the component by React itself', done => {
+			sandbox.stub( Editor, 'create' ).resolves( new Editor() );
+
+			wrapper = mount( <CKEditor editor={ Editor }/> );
+
+			setTimeout( () => {
+				const component = wrapper.instance();
+
+				// This method always is called with an object with component's properties.
+				expect( component.shouldComponentUpdate( {} ) ).to.equal( false );
+
+				done();
+			} );
+		} );
+
 		it( 'displays an error if something went wrong', done => {
 			const error = new Error( 'Something went wrong.' );
 			const consoleErrorStub = sandbox.stub( console, 'error' );
@@ -108,57 +123,64 @@ describe( 'CKEditor Component', () => {
 	} );
 
 	describe( 'properties', () => {
-		it( 'sets editor\'s data if properties have changed and contain the "data" key', done => {
-			const editorInstance = new Editor();
+		describe( '#config', () => {
+			it( 'should replace all react DOM references with the `current` DOM element', done => {
+				const spy = sinon.spy( Editor, 'create' );
 
-			sandbox.stub( Editor, 'create' ).resolves( editorInstance );
-			sandbox.stub( editorInstance, 'setData' );
-			sandbox.stub( editorInstance, 'getData' ).returns( '<p>&nbsp;</p>' );
+				const domElement = document.createElement( 'div' );
+				const domElementRef = React.createRef();
+				const similarToDomElementRef = {
+					current: domElement,
+					foo: 'bar'
+				};
 
-			wrapper = mount( <CKEditor editor={ Editor } /> );
+				const config = {
+					domElement,
+					domElementRef,
+					nested: {
+						domElementRef
+					},
+					similarToDomElementRef,
+					array: [
+						domElementRef, domElement, similarToDomElementRef
+					]
+				};
 
-			setTimeout( () => {
-				wrapper.setProps( { data: '<p>Foo Bar.</p>' });
+				wrapper = mount(
+					<div>
+						<div ref={ domElementRef }></div>
+						<CKEditor editor={ Editor } config={ config } />
+					</div>
+				);
 
-				expect( editorInstance.setData.calledOnce ).to.be.true;
-				expect( editorInstance.setData.firstCall.args[ 0 ] ).to.equal( '<p>Foo Bar.</p>' );
+				setTimeout( () => {
+					const parsedConfig = spy.lastCall.args[ 1 ];
 
-				done();
+					// Not changed.
+					expect( parsedConfig.domElement ).to.equal( domElement ).to.instanceof( HTMLElement );
+
+					// Changed.
+					expect( parsedConfig.domElementRef ).to.equal( domElementRef.current ).to.instanceof( HTMLElement );
+
+					// Changed.
+					expect( parsedConfig.nested.domElementRef ).to.equal( domElementRef.current ).to.instanceof( HTMLElement );
+
+					// Not changed.
+					expect( parsedConfig.similarToDomElementRef ).to.deep.equal( similarToDomElementRef );
+					expect( parsedConfig.similarToDomElementRef.current ).to.equal( domElement );
+
+					// Changed.
+					expect( parsedConfig.array[ 0 ] ).to.equal( domElementRef.current ).to.instanceof( HTMLElement );
+
+					// Not changed.
+					expect( parsedConfig.array[ 1 ] ).to.equal( domElement );
+					expect( parsedConfig.array[ 2 ] ).to.deep.equal( similarToDomElementRef );
+					expect( parsedConfig.array[ 2 ].current ).to.equal( domElement );
+
+					spy.restore();
+					done();
+				} );
 			} );
-		} );
-
-		it( 'does not update the editor\'s data if value under "data" key is equal to editor\'s data', done => {
-			const editorInstance = new Editor();
-
-			sandbox.stub( Editor, 'create' ).resolves( editorInstance );
-			sandbox.stub( editorInstance, 'setData' );
-			sandbox.stub( editorInstance, 'getData' ).returns( '<p>Foo Bar.</p>' );
-
-			wrapper = mount( <CKEditor editor={ Editor } /> );
-
-			setTimeout( () => {
-				wrapper.setProps( { data: '<p>Foo Bar.</p>' });
-
-				expect( editorInstance.setData.calledOnce ).to.be.false;
-
-				done();
-			} );
-		} );
-
-		it( 'does not set editor\'s data if the editor is not ready', () => {
-			const editorInstance = new Editor();
-
-			sandbox.stub( Editor, 'create' ).resolves( editorInstance );
-			sandbox.stub( editorInstance, 'setData' );
-
-			wrapper = mount( <CKEditor editor={ Editor } /> );
-
-			const component = wrapper.instance();
-
-			component.componentDidUpdate( { data: 'Foo' } );
-
-			expect( component.editor ).to.be.null;
-			expect( editorInstance.setData.called ).to.be.false;
 		} );
 
 		describe( '#onInit', () => {

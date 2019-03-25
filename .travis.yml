@@ -18,6 +18,7 @@ before_install:
 install:
 - npm install
 script:
+- npm run build
 - npm run coverage && npm t -- --browsers=Firefox,BrowserStack_Edge,BrowserStack_Safari
 env:
   global:

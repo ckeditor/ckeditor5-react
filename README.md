@@ -25,6 +25,9 @@ npm install
 
 ### Executing tests
 
+Before starting tests execution, you need to build the package. You can use `npm run build` in order to build the production-ready version
+or `npm run develop` which produces a development version with attached watcher for all sources files.
+
 ```bash
 npm run test -- [additional options]
 # or
@@ -45,8 +48,6 @@ an environment variable, e.g.:
 ```bash
 BROWSER_STACK_USERNAME=[...] BROWSER_STACK_ACCESS_KEY=[...] npm t -- -b BrowserStack_Edge,BrowserStack_Safari -c
 ```
-
-If you are going to change the source (`src/ckeditor.jsx`) file, remember about rebuilding the package. You can use `npm run develop` in order to do it automatically.
 
 ### Building the package
 
