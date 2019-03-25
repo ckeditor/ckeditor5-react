@@ -123,63 +123,40 @@ describe( 'CKEditor Component', () => {
 	} );
 
 	describe( 'properties', () => {
-		describe( '#config', () => {
-			it( 'should replace all react DOM references with the `current` DOM element', done => {
-				const spy = sinon.spy( Editor, 'create' );
+		it( 'sets editor\'s data if properties have changed and contain the "data" key', done => {
+			const editorInstance = new Editor();
 
-				const domElement = document.createElement( 'div' );
-				const domElementRef = React.createRef();
-				const similarToDomElementRef = {
-					current: domElement,
-					foo: 'bar'
-				};
+			sandbox.stub( Editor, 'create' ).resolves( editorInstance );
+			sandbox.stub( editorInstance, 'setData' );
+			sandbox.stub( editorInstance, 'getData' ).returns( '<p>&nbsp;</p>' );
 
-				const config = {
-					domElement,
-					domElementRef,
-					nested: {
-						domElementRef
-					},
-					similarToDomElementRef,
-					array: [
-						domElementRef, domElement, similarToDomElementRef
-					]
-				};
+			wrapper = mount( <CKEditor editor={ Editor } /> );
 
-				wrapper = mount(
-					<div>
-						<div ref={ domElementRef }></div>
-						<CKEditor editor={ Editor } config={ config } />
-					</div>
-				);
+			setTimeout( () => {
+				wrapper.setProps( { data: '<p>Foo Bar.</p>' });
 
-				setTimeout( () => {
-					const parsedConfig = spy.lastCall.args[ 1 ];
+				expect( editorInstance.setData.calledOnce ).to.be.true;
+				expect( editorInstance.setData.firstCall.args[ 0 ] ).to.equal( '<p>Foo Bar.</p>' );
 
-					// Not changed.
-					expect( parsedConfig.domElement ).to.equal( domElement ).to.instanceof( HTMLElement );
+				done();
+			} );
+		} );
 
-					// Changed.
-					expect( parsedConfig.domElementRef ).to.equal( domElementRef.current ).to.instanceof( HTMLElement );
+		it( 'does not update the editor\'s data if value under "data" key is equal to editor\'s data', done => {
+			const editorInstance = new Editor();
 
-					// Changed.
-					expect( parsedConfig.nested.domElementRef ).to.equal( domElementRef.current ).to.instanceof( HTMLElement );
+			sandbox.stub( Editor, 'create' ).resolves( editorInstance );
+			sandbox.stub( editorInstance, 'setData' );
+			sandbox.stub( editorInstance, 'getData' ).returns( '<p>Foo Bar.</p>' );
 
-					// Not changed.
-					expect( parsedConfig.similarToDomElementRef ).to.deep.equal( similarToDomElementRef );
-					expect( parsedConfig.similarToDomElementRef.current ).to.equal( domElement );
+			wrapper = mount( <CKEditor editor={ Editor } /> );
 
-					// Changed.
-					expect( parsedConfig.array[ 0 ] ).to.equal( domElementRef.current ).to.instanceof( HTMLElement );
+			setTimeout( () => {
+				wrapper.setProps( { data: '<p>Foo Bar.</p>' });
 
-					// Not changed.
-					expect( parsedConfig.array[ 1 ] ).to.equal( domElement );
-					expect( parsedConfig.array[ 2 ] ).to.deep.equal( similarToDomElementRef );
-					expect( parsedConfig.array[ 2 ].current ).to.equal( domElement );
+				expect( editorInstance.setData.calledOnce ).to.be.false;
 
-					spy.restore();
-					done();
-				} );
+				done();
 			} );
 		} );
 
