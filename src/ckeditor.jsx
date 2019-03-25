@@ -5,7 +5,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { cloneDeepWith, isPlainObject, isElement } from 'lodash-es';
 
 export default class CKEditor extends React.Component {
 	constructor( props ) {
@@ -52,7 +51,7 @@ export default class CKEditor extends React.Component {
 
 	_initializeEditor() {
 		this.props.editor
-			.create( this.domContainer.current , parseConfig( this.props.config ) )
+			.create( this.domContainer.current , this.props.config )
 			.then( editor => {
 				this.editor = editor;
 
@@ -137,11 +136,3 @@ CKEditor.defaultProps = {
 	config: {}
 };
 
-function parseConfig( config ) {
-	// Replaces all DOM references created using React.createRef() with the "current" DOM node.
-	return cloneDeepWith( config, value => {
-		if ( isPlainObject( value ) && isElement( value.current ) && Object.keys( value ).length === 1 ) {
-			return value.current;
-		}
-	} );
-}
