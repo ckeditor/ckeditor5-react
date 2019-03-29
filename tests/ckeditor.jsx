@@ -123,6 +123,24 @@ describe( 'CKEditor Component', () => {
 	} );
 
 	describe( 'properties', () => {
+		// See: #83.
+		it( 'does not update anything if component is not ready', () => {
+			const editorInstance = new Editor();
+
+			sandbox.stub( Editor, 'create' ).resolves( editorInstance );
+
+			wrapper = mount( <CKEditor editor={ Editor } /> );
+
+			const component = wrapper.instance();
+			let shouldComponentUpdate;
+
+			expect( () => {
+				shouldComponentUpdate = component.shouldComponentUpdate( { disabled: true } );
+			} ).to.not.throw();
+
+			expect( shouldComponentUpdate ).to.be.false;
+		} );
+
 		describe( '#onInit', () => {
 			it( 'calls "onInit" callback if specified when the editor is ready to use', done => {
 				const editorInstance = new Editor();

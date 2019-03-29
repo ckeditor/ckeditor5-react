@@ -18,6 +18,10 @@ export default class CKEditor extends React.Component {
 
 	// This component should never be updated by React itself.
 	shouldComponentUpdate( nextProps ) {
+		if ( !this.editor ) {
+			return false;
+		}
+
 		if ( this._shouldUpdateContent( nextProps ) ) {
 			this.editor.setData( nextProps.data );
 		}
