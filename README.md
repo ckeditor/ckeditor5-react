@@ -11,7 +11,7 @@
 
 Official [CKEditor 5](https://ckeditor.com/ckeditor-5/) rich text editor component for React.
 
-## [Developer Documentation](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/angular.html) 📖
+## [Developer Documentation](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/react.html) 📖
 
 See the ["Rich text editor component for React"](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/react.html) guide in the [CKEditor 5 documentation](https://ckeditor.com/docs/ckeditor5/latest) to learn more:
 
