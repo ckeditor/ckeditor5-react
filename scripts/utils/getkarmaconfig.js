@@ -75,18 +75,6 @@ module.exports = function getKarmaConfig() {
 			CHROME_LOCAL: {
 				base: 'Chrome',
 				flags: [ '--disable-background-timer-throttling' ]
-			},
-			BrowserStack_Edge: {
-				base: 'BrowserStack',
-				os: 'Windows',
-				os_version: '10',
-				browser: 'edge'
-			},
-			BrowserStack_Safari: {
-				base: 'BrowserStack',
-				os: 'OS X',
-				os_version: 'High Sierra',
-				browser: 'safari'
 			}
 		},
 
@@ -100,17 +88,6 @@ module.exports = function getKarmaConfig() {
 			showDiff: true
 		}
 	};
-
-	if ( shouldEnableBrowserStack() ) {
-		karmaConfig.browserStack = {
-			username: process.env.BROWSER_STACK_USERNAME,
-			accessKey: process.env.BROWSER_STACK_ACCESS_KEY,
-			build: getBuildName(),
-			project: 'ckeditor5'
-		};
-
-		karmaConfig.reporters = [ 'dots', 'BrowserStack' ];
-	}
 
 	if ( options.watch ) {
 		karmaConfig.autoWatch = true;
@@ -177,53 +154,13 @@ function getBrowsers( browsers ) {
 		return null;
 	}
 
-	const newBrowsers = browsers
-		.map( browser => {
-			if ( browser !== 'Chrome' ) {
-				return browser;
-			}
+	return browsers.map( browser => {
+		if ( browser !== 'Chrome' ) {
+			return browser;
+		}
 
-			return process.env.TRAVIS ? 'CHROME_TRAVIS_CI' : 'CHROME_LOCAL';
-		} );
-
-	if ( shouldEnableBrowserStack() ) {
-		return newBrowsers;
-	}
-
-	// If the BrowserStack is disabled, all browsers that start with a prefix "BrowserStack" should be filtered out.
-	// See: https://github.com/ckeditor/ckeditor5-dev/issues/358 and https://github.com/ckeditor/ckeditor5-dev/issues/402.
-	return newBrowsers.filter( browser => !browser.startsWith( 'BrowserStack' ) );
-}
-
-// Formats name of the build for BrowserStack. It merges a repository name and current timestamp.
-// If env variable `TRAVIS_REPO_SLUG` is not available, the function returns `undefined`.
-//
-// @returns {String|undefined}
-function getBuildName() {
-	const repoSlug = process.env.TRAVIS_REPO_SLUG;
-
-	if ( !repoSlug ) {
-		return;
-	}
-
-	const repositoryName = repoSlug.split( '/' )[ 1 ].replace( /-/g, '_' );
-	const date = new Date().getTime();
-
-	return `${ repositoryName } ${ date }`;
-}
-
-function shouldEnableBrowserStack() {
-	if ( !process.env.BROWSER_STACK_USERNAME ) {
-		return false;
-	}
-
-	if ( !process.env.BROWSER_STACK_ACCESS_KEY ) {
-		return false;
-	}
-
-	// If the repository slugs are different, the pull request comes from the community (forked repository).
-	// For such builds, BrowserStack will be disabled. Read more: https://github.com/ckeditor/ckeditor5-dev/issues/358.
-	return ( process.env.TRAVIS_EVENT_TYPE !== 'pull_request' || process.env.TRAVIS_PULL_REQUEST_SLUG === process.env.TRAVIS_REPO_SLUG );
+		return process.env.TRAVIS ? 'CHROME_TRAVIS_CI' : 'CHROME_LOCAL';
+	} );
 }
 
 /**
