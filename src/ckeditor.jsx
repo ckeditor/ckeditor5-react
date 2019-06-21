@@ -70,7 +70,7 @@ export default class CKEditor extends React.Component {
 				const modelDocument = editor.model.document;
 				const viewDocument = editor.editing.view.document;
 
-				modelDocument.on( 'change:data', event => {
+				modelDocument.on( 'change', event => {
 					/* istanbul ignore else */
 					if ( this.props.onChange ) {
 						this.props.onChange( event, editor );
