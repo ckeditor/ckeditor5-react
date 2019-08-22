@@ -67,7 +67,7 @@ module.exports = {
 				exclude: /node_modules/,
 				query: {
 					compact: false,
-					presets: [ '@babel/preset-react', '@babel/preset-env' ]
+					presets: [ '@babel/preset-react' ]
 				}
 			}
 		]
