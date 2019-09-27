@@ -1,6 +1,5 @@
 # CKEditor 5 rich text editor component for React
 
-[![Join the chat at https://gitter.im/ckeditor/ckeditor5](https://badges.gitter.im/ckeditor/ckeditor5.svg)](https://gitter.im/ckeditor/ckeditor5?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![npm version](https://badge.fury.io/js/%40ckeditor%2Fckeditor5-react.svg)](https://www.npmjs.com/package/@ckeditor/ckeditor5-react)
 [![Build Status](https://travis-ci.org/ckeditor/ckeditor5-react.svg?branch=master)](https://travis-ci.org/ckeditor/ckeditor5-react)
 [![Coverage Status](https://coveralls.io/repos/github/ckeditor/ckeditor5-react/badge.svg?branch=master)](https://coveralls.io/github/ckeditor/ckeditor5-react?branch=master)
@@ -91,7 +90,7 @@ After bumping the version, you can publish the changes:
 npm run release:publish
 ```
 
-As in the previous task, the `--dry-run` option is also available. 
+As in the previous task, the `--dry-run` option is also available.
 
 Note: Only the `dist/` directory will be published.
 
