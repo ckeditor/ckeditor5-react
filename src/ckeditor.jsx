@@ -92,7 +92,12 @@ export default class CKEditor extends React.Component {
 				} );
 			} )
 			.catch( error => {
-				console.error( error );
+				if (this.props.onError) {
+					this.props.onError( error )
+				}
+				else {
+					console.error( error );
+				}
 			} );
 	}
 
@@ -132,6 +137,7 @@ CKEditor.propTypes = {
 	onInit: PropTypes.func,
 	onFocus: PropTypes.func,
 	onBlur: PropTypes.func,
+	onError: PropTypes.func,
 	disabled: PropTypes.bool
 };
 

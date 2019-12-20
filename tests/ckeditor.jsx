@@ -366,6 +366,24 @@ describe( 'CKEditor Component', () => {
 			} );
 		} );
 
+		describe('#onError', () => {
+			it( 'calls optional onError callback when error occurs', done => {
+				const ERROR_TEXT = 'Error was thrown.'
+				const errorHandler = sandbox.spy()
+	
+				sandbox.stub( Editor, 'create' ).rejects( ERROR_TEXT );
+				wrapper = mount( <CKEditor editor={ Editor } onError={ errorHandler } /> );
+
+				setTimeout( () => {
+					expect( errorHandler.calledOnce ).to.equal( true );
+
+					// sinon stub.rejects puts the error text in the name, not message
+					expect( errorHandler.firstCall.args[ 0 ].name ).to.equal( ERROR_TEXT );
+					done();
+				} );
+			} );
+		}) 
+
 		describe( '#disabled', () => {
 			it( 'switches the editor to read-only mode if [disabled={true}]', done => {
 				const onInit = function( editor ) {
