@@ -92,12 +92,9 @@ export default class CKEditor extends React.Component {
 				} );
 			} )
 			.catch( error => {
-				if (this.props.onError) {
-					this.props.onError( error )
-				}
-				else {
-					console.error( error );
-				}
+				const onErrorCallback = this.props.onError || console.error;
+
+				onErrorCallback( error );
 			} );
 	}
 
