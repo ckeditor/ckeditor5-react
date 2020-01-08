@@ -102,7 +102,7 @@ describe( 'CKEditor Component', () => {
 			} );
 		} );
 
-		it( 'displays an error if something went wrong', done => {
+		it( 'displays an error if something went wrong and "onError" callback was not specified', done => {
 			const error = new Error( 'Something went wrong.' );
 			const consoleErrorStub = sandbox.stub( console, 'error' );
 
@@ -361,6 +361,23 @@ describe( 'CKEditor Component', () => {
 					expect( onBlur.firstCall.args[ 0 ] ).to.equal( event );
 					expect( onBlur.firstCall.args[ 1 ] ).to.equal( editorInstance );
 
+					done();
+				} );
+			} );
+		} );
+
+		describe( '#onError', () => {
+			it( 'calls the callback if specified when an error occurs', done => {
+				const error = new Error( 'Error was thrown.' );
+				const errorHandler = sandbox.spy();
+
+				sandbox.stub( Editor, 'create' ).rejects( error );
+				wrapper = mount( <CKEditor editor={Editor} onError={errorHandler}/> );
+
+				setTimeout( () => {
+					expect( errorHandler.calledOnce ).to.equal( true );
+
+					expect( errorHandler.firstCall.args[ 0 ] ).to.equal( error );
 					done();
 				} );
 			} );
