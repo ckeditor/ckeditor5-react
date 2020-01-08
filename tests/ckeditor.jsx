@@ -102,7 +102,7 @@ describe( 'CKEditor Component', () => {
 			} );
 		} );
 
-		it( 'displays an error if something went wrong', done => {
+		it( 'displays an error if something went wrong and "onError" callback was not specified', done => {
 			const error = new Error( 'Something went wrong.' );
 			const consoleErrorStub = sandbox.stub( console, 'error' );
 
@@ -366,23 +366,22 @@ describe( 'CKEditor Component', () => {
 			} );
 		} );
 
-		describe('#onError', () => {
-			it( 'calls optional onError callback when error occurs', done => {
-				const ERROR_TEXT = 'Error was thrown.'
-				const errorHandler = sandbox.spy()
-	
-				sandbox.stub( Editor, 'create' ).rejects( ERROR_TEXT );
-				wrapper = mount( <CKEditor editor={ Editor } onError={ errorHandler } /> );
+		describe( '#onError', () => {
+			it( 'calls the callback if specified when an error occurs', done => {
+				const error = new Error( 'Error was thrown.' );
+				const errorHandler = sandbox.spy();
+
+				sandbox.stub( Editor, 'create' ).rejects( error );
+				wrapper = mount( <CKEditor editor={Editor} onError={errorHandler}/> );
 
 				setTimeout( () => {
 					expect( errorHandler.calledOnce ).to.equal( true );
 
-					// sinon stub.rejects puts the error text in the name, not message
-					expect( errorHandler.firstCall.args[ 0 ].name ).to.equal( ERROR_TEXT );
+					expect( errorHandler.firstCall.args[ 0 ] ).to.equal( error );
 					done();
 				} );
 			} );
-		}) 
+		} );
 
 		describe( '#disabled', () => {
 			it( 'switches the editor to read-only mode if [disabled={true}]', done => {
