@@ -192,7 +192,7 @@ function parseArguments( args ) {
 			c: 'coverage',
 			r: 'reporter',
 			s: 'source-map',
-			w: 'watch',
+			w: 'watch'
 		},
 
 		default: {
@@ -200,7 +200,7 @@ function parseArguments( args ) {
 			reporter: 'mocha',
 			watch: false,
 			coverage: false,
-			'source-map': false,
+			'source-map': false
 		}
 	};
 

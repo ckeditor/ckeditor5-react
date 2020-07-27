@@ -25,22 +25,27 @@
     "@ckeditor/ckeditor5-build-classic": "^12.0.0",
     "@ckeditor/ckeditor5-dev-env": "^15.0.0",
     "@ckeditor/ckeditor5-dev-utils": "^11.0.1",
+    "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.5",
     "chai": "^4.1.2",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
+    "eslint": "^5.14.1",
+    "eslint-config-ckeditor5": "^2.0.0",
+    "eslint-plugin-react": "^7.12.4",
+    "husky": "^1.3.1",
     "istanbul-instrumenter-loader": "^3.0.0",
     "karma": "^4.0.0",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-coverage": "^1.1.1",
     "karma-coveralls": "^2.0.0",
-    "karma-firefox-launcher": "^1.0.1",
     "karma-mocha": "^1.3.0",
     "karma-mocha-reporter": "^2.2.4",
     "karma-sinon": "^1.0.5",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^3.0.0",
+    "lint-staged": "^8.1.5",
     "minimist": "^1.2.0",
     "mocha": "^5.2.0",
     "react": "^16.0.0",
@@ -58,6 +63,7 @@
     "npm": ">=5.7.1"
   },
   "scripts": {
+    "lint": "eslint --quiet '**/*.js' '**/*.jsx'",
     "build": "webpack --mode production",
     "develop": "webpack --mode development --watch",
     "changelog": "node ./scripts/changelog.js",
@@ -79,5 +85,22 @@
   "bugs": {
     "url": "https://github.com/ckeditor/ckeditor5-react/issues"
   },
-  "homepage": "https://github.com/ckeditor/ckeditor5-react"
+  "lint-staged": {
+    "**/*.js": [
+      "eslint --quiet"
+    ],
+    "**/*.jsx": [
+      "eslint --quiet"
+    ]
+  },
+  "eslintIgnore": [
+    "dist/**",
+    "coverage/**"
+  ],
+  "homepage": "https://github.com/ckeditor/ckeditor5-react",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
 }

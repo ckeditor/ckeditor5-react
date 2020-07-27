@@ -3,10 +3,12 @@
  * For licensing, see LICENSE.md.
  */
 
+/* global HTMLDivElement */
+
 import React from 'react';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import Editor from  './_utils/editor';
+import Editor from './_utils/editor';
 import CKEditor from '../src/ckeditor.jsx';
 
 configure( { adapter: new Adapter() } );
@@ -170,7 +172,6 @@ describe( 'CKEditor Component', () => {
 				wrapper = mount( <CKEditor editor={ Editor } /> );
 
 				setTimeout( () => {
-
 					expect( modelDocument.on.calledOnce ).to.be.true;
 					expect( modelDocument.on.firstCall.args[ 0 ] ).to.equal( 'change:data' );
 					expect( modelDocument.on.firstCall.args[ 1 ] ).to.be.a( 'function' );

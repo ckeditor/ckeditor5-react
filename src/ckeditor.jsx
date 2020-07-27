@@ -55,7 +55,7 @@ export default class CKEditor extends React.Component {
 
 	_initializeEditor() {
 		this.props.editor
-			.create( this.domContainer.current , this.props.config )
+			.create( this.domContainer.current, this.props.config )
 			.then( editor => {
 				this.editor = editor;
 
