@@ -13,8 +13,9 @@ cache:
 install:
 - npm install
 script:
+- npm run lint
 - npm run build
-- npm run coverage && npm t -- --browsers=Firefox
+- npm run coverage
 env:
   global:
   - secure: ZNswdUStpHjer4LfNPhzIcsIUtv6R3wzaLIkQIhuXN+THZUwIBtPRjKU6XIBH29GoiSBsYrpjoq9m91iW9nkGhUFq+N/seeHvqDMj2eH5qmWK0jB8pPkrBBEe/70FdhncEeOhfX0KHhsFarpmmW6dcshrAvz35gp6DKuzs/a0QgV+XUnduc3OZ39yz5hQAaMfBJEaci0ZmMI52z9Q4Jf2FmljosznDQZ6ZU808vWxSZMeqknDqLcMRQ4X8okj1+7345K28X3uDetAY7EcmeBKUMJa/d/J1lzMD6DpqSwNiYRZ2FFXf8TZqZscCn4lB9SEW8YRkO1teO3stXQp+aeG7GS3o2c4nhNN4poeERmfa4c/ydSAGV+tsfzSV8Ye5pMUWfFtGvfiq8gkFNtLqL2B2N3fAhQlO5rYSx77f0mWpFGx3ys9UJCTUEExtpeK99ENSLQrgGukovxWRKZlbxDp4NxGnxK2RuSn0WmS1BUXRFxAxL0UdSkoeWDvw6me3WlfrQxEboR19BTHaMLFjJBrmbVylTHI7OsNrSFSuva/Mh2BKl3fYta2OnW2T9T79/NIsmgcDw9A9DeNwkFqdPaqCE+vgrEefly2oaUDl9nyCqu9yCkiATyVHkskniDhihSvz0FYScCYcyQ2OIUx2heMrXA1Nforhmnt7N2+3bnodE=
