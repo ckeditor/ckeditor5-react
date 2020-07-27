@@ -39,15 +39,19 @@ describe( 'CKEditor Component', () => {
 
 			expect( Editor.create.calledOnce ).to.be.true;
 			expect( Editor.create.firstCall.args[ 0 ] ).to.be.an.instanceof( HTMLDivElement );
-			expect( Editor.create.firstCall.args[ 1 ] ).to.deep.equal( {} );
+			expect( Editor.create.firstCall.args[ 1 ] ).to.deep.equal( {
+				initialData: ''
+			} );
 		} );
 
 		it( 'passes configuration object directly to the "Editor#create()" method', () => {
 			sandbox.stub( Editor, 'create' ).resolves( new Editor() );
 
+			function myPlugin() {}
+
 			const editorConfig = {
 				plugins: [
-					function myPlugin() {}
+					myPlugin
 				],
 				toolbar: {
 					items: [ 'bold' ]
@@ -57,18 +61,81 @@ describe( 'CKEditor Component', () => {
 			wrapper = mount( <CKEditor editor={ Editor } config={ editorConfig } /> );
 
 			expect( Editor.create.calledOnce ).to.be.true;
-			expect( Editor.create.firstCall.args[ 1 ] ).to.deep.equal( editorConfig );
+			expect( Editor.create.firstCall.args[ 1 ] ).to.deep.equal( {
+				plugins: [
+					myPlugin
+				],
+				toolbar: {
+					items: [ 'bold' ]
+				},
+				initialData: ''
+			} );
 		} );
 
-		it( 'sets initial data if was specified', done => {
+		it( 'sets initial data if was specified (using the "data" property)', done => {
 			sandbox.stub( Editor, 'create' ).resolves( new Editor() );
 
 			wrapper = mount( <CKEditor editor={ Editor } data="<p>Hello CKEditor 5!</p>" /> );
 
 			setTimeout( () => {
-				const component = wrapper.instance();
+				expect( Editor.create.firstCall.args[ 1 ].initialData ).to.equal(
+					'<p>Hello CKEditor 5!</p>'
+				);
 
-				expect( component.domContainer.current.innerHTML ).to.equal( '<p>Hello CKEditor 5!</p>' );
+				done();
+			} );
+		} );
+
+		it( 'sets initial data if was specified (using the "config" property with the `initialData` key)', done => {
+			sandbox.stub( Editor, 'create' ).resolves( new Editor() );
+
+			wrapper = mount( <CKEditor editor={ Editor } config={ {
+				initialData: '<p>Hello CKEditor 5!</p>'
+			} } /> );
+
+			setTimeout( () => {
+				expect( Editor.create.firstCall.args[ 1 ].initialData ).to.equal(
+					'<p>Hello CKEditor 5!</p>'
+				);
+
+				done();
+			} );
+		} );
+
+		it( 'shows a warning if used "data" and "config.initialData" at the same time', done => {
+			const consoleWarnStub = sandbox.stub( console, 'warn' );
+
+			wrapper = mount( <CKEditor editor={ Editor } data="<p>Foo</p>" config={ {
+				initialData: '<p>Bar</p>'
+			} } /> );
+
+			setTimeout( () => {
+				consoleWarnStub.restore();
+
+				expect( consoleWarnStub.calledOnce ).to.be.true;
+				expect( consoleWarnStub.firstCall.args[ 0 ] ).to.equal(
+					'Editor data should be provided either using `config.initialData` or `data` properties. ' +
+					'The config property is over the data value and the first one will be used when specified both.'
+				);
+
+				done();
+			} );
+		} );
+
+		it( 'uses "config.initialData" over "data" when specified both', done => {
+			const consoleWarnStub = sandbox.stub( console, 'warn' );
+			sandbox.stub( Editor, 'create' ).resolves( new Editor() );
+
+			wrapper = mount( <CKEditor editor={ Editor } data="<p>Foo</p>" config={ {
+				initialData: '<p>Bar</p>'
+			} } /> );
+
+			setTimeout( () => {
+				consoleWarnStub.restore();
+
+				expect( Editor.create.firstCall.args[ 1 ].initialData ).to.equal(
+					'<p>Bar</p>'
+				);
 
 				done();
 			} );

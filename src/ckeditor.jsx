@@ -45,17 +45,14 @@ export default class CKEditor extends React.Component {
 
 	// Render a <div> element which will be replaced by CKEditor.
 	render() {
-		// We need to inject initial data to the container where the editable will be enabled. Using `editor.setData()`
-		// is a bad practice because it initializes the data after every new connection (in case of collaboration usage).
-		// It leads to reset the entire content. See: #68
 		return (
-			<div ref={ this.domContainer } dangerouslySetInnerHTML={ { __html: this.props.data || '' } }></div>
+			<div ref={ this.domContainer }></div>
 		);
 	}
 
 	_initializeEditor() {
 		this.props.editor
-			.create( this.domContainer.current, this.props.config )
+			.create( this.domContainer.current, this._getConfig() )
 			.then( editor => {
 				this.editor = editor;
 
@@ -122,6 +119,21 @@ export default class CKEditor extends React.Component {
 		}
 
 		return true;
+	}
+
+	_getConfig() {
+		if ( this.props.data && this.props.config.initialData ) {
+			console.warn(
+				'Editor data should be provided either using `config.initialData` or `data` properties. ' +
+				'The config property is over the data value and the first one will be used when specified both.'
+			);
+		}
+
+		// Merge two possible ways of providing data into the `config.initialData` field.
+		return {
+			...this.props.config,
+			initialData: this.props.config.initialData || this.props.data || ''
+		};
 	}
 }
 
