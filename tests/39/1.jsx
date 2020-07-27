@@ -3,19 +3,21 @@
  * For licensing, see LICENSE.md.
  */
 
+/* global document, ClassicEditor */
+
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { configure, mount } from 'enzyme';
+import { configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
 import CKEditor from '../../src/ckeditor.jsx';
 
 configure( { adapter: new Adapter() } );
 
-const Editor = ( props ) => {
+const Editor = props => {
 	return (
 		<CKEditor editor={ ClassicEditor } { ...props } />
-	)
+	);
 };
 
 class App extends React.Component {
@@ -32,10 +34,12 @@ class App extends React.Component {
 	render() {
 		return (
 			<Editor
-				onChange={ (evt, editor) => this.setState( { content: editor.getData() } ) }
-				onInit={ _editor => this.editor = _editor }
+				onChange={ ( evt, editor ) => this.setState( { content: editor.getData() } ) }
+				onInit={ _editor => {
+					this.editor = _editor;
+				} }
 			/>
-		)
+		);
 	}
 }
 
@@ -47,7 +51,7 @@ describe( '#37 - bug: a browser is being froze', () => {
 		document.body.appendChild( div );
 
 		return new Promise( resolve => {
-			component = ReactDOM.render( <App />, div );
+			component = ReactDOM.render( <App />, div ); // eslint-disable-line react/no-render-return-value
 
 			setTimeout( resolve );
 		} );

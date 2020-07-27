@@ -3,19 +3,21 @@
  * For licensing, see LICENSE.md.
  */
 
+/* global document, ClassicEditor */
+
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { configure, mount } from 'enzyme';
+import { configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
 import CKEditor from '../src/ckeditor.jsx';
 
 configure( { adapter: new Adapter() } );
 
-const Editor = ( props ) => {
+const Editor = props => {
 	return (
 		<CKEditor editor={ ClassicEditor } { ...props } />
-	)
+	);
 };
 
 class AppUsingState extends React.Component {
@@ -33,10 +35,12 @@ class AppUsingState extends React.Component {
 		return (
 			<Editor
 				data={ this.state.content }
-				onChange={ (evt, editor) => this.setState( { content: editor.getData() } ) }
-				onInit={ _editor => this.editor = _editor }
+				onChange={ ( evt, editor ) => this.setState( { content: editor.getData() } ) }
+				onInit={ _editor => {
+					this.editor = _editor;
+				} }
 			/>
-		)
+		);
 	}
 }
 
@@ -45,15 +49,17 @@ class AppUsingStaticString extends AppUsingState {
 		return (
 			<Editor
 				data={ '<p>Initial data.</p>' }
-				onChange={ (evt, editor) => this.setState( { content: editor.getData() } ) }
-				onInit={ _editor => this.editor = _editor }
+				onChange={ ( evt, editor ) => this.setState( { content: editor.getData() } ) }
+				onInit={ _editor => {
+					this.editor = _editor;
+				} }
 			/>
-		)
+		);
 	}
 }
 
 describe( 'CKEditor Component - integration', () => {
-	describe('update the editor\'s content', () => {
+	describe( 'update the editor\'s content', () => {
 		// Common usage of the component - a component's state is passed to the <CKEditor> component.
 		describe( '#data is connected with the state', () => {
 			let div, component;
@@ -63,7 +69,7 @@ describe( 'CKEditor Component - integration', () => {
 				document.body.appendChild( div );
 
 				return new Promise( resolve => {
-					component = ReactDOM.render( <AppUsingState />, div );
+					component = ReactDOM.render( <AppUsingState />, div ); // eslint-disable-line react/no-render-return-value
 
 					setTimeout( resolve );
 				} );
@@ -111,7 +117,7 @@ describe( 'CKEditor Component - integration', () => {
 				document.body.appendChild( div );
 
 				return new Promise( resolve => {
-					component = ReactDOM.render( <AppUsingStaticString />, div );
+					component = ReactDOM.render( <AppUsingStaticString />, div ); // eslint-disable-line react/no-render-return-value
 
 					setTimeout( resolve );
 				} );
