@@ -110,6 +110,7 @@ describe( 'CKEditor Component', () => {
 			} } /> );
 
 			setTimeout( () => {
+				// We must restore "console.warn" before assertions in order to see warnings if they were logged.
 				consoleWarnStub.restore();
 
 				expect( consoleWarnStub.calledOnce ).to.be.true;
@@ -131,6 +132,7 @@ describe( 'CKEditor Component', () => {
 			} } /> );
 
 			setTimeout( () => {
+				// We must restore "console.warn" before assertions in order to see warnings if they were logged.
 				consoleWarnStub.restore();
 
 				expect( Editor.create.firstCall.args[ 1 ].initialData ).to.equal(
