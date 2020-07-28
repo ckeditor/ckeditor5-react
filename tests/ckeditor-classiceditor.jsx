@@ -3,6 +3,8 @@
  * For licensing, see LICENSE.md.
  */
 
+/* global ClassicEditor */
+
 import React from 'react';
 import 'react-dom';
 import { configure, mount } from 'enzyme';

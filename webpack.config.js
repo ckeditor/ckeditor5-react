@@ -34,8 +34,7 @@ module.exports = {
 		path: path.join( __dirname, 'dist' ),
 		filename: 'ckeditor.js',
 		libraryTarget: 'umd',
-		libraryExport: 'default',
-
+		libraryExport: 'default'
 	},
 
 	optimization: {
@@ -57,7 +56,7 @@ module.exports = {
 		new webpack.BannerPlugin( {
 			banner: bundler.getLicenseBanner(),
 			raw: true
-		} ),
+		} )
 	],
 
 	module: {
@@ -72,5 +71,5 @@ module.exports = {
 				}
 			}
 		]
-	},
+	}
 };
