@@ -17,7 +17,7 @@
     "mount": true
   },
   "rules": {
-    "react/prop-types": "ignore",
+    "react/prop-types": "off",
     "no-console": "off",
     "max-len": [
       "error",

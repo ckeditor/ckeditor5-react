@@ -28,6 +28,8 @@ After cloning this repository, install necessary dependencies:
 npm install
 ```
 
+You can also use [Yarn](https://yarnpkg.com/).
+
 ### Executing tests
 
 Before starting tests execution, you need to build the package. You can use `npm run build` in order to build the production-ready version
