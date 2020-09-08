@@ -214,20 +214,15 @@ describe( 'CKEditor Component', () => {
 		} );
 
 		describe( '#onInit', () => {
-			it( 'calls "onInit" callback if specified when the editor is ready to use', done => {
+			it( 'calls "onInit" callback if specified when the editor is ready to use', async () => {
 				const editorInstance = new Editor();
-				const onInit = sandbox.spy();
-
 				sandbox.stub( Editor, 'create' ).resolves( editorInstance );
 
-				wrapper = mount( <CKEditor editor={ Editor } onInit={ onInit } /> );
-
-				setTimeout( () => {
-					expect( onInit.calledOnce ).to.be.true;
-					expect( onInit.firstCall.args[ 0 ] ).to.equal( editorInstance );
-
-					done();
+				const onInitArgument = await new Promise( resolve => {
+					wrapper = mount( <CKEditor editor={ Editor } onInit={ resolve } /> );
 				} );
+
+				expect( onInitArgument ).to.equal( editorInstance );
 			} );
 		} );
 
@@ -469,22 +464,17 @@ describe( 'CKEditor Component', () => {
 				wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onInit={ onInit } /> );
 			} );
 
-			it( 'switches the editor to read-only mode when [disabled={true}] property was set in runtime', done => {
-				let editor;
-
-				const onInit = function( _editor ) {
-					editor = _editor;
-				};
-
-				wrapper = mount( <CKEditor editor={ Editor } onInit={ onInit } /> );
-
-				setTimeout( () => {
-					wrapper.setProps( { disabled: true } );
-
-					expect( editor.isReadOnly ).to.be.true;
-
-					done();
+			it( 'switches the editor to read-only mode when [disabled={true}] property was set in runtime', async () => {
+				await new Promise( ( res, rej ) => {
+					wrapper = mount( <CKEditor
+						editor={ Editor }
+						onInit={ res }
+						onError={ rej } /> );
 				} );
+
+				wrapper.setProps( { disabled: true } );
+
+				expect( wrapper.instance().editor.isReadOnly ).to.be.true;
 			} );
 		} );
 	} );

@@ -5,8 +5,9 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-// import Context from './context.jsx';
+import Context from './context.jsx';
 import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
+import uid from './utils/uid';
 
 export default class CKEditor extends React.Component {
 	constructor( props ) {
@@ -17,8 +18,7 @@ export default class CKEditor extends React.Component {
 		this.domContainer = React.createRef();
 		this.watchdog = null;
 
-		// TODO
-		this._id = Math.random();
+		this._id = uid();
 	}
 
 	get editor() {
@@ -204,4 +204,4 @@ CKEditor.defaultProps = {
 	config: {}
 };
 
-// CKEditor.Context = Context;
+export { Context };

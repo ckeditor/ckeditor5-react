@@ -4,6 +4,7 @@
  */
 
 /* global document, ClassicEditor */
+/* eslint-disable react/no-render-return-value */
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -38,13 +39,24 @@ class AppUsingState extends React.Component {
 				onChange={ ( evt, editor ) => this.setState( { content: editor.getData() } ) }
 				onInit={ _editor => {
 					this.editor = _editor;
+					this.props.onInit();
 				} }
 			/>
 		);
 	}
 }
 
-class AppUsingStaticString extends AppUsingState {
+class AppUsingStaticString extends React.Component {
+	constructor( props ) {
+		super( props );
+
+		this.state = {
+			content: ''
+		};
+
+		this.editor = null;
+	}
+
 	render() {
 		return (
 			<Editor
@@ -52,6 +64,7 @@ class AppUsingStaticString extends AppUsingState {
 				onChange={ ( evt, editor ) => this.setState( { content: editor.getData() } ) }
 				onInit={ _editor => {
 					this.editor = _editor;
+					this.props.onInit();
 				} }
 			/>
 		);
@@ -69,9 +82,8 @@ describe( 'CKEditor Component - integration', () => {
 				document.body.appendChild( div );
 
 				return new Promise( resolve => {
-					component = ReactDOM.render( <AppUsingState />, div ); // eslint-disable-line react/no-render-return-value
-
-					setTimeout( resolve );
+					// eslint-disable react/no-render-return-value
+					component = ReactDOM.render( <AppUsingState onInit={ resolve } />, div );
 				} );
 			} );
 
@@ -117,9 +129,7 @@ describe( 'CKEditor Component - integration', () => {
 				document.body.appendChild( div );
 
 				return new Promise( resolve => {
-					component = ReactDOM.render( <AppUsingStaticString />, div ); // eslint-disable-line react/no-render-return-value
-
-					setTimeout( resolve );
+					component = ReactDOM.render( <AppUsingStaticString onInit={ resolve } />, div );
 				} );
 			} );
 
