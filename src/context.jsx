@@ -32,15 +32,34 @@ export default class Context extends React.Component {
 	}
 
 	_initializeContext() {
-		this.contextWatchdog = new ContextWatchdog( this.props.contextConstructor );
+		this.contextWatchdog = new ContextWatchdog( this.props.context );
 
-		this.contextWatchdog.create( this.props.config );
+		this.contextWatchdog.create( this.props.config )
+			.catch( error => {
+				handleError( error );
+			} );
+
+		this.contextWatchdog.on( 'error', error => {
+			handleError( error );
+		} );
+
+		function handleError( error ) {
+			if ( this.props.onError ) {
+				this.props.onError( error );
+			} else {
+				console.error( error );
+			}
+		}
+	}
+
+	_destroyContext() {
+		this.contextWatchdog.destroy();
 	}
 }
 
 // Properties definition.
 Context.propTypes = {
-	context: PropTypes.func.required,
+	context: PropTypes.func,
 	config: PropTypes.object
 };
 

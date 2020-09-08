@@ -5,7 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import Context from './context.jsx';
+// import Context from './context.jsx';
 import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 
 export default class CKEditor extends React.Component {
@@ -17,6 +17,7 @@ export default class CKEditor extends React.Component {
 		this.domContainer = React.createRef();
 		this.watchdog = null;
 
+		// TODO
 		this._id = Math.random();
 	}
 
@@ -27,7 +28,7 @@ export default class CKEditor extends React.Component {
 
 		if ( this.props.contextWatchdog ) {
 			try {
-				return this.contextWatchdog.getItem( this._id );
+				return this.props.contextWatchdog.getItem( this._id );
 			} catch ( err ) {
 				return null;
 			}
@@ -78,10 +79,6 @@ export default class CKEditor extends React.Component {
 						editor.isReadOnly = this.props.disabled;
 					}
 
-					if ( this.props.onInit ) {
-						this.props.onInit( editor );
-					}
-
 					const modelDocument = editor.model.document;
 					const viewDocument = editor.editing.view.document;
 
@@ -106,6 +103,15 @@ export default class CKEditor extends React.Component {
 						}
 					} );
 
+					// The onInit should be fired once the `editor` property
+					// can be reached from the <ckeditor> component.
+					// Ideally this part should be moved to the watchdog item creator listeners.
+					setTimeout( () => {
+						if ( this.props.onInit ) {
+							this.props.onInit( this.editor );
+						}
+					} );
+
 					return editor;
 				} );
 		};
@@ -118,12 +124,12 @@ export default class CKEditor extends React.Component {
 
 		if ( this.props.contextWatchdog ) {
 			this.props.contextWatchdog.add( {
-				id: 'editor' + Math.random(), // TODO
+				id: this._id,
 				type: 'editor',
 				sourceElementOrData: this.domContainer.current,
 				config: this._getConfig(),
 				creator
-			} );
+			} ).catch( onError );
 		} else {
 			this.watchdog = new EditorWatchdog( this.props.editor );
 
@@ -190,7 +196,7 @@ CKEditor.propTypes = {
 	onBlur: PropTypes.func,
 	onError: PropTypes.func,
 	disabled: PropTypes.bool,
-	contextWatchdog: PropTypes.func
+	contextWatchdog: PropTypes.object
 };
 
 // Default values for non-required properties.
@@ -198,4 +204,4 @@ CKEditor.defaultProps = {
 	config: {}
 };
 
-CKEditor.Context = Context;
+// CKEditor.Context = Context;
