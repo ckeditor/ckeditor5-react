@@ -17,7 +17,7 @@ export default class Context extends React.Component {
 
 	render() {
 		return (
-			<>
+			<React.Fragment>
 				{React.Children.map( this.props.children, child => {
 					if ( child.type === CKEditor ) {
 						return React.cloneElement( child, {
@@ -27,7 +27,7 @@ export default class Context extends React.Component {
 
 					return child;
 				} ) }
-			</>
+			</React.Fragment>
 		);
 	}
 
