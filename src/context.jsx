@@ -52,6 +52,10 @@ export default class Context extends React.Component {
 		}
 	}
 
+	componentWillUnmount() {
+		this._destroyContext();
+	}
+
 	_destroyContext() {
 		this.contextWatchdog.destroy();
 	}
