@@ -17,6 +17,7 @@
     "ckeditor 5"
   ],
   "dependencies": {
+    "@ckeditor/ckeditor5-watchdog": "^22.0.0",
     "prop-types": "^15.7.2"
   },
   "devDependencies": {

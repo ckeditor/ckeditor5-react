@@ -5,6 +5,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import Context from './context.jsx';
+import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 
 export default class CKEditor extends React.Component {
 	constructor( props ) {
@@ -12,8 +14,26 @@ export default class CKEditor extends React.Component {
 
 		// After mounting the editor, the variable will contain a reference to the created editor.
 		// @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
-		this.editor = null;
 		this.domContainer = React.createRef();
+		this.watchdog = null;
+
+		this._id = Math.random();
+	}
+
+	get editor() {
+		if ( this.watchdog ) {
+			return this.watchdog.editor;
+		}
+
+		if ( this.props.contextWatchdog ) {
+			try {
+				return this.contextWatchdog.getItem( this._id );
+			} catch ( err ) {
+				return null;
+			}
+		}
+
+		return null;
 	}
 
 	// This component should never be updated by React itself.
@@ -51,56 +71,78 @@ export default class CKEditor extends React.Component {
 	}
 
 	_initializeEditor() {
-		this.props.editor
-			.create( this.domContainer.current, this._getConfig() )
-			.then( editor => {
-				this.editor = editor;
-
-				if ( 'disabled' in this.props ) {
-					editor.isReadOnly = this.props.disabled;
-				}
-
-				if ( this.props.onInit ) {
-					this.props.onInit( editor );
-				}
-
-				const modelDocument = editor.model.document;
-				const viewDocument = editor.editing.view.document;
-
-				modelDocument.on( 'change:data', event => {
-					/* istanbul ignore else */
-					if ( this.props.onChange ) {
-						this.props.onChange( event, editor );
+		const creator = ( el, config ) => {
+			return this.props.editor.create( el, config )
+				.then( editor => {
+					if ( 'disabled' in this.props ) {
+						editor.isReadOnly = this.props.disabled;
 					}
-				} );
 
-				viewDocument.on( 'focus', event => {
-					/* istanbul ignore else */
-					if ( this.props.onFocus ) {
-						this.props.onFocus( event, editor );
+					if ( this.props.onInit ) {
+						this.props.onInit( editor );
 					}
-				} );
 
-				viewDocument.on( 'blur', event => {
-					/* istanbul ignore else */
-					if ( this.props.onBlur ) {
-						this.props.onBlur( event, editor );
-					}
-				} );
-			} )
-			.catch( error => {
-				const onErrorCallback = this.props.onError || console.error;
+					const modelDocument = editor.model.document;
+					const viewDocument = editor.editing.view.document;
 
-				onErrorCallback( error );
+					modelDocument.on( 'change:data', event => {
+						/* istanbul ignore else */
+						if ( this.props.onChange ) {
+							this.props.onChange( event, editor );
+						}
+					} );
+
+					viewDocument.on( 'focus', event => {
+						/* istanbul ignore else */
+						if ( this.props.onFocus ) {
+							this.props.onFocus( event, editor );
+						}
+					} );
+
+					viewDocument.on( 'blur', event => {
+						/* istanbul ignore else */
+						if ( this.props.onBlur ) {
+							this.props.onBlur( event, editor );
+						}
+					} );
+
+					return editor;
+				} );
+		};
+
+		const onError = error => {
+			const onErrorCallback = this.props.onError || console.error;
+
+			onErrorCallback( error );
+		};
+
+		if ( this.props.contextWatchdog ) {
+			this.props.contextWatchdog.add( {
+				id: 'editor' + Math.random(), // TODO
+				type: 'editor',
+				sourceElementOrData: this.domContainer.current,
+				config: this._getConfig(),
+				creator
 			} );
+		} else {
+			this.watchdog = new EditorWatchdog( this.props.editor );
+
+			this.watchdog.setCreator( creator );
+
+			this.watchdog.create( this.domContainer.current, this._getConfig() )
+				.catch( onError );
+
+			this.watchdog.on( 'error', onError );
+		}
 	}
 
 	_destroyEditor() {
-		if ( this.editor ) {
-			this.editor.destroy()
-				.then( () => {
-					this.editor = null;
-				} );
+		if ( this.props.contextWatchdog ) {
+			this.props.contextWatchdog.remove( this._id );
+		} else {
+			this.watchdog.destroy();
+
+			this.watchdog = null;
 		}
 	}
 
@@ -147,7 +189,8 @@ CKEditor.propTypes = {
 	onFocus: PropTypes.func,
 	onBlur: PropTypes.func,
 	onError: PropTypes.func,
-	disabled: PropTypes.bool
+	disabled: PropTypes.bool,
+	contextWatchdog: PropTypes.func
 };
 
 // Default values for non-required properties.
@@ -155,3 +198,4 @@ CKEditor.defaultProps = {
 	config: {}
 };
 
+CKEditor.Context = Context;

@@ -13,6 +13,14 @@ export default class Editor {
 		this.model = Editor._model;
 		this.editing = Editor._editing;
 		this.isReadOnly = false;
+		this.data = {
+			get() {
+				return '';
+			},
+			set() {
+
+			}
+		};
 	}
 
 	destroy() {
@@ -21,8 +29,12 @@ export default class Editor {
 
 	// Implements the `DataApi` interface.
 	// See: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_utils_dataapimixin-DataApi.html
-	setData() {}
-	getData() {}
+	setData( ...args ) {
+		return this.data.set.call( this, ...args );
+	}
+	getData( ...args ) {
+		return this.data.get.call( this, ...args );
+	}
 
 	static create() {
 		return Promise.resolve( new this() );
@@ -42,6 +54,9 @@ Editor._editing = {
 
 function createDocument() {
 	return {
-		on() {}
+		on() {},
+		getRootNames() {
+			return [ 'main' ];
+		}
 	};
 }
