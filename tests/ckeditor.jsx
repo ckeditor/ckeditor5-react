@@ -10,6 +10,7 @@ import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import Editor from './_utils/editor';
 import CKEditor from '../src/ckeditor.jsx';
+import Context from '../src/context.jsx';
 
 configure( { adapter: new Adapter() } );
 
@@ -510,6 +511,71 @@ describe( 'CKEditor Component', () => {
 			await new Promise( res => setTimeout( res ) );
 
 			expect( component.editor ).is.null;
+		} );
+	} );
+
+	describe( 'watchdog', () => {
+		it( 'should be available for the component', async () => {
+			await new Promise( ( res, rej ) => {
+				wrapper = mount( <CKEditor
+					editor={ Editor }
+					onInit={ res }
+					onError={ rej } /> );
+			} );
+
+			expect( wrapper.instance().watchdog ).to.be.an( 'object' );
+		} );
+
+		it( 'should handle errors and restart the editor', async () => {
+			let onInitCallback;
+			let onErrorCallback;
+
+			function onInit() {
+				onInitCallback();
+			}
+
+			function onError() {
+				onErrorCallback();
+			}
+
+			const onInitSpy = sinon.spy( onInit );
+			const onErrorSpy = sinon.spy( onError );
+
+			wrapper = mount( <CKEditor
+				editor={ Editor }
+				onInit={ onInitSpy }
+				onError={ onErrorSpy } /> );
+
+			await new Promise( ( res, rej ) => {
+				onInitCallback = res;
+				onErrorCallback = rej;
+			} );
+
+			const watchdog = wrapper.instance().watchdog;
+
+			await new Promise( ( res, rej ) => {
+				onInitCallback = res;
+				onErrorCallback = rej;
+
+				watchdog._restart();
+			} );
+
+			sinon.assert.calledTwice( onInitSpy );
+			sinon.assert.notCalled( onErrorSpy );
+
+			const editor1 = onInitSpy.firstCall.args[ 0 ];
+			const editor2 = onInitSpy.secondCall.args[ 0 ];
+
+			expect( editor1 ).to.be.instanceOf( Editor );
+			expect( editor2 ).to.be.instanceOf( Editor );
+
+			expect( editor1 ).to.not.equal( editor2 );
+		} );
+	} );
+
+	describe( 'CKEditor.Context', () => {
+		it( 'should be exposed as a static member', () => {
+			expect( CKEditor.Context ).to.equal( Context );
 		} );
 	} );
 } );
