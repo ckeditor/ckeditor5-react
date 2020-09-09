@@ -23,14 +23,10 @@ class CKEditorContextMock {
 }
 
 describe( 'CKEditor Context Component', () => {
-	let sandbox, wrapper;
-
-	beforeEach( () => {
-		sandbox = sinon.createSandbox();
-	} );
+	let wrapper;
 
 	afterEach( () => {
-		sandbox.restore();
+		sinon.restore();
 
 		if ( wrapper ) {
 			wrapper.unmount();
@@ -62,7 +58,7 @@ describe( 'CKEditor Context Component', () => {
 		it( 'should pass the context watchdog to inner editor components', async () => {
 			wrapper = mount(
 				<Context context={ CKEditorContextMock } >
-					<CKEditor editor={EditorMock}></CKEditor>
+					<CKEditor editor={ EditorMock }></CKEditor>
 				</Context>
 			);
 
@@ -79,7 +75,7 @@ describe( 'CKEditor Context Component', () => {
 			await new Promise( ( res, rej ) => {
 				wrapper = mount(
 					<Context context={ CKEditorContextMock } onError={ rej } >
-						<CKEditor editor={EditorMock} onInit={ res } onError={ rej } />
+						<CKEditor editor={ EditorMock } onInit={ res } onError={ rej } />
 					</Context>
 				);
 			} );
@@ -98,6 +94,39 @@ describe( 'CKEditor Context Component', () => {
 			expect( editorCreateSpy.firstCall.args[ 1 ] ).to.have.property( 'context' );
 			expect( editorCreateSpy.firstCall.args[ 1 ].context ).to.be.instanceOf( CKEditorContextMock );
 		} );
+
+		it( 'should initialize its inner editors correctly', async () => {
+			const editorCreateSpy = sinon.spy( EditorMock, 'create' );
+
+			await new Promise( ( res, rej ) => {
+				wrapper = mount(
+					<Context context={ CKEditorContextMock } onError={ rej } >
+						<CKEditor editor={ EditorMock } config={ { initialData: '<p>Foo</p>' } } />
+						<CKEditor editor={ EditorMock } config={ { initialData: '<p>Bar</p>' } } />
+					</Context>
+				);
+
+				const watchdog = wrapper.instance().contextWatchdog;
+
+				watchdog.on( 'stateChange', () => {
+					if ( watchdog.state === 'ready' ) {
+						res();
+					}
+				} );
+			} );
+
+			const editor1 = wrapper.childAt( 0 ).instance().editor;
+			const editor2 = wrapper.childAt( 1 ).instance().editor;
+
+			expect( editor1 ).to.be.an( 'object' );
+			expect( editor2 ).to.be.an( 'object' );
+
+			sinon.assert.calledTwice( editorCreateSpy );
+
+			expect( editorCreateSpy.firstCall.args[ 1 ].context ).to.be.instanceOf( CKEditorContextMock );
+			expect( editorCreateSpy.secondCall.args[ 1 ].context ).to.be.instanceOf( CKEditorContextMock );
+			expect( editorCreateSpy.firstCall.args[ 1 ].context ).to.equal( editorCreateSpy.secondCall.args[ 1 ].context );
+		} );
 	} );
 
 	describe( 'error handling', () => {
@@ -107,7 +136,7 @@ describe( 'CKEditor Context Component', () => {
 			await new Promise( ( res, rej ) => {
 				wrapper = mount(
 					<Context context={ CKEditorContextMock } onError={ rej } >
-						<CKEditor editor={EditorMock} onInit={ res } onError={ rej } />
+						<CKEditor editor={ EditorMock } onInit={ res } onError={ rej } />
 					</Context>
 				);
 			} );

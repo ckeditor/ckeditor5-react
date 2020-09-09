@@ -82,7 +82,6 @@ describe( 'CKEditor Component - integration', () => {
 				document.body.appendChild( div );
 
 				return new Promise( resolve => {
-					// eslint-disable react/no-render-return-value
 					component = ReactDOM.render( <AppUsingState onInit={ resolve } />, div );
 				} );
 			} );
