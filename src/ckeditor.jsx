@@ -204,4 +204,4 @@ CKEditor.defaultProps = {
 	config: {}
 };
 
-export { Context };
+CKEditor.Context = Context;

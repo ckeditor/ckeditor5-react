@@ -39,14 +39,14 @@
 <p>You can use this sample to validate whether your <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a> works fine.</p>
 `;
 
-			const tokenUrl = prompt( 'Token URL' ),
-				webSocketUrl = prompt( 'WebSocket URL' ),
-				uploadUrl = prompt( 'Upload URL' ),
-				channelId = prompt( 'Channel ID' )
+			const tokenUrl = prompt( 'Token URL' );
+			const webSocketUrl = prompt( 'WebSocket URL' );
+			const uploadUrl = prompt( 'Upload URL' );
+			const channelId = prompt( 'Channel ID' );
 
 			ReactDOM.render(
 				React.createElement( CKEditor.Context, {
-					contextConstructor: CKSource.Context,
+					context: CKSource.Context,
 					config: {
 						cloudServices: {
 							tokenUrl,
@@ -65,7 +65,7 @@
 					}
 				}, [
 					React.createElement( CKEditor, {
-						editorConstructor: CKSource.ClassicEditor,
+						editor: CKSource.ClassicEditor,
 						config: {
 							initialData: editorContent,
 							collaboration: {
@@ -74,7 +74,7 @@
 						}
 					} ),
 					React.createElement( CKEditor, {
-						editorConstructor: CKSource.ClassicEditor,
+						editor: CKSource.ClassicEditor,
 						config: {
 							initialData: editorContent,
 							collaboration: {
