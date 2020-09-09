@@ -57,6 +57,12 @@ Build a minified version of the package that is ready to publish:
 npm run build
 ```
 
+### Running samples
+
+All samples are available in the `samples/` directory. They can be open in the browser to check if the component works in some real-world scenarios.
+
+The `context.html` requires build that can be taken from https://github.com/ckeditor/ckeditor5-collaboration-samples/blob/master/comments-outside-of-editor/build/cksource.js or another build that exports both, the `ClassicEditor` and `Context`. Also, there're some prompts that need to be filled during the first open.
+
 ## Releasing package
 
 ### Changelog
