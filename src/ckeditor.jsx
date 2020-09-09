@@ -6,7 +6,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
-import uid from './utils/uid';
+import uid from '@ckeditor/ckeditor5-utils/src/uid';
 
 export default class CKEditor extends React.Component {
 	constructor( props ) {
