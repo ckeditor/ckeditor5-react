@@ -6,6 +6,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
+import CKEditorComponent from './ckeditor.jsx';
 
 export default class Context extends React.Component {
 	constructor( props, context ) {
@@ -18,7 +19,7 @@ export default class Context extends React.Component {
 		return (
 			<React.Fragment>
 				{React.Children.map( this.props.children, child => {
-					if ( this._isChildAnEditorComponent( child ) ) {
+					if ( child.type === CKEditorComponent ) {
 						return React.cloneElement( child, {
 							contextWatchdog: this.contextWatchdog
 						} );
@@ -27,13 +28,6 @@ export default class Context extends React.Component {
 					return child;
 				} ) }
 			</React.Fragment>
-		);
-	}
-
-	_isChildAnEditorComponent( child ) {
-		// Use duck typing as the CKEditor component can't be cross-imported.
-		return (
-			typeof child.props.editor === 'function'
 		);
 	}
 

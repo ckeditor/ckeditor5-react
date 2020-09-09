@@ -26,7 +26,7 @@ module.exports = {
 		}
 	},
 
-	entry: path.join( __dirname, 'src', 'ckeditor.jsx' ),
+	entry: path.join( __dirname, 'src', 'index.js' ),
 
 	output: {
 		library: 'CKEditor',

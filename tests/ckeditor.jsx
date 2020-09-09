@@ -10,7 +10,6 @@ import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import Editor from './_utils/editor';
 import CKEditor from '../src/ckeditor.jsx';
-import Context from '../src/context.jsx';
 
 configure( { adapter: new Adapter() } );
 
@@ -571,11 +570,5 @@ describe( 'CKEditor Component', () => {
 
 			expect( editor1 ).to.not.equal( editor2 );
 		} );
-	} );
-} );
-
-describe( 'CKEditor.Context', () => {
-	it( 'should be exposed as a static member', () => {
-		expect( CKEditor.Context ).to.equal( Context );
 	} );
 } );

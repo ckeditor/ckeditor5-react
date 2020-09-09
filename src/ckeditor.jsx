@@ -5,7 +5,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import Context from './context.jsx';
 import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import uid from './utils/uid';
 
@@ -203,5 +202,3 @@ CKEditor.propTypes = {
 CKEditor.defaultProps = {
 	config: {}
 };
-
-CKEditor.Context = Context;
