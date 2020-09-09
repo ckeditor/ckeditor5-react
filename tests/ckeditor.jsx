@@ -572,10 +572,10 @@ describe( 'CKEditor Component', () => {
 			expect( editor1 ).to.not.equal( editor2 );
 		} );
 	} );
+} );
 
-	describe( 'CKEditor.Context', () => {
-		it( 'should be exposed as a static member', () => {
-			expect( CKEditor.Context ).to.equal( Context );
-		} );
+describe( 'CKEditor.Context', () => {
+	it( 'should be exposed as a static member', () => {
+		expect( CKEditor.Context ).to.equal( Context );
 	} );
 } );
