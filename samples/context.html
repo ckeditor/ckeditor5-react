@@ -21,6 +21,7 @@
 	<h1>CKEditor 5 – React Component – development sample</h1>
 	<p style="text-align: center;">Component's events are logged to the console.</p>
 	<button id="readOnly" class="button_read-only" disabled>Switch to read-only mode</button>
+	<button id="clear-storage">Clear localStorage</button>
 	<div id="presence-list"></div>
 	<div id="root"></div>
 	<div id="sidebar"></div>
@@ -39,10 +40,18 @@
 <p>You can use this sample to validate whether your <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a> works fine.</p>
 `;
 
-			const tokenUrl = prompt( 'Token URL' );
-			const webSocketUrl = prompt( 'WebSocket URL' );
-			const uploadUrl = prompt( 'Upload URL' );
+			document.getElementById( 'clear-storage' ).addEventListener( 'click', () => {
+				localStorage.clear();
+			} );
+
+			const tokenUrl = localStorage.getItem( 'tokenUrl' ) || prompt( 'Token URL' );
+			const webSocketUrl = localStorage.getItem( 'webSocketUrl' ) || prompt( 'WebSocket URL' );
+			const uploadUrl = localStorage.getItem( 'uploadUrl' ) || prompt( 'Upload URL' );
 			const channelId = prompt( 'Channel ID' );
+
+			localStorage.setItem( 'tokenUrl', tokenUrl );
+			localStorage.setItem( 'webSocketUrl', webSocketUrl );
+			localStorage.setItem( 'uploadUrl', uploadUrl );
 
 			ReactDOM.render(
 				React.createElement( CKEditor.Context, {
