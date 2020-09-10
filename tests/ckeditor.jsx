@@ -3,13 +3,14 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global HTMLDivElement */
+/* global HTMLDivElement, window */
 
 import React from 'react';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import Editor from './_utils/editor';
 import CKEditor from '../src/ckeditor.jsx';
+import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 
 configure( { adapter: new Adapter() } );
 
@@ -420,19 +421,65 @@ describe( 'CKEditor Component', () => {
 		} );
 
 		describe( '#onError', () => {
-			it( 'calls the callback if specified when an error occurs', done => {
-				const error = new Error( 'Error was thrown.' );
-				const errorHandler = sinon.spy();
+			it( 'calls the callback if specified when an error occurs', async () => {
+				const originalError = new Error( 'Error was thrown.' );
 
-				sinon.stub( Editor, 'create' ).rejects( error );
-				wrapper = mount( <CKEditor editor={ Editor } onError={ errorHandler } /> );
+				sinon.stub( Editor, 'create' ).rejects( originalError );
 
-				setTimeout( () => {
-					expect( errorHandler.calledOnce ).to.equal( true );
-
-					expect( errorHandler.firstCall.args[ 0 ].error ).to.equal( error );
-					done();
+				const result = await new Promise( res => {
+					wrapper = mount( <CKEditor editor={ Editor } onError={ res } /> );
 				} );
+
+				expect( result ).to.deep.equal( {
+					error: originalError,
+					phase: 'initialization',
+					willEditorRestart: false
+				} );
+			} );
+
+			it( 'calls the callback if the runtime error occurs', async () => {
+				let onReadyCallback;
+				let onErrorCallback;
+
+				function onReady() {
+					onReadyCallback();
+				}
+
+				function onError() {
+					onErrorCallback();
+				}
+
+				const onErrorSpy = sinon.spy( onError );
+
+				wrapper = mount( <CKEditor
+					editor={ Editor }
+					onReady={ onReady }
+					onError={ onErrorSpy } /> );
+
+				// Wait for the component.
+				await new Promise( ( res, rej ) => {
+					onReadyCallback = res;
+					onErrorCallback = rej;
+				} );
+
+				const watchdog = wrapper.instance().watchdog;
+				const error = new CKEditorError( 'foo', watchdog.editor );
+
+				await turnOffDefaultErrorCatching( () => {
+					return new Promise( res => {
+						onReadyCallback = res;
+
+						setTimeout( () => {
+							throw error;
+						} );
+					} );
+				} );
+
+				sinon.assert.calledOnce( onErrorSpy );
+
+				expect( onErrorSpy.firstCall.args[ 0 ].error ).to.equal( error );
+				expect( onErrorSpy.firstCall.args[ 0 ].phase ).to.equal( 'runtime' );
+				expect( onErrorSpy.firstCall.args[ 0 ].willEditorRestart ).to.equal( true );
 			} );
 		} );
 
@@ -529,7 +576,7 @@ describe( 'CKEditor Component', () => {
 			expect( wrapper.instance().watchdog ).to.be.an( 'object' );
 		} );
 
-		it( 'should handle errors and restart the editor', async () => {
+		it( 'should restart the editor if an error occurred', async () => {
 			let onReadyCallback;
 			let onErrorCallback;
 
@@ -542,29 +589,30 @@ describe( 'CKEditor Component', () => {
 			}
 
 			const onReadySpy = sinon.spy( onReady );
-			const onErrorSpy = sinon.spy( onError );
 
 			wrapper = mount( <CKEditor
 				editor={ Editor }
 				onReady={ onReadySpy }
-				onError={ onErrorSpy } /> );
+				onError={ onError } /> );
 
+			// Wait for the component.
 			await new Promise( ( res, rej ) => {
 				onReadyCallback = res;
 				onErrorCallback = rej;
 			} );
 
-			const watchdog = wrapper.instance().watchdog;
+			await turnOffDefaultErrorCatching( () => {
+				return new Promise( res => {
+					onReadyCallback = res;
 
-			await new Promise( ( res, rej ) => {
-				onReadyCallback = res;
-				onErrorCallback = rej;
-
-				watchdog._restart();
+					setTimeout( () => {
+						const watchdog = wrapper.instance().watchdog;
+						throw new CKEditorError( 'foo', watchdog.editor );
+					} );
+				} );
 			} );
 
 			sinon.assert.calledTwice( onReadySpy );
-			sinon.assert.notCalled( onErrorSpy );
 
 			const editor1 = onReadySpy.firstCall.args[ 0 ].editor;
 			const editor2 = onReadySpy.secondCall.args[ 0 ].editor;
@@ -576,3 +624,14 @@ describe( 'CKEditor Component', () => {
 		} );
 	} );
 } );
+
+// Turns off the default error catching
+// so Mocha won't complain about errors caused by the called function.
+async function turnOffDefaultErrorCatching( fn ) {
+	const originalOnError = window.onerror;
+	window.onerror = null;
+
+	await fn();
+
+	window.onerror = originalOnError;
+}

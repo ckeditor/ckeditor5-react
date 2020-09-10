@@ -141,7 +141,7 @@ export default class CKEditor extends React.Component {
 			this.watchdog.create( this.domContainer.current, this._getConfig() )
 				.catch( error => onError( { error, phase: 'initialization' } ) );
 
-			this.watchdog.on( 'error', onError );
+			this.watchdog.on( 'error', ( _, evt ) => onError( evt ) );
 		}
 	}
 
