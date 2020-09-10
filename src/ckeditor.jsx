@@ -102,12 +102,12 @@ export default class CKEditor extends React.Component {
 						}
 					} );
 
-					// The onInit should be fired once the `editor` property
-					// can be reached from the <ckeditor> component.
+					// The `onReady` callback should be fired once the `editor` property
+					// can be reached from the `<ckeditor>` component.
 					// Ideally this part should be moved to the watchdog item creator listeners.
 					setTimeout( () => {
-						if ( this.props.onInit ) {
-							this.props.onInit( this.editor );
+						if ( this.props.onReady ) {
+							this.props.onReady( { editor: this.editor } );
 						}
 					} );
 
@@ -115,10 +115,14 @@ export default class CKEditor extends React.Component {
 				} );
 		};
 
-		const onError = error => {
+		const onError = ( { error, phase = 'runtime', causesRestart = false } ) => {
 			const onErrorCallback = this.props.onError || console.error;
 
-			onErrorCallback( error );
+			onErrorCallback( {
+				error,
+				phase,
+				willEditorRestart: causesRestart
+			} );
 		};
 
 		if ( this.props.contextWatchdog ) {
@@ -128,14 +132,14 @@ export default class CKEditor extends React.Component {
 				sourceElementOrData: this.domContainer.current,
 				config: this._getConfig(),
 				creator
-			} ).catch( onError );
+			} ).catch( error => onError( { error, phase: 'initialization' } ) );
 		} else {
 			this.watchdog = new EditorWatchdog( this.props.editor );
 
 			this.watchdog.setCreator( creator );
 
 			this.watchdog.create( this.domContainer.current, this._getConfig() )
-				.catch( onError );
+				.catch( error => onError( { error, phase: 'initialization' } ) );
 
 			this.watchdog.on( 'error', onError );
 		}
@@ -190,7 +194,7 @@ CKEditor.propTypes = {
 	data: PropTypes.string,
 	config: PropTypes.object,
 	onChange: PropTypes.func,
-	onInit: PropTypes.func,
+	onReady: PropTypes.func,
 	onFocus: PropTypes.func,
 	onBlur: PropTypes.func,
 	onError: PropTypes.func,

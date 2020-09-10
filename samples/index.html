@@ -38,10 +38,10 @@
 			React.createElement( CKEditor, {
 				editor: ClassicEditor,
 				data: editorContent,
-				onInit: editor => {
+				onReady: ( { editor } ) => {
 					window.editor = editor;
 
-					console.log( 'event: onInit');
+					console.log( 'event: onReady');
 					console.log( 'Editor is ready to use! You can use "editor" variable to play with it.' );
 
 					const readOnlyButton = document.getElementById( 'readOnly' );

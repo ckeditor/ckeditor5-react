@@ -34,7 +34,7 @@ describe( 'CKEditor Component', () => {
 			sinon.stub( Editor, 'create' ).resolves( new Editor() );
 
 			await new Promise( res => {
-				wrapper = mount( <CKEditor editor={ Editor } onInit={ res } /> );
+				wrapper = mount( <CKEditor editor={ Editor } onReady={ res } /> );
 			} );
 
 			expect( Editor.create.calledOnce ).to.be.true;
@@ -57,7 +57,7 @@ describe( 'CKEditor Component', () => {
 			};
 
 			await new Promise( res => {
-				wrapper = mount( <CKEditor editor={ Editor } config={ editorConfig } onInit={ res } /> );
+				wrapper = mount( <CKEditor editor={ Editor } config={ editorConfig } onReady={ res } /> );
 			} );
 
 			expect( Editor.create.calledOnce ).to.be.true;
@@ -77,7 +77,7 @@ describe( 'CKEditor Component', () => {
 			sinon.stub( Editor, 'create' ).resolves( new Editor() );
 
 			await new Promise( res => {
-				wrapper = mount( <CKEditor editor={ Editor } data="<p>Hello CKEditor 5!</p>" onInit={ res } /> );
+				wrapper = mount( <CKEditor editor={ Editor } data="<p>Hello CKEditor 5!</p>" onReady={ res } /> );
 			} );
 
 			expect( Editor.create.firstCall.args[ 1 ].initialData ).to.equal(
@@ -185,7 +185,11 @@ describe( 'CKEditor Component', () => {
 				consoleErrorStub.restore();
 
 				expect( consoleErrorStub.calledOnce ).to.be.true;
-				expect( consoleErrorStub.firstCall.args[ 0 ] ).to.equal( error );
+				expect( consoleErrorStub.firstCall.args[ 0 ] ).to.deep.equal( {
+					error,
+					phase: 'initialization',
+					willEditorRestart: false
+				} );
 
 				done();
 			} );
@@ -211,16 +215,16 @@ describe( 'CKEditor Component', () => {
 			expect( shouldComponentUpdate ).to.be.false;
 		} );
 
-		describe( '#onInit', () => {
-			it( 'calls "onInit" callback if specified when the editor is ready to use', async () => {
+		describe( '#onReady', () => {
+			it( 'calls "onReady" callback if specified when the editor is ready to use', async () => {
 				const editorInstance = new Editor();
 				sinon.stub( Editor, 'create' ).resolves( editorInstance );
 
-				const onInitArgument = await new Promise( resolve => {
-					wrapper = mount( <CKEditor editor={ Editor } onInit={ resolve } /> );
+				const onReadyArgument = await new Promise( resolve => {
+					wrapper = mount( <CKEditor editor={ Editor } onReady={ resolve } /> );
 				} );
 
-				expect( onInitArgument ).to.equal( editorInstance );
+				expect( onReadyArgument.editor ).to.equal( editorInstance );
 			} );
 		} );
 
@@ -236,7 +240,7 @@ describe( 'CKEditor Component', () => {
 					wrapper = mount( <CKEditor
 						editor={ Editor }
 						onChange={ onChange }
-						onInit={ res }
+						onReady={ res }
 						onError={ rej } /> );
 				} );
 
@@ -260,7 +264,7 @@ describe( 'CKEditor Component', () => {
 				await new Promise( ( res, rej ) => {
 					wrapper = mount( <CKEditor
 						editor={ Editor }
-						onInit={ res }
+						onReady={ res }
 						onError={ rej } /> );
 				} );
 
@@ -426,7 +430,7 @@ describe( 'CKEditor Component', () => {
 				setTimeout( () => {
 					expect( errorHandler.calledOnce ).to.equal( true );
 
-					expect( errorHandler.firstCall.args[ 0 ] ).to.equal( error );
+					expect( errorHandler.firstCall.args[ 0 ].error ).to.equal( error );
 					done();
 				} );
 			} );
@@ -434,20 +438,20 @@ describe( 'CKEditor Component', () => {
 
 		describe( '#disabled', () => {
 			it( 'switches the editor to read-only mode if [disabled={true}]', done => {
-				const onInit = function( editor ) {
+				const onReady = function( { editor } ) {
 					expect( editor.isReadOnly ).to.be.true;
 
 					done();
 				};
 
-				wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onInit={ onInit } /> );
+				wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onReady={ onReady } /> );
 			} );
 
 			it( 'switches the editor to read-only mode when [disabled={true}] property was set in runtime', async () => {
 				await new Promise( ( res, rej ) => {
 					wrapper = mount( <CKEditor
 						editor={ Editor }
-						onInit={ res }
+						onReady={ res }
 						onError={ rej } /> );
 				} );
 
@@ -467,7 +471,7 @@ describe( 'CKEditor Component', () => {
 			await new Promise( ( res, rej ) => {
 				wrapper = mount( <CKEditor
 					editor={ Editor }
-					onInit={ res }
+					onReady={ res }
 					onError={ rej } /> );
 			} );
 
@@ -495,7 +499,7 @@ describe( 'CKEditor Component', () => {
 			await new Promise( ( res, rej ) => {
 				wrapper = mount( <CKEditor
 					editor={ Editor }
-					onInit={ res }
+					onReady={ res }
 					onError={ rej } /> );
 			} );
 
@@ -518,7 +522,7 @@ describe( 'CKEditor Component', () => {
 			await new Promise( ( res, rej ) => {
 				wrapper = mount( <CKEditor
 					editor={ Editor }
-					onInit={ res }
+					onReady={ res }
 					onError={ rej } /> );
 			} );
 
@@ -526,44 +530,44 @@ describe( 'CKEditor Component', () => {
 		} );
 
 		it( 'should handle errors and restart the editor', async () => {
-			let onInitCallback;
+			let onReadyCallback;
 			let onErrorCallback;
 
-			function onInit() {
-				onInitCallback();
+			function onReady() {
+				onReadyCallback();
 			}
 
 			function onError() {
 				onErrorCallback();
 			}
 
-			const onInitSpy = sinon.spy( onInit );
+			const onReadySpy = sinon.spy( onReady );
 			const onErrorSpy = sinon.spy( onError );
 
 			wrapper = mount( <CKEditor
 				editor={ Editor }
-				onInit={ onInitSpy }
+				onReady={ onReadySpy }
 				onError={ onErrorSpy } /> );
 
 			await new Promise( ( res, rej ) => {
-				onInitCallback = res;
+				onReadyCallback = res;
 				onErrorCallback = rej;
 			} );
 
 			const watchdog = wrapper.instance().watchdog;
 
 			await new Promise( ( res, rej ) => {
-				onInitCallback = res;
+				onReadyCallback = res;
 				onErrorCallback = rej;
 
 				watchdog._restart();
 			} );
 
-			sinon.assert.calledTwice( onInitSpy );
+			sinon.assert.calledTwice( onReadySpy );
 			sinon.assert.notCalled( onErrorSpy );
 
-			const editor1 = onInitSpy.firstCall.args[ 0 ];
-			const editor2 = onInitSpy.secondCall.args[ 0 ];
+			const editor1 = onReadySpy.firstCall.args[ 0 ].editor;
+			const editor2 = onReadySpy.secondCall.args[ 0 ].editor;
 
 			expect( editor1 ).to.be.instanceOf( Editor );
 			expect( editor2 ).to.be.instanceOf( Editor );

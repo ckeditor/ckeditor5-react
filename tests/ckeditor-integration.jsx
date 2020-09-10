@@ -37,9 +37,9 @@ class AppUsingState extends React.Component {
 			<Editor
 				data={ this.state.content }
 				onChange={ ( evt, editor ) => this.setState( { content: editor.getData() } ) }
-				onInit={ _editor => {
-					this.editor = _editor;
-					this.props.onInit();
+				onReady={ ( { editor } ) => {
+					this.editor = editor;
+					this.props.onReady();
 				} }
 			/>
 		);
@@ -62,9 +62,9 @@ class AppUsingStaticString extends React.Component {
 			<Editor
 				data={ '<p>Initial data.</p>' }
 				onChange={ ( evt, editor ) => this.setState( { content: editor.getData() } ) }
-				onInit={ _editor => {
-					this.editor = _editor;
-					this.props.onInit();
+				onReady={ ( { editor } ) => {
+					this.editor = editor;
+					this.props.onReady();
 				} }
 			/>
 		);
@@ -82,7 +82,7 @@ describe( 'CKEditor Component - integration', () => {
 				document.body.appendChild( div );
 
 				return new Promise( resolve => {
-					component = ReactDOM.render( <AppUsingState onInit={ resolve } />, div );
+					component = ReactDOM.render( <AppUsingState onReady={ resolve } />, div );
 				} );
 			} );
 
@@ -128,7 +128,7 @@ describe( 'CKEditor Component - integration', () => {
 				document.body.appendChild( div );
 
 				return new Promise( resolve => {
-					component = ReactDOM.render( <AppUsingStaticString onInit={ resolve } />, div );
+					component = ReactDOM.render( <AppUsingStaticString onReady={ resolve } />, div );
 				} );
 			} );
 

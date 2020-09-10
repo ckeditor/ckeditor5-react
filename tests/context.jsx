@@ -75,7 +75,7 @@ describe( 'CKEditor Context Component', () => {
 			await new Promise( ( res, rej ) => {
 				wrapper = mount(
 					<Context context={ CKEditorContextMock } onError={ rej } >
-						<CKEditor editor={ EditorMock } onInit={ res } onError={ rej } />
+						<CKEditor editor={ EditorMock } onReady={ res } onError={ rej } />
 					</Context>
 				);
 			} );
@@ -136,7 +136,7 @@ describe( 'CKEditor Context Component', () => {
 			await new Promise( ( res, rej ) => {
 				wrapper = mount(
 					<Context context={ CKEditorContextMock } onError={ rej } >
-						<CKEditor editor={ EditorMock } onInit={ res } onError={ rej } />
+						<CKEditor editor={ EditorMock } onReady={ res } onError={ rej } />
 					</Context>
 				);
 			} );
