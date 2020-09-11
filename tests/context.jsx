@@ -10,6 +10,7 @@ import Context from '../src/context.jsx';
 import CKEditor from '../src/ckeditor.jsx';
 import EditorMock from './_utils/editor.js';
 import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
+import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 
 configure( { adapter: new Adapter() } );
 
@@ -129,8 +130,58 @@ describe( 'CKEditor Context Component', () => {
 		} );
 	} );
 
+	describe( 'properties', () => {
+		describe( '#onError', () => {
+			it( 'should be called when an initialization error occurs', async () => {
+				const error = new Error();
+				sinon.stub( ContextWatchdog.prototype, 'create' ).rejects( error );
+				sinon.stub( ContextWatchdog.prototype, 'add' ).resolves();
+
+				const errorEvent = await new Promise( res => {
+					wrapper = mount(
+						<Context context={ CKEditorContextMock } onError={ res } >
+							<CKEditor editor={ EditorMock } />
+						</Context>
+					);
+				} );
+
+				expect( errorEvent ).to.be.an( 'object' );
+				expect( errorEvent.error ).to.equal( error );
+			} );
+
+			it( 'should be called when a runtime error occurs', async () => {
+				let onErrorCallback;
+				const onErrorSpy = sinon.spy( onErrorCallback );
+
+				await new Promise( ( res, rej ) => {
+					wrapper = mount(
+						<Context
+							context={ CKEditorContextMock }
+							onReady={ res }
+							onError={ errorEvt => {
+								onErrorSpy( errorEvt );
+								rej( errorEvt.error );
+							} }
+						>
+							<CKEditor editor={ EditorMock } />
+						</Context >
+					);
+				} );
+
+				const error = new CKEditorError( 'foo', wrapper.instance().editorContext );
+
+				wrapper.instance().contextWatchdog._fire( 'error', {
+					error,
+					causesRestart: true
+				} );
+
+				sinon.assert.calledOnce( onErrorSpy );
+			} );
+		} );
+	} );
+
 	describe( 'error handling', () => {
-		it( 'should handle editor components error', async () => {
+		it( 'should handle context error', async () => {
 			const editorCreateSpy = sinon.spy( EditorMock, 'create' );
 
 			await new Promise( ( res, rej ) => {

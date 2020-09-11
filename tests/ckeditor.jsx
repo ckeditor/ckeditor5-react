@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global HTMLDivElement, window */
+/* global HTMLDivElement */
 
 import React from 'react';
 import { configure, mount } from 'enzyme';
@@ -11,6 +11,7 @@ import Adapter from 'enzyme-adapter-react-16';
 import Editor from './_utils/editor';
 import CKEditor from '../src/ckeditor.jsx';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
+import turnOffDefaultErrorCatching from './_utils-tests/turnoffdefaulterrorcatching';
 
 configure( { adapter: new Adapter() } );
 
@@ -624,14 +625,3 @@ describe( 'CKEditor Component', () => {
 		} );
 	} );
 } );
-
-// Turns off the default error catching
-// so Mocha won't complain about errors caused by the called function.
-async function turnOffDefaultErrorCatching( fn ) {
-	const originalOnError = window.onerror;
-	window.onerror = null;
-
-	await fn();
-
-	window.onerror = originalOnError;
-}

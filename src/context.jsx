@@ -15,7 +15,16 @@ export default class Context extends React.Component {
 		this._initializeContext();
 	}
 
+	/**
+	 * The CKEditor 5 Context instance.
+	*/
+	get editorContext() {
+		// This property can't be called 'context' as it would conflict with React Component's context property.
+		return this.contextWatchdog.context;
+	}
+
 	render() {
+		console.log( this.contextWatchdog.state );
 		return (
 			<React.Fragment>
 				{React.Children.map( this.props.children, child => {
@@ -31,29 +40,39 @@ export default class Context extends React.Component {
 		);
 	}
 
+	componentWillUnmount() {
+		this._destroyContext();
+	}
+
 	_initializeContext() {
 		this.contextWatchdog = new ContextWatchdog( this.props.context );
 
+		const handleErrorEvent = errorEvent => {
+			if ( this.props.onError ) {
+				this.props.onError( errorEvent );
+			} else {
+				console.error( errorEvent );
+			}
+		};
+
 		this.contextWatchdog.create( this.props.config )
 			.catch( error => {
-				handleError( error );
+				handleErrorEvent( { error, phase: 'initialization' } );
 			} );
 
-		this.contextWatchdog.on( 'error', error => {
-			handleError( error );
+		this.contextWatchdog.on( 'error', ( _, errorEvent ) => {
+			handleErrorEvent( {
+				phase: 'runtime',
+				error: errorEvent.error,
+				willContextRestart: errorEvent.causesRestart
+			} );
 		} );
 
-		function handleError( error ) {
-			if ( this.props.onError ) {
-				this.props.onError( error );
-			} else {
-				console.error( error );
+		this.contextWatchdog.on( 'stateChange', () => {
+			if ( this.contextWatchdog.state === 'ready' && this.props.onReady ) {
+				this.props.onReady();
 			}
-		}
-	}
-
-	componentWillUnmount() {
-		this._destroyContext();
+		} );
 	}
 
 	_destroyContext() {
@@ -64,6 +83,8 @@ export default class Context extends React.Component {
 // Properties definition.
 Context.propTypes = {
 	context: PropTypes.func,
-	config: PropTypes.object
+	config: PropTypes.object,
+	onReady: PropTypes.func,
+	onError: PropTypes.func
 };
 
