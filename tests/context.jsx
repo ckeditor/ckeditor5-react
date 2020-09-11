@@ -127,6 +127,9 @@ describe( 'CKEditor Context Component', () => {
 			expect( editorCreateSpy.firstCall.args[ 1 ].context ).to.be.instanceOf( CKEditorContextMock );
 			expect( editorCreateSpy.secondCall.args[ 1 ].context ).to.be.instanceOf( CKEditorContextMock );
 			expect( editorCreateSpy.firstCall.args[ 1 ].context ).to.equal( editorCreateSpy.secondCall.args[ 1 ].context );
+
+			expect( editorCreateSpy.firstCall.args[ 1 ].initialData ).to.equal( '<p>Foo</p>' );
+			expect( editorCreateSpy.secondCall.args[ 1 ].initialData ).to.equal( '<p>Bar</p>' );
 		} );
 	} );
 
@@ -176,6 +179,23 @@ describe( 'CKEditor Context Component', () => {
 				} );
 
 				sinon.assert.calledOnce( onErrorSpy );
+			} );
+		} );
+
+		describe( 'onReady', () => {
+			it.skip( 'should be called when all editors are ready', async () => {
+				const editorReadySpy = sinon.spy();
+
+				await new Promise( ( res, rej ) => {
+					wrapper = mount(
+						<Context context={ CKEditorContextMock } onReady={res} onError={ rej } >
+							<CKEditor editor={ EditorMock } onReady={editorReadySpy} config={ { initialData: '<p>Foo</p>' } } />
+							<CKEditor editor={ EditorMock } onReady={editorReadySpy} config={ { initialData: '<p>Bar</p>' } } />
+						</Context>
+					);
+				} );
+
+				sinon.assert.calledTwice( editorReadySpy );
 			} );
 		} );
 	} );
