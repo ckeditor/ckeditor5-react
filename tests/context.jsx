@@ -11,6 +11,7 @@ import CKEditor from '../src/ckeditor.jsx';
 import EditorMock from './_utils/editor.js';
 import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
+import turnOffDefaultErrorCatching from './_utils-tests/turnoffdefaulterrorcatching.js';
 
 configure( { adapter: new Adapter() } );
 
@@ -19,6 +20,10 @@ class CKEditorContextMock {
 		return Promise.resolve( new CKEditorContextMock( config ) );
 	}
 	static destroy() {
+		return Promise.resolve();
+	}
+
+	destroy() {
 		return Promise.resolve();
 	}
 }
@@ -153,78 +158,89 @@ describe( 'CKEditor Context Component', () => {
 			} );
 
 			it( 'should be called when a runtime error occurs', async () => {
-				let onErrorCallback;
-				const onErrorSpy = sinon.spy( onErrorCallback );
+				const onErrorSpy = sinon.spy();
 
-				await new Promise( ( res, rej ) => {
+				await new Promise( res => {
 					wrapper = mount(
 						<Context
 							context={ CKEditorContextMock }
 							onReady={ res }
-							onError={ errorEvt => {
-								onErrorSpy( errorEvt );
-								rej( errorEvt.error );
-							} }
+							onError={ onErrorSpy }
 						>
 							<CKEditor editor={ EditorMock } />
 						</Context >
 					);
 				} );
 
-				const error = new CKEditorError( 'foo', wrapper.instance().editorContext );
+				const error = new CKEditorError( 'foo', wrapper.instance().contextWatchdog.context );
 
-				wrapper.instance().contextWatchdog._fire( 'error', {
-					error,
-					causesRestart: true
+				await turnOffDefaultErrorCatching( () => {
+					return new Promise( res => {
+						wrapper.setProps( { onReady: res } );
+
+						setTimeout( () => {
+							throw error;
+						} );
+					} );
 				} );
 
 				sinon.assert.calledOnce( onErrorSpy );
+				const errorEvent = onErrorSpy.firstCall.args[ 0 ];
+
+				expect( errorEvent.error ).to.equal( error );
+				expect( errorEvent.phase ).to.equal( 'runtime' );
+				expect( errorEvent.willContextRestart ).to.equal( true );
 			} );
 		} );
 
 		describe( 'onReady', () => {
-			it.skip( 'should be called when all editors are ready', async () => {
+			it( 'should be called when all editors are ready', async () => {
 				const editorReadySpy = sinon.spy();
 
 				await new Promise( ( res, rej ) => {
 					wrapper = mount(
-						<Context context={ CKEditorContextMock } onReady={res} onError={ rej } >
-							<CKEditor editor={ EditorMock } onReady={editorReadySpy} config={ { initialData: '<p>Foo</p>' } } />
-							<CKEditor editor={ EditorMock } onReady={editorReadySpy} config={ { initialData: '<p>Bar</p>' } } />
+						<Context context={ CKEditorContextMock } onReady={ res } onError={ rej } >
+							<CKEditor editor={ EditorMock } onReady={ editorReadySpy } config={ { initialData: '<p>Foo</p>' } } />
+							<CKEditor editor={ EditorMock } onReady={ editorReadySpy } config={ { initialData: '<p>Bar</p>' } } />
 						</Context>
 					);
 				} );
+
+				// A small hack - currently editors are ready one cycle after the context is ready.
+				await new Promise( res => setTimeout( res ) );
 
 				sinon.assert.calledTwice( editorReadySpy );
 			} );
 		} );
 	} );
 
-	describe( 'error handling', () => {
-		it( 'should handle context error', async () => {
-			const editorCreateSpy = sinon.spy( EditorMock, 'create' );
-
-			await new Promise( ( res, rej ) => {
+	describe( 'Restarting Context + CKEditor', () => {
+		it( 'should restart the Context and all editors if the Config config changes', async () => {
+			await new Promise( res => {
 				wrapper = mount(
-					<Context context={ CKEditorContextMock } onError={ rej } >
-						<CKEditor editor={ EditorMock } onReady={ res } onError={ rej } />
+					<Context context={ CKEditorContextMock } onReady={ res } config={ { foo: 'bar' } }>
+						<CKEditor editor={ EditorMock } />
 					</Context>
 				);
 			} );
 
-			const component = wrapper.instance();
+			const context = wrapper.instance().contextWatchdog.context;
 
-			expect( component.contextWatchdog ).to.be.an( 'object' );
-			expect( wrapper.childAt( 0 ).name() ).to.equal( 'CKEditor' );
-			expect( wrapper.childAt( 0 ).prop( 'contextWatchdog' ) ).to.be.an( 'object' );
-			expect( wrapper.childAt( 0 ).prop( 'editor' ) ).to.be.a( 'function' );
+			await new Promise( res => {
+				wrapper.setProps( {
+					config: { bar: 'biz' },
+					onReady: res
+				} );
+			} );
 
-			expect( wrapper.childAt( 0 ).instance().editor ).to.be.an( 'object' );
+			const newContext = wrapper.instance().contextWatchdog.context;
 
-			sinon.assert.calledOnce( editorCreateSpy );
-
-			expect( editorCreateSpy.firstCall.args[ 1 ] ).to.have.property( 'context' );
-			expect( editorCreateSpy.firstCall.args[ 1 ].context ).to.be.instanceOf( CKEditorContextMock );
+			expect( context ).to.not.equal( newContext );
+			expect( newContext ).to.be.an.instanceOf( CKEditorContextMock );
 		} );
+	} );
+
+	describe( 'Changing children', () => {
+		// TODO
 	} );
 } );

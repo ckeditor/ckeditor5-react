@@ -15,16 +15,20 @@ export default class Context extends React.Component {
 		this._initializeContext();
 	}
 
-	/**
-	 * The CKEditor 5 Context instance.
-	*/
-	get editorContext() {
-		// This property can't be called 'context' as it would conflict with React Component's context property.
-		return this.contextWatchdog.context;
+	shouldComponentUpdate( nextProps ) {
+		// If the configuration changes then the ContextWatchdog needs to be destroyed and recreated
+		// On top of the new configuration.
+		if ( nextProps.config !== this.props.config ) {
+			this.contextWatchdog.destroy();
+
+			this._initializeContext();
+		}
+
+		// Rerender the component only when children has changed.
+		return this.props.children !== nextProps.children;
 	}
 
 	render() {
-		console.log( this.contextWatchdog.state );
 		return (
 			<React.Fragment>
 				{React.Children.map( this.props.children, child => {
