@@ -61,20 +61,6 @@ describe( 'CKEditor Context Component', () => {
 			expect( wrapper.childAt( 1 ).name() ).to.equal( 'p' );
 		} );
 
-		it( 'should pass the context watchdog to inner editor components', async () => {
-			wrapper = mount(
-				<Context context={ CKEditorContextMock } >
-					<CKEditor editor={ EditorMock }></CKEditor>
-				</Context>
-			);
-
-			const component = wrapper.instance();
-
-			expect( component.contextWatchdog ).to.be.an( 'object' );
-			expect( wrapper.childAt( 0 ).name() ).to.equal( 'CKEditor' );
-			expect( wrapper.childAt( 0 ).prop( 'contextWatchdog' ) ).to.be.an( 'object' );
-		} );
-
 		it( 'should render the inner editor component', async () => {
 			const editorCreateSpy = sinon.spy( EditorMock, 'create' );
 
@@ -90,7 +76,6 @@ describe( 'CKEditor Context Component', () => {
 
 			expect( component.contextWatchdog ).to.be.an( 'object' );
 			expect( wrapper.childAt( 0 ).name() ).to.equal( 'CKEditor' );
-			expect( wrapper.childAt( 0 ).prop( 'contextWatchdog' ) ).to.be.an( 'object' );
 			expect( wrapper.childAt( 0 ).prop( 'editor' ) ).to.be.a( 'function' );
 
 			expect( wrapper.childAt( 0 ).instance().editor ).to.be.an( 'object' );
@@ -215,10 +200,10 @@ describe( 'CKEditor Context Component', () => {
 	} );
 
 	describe( 'Restarting Context + CKEditor', () => {
-		it( 'should restart the Context and all editors if the Config config changes', async () => {
+		it( 'should restart the Context and all editors if the Context id changes', async () => {
 			await new Promise( res => {
 				wrapper = mount(
-					<Context context={ CKEditorContextMock } onReady={ res } config={ { foo: 'bar' } }>
+					<Context context={ CKEditorContextMock } id="1" onReady={ res }>
 						<CKEditor editor={ EditorMock } />
 					</Context>
 				);
@@ -228,7 +213,7 @@ describe( 'CKEditor Context Component', () => {
 
 			await new Promise( res => {
 				wrapper.setProps( {
-					config: { bar: 'biz' },
+					id: '2',
 					onReady: res
 				} );
 			} );

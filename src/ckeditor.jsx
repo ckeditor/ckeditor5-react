@@ -7,6 +7,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import uid from '@ckeditor/ckeditor5-utils/src/uid';
+import { ContextWatchdogContext } from './context.jsx';
+import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
 
 export default class CKEditor extends React.Component {
 	constructor( props ) {
@@ -15,8 +17,20 @@ export default class CKEditor extends React.Component {
 		// After mounting the editor, the variable will contain a reference to the created editor.
 		// @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
 		this.domContainer = React.createRef();
+
+		/**
+		 * An instance of EditorWatchdog if the context watchdog was not passed via React's context. `null` otherwise.
+		 */
 		this.watchdog = null;
 
+		/**
+		 * An instance of ContextWatchdog passed from the React's context or `null` otherwise.
+		 */
+		this.contextWatchdog = null;
+
+		/**
+		 * A unique id for an editor component.
+		 */
 		this._id = uid();
 	}
 
@@ -25,9 +39,10 @@ export default class CKEditor extends React.Component {
 			return this.watchdog.editor;
 		}
 
-		if ( this.props.contextWatchdog ) {
+		if ( this.contextWatchdog ) {
+			// TODO - try/catch should not be necessary as `getItem` could return `null` instead of throwing errors.
 			try {
-				return this.props.contextWatchdog.getItem( this._id );
+				return this.contextWatchdog.getItem( this._id );
 			} catch ( err ) {
 				return null;
 			}
@@ -36,13 +51,21 @@ export default class CKEditor extends React.Component {
 		return null;
 	}
 
-	// This component should never be updated by React itself.
+	// This component should almost never be updated by React itself.
 	shouldComponentUpdate( nextProps ) {
 		if ( !this.editor ) {
 			return false;
 		}
 
-		if ( this._shouldUpdateContent( nextProps ) ) {
+		// Only when the editor component changes the whole structure should be restarted.
+		if ( nextProps.id !== this.props.id ) {
+			this._destroyEditor();
+			this._initializeEditor();
+
+			return true;
+		}
+
+		if ( this._shouldUpdateEditor( nextProps ) ) {
 			this.editor.setData( nextProps.data );
 		}
 
@@ -125,8 +148,13 @@ export default class CKEditor extends React.Component {
 			} );
 		};
 
-		if ( this.props.contextWatchdog ) {
-			this.props.contextWatchdog.add( {
+		// TODO: Is it better to use instanceof or duck typing?
+		if ( this.context instanceof ContextWatchdog ) {
+			// Store the context watchdog - when the context watchdog changes
+			// the editor should be destroyed in the previous context watchdog.
+			this.contextWatchdog = this.context;
+
+			this.contextWatchdog.add( {
 				id: this._id,
 				type: 'editor',
 				sourceElementOrData: this.domContainer.current,
@@ -146,8 +174,9 @@ export default class CKEditor extends React.Component {
 	}
 
 	_destroyEditor() {
-		if ( this.props.contextWatchdog ) {
-			this.props.contextWatchdog.remove( this._id );
+		if ( this.contextWatchdog ) {
+			this.contextWatchdog.remove( this._id );
+			this.contextWatchdog = null;
 		} else {
 			this.watchdog.destroy();
 
@@ -155,7 +184,7 @@ export default class CKEditor extends React.Component {
 		}
 	}
 
-	_shouldUpdateContent( nextProps ) {
+	_shouldUpdateEditor( nextProps ) {
 		// Check whether `nextProps.data` is equal to `this.props.data` is required if somebody defined the `#data`
 		// property as a static string and updated a state of component when the editor's content has been changed.
 		// If we avoid checking those properties, the editor's content will back to the initial value because
@@ -188,6 +217,8 @@ export default class CKEditor extends React.Component {
 	}
 }
 
+CKEditor.contextType = ContextWatchdogContext;
+
 // Properties definition.
 CKEditor.propTypes = {
 	editor: PropTypes.func.isRequired,
@@ -198,8 +229,7 @@ CKEditor.propTypes = {
 	onFocus: PropTypes.func,
 	onBlur: PropTypes.func,
 	onError: PropTypes.func,
-	disabled: PropTypes.bool,
-	contextWatchdog: PropTypes.object
+	disabled: PropTypes.bool
 };
 
 // Default values for non-required properties.

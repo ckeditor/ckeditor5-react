@@ -6,22 +6,35 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
-import CKEditorComponent from './ckeditor.jsx';
+
+export const ContextWatchdogContext = React.createContext( 'contextWatchdog' );
 
 export default class Context extends React.Component {
 	constructor( props, context ) {
 		super( props, context );
 
-		this._initializeContext();
+		this.contextWatchdog = null;
+
+		if ( this.props.isLayoutReady ) {
+			this._initializeContextWatchdog( this.props.config );
+		}
 	}
 
 	shouldComponentUpdate( nextProps ) {
 		// If the configuration changes then the ContextWatchdog needs to be destroyed and recreated
 		// On top of the new configuration.
-		if ( nextProps.config !== this.props.config ) {
-			this.contextWatchdog.destroy();
+		if ( nextProps.id !== this.props.id ) {
+			if ( this.contextWatchdog ) {
+				this.contextWatchdog.destroy();
+			}
 
-			this._initializeContext();
+			this._initializeContextWatchdog( nextProps.config );
+		}
+
+		if ( nextProps.isLayoutReady && !this.contextWatchdog ) {
+			this._initializeContextWatchdog( nextProps.config );
+
+			return true;
 		}
 
 		// Rerender the component only when children has changed.
@@ -30,17 +43,9 @@ export default class Context extends React.Component {
 
 	render() {
 		return (
-			<React.Fragment>
-				{React.Children.map( this.props.children, child => {
-					if ( child.type === CKEditorComponent ) {
-						return React.cloneElement( child, {
-							contextWatchdog: this.contextWatchdog
-						} );
-					}
-
-					return child;
-				} ) }
-			</React.Fragment>
+			<ContextWatchdogContext.Provider value={ this.contextWatchdog } >
+				{ this.props.children }
+			</ContextWatchdogContext.Provider>
 		);
 	}
 
@@ -48,24 +53,16 @@ export default class Context extends React.Component {
 		this._destroyContext();
 	}
 
-	_initializeContext() {
+	_initializeContextWatchdog( config ) {
 		this.contextWatchdog = new ContextWatchdog( this.props.context );
 
-		const handleErrorEvent = errorEvent => {
-			if ( this.props.onError ) {
-				this.props.onError( errorEvent );
-			} else {
-				console.error( errorEvent );
-			}
-		};
-
-		this.contextWatchdog.create( this.props.config )
+		this.contextWatchdog.create( config )
 			.catch( error => {
-				handleErrorEvent( { error, phase: 'initialization' } );
+				this.props.onError( { error, phase: 'initialization' } );
 			} );
 
 		this.contextWatchdog.on( 'error', ( _, errorEvent ) => {
-			handleErrorEvent( {
+			this.props.onError( {
 				phase: 'runtime',
 				error: errorEvent.error,
 				willContextRestart: errorEvent.causesRestart
@@ -74,18 +71,28 @@ export default class Context extends React.Component {
 
 		this.contextWatchdog.on( 'stateChange', () => {
 			if ( this.contextWatchdog.state === 'ready' && this.props.onReady ) {
-				this.props.onReady();
+				this.props.onReady( this.contextWatchdog.context );
 			}
 		} );
 	}
 
 	_destroyContext() {
-		this.contextWatchdog.destroy();
+		if ( this.contextWatchdog ) {
+			this.contextWatchdog.destroy();
+			this.contextWatchdog = null;
+		}
 	}
 }
 
+Context.defaultProps = {
+	isLayoutReady: true,
+	onError: errorEvent => console.log( errorEvent.error )
+};
+
 // Properties definition.
 Context.propTypes = {
+	id: PropTypes.string,
+	isLayoutReady: PropTypes.bool,
 	context: PropTypes.func,
 	config: PropTypes.object,
 	onReady: PropTypes.func,
