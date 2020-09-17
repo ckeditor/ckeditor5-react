@@ -52,7 +52,6 @@ export default class CKEditor extends React.Component {
 		// Only when the editor component changes the whole structure should be restarted.
 		if ( nextProps.id !== this.props.id ) {
 			this._destroyEditor();
-			this._initializeEditor();
 
 			return true;
 		}
@@ -70,6 +69,10 @@ export default class CKEditor extends React.Component {
 
 	// Initialize the editor when the component is mounted.
 	componentDidMount() {
+		this._initializeEditor();
+	}
+
+	componentDidUpdate() {
 		this._initializeEditor();
 	}
 
