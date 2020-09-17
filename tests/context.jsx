@@ -6,7 +6,7 @@
 import React from 'react';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import Context from '../src/context.jsx';
+import CKEditorContext from '../src/ckeditorcontext.jsx';
 import CKEditor from '../src/ckeditor.jsx';
 import EditorMock from './_utils/editor.js';
 import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
@@ -15,9 +15,9 @@ import turnOffDefaultErrorCatching from './_utils-tests/turnoffdefaulterrorcatch
 
 configure( { adapter: new Adapter() } );
 
-class CKEditorContextMock {
+class ContextMock {
 	static create( config ) {
-		return Promise.resolve( new CKEditorContextMock( config ) );
+		return Promise.resolve( new ContextMock( config ) );
 	}
 	static destroy() {
 		return Promise.resolve();
@@ -42,7 +42,7 @@ describe( 'CKEditor Context Component', () => {
 	describe( 'initialization', () => {
 		it( 'should create an instance of the ContextWatchdog', async () => {
 			await new Promise( res => {
-				wrapper = mount( <Context context={ CKEditorContextMock } onReady={ res }/> );
+				wrapper = mount( <CKEditorContext context={ ContextMock } onReady={ res }/> );
 			} );
 
 			const component = wrapper.instance();
@@ -53,10 +53,10 @@ describe( 'CKEditor Context Component', () => {
 
 		it( 'should render its children', async () => {
 			wrapper = mount(
-				<Context context={ CKEditorContextMock } >
+				<CKEditorContext context={ ContextMock } >
 					<div></div>
 					<p>Foo</p>
-				</Context>
+				</CKEditorContext>
 			);
 
 			expect( wrapper.childAt( 0 ).name() ).to.equal( 'div' );
@@ -68,9 +68,9 @@ describe( 'CKEditor Context Component', () => {
 
 			await new Promise( ( res, rej ) => {
 				wrapper = mount(
-					<Context context={ CKEditorContextMock } onError={ rej } >
+					<CKEditorContext context={ ContextMock } onError={ rej } >
 						<CKEditor editor={ EditorMock } onReady={ res } onError={ rej } />
-					</Context>
+					</CKEditorContext>
 				);
 			} );
 
@@ -85,7 +85,7 @@ describe( 'CKEditor Context Component', () => {
 			sinon.assert.calledOnce( editorCreateSpy );
 
 			expect( editorCreateSpy.firstCall.args[ 1 ] ).to.have.property( 'context' );
-			expect( editorCreateSpy.firstCall.args[ 1 ].context ).to.be.instanceOf( CKEditorContextMock );
+			expect( editorCreateSpy.firstCall.args[ 1 ].context ).to.be.instanceOf( ContextMock );
 		} );
 
 		it( 'should initialize its inner editors correctly', async () => {
@@ -93,10 +93,10 @@ describe( 'CKEditor Context Component', () => {
 
 			await new Promise( ( res, rej ) => {
 				wrapper = mount(
-					<Context context={ CKEditorContextMock } onError={ rej } >
+					<CKEditorContext context={ ContextMock } onError={ rej } >
 						<CKEditor editor={ EditorMock } config={ { initialData: '<p>Foo</p>' } } />
 						<CKEditor editor={ EditorMock } config={ { initialData: '<p>Bar</p>' } } />
-					</Context>
+					</CKEditorContext>
 				);
 
 				const watchdog = wrapper.instance().contextWatchdog;
@@ -116,8 +116,8 @@ describe( 'CKEditor Context Component', () => {
 
 			sinon.assert.calledTwice( editorCreateSpy );
 
-			expect( editorCreateSpy.firstCall.args[ 1 ].context ).to.be.instanceOf( CKEditorContextMock );
-			expect( editorCreateSpy.secondCall.args[ 1 ].context ).to.be.instanceOf( CKEditorContextMock );
+			expect( editorCreateSpy.firstCall.args[ 1 ].context ).to.be.instanceOf( ContextMock );
+			expect( editorCreateSpy.secondCall.args[ 1 ].context ).to.be.instanceOf( ContextMock );
 			expect( editorCreateSpy.firstCall.args[ 1 ].context ).to.equal( editorCreateSpy.secondCall.args[ 1 ].context );
 
 			expect( editorCreateSpy.firstCall.args[ 1 ].initialData ).to.equal( '<p>Foo</p>' );
@@ -134,9 +134,9 @@ describe( 'CKEditor Context Component', () => {
 
 				const errorEvent = await new Promise( res => {
 					wrapper = mount(
-						<Context context={ CKEditorContextMock } onError={ res } >
+						<CKEditorContext context={ ContextMock } onError={ res } >
 							<CKEditor editor={ EditorMock } />
-						</Context>
+						</CKEditorContext>
 					);
 				} );
 
@@ -149,13 +149,13 @@ describe( 'CKEditor Context Component', () => {
 
 				await new Promise( res => {
 					wrapper = mount(
-						<Context
-							context={ CKEditorContextMock }
+						<CKEditorContext
+							context={ ContextMock }
 							onReady={ res }
 							onError={ onErrorSpy }
 						>
 							<CKEditor editor={ EditorMock } />
-						</Context >
+						</CKEditorContext >
 					);
 				} );
 
@@ -186,10 +186,10 @@ describe( 'CKEditor Context Component', () => {
 
 				await new Promise( ( res, rej ) => {
 					wrapper = mount(
-						<Context context={ CKEditorContextMock } onReady={ res } onError={ rej } >
+						<CKEditorContext context={ ContextMock } onReady={ res } onError={ rej } >
 							<CKEditor editor={ EditorMock } onReady={ editorReadySpy } config={ { initialData: '<p>Foo</p>' } } />
 							<CKEditor editor={ EditorMock } onReady={ editorReadySpy } config={ { initialData: '<p>Bar</p>' } } />
-						</Context>
+						</CKEditorContext>
 					);
 				} );
 
@@ -201,13 +201,13 @@ describe( 'CKEditor Context Component', () => {
 		} );
 	} );
 
-	describe( 'Restarting Context + CKEditor', () => {
+	describe( 'Restarting CKEditor Context with editor', () => {
 		it( 'should restart the Context and all editors if the Context id changes', async () => {
 			const oldContext = await new Promise( res => {
 				wrapper = mount(
-					<Context context={ CKEditorContextMock } id="1" onReady={ res }>
+					<CKEditorContext context={ ContextMock } id="1" onReady={ res }>
 						<CKEditor editor={ EditorMock } />
-					</Context>
+					</CKEditorContext>
 				);
 			} );
 
@@ -219,7 +219,7 @@ describe( 'CKEditor Context Component', () => {
 			} );
 
 			expect( newContext ).to.not.equal( oldContext );
-			expect( newContext ).to.be.an.instanceOf( CKEditorContextMock );
+			expect( newContext ).to.be.an.instanceOf( ContextMock );
 		} );
 	} );
 } );

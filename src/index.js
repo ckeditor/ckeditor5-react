@@ -1,4 +1,4 @@
 import CKEditor from './ckeditor.jsx';
-import Context from './context.jsx';
+import CKEditorContext from './ckeditorcontext.jsx';
 
-export { CKEditor, Context };
+export { CKEditor, CKEditorContext };

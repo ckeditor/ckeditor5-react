@@ -9,7 +9,7 @@ import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
 
 export const ContextWatchdogContext = React.createContext( 'contextWatchdog' );
 
-export default class Context extends React.Component {
+export default class CKEditorContext extends React.Component {
 	constructor( props, context ) {
 		super( props, context );
 
@@ -84,13 +84,13 @@ export default class Context extends React.Component {
 	}
 }
 
-Context.defaultProps = {
+CKEditorContext.defaultProps = {
 	isLayoutReady: true,
 	onError: errorEvent => console.log( errorEvent.error )
 };
 
 // Properties definition.
-Context.propTypes = {
+CKEditorContext.propTypes = {
 	id: PropTypes.string,
 	isLayoutReady: PropTypes.bool,
 	context: PropTypes.func,
