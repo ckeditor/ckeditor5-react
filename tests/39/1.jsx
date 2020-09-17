@@ -35,7 +35,7 @@ class App extends React.Component {
 		return (
 			<Editor
 				onChange={ ( evt, editor ) => this.setState( { content: editor.getData() } ) }
-				onReady={ ( { editor } ) => {
+				onReady={ editor => {
 					this.editor = editor;
 					this.props.onReady();
 				} }

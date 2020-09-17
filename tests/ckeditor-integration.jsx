@@ -37,7 +37,7 @@ class AppUsingState extends React.Component {
 			<Editor
 				data={ this.state.content }
 				onChange={ ( evt, editor ) => this.setState( { content: editor.getData() } ) }
-				onReady={ ( { editor } ) => {
+				onReady={ editor => {
 					this.editor = editor;
 					this.props.onReady();
 				} }
@@ -62,7 +62,7 @@ class AppUsingStaticString extends React.Component {
 			<Editor
 				data={ '<p>Initial data.</p>' }
 				onChange={ ( evt, editor ) => this.setState( { content: editor.getData() } ) }
-				onReady={ ( { editor } ) => {
+				onReady={ editor => {
 					this.editor = editor;
 					this.props.onReady();
 				} }

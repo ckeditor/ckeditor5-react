@@ -19,36 +19,28 @@ export default class CKEditor extends React.Component {
 		this.domContainer = React.createRef();
 
 		/**
-		 * An instance of EditorWatchdog if the context watchdog was not passed via React's context. `null` otherwise.
+		 * An instance of ContextWatchdog or passed from the React's context or EditorWatchdog if the Context was not passed.
 		 */
 		this.watchdog = null;
 
 		/**
-		 * An instance of ContextWatchdog passed from the React's context or `null` otherwise.
-		 */
-		this.contextWatchdog = null;
-
-		/**
 		 * A unique id for an editor component.
+		 * This id is used for the ContextWatchdog to determine which editor should be destroyed later.
 		 */
 		this._id = uid();
 	}
 
 	get editor() {
-		if ( this.watchdog ) {
-			return this.watchdog.editor;
+		if ( !this.watchdog ) {
+			return null;
 		}
 
-		if ( this.contextWatchdog ) {
-			// TODO - try/catch should not be necessary as `getItem` could return `null` instead of throwing errors.
-			try {
-				return this.contextWatchdog.getItem( this._id );
-			} catch ( err ) {
-				return null;
-			}
+		// TODO - try/catch should not be necessary as `getItem` could return `null` instead of throwing errors.
+		try {
+			return this.watchdog.getItem( this._id );
+		} catch ( err ) {
+			return null;
 		}
-
-		return null;
 	}
 
 	// This component should almost never be updated by React itself.
@@ -130,7 +122,7 @@ export default class CKEditor extends React.Component {
 					// Ideally this part should be moved to the watchdog item creator listeners.
 					setTimeout( () => {
 						if ( this.props.onReady ) {
-							this.props.onReady( { editor: this.editor } );
+							this.props.onReady( this.editor );
 						}
 					} );
 
@@ -138,48 +130,39 @@ export default class CKEditor extends React.Component {
 				} );
 		};
 
-		const onError = ( { error, phase = 'runtime', causesRestart = false } ) => {
+		const onError = ( error, details ) => {
 			const onErrorCallback = this.props.onError || console.error;
 
-			onErrorCallback( {
-				error,
-				phase,
-				willEditorRestart: causesRestart
-			} );
+			onErrorCallback( error, details );
 		};
 
 		// TODO: Is it better to use instanceof or duck typing?
 		if ( this.context instanceof ContextWatchdog ) {
 			// Store the context watchdog - when the context watchdog changes
 			// the editor should be destroyed in the previous context watchdog.
-			this.contextWatchdog = this.context;
-
-			this.contextWatchdog.add( {
-				id: this._id,
-				type: 'editor',
-				sourceElementOrData: this.domContainer.current,
-				config: this._getConfig(),
-				creator
-			} ).catch( error => onError( { error, phase: 'initialization' } ) );
+			this.watchdog = this.context;
 		} else {
-			this.watchdog = new EditorWatchdog( this.props.editor );
-
-			this.watchdog.setCreator( creator );
-
-			this.watchdog.create( this.domContainer.current, this._getConfig() )
-				.catch( error => onError( { error, phase: 'initialization' } ) );
-
-			this.watchdog.on( 'error', ( _, evt ) => onError( evt ) );
+			this.watchdog = new WatchdogAdapter( this );
 		}
+
+		this.watchdog.add( {
+			id: this._id,
+			type: 'editor',
+			sourceElementOrData: this.domContainer.current,
+			config: this._getConfig(),
+			creator
+		} ).catch( error => onError( error, { phase: 'initialization', willEditorRestart: false } ) );
+
+		this.watchdog.on( 'itemError', ( _, { itemId, error, causesRestart } ) => {
+			if ( itemId === this._id ) {
+				onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
+			}
+		} );
 	}
 
 	_destroyEditor() {
-		if ( this.contextWatchdog ) {
-			this.contextWatchdog.remove( this._id );
-			this.contextWatchdog = null;
-		} else {
-			this.watchdog.destroy();
-
+		if ( this.watchdog ) {
+			this.watchdog.remove( this._id );
 			this.watchdog = null;
 		}
 	}
@@ -214,6 +197,39 @@ export default class CKEditor extends React.Component {
 			...this.props.config,
 			initialData: this.props.config.initialData || this.props.data || ''
 		};
+	}
+}
+
+/**
+ * An adapter aligning Editor Watchdog API to the Context API for easier usage.
+ */
+class WatchdogAdapter {
+	constructor( editorComponent ) {
+		this._editorComponent = editorComponent;
+		this.errorListeners = [];
+	}
+
+	async add( itemConfig ) {
+		this._editorWatchdog = new EditorWatchdog( this._editorComponent.props.editor );
+
+		this._editorWatchdog.setCreator( itemConfig.creator );
+
+		await this._editorWatchdog.create( itemConfig.sourceElementOrData, itemConfig.config );
+	}
+
+	on( _, callback ) {
+		// Assume that the event name is itemError.
+		this._editorWatchdog.on( 'error', ( _, evt ) => {
+			callback( null, { ...evt, itemId: this._editorComponent._id } );
+		} );
+	}
+
+	remove() {
+		this._editorWatchdog.destroy();
+	}
+
+	getItem() {
+		return this._editorWatchdog.editor;
 	}
 }
 
