@@ -161,10 +161,8 @@ export default class CKEditor extends React.Component {
 	}
 
 	_destroyEditor() {
-		if ( this.watchdog ) {
-			this.watchdog.remove( this._id );
-			this.watchdog = null;
-		}
+		this.watchdog.remove( this._id );
+		this.watchdog = null;
 	}
 
 	_shouldUpdateEditor( nextProps ) {
