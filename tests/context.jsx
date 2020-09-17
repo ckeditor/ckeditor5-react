@@ -41,7 +41,9 @@ describe( 'CKEditor Context Component', () => {
 
 	describe( 'initialization', () => {
 		it( 'should create an instance of the ContextWatchdog', async () => {
-			wrapper = mount( <Context context={ CKEditorContextMock } /> );
+			await new Promise( res => {
+				wrapper = mount( <Context context={ CKEditorContextMock } onReady={ res }/> );
+			} );
 
 			const component = wrapper.instance();
 
@@ -201,7 +203,7 @@ describe( 'CKEditor Context Component', () => {
 
 	describe( 'Restarting Context + CKEditor', () => {
 		it( 'should restart the Context and all editors if the Context id changes', async () => {
-			await new Promise( res => {
+			const oldContext = await new Promise( res => {
 				wrapper = mount(
 					<Context context={ CKEditorContextMock } id="1" onReady={ res }>
 						<CKEditor editor={ EditorMock } />
@@ -209,23 +211,15 @@ describe( 'CKEditor Context Component', () => {
 				);
 			} );
 
-			const context = wrapper.instance().contextWatchdog.context;
-
-			await new Promise( res => {
+			const newContext = await new Promise( res => {
 				wrapper.setProps( {
 					id: '2',
 					onReady: res
 				} );
 			} );
 
-			const newContext = wrapper.instance().contextWatchdog.context;
-
-			expect( context ).to.not.equal( newContext );
+			expect( newContext ).to.not.equal( oldContext );
 			expect( newContext ).to.be.an.instanceOf( CKEditorContextMock );
 		} );
-	} );
-
-	describe( 'Changing children', () => {
-		// TODO
 	} );
 } );

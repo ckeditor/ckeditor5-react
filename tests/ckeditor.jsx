@@ -439,8 +439,7 @@ describe( 'CKEditor Component', () => {
 						onError={ rej } /> );
 				} );
 
-				const watchdog = wrapper.instance().watchdog;
-				const error = new CKEditorError( 'foo', watchdog.getItem() );
+				const error = new CKEditorError( 'foo', wrapper.instance().editor );
 
 				const onErrorSpy = sinon.spy();
 				wrapper.setProps( { onError: onErrorSpy } );
@@ -544,19 +543,8 @@ describe( 'CKEditor Component', () => {
 		} );
 	} );
 
-	describe( 'watchdog', () => {
-		it( 'should be available for the component', async () => {
-			await new Promise( ( res, rej ) => {
-				wrapper = mount( <CKEditor
-					editor={ Editor }
-					onReady={ res }
-					onError={ rej } /> );
-			} );
-
-			expect( wrapper.instance().watchdog ).to.be.an( 'object' );
-		} );
-
-		it( 'should restart the editor if an error occurred', async () => {
+	describe( 'in case of error handling', () => {
+		it( 'should restart the editor if a runtime error occurs', async () => {
 			await new Promise( ( res, rej ) => {
 				wrapper = mount( <CKEditor
 					editor={ Editor }
