@@ -35,10 +35,10 @@
 `;
 
 		ReactDOM.render(
-			React.createElement( CKEditor, {
+			React.createElement( CKEditor.CKEditor, {
 				editor: ClassicEditor,
 				data: editorContent,
-				onReady: ( { editor } ) => {
+				onReady: editor => {
 					window.editor = editor;
 
 					console.log( 'event: onReady');
@@ -48,7 +48,7 @@
 
 					readOnlyButton.disabled = false;
 
-					readOnlyButton.addEventListener( 'click', function() {
+					editor.editing.view.listenTo( readOnlyButton, 'click', () => {
 						editor.isReadOnly = !editor.isReadOnly;
 
 						if ( editor.isReadOnly ) {
