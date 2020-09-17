@@ -23,16 +23,14 @@ describe( 'CKEditor Component + ClassicEditor Build', () => {
 		}
 	} );
 
-	it( 'should initialize the ClassicEditor properly', done => {
-		wrapper = mount( <CKEditor editor={ ClassicEditor } /> );
-
-		setTimeout( () => {
-			const component = wrapper.instance();
-
-			expect( component.editor ).to.not.be.null;
-			expect( component.editor.element ).to.not.be.null;
-
-			done();
+	it( 'should initialize the ClassicEditor properly', async () => {
+		await new Promise( res => {
+			wrapper = mount( <CKEditor editor={ ClassicEditor } onReady={ res } /> );
 		} );
+
+		const component = wrapper.instance();
+
+		expect( component.editor ).to.not.be.null;
+		expect( component.editor.element ).to.not.be.null;
 	} );
 } );
