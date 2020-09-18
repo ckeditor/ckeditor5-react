@@ -80,72 +80,71 @@ export default class CKEditor extends React.Component {
 	}
 
 	_initializeEditor() {
-		const creator = ( el, config ) => {
-			return this.props.editor.create( el, config )
-				.then( editor => {
-					if ( 'disabled' in this.props ) {
-						editor.isReadOnly = this.props.disabled;
-					}
-
-					const modelDocument = editor.model.document;
-					const viewDocument = editor.editing.view.document;
-
-					modelDocument.on( 'change:data', event => {
-						/* istanbul ignore else */
-						if ( this.props.onChange ) {
-							this.props.onChange( event, editor );
-						}
-					} );
-
-					viewDocument.on( 'focus', event => {
-						/* istanbul ignore else */
-						if ( this.props.onFocus ) {
-							this.props.onFocus( event, editor );
-						}
-					} );
-
-					viewDocument.on( 'blur', event => {
-						/* istanbul ignore else */
-						if ( this.props.onBlur ) {
-							this.props.onBlur( event, editor );
-						}
-					} );
-
-					// The `onReady` callback should be fired once the `editor` property
-					// can be reached from the `<ckeditor>` component.
-					// Ideally this part should be moved to the watchdog item creator listeners.
-					setTimeout( () => {
-						if ( this.props.onReady ) {
-							this.props.onReady( this.editor );
-						}
-					} );
-
-					return editor;
-				} );
-		};
-
-		const onError = ( error, details ) => {
-			const onErrorCallback = this.props.onError || console.error;
-
-			onErrorCallback( error, details );
-		};
-
-		// TODO: Is it better to use instanceof or duck typing?
+		// Store the watchdog - when it changes the previous one should destroy the editor.
 		if ( this.context instanceof ContextWatchdog ) {
-			// Store the watchdog - when the editor should be restarted then it should be destroyed in the previous watchdog.
 			this.watchdog = new ContextWatchdogToEditorWatchdogAdapter( this.context );
 		} else {
 			this.watchdog = new EditorWatchdog( this.editor );
 		}
 
-		this.watchdog.setCreator( creator );
+		this.watchdog.setCreator( ( el, config ) => this._createEditor( el, config ) );
 
 		this.watchdog.on( 'error', ( _, { error, causesRestart } ) => {
-			onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
+			this._onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
 		} );
 
 		this.watchdog.create( this.domContainer.current, this._getConfig() )
-			.catch( error => onError( error, { phase: 'initialization', willEditorRestart: false } ) );
+			.catch( error => this._onError( error, { phase: 'initialization', willEditorRestart: false } ) );
+	}
+
+	_onError( error, details ) {
+		const handler = this.props.onError || console.error;
+
+		handler( error, details );
+	}
+
+	_createEditor( el, config ) {
+		return this.props.editor.create( el, config )
+			.then( editor => {
+				if ( 'disabled' in this.props ) {
+					editor.isReadOnly = this.props.disabled;
+				}
+
+				const modelDocument = editor.model.document;
+				const viewDocument = editor.editing.view.document;
+
+				modelDocument.on( 'change:data', event => {
+					/* istanbul ignore else */
+					if ( this.props.onChange ) {
+						this.props.onChange( event, editor );
+					}
+				} );
+
+				viewDocument.on( 'focus', event => {
+					/* istanbul ignore else */
+					if ( this.props.onFocus ) {
+						this.props.onFocus( event, editor );
+					}
+				} );
+
+				viewDocument.on( 'blur', event => {
+					/* istanbul ignore else */
+					if ( this.props.onBlur ) {
+						this.props.onBlur( event, editor );
+					}
+				} );
+
+				// The `onReady` callback should be fired once the `editor` property
+				// can be reached from the `<CKEditor>` component.
+				// Ideally this part should be moved to the watchdog item creator listeners.
+				setTimeout( () => {
+					if ( this.props.onReady ) {
+						this.props.onReady( this.editor );
+					}
+				} );
+
+				return editor;
+			} );
 	}
 
 	_destroyEditor() {
@@ -203,8 +202,8 @@ class ContextWatchdogToEditorWatchdogAdapter {
 		this._creator = creator;
 	}
 
-	async create( sourceElementOrData, config ) {
-		await this._contextWatchdog.add( {
+	create( sourceElementOrData, config ) {
+		return this._contextWatchdog.add( {
 			sourceElementOrData,
 			config,
 			creator: this._creator,
