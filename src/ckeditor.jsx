@@ -61,6 +61,7 @@ export default class CKEditor extends React.Component {
 		this._initializeEditor();
 	}
 
+	// Initialize the editor when the component is updated as it should be destroyed before the update.
 	componentDidUpdate() {
 		this._initializeEditor();
 	}
@@ -246,10 +247,14 @@ CKEditor.propTypes = {
 	onFocus: PropTypes.func,
 	onBlur: PropTypes.func,
 	onError: PropTypes.func,
-	disabled: PropTypes.bool
-	// onInit: () => {
-	// 	return new Error( 'The "onInit" property is not supported anymore by the CKEditor component. Use the "onReady" property instead.' );
-	// }
+	disabled: PropTypes.bool,
+	onInit: ( props, propName ) => {
+		if ( props[ propName ] ) {
+			return new Error(
+				'The "onInit" property is not supported anymore by the CKEditor component. Use the "onReady" property instead.'
+			);
+		}
+	}
 };
 
 // Default values for non-required properties.
