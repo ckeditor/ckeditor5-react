@@ -32,7 +32,8 @@ export default class CKEditor extends React.Component {
 		return this.watchdog.editor;
 	}
 
-	// This component should almost never be updated by React itself.
+	// The CKEditor component should not be updated by React itself.
+	// However, if the component identifier changes, the whole structure should be created once again.
 	shouldComponentUpdate( nextProps ) {
 		if ( !this.editor ) {
 			return false;
