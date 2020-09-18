@@ -26,15 +26,14 @@ module.exports = {
 		}
 	},
 
-	entry: path.join( __dirname, 'src', 'ckeditor.jsx' ),
+	entry: path.join( __dirname, 'src', 'index.js' ),
 
 	output: {
 		library: 'CKEditor',
 
 		path: path.join( __dirname, 'dist' ),
 		filename: 'ckeditor.js',
-		libraryTarget: 'umd',
-		libraryExport: 'default'
+		libraryTarget: 'umd'
 	},
 
 	optimization: {

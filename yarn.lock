@@ -324,6 +324,20 @@
     shelljs "^0.8.1"
     through2 "^3.0.1"
 
+"@ckeditor/ckeditor5-utils@^22.0.0":
+  version "22.0.0"
+  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-utils/-/ckeditor5-utils-22.0.0.tgz#f158c25449a3cbd5a0fd887d14be860826596640"
+  integrity sha512-TuOKeKJfQbbNPHMX4DTBRGBK3IsaIwMkyop9EDakvGYyvAL6Q46dt7vy6CO6YTqm2deERAQ2I4a3nLUnDjxBEQ==
+  dependencies:
+    lodash-es "^4.17.15"
+
+"@ckeditor/ckeditor5-watchdog@^22.0.0":
+  version "22.0.0"
+  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-watchdog/-/ckeditor5-watchdog-22.0.0.tgz#7d15d905f36faa562234e22e30393b3e5f5f7e9d"
+  integrity sha512-MMQnEzeiEFGFbsN4yxD/TIdCwSbK9PapwHocHO4QAuGMQqsqFdB+1HBC8bEu9Pvxn74i+YWfz6VdeU4lSwzL2w==
+  dependencies:
+    lodash-es "^4.17.15"
+
 "@istanbuljs/schema@^0.1.2":
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.2.tgz#26520bf09abe4a5644cd5414e37125a8954241dd"
@@ -4950,6 +4964,11 @@ locate-path@^5.0.0:
   integrity sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==
   dependencies:
     p-locate "^4.1.0"
+
+lodash-es@^4.17.15:
+  version "4.17.15"
+  resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.15.tgz#21bd96839354412f23d7a10340e5eac6ee455d78"
+  integrity sha512-rlrc3yU3+JNOpZ9zj5pQtxnx2THmvRykwL4Xlxoa8I9lHBlVbbyPhgyPMioxVZ4NqyxaVVtaJnzsyOidQIhyyQ==
 
 lodash._reinterpolate@^3.0.0:
   version "3.0.0"
