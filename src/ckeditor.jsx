@@ -20,10 +20,15 @@ export default class CKEditor extends React.Component {
 
 		/**
 		 * An instance of EditorWatchdog or an instance of EditorWatchdog-like adapter for ContextWatchdog.
+		 *
+		 * @type {EditorWatchdog|EditorWatchdogAdapter}
 		 */
 		this.watchdog = null;
 	}
 
+	/**
+	 * An editor instance.
+	 */
 	get editor() {
 		if ( !this.watchdog ) {
 			return null;
@@ -79,9 +84,12 @@ export default class CKEditor extends React.Component {
 		);
 	}
 
+	/**
+	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
+	 */
 	_initializeEditor() {
 		if ( this.context instanceof ContextWatchdog ) {
-			this.watchdog = new ContextWatchdogToEditorWatchdogAdapter( this.context );
+			this.watchdog = new EditorWatchdogAdapter( this.context );
 		} else {
 			this.watchdog = new EditorWatchdog( this.editor );
 		}
@@ -96,8 +104,15 @@ export default class CKEditor extends React.Component {
 			.catch( error => this.props.onError( error, { phase: 'initialization', willEditorRestart: false } ) );
 	}
 
-	_createEditor( el, config ) {
-		return this.props.editor.create( el, config )
+	/**
+	 * Creates an editor from the element and configuration.
+	 *
+	 * @param {HTMLElement} element The source element.
+	 * @param {Object} config CKEditor 5 editor configuration.
+	 * @returns {Promise}
+	 */
+	_createEditor( element, config ) {
+		return this.props.editor.create( element, config )
 			.then( editor => {
 				if ( 'disabled' in this.props ) {
 					editor.isReadOnly = this.props.disabled;
@@ -140,11 +155,20 @@ export default class CKEditor extends React.Component {
 			} );
 	}
 
+	/**
+	 * Destroys the editor by destroying the watchdog.
+	 */
 	_destroyEditor() {
 		this.watchdog.destroy();
 		this.watchdog = null;
 	}
 
+	/**
+	 * Returns true when the editor should be updated.
+	 *
+	 * @param {*} nextProps React's properties.
+	 * @returns {Boolean}
+	 */
 	_shouldUpdateEditor( nextProps ) {
 		// Check whether `nextProps.data` is equal to `this.props.data` is required if somebody defined the `#data`
 		// property as a static string and updated a state of component when the editor's content has been changed.
@@ -179,22 +203,37 @@ export default class CKEditor extends React.Component {
 }
 
 /**
- * An adapter aligning Context Watchdog API to the Editor Watchdog API for easier usage.
+ * An adapter aligning the context watchdog API to the editor watchdog API for easier usage.
  */
-class ContextWatchdogToEditorWatchdogAdapter {
+class EditorWatchdogAdapter {
+	/**
+	 * @param {ContextWatchdog} contextWatchdog The context watchdog instance that will be wrapped into wditor watchdog API.
+	 */
 	constructor( contextWatchdog ) {
 		this._contextWatchdog = contextWatchdog;
 
 		/**
-		 * A unique id for the ContextWatchdog creator.
+		 * A unique id for the adapter to distinguish editor items when using the context watchdog API.
+		 *
+		 * @type {String}
 		 */
 		this._id = uid();
 	}
 
+	/**
+	 *  @param {Function} creator A watchdog's editor creator function.
+	 */
 	setCreator( creator ) {
 		this._creator = creator;
 	}
 
+	/**
+	 * Adds an editor configuration to the context watchdog registry. Creates an instance of it.
+	 *
+	 * @param {HTMLElement | string} sourceElementOrData A source element or data for the new editor.
+	 * @param {Object} config CKEditor 5 editor config.
+	 * @returns {Promise}
+	 */
 	create( sourceElementOrData, config ) {
 		return this._contextWatchdog.add( {
 			sourceElementOrData,
@@ -205,8 +244,15 @@ class ContextWatchdogToEditorWatchdogAdapter {
 		} );
 	}
 
+	/**
+	 * Creates a listener that is attached to context watchdog's item and run when the context watchdog fires.
+	 * Currently works only for the `error` event.
+	 *
+	 * @param {String} _
+	 * @param {Function} callback
+	 */
 	on( _, callback ) {
-		// Assume that the event name is itemError.
+		// Assume that the event name was error.
 		this._contextWatchdog.on( 'itemError', ( _, { itemId, causesRestart, error } ) => {
 			if ( itemId === this._id ) {
 				callback( null, { error, causesRestart } );
@@ -214,10 +260,16 @@ class ContextWatchdogToEditorWatchdogAdapter {
 		} );
 	}
 
+	/**
+	 * Removes the editor from registered editors and destroys it.
+	 */
 	destroy() {
 		this._contextWatchdog.remove( this._id );
 	}
 
+	/**
+	 * An editor instance.
+	 */
 	get editor() {
 		// TODO - try/catch should not be necessary as `getItem` could return `null` instead of throwing errors.
 		try {
