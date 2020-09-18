@@ -19,15 +19,9 @@ export default class CKEditor extends React.Component {
 		this.domContainer = React.createRef();
 
 		/**
-		 * An instance of ContextWatchdog or passed from the React's context or EditorWatchdog if the Context was not passed.
+		 * An instance of EditorWatchdog or an instance of EditorWatchdog-like adapter for ContextWatchdog.
 		 */
 		this.watchdog = null;
-
-		/**
-		 * A unique id for an editor component.
-		 * This id is used for the ContextWatchdog to determine which editor should be destroyed later.
-		 */
-		this._id = uid();
 	}
 
 	get editor() {
@@ -35,12 +29,7 @@ export default class CKEditor extends React.Component {
 			return null;
 		}
 
-		// TODO - try/catch should not be necessary as `getItem` could return `null` instead of throwing errors.
-		try {
-			return this.watchdog.getItem( this._id );
-		} catch ( err ) {
-			return null;
-		}
+		return this.watchdog.editor;
 	}
 
 	// This component should almost never be updated by React itself.
@@ -141,30 +130,24 @@ export default class CKEditor extends React.Component {
 
 		// TODO: Is it better to use instanceof or duck typing?
 		if ( this.context instanceof ContextWatchdog ) {
-			// Store the context watchdog - when the context watchdog changes
-			// the editor should be destroyed in the previous context watchdog.
-			this.watchdog = this.context;
+			// Store the watchdog - when the editor should be restarted then it should be destroyed in the previous watchdog.
+			this.watchdog = new ContextWatchdogToEditorWatchdogAdapter( this.context );
 		} else {
-			this.watchdog = new WatchdogAdapter( this );
+			this.watchdog = new EditorWatchdog( this.editor );
 		}
 
-		this.watchdog.add( {
-			id: this._id,
-			type: 'editor',
-			sourceElementOrData: this.domContainer.current,
-			config: this._getConfig(),
-			creator
-		} ).catch( error => onError( error, { phase: 'initialization', willEditorRestart: false } ) );
+		this.watchdog.setCreator( creator );
 
-		this.watchdog.on( 'itemError', ( _, { itemId, error, causesRestart } ) => {
-			if ( itemId === this._id ) {
-				onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
-			}
+		this.watchdog.on( 'error', ( _, { error, causesRestart } ) => {
+			onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
 		} );
+
+		this.watchdog.create( this.domContainer.current, this._getConfig() )
+			.catch( error => onError( error, { phase: 'initialization', willEditorRestart: false } ) );
 	}
 
 	_destroyEditor() {
-		this.watchdog.remove( this._id );
+		this.watchdog.destroy();
 		this.watchdog = null;
 	}
 
@@ -202,35 +185,52 @@ export default class CKEditor extends React.Component {
 }
 
 /**
- * An adapter aligning Editor Watchdog API to the Context API for easier usage.
+ * An adapter aligning Context Watchdog API to the Editor Watchdog API for easier usage.
  */
-class WatchdogAdapter {
-	constructor( editorComponent ) {
-		this._editorComponent = editorComponent;
-		this.errorListeners = [];
+class ContextWatchdogToEditorWatchdogAdapter {
+	constructor( contextWatchdog ) {
+		this._contextWatchdog = contextWatchdog;
+
+		/**
+		 * A unique id for the ContextWatchdog creator.
+		 */
+		this._id = uid();
 	}
 
-	async add( itemConfig ) {
-		this._editorWatchdog = new EditorWatchdog( this._editorComponent.props.editor );
+	setCreator( creator ) {
+		this._creator = creator;
+	}
 
-		this._editorWatchdog.setCreator( itemConfig.creator );
-
-		await this._editorWatchdog.create( itemConfig.sourceElementOrData, itemConfig.config );
+	async create( sourceElementOrData, config ) {
+		await this._contextWatchdog.add( {
+			sourceElementOrData,
+			config,
+			creator: this._creator,
+			id: this._id,
+			type: 'editor'
+		} );
 	}
 
 	on( _, callback ) {
 		// Assume that the event name is itemError.
-		this._editorWatchdog.on( 'error', ( _, evt ) => {
-			callback( null, { ...evt, itemId: this._editorComponent._id } );
+		this._contextWatchdog.on( 'itemError', ( _, { itemId, causesRestart, error } ) => {
+			if ( itemId === this._id ) {
+				callback( null, { error, causesRestart } );
+			}
 		} );
 	}
 
-	remove() {
-		this._editorWatchdog.destroy();
+	destroy() {
+		this._contextWatchdog.remove( this._id );
 	}
 
-	getItem() {
-		return this._editorWatchdog.editor;
+	get editor() {
+		// TODO - try/catch should not be necessary as `getItem` could return `null` instead of throwing errors.
+		try {
+			return this._contextWatchdog.getItem( this._id );
+		} catch ( err ) {
+			return null;
+		}
 	}
 }
 
@@ -247,6 +247,9 @@ CKEditor.propTypes = {
 	onBlur: PropTypes.func,
 	onError: PropTypes.func,
 	disabled: PropTypes.bool
+	// onInit: () => {
+	// 	return new Error( 'The "onInit" property is not supported anymore by the CKEditor component. Use the "onReady" property instead.' );
+	// }
 };
 
 // Default values for non-required properties.
