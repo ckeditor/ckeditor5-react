@@ -488,7 +488,7 @@ describe( 'CKEditor Component', () => {
 		} );
 
 		describe( '#id', () => {
-			it( 'restarts the editor when the new value is set', async () => {
+			it( 'should make the editor restart when its value changes', async () => {
 				sinon.stub( Editor, 'create' ).callsFake( async () => new Editor() );
 
 				const editor = await new Promise( ( res, rej ) => {
@@ -501,9 +501,7 @@ describe( 'CKEditor Component', () => {
 				} );
 
 				sinon.assert.calledOnce( Editor.create );
-				expect( Editor.create.firstCall.args[ 1 ].initialData ).to.equal(
-					'<p>foo</p>'
-				);
+				expect( Editor.create.firstCall.args[ 1 ].initialData ).to.equal( '<p>foo</p>' );
 
 				const editor2 = await new Promise( res => {
 					wrapper.setProps( { onReady: res, id: '2', config: { initialData: '<p>bar</p>' } } );
@@ -511,11 +509,28 @@ describe( 'CKEditor Component', () => {
 
 				sinon.assert.calledTwice( Editor.create );
 
-				expect( Editor.create.secondCall.args[ 1 ].initialData ).to.equal(
-					'<p>bar</p>'
-				);
+				expect( Editor.create.secondCall.args[ 1 ].initialData ).to.equal( '<p>bar</p>' );
 
 				expect( editor ).to.not.equal( editor2 );
+			} );
+
+			it( 'should not make the editor restart when its value does not change', async () => {
+				await new Promise( ( res, rej ) => {
+					wrapper = mount( <CKEditor
+						editor={ Editor }
+						onReady={ res }
+						onError={ rej }
+						config={ { initialData: '<p>foo</p>' } }
+						id="1" /> );
+				} );
+
+				sinon.stub( Editor, 'create' ).callsFake( async () => new Editor() );
+
+				wrapper.setProps( { id: '1', config: { initialData: '<p>bar</p>' } } );
+
+				await new Promise( res => setTimeout( res ) );
+
+				sinon.assert.notCalled( Editor.create );
 			} );
 		} );
 	} );
