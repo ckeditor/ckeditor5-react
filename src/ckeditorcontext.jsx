@@ -58,13 +58,15 @@ export default class CKEditorContext extends React.Component {
 
 		this.contextWatchdog.create( config )
 			.catch( error => {
-				this.props.onError( { error, phase: 'initialization' } );
+				this.props.onError( error, {
+					phase: 'initialization',
+					willContextRestart: false
+				} );
 			} );
 
 		this.contextWatchdog.on( 'error', ( _, errorEvent ) => {
-			this.props.onError( {
+			this.props.onError( errorEvent.error, {
 				phase: 'runtime',
-				error: errorEvent.error,
 				willContextRestart: errorEvent.causesRestart
 			} );
 		} );
@@ -86,7 +88,7 @@ export default class CKEditorContext extends React.Component {
 
 CKEditorContext.defaultProps = {
 	isLayoutReady: true,
-	onError: errorEvent => console.log( errorEvent.error )
+	onError: ( error, details ) => console.error( error, details )
 };
 
 // Properties definition.

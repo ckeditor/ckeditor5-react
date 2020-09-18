@@ -80,7 +80,6 @@ export default class CKEditor extends React.Component {
 	}
 
 	_initializeEditor() {
-		// Store the watchdog - when it changes the previous one should destroy the editor.
 		if ( this.context instanceof ContextWatchdog ) {
 			this.watchdog = new ContextWatchdogToEditorWatchdogAdapter( this.context );
 		} else {
@@ -90,17 +89,11 @@ export default class CKEditor extends React.Component {
 		this.watchdog.setCreator( ( el, config ) => this._createEditor( el, config ) );
 
 		this.watchdog.on( 'error', ( _, { error, causesRestart } ) => {
-			this._onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
+			this.props.onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
 		} );
 
 		this.watchdog.create( this.domContainer.current, this._getConfig() )
-			.catch( error => this._onError( error, { phase: 'initialization', willEditorRestart: false } ) );
-	}
-
-	_onError( error, details ) {
-		const handler = this.props.onError || console.error;
-
-		handler( error, details );
+			.catch( error => this.props.onError( error, { phase: 'initialization', willEditorRestart: false } ) );
 	}
 
 	_createEditor( el, config ) {
@@ -259,5 +252,6 @@ CKEditor.propTypes = {
 
 // Default values for non-required properties.
 CKEditor.defaultProps = {
-	config: {}
+	config: {},
+	onError: ( error, details ) => console.error( error, details )
 };

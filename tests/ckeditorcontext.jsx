@@ -122,7 +122,7 @@ describe( 'CKEditor Context Component', () => {
 
 				const errorEvent = await new Promise( res => {
 					wrapper = mount(
-						<CKEditorContext context={ ContextMock } onError={ res } >
+						<CKEditorContext context={ ContextMock } onError={ ( error, details ) => res( { error, details } ) } >
 							<CKEditor editor={ EditorMock } />
 						</CKEditorContext>
 					);
@@ -130,6 +130,10 @@ describe( 'CKEditor Context Component', () => {
 
 				expect( errorEvent ).to.be.an( 'object' );
 				expect( errorEvent.error ).to.equal( error );
+				expect( errorEvent.details ).to.deep.equal( {
+					phase: 'initialization',
+					willContextRestart: false
+				} );
 			} );
 
 			it( 'should be called when a runtime error occurs', async () => {
@@ -160,11 +164,13 @@ describe( 'CKEditor Context Component', () => {
 				} );
 
 				sinon.assert.calledOnce( onErrorSpy );
-				const errorEvent = onErrorSpy.firstCall.args[ 0 ];
+				const errorEventArgs = onErrorSpy.firstCall.args;
 
-				expect( errorEvent.error ).to.equal( error );
-				expect( errorEvent.phase ).to.equal( 'runtime' );
-				expect( errorEvent.willContextRestart ).to.equal( true );
+				expect( errorEventArgs[ 0 ] ).to.equal( error );
+				expect( errorEventArgs[ 1 ] ).to.deep.equal( {
+					phase: 'runtime',
+					willContextRestart: true
+				} );
 			} );
 		} );
 
