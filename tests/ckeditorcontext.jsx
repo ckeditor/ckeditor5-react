@@ -12,21 +12,9 @@ import EditorMock from './_utils/editor.js';
 import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 import turnOffDefaultErrorCatching from './_utils-tests/turnoffdefaulterrorcatching.js';
+import ContextMock from './_utils/context.js';
 
 configure( { adapter: new Adapter() } );
-
-class ContextMock {
-	static create( config ) {
-		return Promise.resolve( new ContextMock( config ) );
-	}
-	static destroy() {
-		return Promise.resolve();
-	}
-
-	destroy() {
-		return Promise.resolve();
-	}
-}
 
 describe( 'CKEditor Context Component', () => {
 	let wrapper;
@@ -42,7 +30,7 @@ describe( 'CKEditor Context Component', () => {
 	describe( 'initialization', () => {
 		it( 'should create an instance of the ContextWatchdog', async () => {
 			await new Promise( res => {
-				wrapper = mount( <CKEditorContext context={ ContextMock } onReady={ res }/> );
+				wrapper = mount( <CKEditorContext context={ ContextMock } onReady={ res } /> );
 			} );
 
 			const component = wrapper.instance();
