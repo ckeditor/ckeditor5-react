@@ -1,6 +1,41 @@
 Changelog
 =========
 
+## [3.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v2.1.0...v3.0.0) (2020-09-18)
+
+### BREAKING CHANGES
+
+* The `onInit` property was renamed to `onReady` and can be called multiple times (after the initialization and after the component is ready when an error occurred).
+* The [entry point](https://github.com/ckeditor/ckeditor5-react/blob/master/src/index.js) of the package has changed. The default import was removed since the package provides more than a single component now. Use 
+
+    ```js
+    import { CKEditor } from '@ckeditor/ckeditor5-react';
+    ```
+
+    instead of
+     
+    ```js
+    import CKEditor from '@ckeditor/ckeditor5-react';
+    ```
+
+### Features
+
+* Support for the [`config.initialData`](https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editorconfig-EditorConfig.html#member-initialData) option in the configuration object when creating the `<CKEditor>` component. When passing the `[data]` property and the `initialData` value in the configuration object, the later one will take precedence and a warning message will be logged on the console. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/50fdb6110b43ebab81024c78e47e5ad923383f97))
+* The `<CKEditor>` component contains the built-in [watchdog](https://ckeditor.com/docs/ckeditor5/latest/features/watchdog.html) feature. Closes [#118](https://github.com/ckeditor/ckeditor5-react/issues/118). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/ac0ff10df4923a33cd186d87dbbea7ddfcf35363))
+* Introduced the `<CKEditorContext>` component that supports the [context](https://ckeditor.com/docs/ckeditor5/latest/features/collaboration/context-and-collaboration-features.html) feature. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/ac0ff10df4923a33cd186d87dbbea7ddfcf35363))
+* Added the `id` property which is used to distinguish different documents. When this property changes, the component restarts the underlying editor instead of setting data on it, which allows e.g. for switching between collaboration documents and fixes a couple of issues (e.g. the `onChange` event no longer fires during changing the document). Closes [#168](https://github.com/ckeditor/ckeditor5-react/issues/168), [#169](https://github.com/ckeditor/ckeditor5-react/issues/169). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/ac0ff10df4923a33cd186d87dbbea7ddfcf35363))
+* The `onError()` callback will be called with two arguments. The first one will be an error object (as it was before the release 3+). A second argument is an object that contains two properties:. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/ac0ff10df4923a33cd186d87dbbea7ddfcf35363))
+
+    * `{String} phase`: `'initialization'|'runtime'` - Informs when the error has occurred (during the editor/context initialization or after the initialization).
+    * `{Boolean} willEditorRestart` - When `true`, it means that the editor component will restart itself.
+    * `{Boolean} willContextRestart` - When `true`, it means that the context component will restart itself.
+
+      The `willEditorRestart` property will not appear when the error has occurred in the context feature. 
+      The `willContextRestart` property will not appear when the error has occurred in the editor.
+
+Both components (`<CKEditor>` and `<CKEditorContext>`) will internally use the [`Watchdog`](https://ckeditor.com/docs/ckeditor5/latest/api/module_watchdog_watchdog-Watchdog.html) class that restarts the [editor](https://ckeditor.com/docs/ckeditor5/latest/api/module_watchdog_editorwatchdog-EditorWatchdog.html) or [context](https://ckeditor.com/docs/ckeditor5/latest/api/module_watchdog_contextwatchdog-ContextWatchdog.html) when an error occurs.
+
+
 ## [2.1.0](https://github.com/ckeditor/ckeditor5-react/compare/v2.0.0...v2.1.0) (2020-01-16)
 
 ### Features
