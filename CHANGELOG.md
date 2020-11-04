@@ -1,19 +1,19 @@
 Changelog
 =========
 
-## [3.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v2.1.0...v3.0.0) (2020-09-18)
+## [3.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v2.1.0...v3.0.0) (2020-10-28)
 
 ### BREAKING CHANGES
 
 * The `onInit` property was renamed to `onReady` and can be called multiple times (after the initialization and after the component is ready when an error occurred).
-* The [entry point](https://github.com/ckeditor/ckeditor5-react/blob/master/src/index.js) of the package has changed. The default import was removed since the package provides more than a single component now. Use 
+* The [entry point](https://github.com/ckeditor/ckeditor5-react/blob/master/src/index.js) of the package has changed. The default import was removed since the package provides more than a single component now. Use
 
     ```js
     import { CKEditor } from '@ckeditor/ckeditor5-react';
     ```
 
     instead of
-     
+
     ```js
     import CKEditor from '@ckeditor/ckeditor5-react';
     ```
@@ -30,7 +30,7 @@ Changelog
     * `{Boolean} willEditorRestart` - When `true`, it means that the editor component will restart itself.
     * `{Boolean} willContextRestart` - When `true`, it means that the context component will restart itself.
 
-      The `willEditorRestart` property will not appear when the error has occurred in the context feature. 
+      The `willEditorRestart` property will not appear when the error has occurred in the context feature.
       The `willContextRestart` property will not appear when the error has occurred in the editor.
 
 Both components (`<CKEditor>` and `<CKEditorContext>`) will internally use the [`Watchdog`](https://ckeditor.com/docs/ckeditor5/latest/api/module_watchdog_watchdog-Watchdog.html) class that restarts the [editor](https://ckeditor.com/docs/ckeditor5/latest/api/module_watchdog_editorwatchdog-EditorWatchdog.html) or [context](https://ckeditor.com/docs/ckeditor5/latest/api/module_watchdog_contextwatchdog-ContextWatchdog.html) when an error occurs.
