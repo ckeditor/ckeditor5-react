@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## [3.0.1](https://github.com/ckeditor/ckeditor5-react/compare/v3.0.0...v3.0.1) (2021-02-09)
+
+### Other changes
+
+* Added `React@^17` as allowed version in `peerDependencies`. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/33f33b4034b505f15a80028e71bb50f3b1735bdc))
+
+
 ## [3.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v2.1.0...v3.0.0) (2020-10-28)
 
 ### BREAKING CHANGES
