@@ -74,7 +74,7 @@ export default class CKEditor extends React.Component {
 
 	// Destroy the editor before unmouting the component.
 	componentWillUnmount() {
-		return this._destroyEditor();
+		this._destroyEditor();
 	}
 
 	// Render a <div> element which will be replaced by CKEditor.
@@ -157,19 +157,15 @@ export default class CKEditor extends React.Component {
 
 	/**
 	 * Destroys the editor by destroying the watchdog.
-	 *
-	 * @returns {Promise}
 	 */
 	_destroyEditor() {
 		// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
 		if ( !this.watchdog ) {
-			return Promise.resolve();
+			return;
 		}
 
-		return this.watchdog.destroy()
-			.then( () => {
-				this.watchdog = null;
-			} );
+		this.watchdog.destroy();
+		this.watchdog = null;
 	}
 
 	/**
