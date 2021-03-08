@@ -64,7 +64,7 @@ module.exports = {
 				test: /\.jsx$/,
 				loader: 'babel-loader',
 				exclude: /node_modules/,
-				query: {
+				options: {
 					compact: false,
 					presets: [ '@babel/preset-react' ]
 				}

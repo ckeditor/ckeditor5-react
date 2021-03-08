@@ -159,6 +159,12 @@ export default class CKEditor extends React.Component {
 	 * Destroys the editor by destroying the watchdog.
 	 */
 	_destroyEditor() {
+		// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
+		/* istanbul ignore next */
+		if ( !this.watchdog ) {
+			return;
+		}
+
 		this.watchdog.destroy();
 		this.watchdog = null;
 	}
