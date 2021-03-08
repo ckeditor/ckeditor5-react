@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## [3.0.2](https://github.com/ckeditor/ckeditor5-react/compare/v3.0.1...v3.0.2) (2021-03-08)
+
+### Bug fixes
+
+* Make sure that the watchdog instance exists before destroying itself. Closes [#197](https://github.com/ckeditor/ckeditor5-react/issues/197). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/4ced4a87d132d0a4ff8f6606af8c58625ab0e78d))
+
+
 ## [3.0.1](https://github.com/ckeditor/ckeditor5-react/compare/v3.0.0...v3.0.1) (2021-02-09)
 
 ### Other changes
