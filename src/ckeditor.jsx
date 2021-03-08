@@ -160,6 +160,7 @@ export default class CKEditor extends React.Component {
 	 */
 	_destroyEditor() {
 		// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
+		/* istanbul ignore next */
 		if ( !this.watchdog ) {
 			return;
 		}
