@@ -16,7 +16,7 @@ import ContextMock from './_utils/context.js';
 
 configure( { adapter: new Adapter() } );
 
-describe( 'CKEditor Context Component', () => {
+describe( 'CKEditorContext Component', () => {
 	let wrapper;
 
 	afterEach( () => {
@@ -195,7 +195,7 @@ describe( 'CKEditor Context Component', () => {
 		} );
 	} );
 
-	describe( 'Restarting CKEditor Context with editor', () => {
+	describe( 'restarting CKEditorContext with nested CKEditor components', () => {
 		it( 'should restart the Context and all editors if the Context id changes', async () => {
 			const oldContext = await new Promise( res => {
 				wrapper = mount(
@@ -214,6 +214,64 @@ describe( 'CKEditor Context Component', () => {
 
 			expect( newContext ).to.not.equal( oldContext );
 			expect( newContext ).to.be.an.instanceOf( ContextMock );
+		} );
+	} );
+} );
+
+describe( 'EditorWatchdogAdapter', () => {
+	let wrapper;
+
+	afterEach( () => {
+		sinon.restore();
+
+		if ( wrapper ) {
+			wrapper.unmount();
+		}
+	} );
+
+	describe( '#on', () => {
+		const error = new Error( 'Example error.' );
+
+		it( 'should execute the onError callback if an error was reported by the CKEditorContext component', async () => {
+			const errorSpy = sinon.spy();
+
+			await new Promise( res => {
+				wrapper = mount(
+					<CKEditorContext context={ ContextMock } id="1">
+						<CKEditor editor={ EditorMock } onReady={ res } onError={ errorSpy } />
+					</CKEditorContext>
+				);
+			} );
+
+			const { watchdog } = wrapper.childAt( 0 ).instance();
+
+			watchdog._contextWatchdog._fire( 'itemError', { error, itemId: watchdog._id } );
+
+			expect( errorSpy.calledOnce ).to.equal( true );
+			expect( errorSpy.firstCall.args[ 0 ] ).to.equal( error );
+		} );
+
+		it( 'should execute the onError callback for proper editor', async () => {
+			const firstEditorErrorSpy = sinon.spy();
+			const secondEditorErrorSpy = sinon.spy();
+
+			await new Promise( res => {
+				wrapper = mount(
+					<CKEditorContext context={ ContextMock } id="1">
+						<CKEditor editor={ EditorMock } onReady={ res } onError={ firstEditorErrorSpy } />
+						<CKEditor editor={ EditorMock } onReady={ res } onError={ secondEditorErrorSpy } />
+					</CKEditorContext>
+				);
+			} );
+
+			// Report an error for the second editor.
+			const { watchdog } = wrapper.childAt( 1 ).instance();
+
+			watchdog._contextWatchdog._fire( 'itemError', { error, itemId: watchdog._id } );
+
+			expect( firstEditorErrorSpy.called ).to.equal( false );
+			expect( secondEditorErrorSpy.calledOnce ).to.equal( true );
+			expect( secondEditorErrorSpy.firstCall.args[ 0 ] ).to.equal( error );
 		} );
 	} );
 } );

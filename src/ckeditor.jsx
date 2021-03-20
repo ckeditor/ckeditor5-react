@@ -21,13 +21,15 @@ export default class CKEditor extends React.Component {
 		/**
 		 * An instance of EditorWatchdog or an instance of EditorWatchdog-like adapter for ContextWatchdog.
 		 *
-		 * @type {EditorWatchdog|EditorWatchdogAdapter}
+		 * @type {module:watchdog/watchdog~Watchdog|EditorWatchdogAdapter}
 		 */
 		this.watchdog = null;
 	}
 
 	/**
 	 * An editor instance.
+	 *
+	 * @type {module:core/editor/editor~Editor|null}
 	 */
 	get editor() {
 		if ( !this.watchdog ) {
@@ -90,7 +92,7 @@ export default class CKEditor extends React.Component {
 	/**
 	 * Render a <div> element which will be replaced by CKEditor.
 	 *
-	 * @return {React.Element}
+	 * @return {JSX.Element}
 	 */
 	render() {
 		return (
@@ -107,7 +109,7 @@ export default class CKEditor extends React.Component {
 		if ( this.context instanceof ContextWatchdog ) {
 			this.watchdog = new EditorWatchdogAdapter( this.context );
 		} else {
-			this.watchdog = new EditorWatchdog( this.editor );
+			this.watchdog = new CKEditor._EditorWatchdog( this.props.editor );
 		}
 
 		this.watchdog.setCreator( ( el, config ) => this._createEditor( el, config ) );
@@ -303,12 +305,7 @@ class EditorWatchdogAdapter {
 	 * An editor instance.
 	 */
 	get editor() {
-		// TODO - try/catch should not be necessary as `getItem` could return `null` instead of throwing errors.
-		try {
-			return this._contextWatchdog.getItem( this._id );
-		} catch ( err ) {
-			return null;
-		}
+		return this._contextWatchdog.getItem( this._id );
 	}
 }
 
@@ -339,3 +336,7 @@ CKEditor.defaultProps = {
 	config: {},
 	onError: ( error, details ) => console.error( error, details )
 };
+
+// Store the API in the static property to easily overwrite it in tests.
+// Too bad dependency injection does not work in Webpack + ES 6 (const) + Babel.
+CKEditor._EditorWatchdog = EditorWatchdog;
