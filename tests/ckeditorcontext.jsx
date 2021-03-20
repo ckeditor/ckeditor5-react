@@ -39,6 +39,14 @@ describe( 'CKEditorContext Component', () => {
 			expect( component.contextWatchdog ).to.be.instanceOf( ContextWatchdog );
 		} );
 
+		it( 'should not create anything if the layout is not ready', async () => {
+			wrapper = mount( <CKEditorContext context={ ContextMock } isLayoutReady={ false }/> );
+
+			const component = wrapper.instance();
+
+			expect( component.contextWatchdog ).to.equal( null );
+		} );
+
 		it( 'should render its children', async () => {
 			wrapper = mount(
 				<CKEditorContext context={ ContextMock } >
@@ -174,7 +182,7 @@ describe( 'CKEditorContext Component', () => {
 			} );
 		} );
 
-		describe( 'onReady', () => {
+		describe( '#onReady', () => {
 			it( 'should be called when all editors are ready', async () => {
 				const editorReadySpy = sinon.spy();
 
@@ -196,7 +204,7 @@ describe( 'CKEditorContext Component', () => {
 	} );
 
 	describe( 'restarting CKEditorContext with nested CKEditor components', () => {
-		it( 'should restart the Context and all editors if the Context id changes', async () => {
+		it( 'should restart the Context and all editors if the Context#id has changed', async () => {
 			const oldContext = await new Promise( res => {
 				wrapper = mount(
 					<CKEditorContext context={ ContextMock } id="1" onReady={ res }>
@@ -209,6 +217,67 @@ describe( 'CKEditorContext Component', () => {
 				wrapper.setProps( {
 					id: '2',
 					onReady: res
+				} );
+			} );
+
+			expect( newContext ).to.not.equal( oldContext );
+			expect( newContext ).to.be.an.instanceOf( ContextMock );
+		} );
+
+		it( 'should re-render the entire component when the layout is ready', async () => {
+			wrapper = mount(
+				<CKEditorContext context={ ContextMock } id="1" isLayoutReady={ false }>
+					<CKEditor editor={ EditorMock } />
+				</CKEditorContext>
+			);
+
+			const context = await new Promise( res => {
+				wrapper.setProps( {
+					onReady: res,
+					isLayoutReady: true
+				} );
+			} );
+
+			expect( context ).to.be.an.instanceOf( ContextMock );
+			expect( wrapper.instance().contextWatchdog ).to.not.equal( null );
+		} );
+
+		it( 'should not re-render the component if layout is not ready after initialization', async () => {
+			const oldContext = await new Promise( res => {
+				wrapper = mount(
+					<CKEditorContext context={ ContextMock } id="1" onReady={ res }>
+						<CKEditor editor={ EditorMock } />
+					</CKEditorContext>
+				);
+			} );
+
+			wrapper.setProps( {
+				isLayoutReady: false
+			} );
+
+			const componentInstance = wrapper.instance(); // <CKEditorContext>
+
+			expect( componentInstance.contextWatchdog.context ).to.equal( oldContext );
+		} );
+
+		it( 'should restart the Context and all editors if children has changed', async () => {
+			const oldContext = await new Promise( res => {
+				wrapper = mount(
+					<CKEditorContext context={ ContextMock } id="1" onReady={ res }>
+						<CKEditor editor={ EditorMock } />
+					</CKEditorContext>
+				);
+			} );
+
+			const newContext = await new Promise( res => {
+				wrapper.setProps( {
+					onReady: res,
+					children: [
+						// The `key` property is required when defining children this way.
+						// See: https://reactjs.org/docs/lists-and-keys.html#keys.
+						<CKEditor editor={ EditorMock } key="id-1" />,
+						<CKEditor editor={ EditorMock } key="id-2" />
+					]
 				} );
 			} );
 

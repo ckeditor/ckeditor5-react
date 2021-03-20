@@ -13,27 +13,30 @@ export default class CKEditorContext extends React.Component {
 	constructor( props, context ) {
 		super( props, context );
 
+		/**
+		 * @type {module:watchdog/contextwatchdog~ContextWatchdog|null}
+		 */
 		this.contextWatchdog = null;
 
 		if ( this.props.isLayoutReady ) {
-			this._initializeContextWatchdog( this.props.config );
+			this._initializeContextWatchdog();
 		}
 	}
 
+	/**
+	 * Checks whether the component should be updated by React itself.
+	 *
+	 * @param {Object} nextProps
+	 * @return {Boolean}
+	 */
 	shouldComponentUpdate( nextProps ) {
-		// If the configuration changes then the ContextWatchdog needs to be destroyed and recreated
-		// On top of the new configuration.
+		// If the config has changed then the `ContextWatchdog` needs to be destroyed and recreated using the new config.
 		if ( nextProps.id !== this.props.id ) {
-			if ( this.contextWatchdog ) {
-				this.contextWatchdog.destroy();
-			}
-
-			this._initializeContextWatchdog( nextProps.config );
+			return true;
 		}
 
+		// Rerender the component once again if the layout is ready.
 		if ( nextProps.isLayoutReady && !this.contextWatchdog ) {
-			this._initializeContextWatchdog( nextProps.config );
-
 			return true;
 		}
 
@@ -41,6 +44,28 @@ export default class CKEditorContext extends React.Component {
 		return this.props.children !== nextProps.children;
 	}
 
+	/**
+	 * Re-render the entire component once again. The old editor will be destroyed and the new one will be created.
+	 */
+	componentDidUpdate() {
+		// If the `isLayoutReady` property has changed from `false` to `true`, the instance of `ContextWatchdog` does not exist.
+		if ( this.contextWatchdog ) {
+			this.contextWatchdog.destroy();
+		}
+
+		this._initializeContextWatchdog( this.props.config );
+	}
+
+	/**
+	 * Destroy the context before unmounting the component.
+	 */
+	componentWillUnmount() {
+		this._destroyContext();
+	}
+
+	/**
+	 * @return {JSX.Element}
+	 */
 	render() {
 		return (
 			<ContextWatchdogContext.Provider value={ this.contextWatchdog } >
@@ -49,14 +74,13 @@ export default class CKEditorContext extends React.Component {
 		);
 	}
 
-	componentWillUnmount() {
-		this._destroyContext();
-	}
-
-	_initializeContextWatchdog( config ) {
+	/**
+	 * @private
+	 */
+	_initializeContextWatchdog() {
 		this.contextWatchdog = new ContextWatchdog( this.props.context );
 
-		this.contextWatchdog.create( config )
+		this.contextWatchdog.create( this.props.config )
 			.catch( error => {
 				this.props.onError( error, {
 					phase: 'initialization',
@@ -78,6 +102,9 @@ export default class CKEditorContext extends React.Component {
 		} );
 	}
 
+	/**
+	 * @private
+	 */
 	_destroyContext() {
 		if ( this.contextWatchdog ) {
 			this.contextWatchdog.destroy();
@@ -88,14 +115,14 @@ export default class CKEditorContext extends React.Component {
 
 CKEditorContext.defaultProps = {
 	isLayoutReady: true,
-	onError: ( error, details ) => console.error( error, details )
+	onError: console.error
 };
 
 // Properties definition.
 CKEditorContext.propTypes = {
+	context: PropTypes.func.isRequired,
 	id: PropTypes.string,
 	isLayoutReady: PropTypes.bool,
-	context: PropTypes.func,
 	config: PropTypes.object,
 	onReady: PropTypes.func,
 	onError: PropTypes.func

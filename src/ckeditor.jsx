@@ -75,7 +75,7 @@ export default class CKEditor extends React.Component {
 	}
 
 	/**
-	 * Initialize the editor when the component is updated as it should be destroyed before the update.
+	 * Re-render the entire component once again. The old editor will be destroyed and the new one will be created.
 	 */
 	componentDidUpdate() {
 		this._destroyEditor();
