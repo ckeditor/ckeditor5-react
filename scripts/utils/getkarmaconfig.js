@@ -123,7 +123,10 @@ module.exports = function getKarmaConfig() {
 		webpackConfig.module.rules.push( {
 			test: /\.jsx?$/,
 			loader: 'istanbul-instrumenter-loader',
-			include: /src/,
+			include: [
+				/src/,
+				/_utils-tests/
+			],
 			exclude: [
 				/node_modules/
 			],

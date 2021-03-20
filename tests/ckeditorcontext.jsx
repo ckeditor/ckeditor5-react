@@ -11,7 +11,7 @@ import CKEditor from '../src/ckeditor.jsx';
 import EditorMock from './_utils/editor.js';
 import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
-import turnOffDefaultErrorCatching from './_utils-tests/turnoffdefaulterrorcatching.js';
+import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
 import ContextMock from './_utils/context.js';
 
 configure( { adapter: new Adapter() } );

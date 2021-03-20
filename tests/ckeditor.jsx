@@ -11,7 +11,7 @@ import Adapter from 'enzyme-adapter-react-16';
 import Editor from './_utils/editor';
 import CKEditor from '../src/ckeditor.jsx';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
-import turnOffDefaultErrorCatching from './_utils-tests/turnoffdefaulterrorcatching';
+import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
 
 configure( { adapter: new Adapter() } );
 
