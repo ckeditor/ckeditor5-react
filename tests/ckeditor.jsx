@@ -15,7 +15,7 @@ import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
 
 configure( { adapter: new Adapter() } );
 
-describe( 'CKEditor Component', () => {
+describe( '<CKEditor> Component', () => {
 	let wrapper;
 
 	beforeEach( () => {

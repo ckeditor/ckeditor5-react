@@ -44,7 +44,7 @@ class App extends React.Component {
 	}
 }
 
-describe( '#37 - bug: a browser is being froze', () => {
+describe( 'issue #37: the browser is being frozen', () => {
 	let div, component;
 
 	beforeEach( () => {
@@ -60,7 +60,7 @@ describe( '#37 - bug: a browser is being froze', () => {
 		div.remove();
 	} );
 
-	it( 'if "data" property is not specified, a browser should not be freeze', () => {
+	it( 'if the "#data" property is not specified, the browser should not freeze', () => {
 		const editor = component.editor;
 
 		editor.model.change( writer => {

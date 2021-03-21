@@ -16,7 +16,7 @@ import ContextMock from './_utils/context.js';
 
 configure( { adapter: new Adapter() } );
 
-describe( 'CKEditorContext Component', () => {
+describe( '<CKEditorContext> Component', () => {
 	let wrapper;
 
 	afterEach( () => {
