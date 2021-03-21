@@ -41,7 +41,7 @@ const TEST_RETRIES = 2;
 const TEST_TIMEOUT = 5000;
 const GARBAGE_COLLECTOR_TIMEOUT = 500;
 
-describe( 'memory usage', () => {
+describe( '<CKEditor> memory usage', () => {
 	const config = {
 		initialData: '<h2>Editor 1</h2>\n' +
 			'<p>This is an editor instance. And there\'s <a href="http://ckeditor.com">some link</a>.</p>'
