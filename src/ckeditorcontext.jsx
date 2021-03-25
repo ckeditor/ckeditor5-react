@@ -53,7 +53,7 @@ export default class CKEditorContext extends React.Component {
 			this.contextWatchdog.destroy();
 		}
 
-		this._initializeContextWatchdog( this.props.config );
+		this._initializeContextWatchdog();
 	}
 
 	/**
@@ -127,4 +127,3 @@ CKEditorContext.propTypes = {
 	onReady: PropTypes.func,
 	onError: PropTypes.func
 };
-
