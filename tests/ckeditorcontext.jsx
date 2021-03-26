@@ -180,6 +180,23 @@ describe( '<CKEditorContext> Component', () => {
 					willContextRestart: true
 				} );
 			} );
+
+			it( 'displays an error if something went wrong and "onError" callback was not specified', async () => {
+				const error = new Error( 'Something went wrong.' );
+				const consoleErrorStub = sinon.stub( console, 'error' );
+
+				sinon.stub( ContextWatchdog.prototype, 'create' ).rejects( error );
+
+				await turnOffDefaultErrorCatching( () => {
+					wrapper = mount(
+						<CKEditorContext context={ ContextMock }></CKEditorContext>
+					);
+				} );
+
+				consoleErrorStub.restore();
+
+				expect( consoleErrorStub.callCount ).to.equal( 1 );
+			} );
 		} );
 
 		describe( '#onReady', () => {
@@ -261,7 +278,7 @@ describe( '<CKEditorContext> Component', () => {
 		} );
 
 		it( 'should restart the Context and all editors if children has changed', async () => {
-			const oldContext = await new Promise( res => {
+			await new Promise( res => {
 				wrapper = mount(
 					<CKEditorContext context={ ContextMock } id="1" onReady={ res }>
 						<CKEditor editor={ EditorMock } />
@@ -269,20 +286,16 @@ describe( '<CKEditorContext> Component', () => {
 				);
 			} );
 
-			const newContext = await new Promise( res => {
-				wrapper.setProps( {
-					onReady: res,
-					children: [
-						// The `key` property is required when defining children this way.
-						// See: https://reactjs.org/docs/lists-and-keys.html#keys.
-						<CKEditor editor={ EditorMock } key="id-1" />,
-						<CKEditor editor={ EditorMock } key="id-2" />
-					]
-				} );
+			wrapper.setProps( {
+				children: [
+					// The `key` property is required when defining children this way.
+					// See: https://reactjs.org/docs/lists-and-keys.html#keys.
+					<CKEditor editor={ EditorMock } key="id-1" />,
+					<CKEditor editor={ EditorMock } key="id-2" />
+				]
 			} );
 
-			expect( newContext ).to.not.equal( oldContext );
-			expect( newContext ).to.be.an.instanceOf( ContextMock );
+			expect( wrapper.instance().props.children.length ).to.equal( 2 );
 		} );
 	} );
 } );

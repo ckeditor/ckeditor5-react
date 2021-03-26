@@ -24,6 +24,7 @@ export default class CKEditorContext extends React.Component {
 		// If the configuration changes then the ContextWatchdog needs to be destroyed and recreated
 		// On top of the new configuration.
 		if ( nextProps.id !== this.props.id ) {
+			/* istanbul ignore else */
 			if ( this.contextWatchdog ) {
 				this.contextWatchdog.destroy();
 			}
