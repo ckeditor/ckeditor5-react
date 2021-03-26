@@ -70,11 +70,11 @@ module.exports = function getKarmaConfig() {
 		customLaunchers: {
 			CHROME_TRAVIS_CI: {
 				base: 'Chrome',
-				flags: [ '--no-sandbox', '--disable-background-timer-throttling' ]
+				flags: [ '--disable-background-timer-throttling', '--js-flags="--expose-gc"' ]
 			},
 			CHROME_LOCAL: {
 				base: 'Chrome',
-				flags: [ '--disable-background-timer-throttling' ]
+				flags: [ '--disable-background-timer-throttling', '--js-flags="--expose-gc"' ]
 			}
 		},
 
@@ -123,7 +123,10 @@ module.exports = function getKarmaConfig() {
 		webpackConfig.module.rules.push( {
 			test: /\.jsx?$/,
 			loader: 'istanbul-instrumenter-loader',
-			include: /src/,
+			include: [
+				/src/,
+				/_utils-tests/
+			],
 			exclude: [
 				/node_modules/
 			],

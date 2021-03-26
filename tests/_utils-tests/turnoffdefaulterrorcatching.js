@@ -1,19 +1,22 @@
 /**
  * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
+ * For licensing, see LICENSE.md.
  */
 
 /* global window */
 
-/**
- * Turns off the default error catching
- * so Mocha won't complain about errors caused by the called function.
- */
-export default async function turnOffDefaultErrorCatching( fn ) {
-	const originalOnError = window.onerror;
-	window.onerror = null;
+import turnOffDefaultErrorCatching from '../_utils/turnoffdefaulterrorcatching';
 
-	await fn();
+describe( 'turnOffDefaultErrorCatching()', () => {
+	it( 'should catch the error', () => {
+		const onErrorStub = sinon.stub( window, 'onerror' );
 
-	window.onerror = originalOnError;
-}
+		turnOffDefaultErrorCatching( () => {
+			window.onerror( 'Foo', null, 0 );
+		} );
+
+		onErrorStub.restore();
+
+		expect( onErrorStub.called ).to.equal( false );
+	} );
+} );

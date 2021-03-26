@@ -21,13 +21,15 @@ export default class CKEditor extends React.Component {
 		/**
 		 * An instance of EditorWatchdog or an instance of EditorWatchdog-like adapter for ContextWatchdog.
 		 *
-		 * @type {EditorWatchdog|EditorWatchdogAdapter}
+		 * @type {module:watchdog/watchdog~Watchdog|EditorWatchdogAdapter}
 		 */
 		this.watchdog = null;
 	}
 
 	/**
 	 * An editor instance.
+	 *
+	 * @type {module:core/editor/editor~Editor|null}
 	 */
 	get editor() {
 		if ( !this.watchdog ) {
@@ -37,17 +39,20 @@ export default class CKEditor extends React.Component {
 		return this.watchdog.editor;
 	}
 
-	// The CKEditor component should not be updated by React itself.
-	// However, if the component identifier changes, the whole structure should be created once again.
+	/**
+	 * The CKEditor component should not be updated by React itself.
+	 * However, if the component identifier changes, the whole structure should be created once again.
+	 *
+	 * @param {Object} nextProps
+	 * @return {Boolean}
+	 */
 	shouldComponentUpdate( nextProps ) {
 		if ( !this.editor ) {
 			return false;
 		}
 
-		// Only when the editor component changes the whole structure should be restarted.
+		// Only when the component identifier changes the whole structure should be re-created once again.
 		if ( nextProps.id !== this.props.id ) {
-			this._destroyEditor();
-
 			return true;
 		}
 
@@ -62,22 +67,33 @@ export default class CKEditor extends React.Component {
 		return false;
 	}
 
-	// Initialize the editor when the component is mounted.
+	/**
+	 * Initialize the editor when the component is mounted.
+ 	 */
 	componentDidMount() {
 		this._initializeEditor();
 	}
 
-	// Initialize the editor when the component is updated as it should be destroyed before the update.
+	/**
+	 * Re-render the entire component once again. The old editor will be destroyed and the new one will be created.
+	 */
 	componentDidUpdate() {
+		this._destroyEditor();
 		this._initializeEditor();
 	}
 
-	// Destroy the editor before unmouting the component.
+	/**
+	 * Destroy the editor before unmounting the component.
+ 	 */
 	componentWillUnmount() {
 		this._destroyEditor();
 	}
 
-	// Render a <div> element which will be replaced by CKEditor.
+	/**
+	 * Render a <div> element which will be replaced by CKEditor.
+	 *
+	 * @return {JSX.Element}
+	 */
 	render() {
 		return (
 			<div ref={ this.domContainer }></div>
@@ -86,12 +102,14 @@ export default class CKEditor extends React.Component {
 
 	/**
 	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
+	 *
+	 * @private
 	 */
 	_initializeEditor() {
 		if ( this.context instanceof ContextWatchdog ) {
 			this.watchdog = new EditorWatchdogAdapter( this.context );
 		} else {
-			this.watchdog = new EditorWatchdog( this.editor );
+			this.watchdog = new CKEditor._EditorWatchdog( this.props.editor );
 		}
 
 		this.watchdog.setCreator( ( el, config ) => this._createEditor( el, config ) );
@@ -107,6 +125,7 @@ export default class CKEditor extends React.Component {
 	/**
 	 * Creates an editor from the element and configuration.
 	 *
+	 * @private
 	 * @param {HTMLElement} element The source element.
 	 * @param {Object} config CKEditor 5 editor configuration.
 	 * @returns {Promise}
@@ -157,6 +176,8 @@ export default class CKEditor extends React.Component {
 
 	/**
 	 * Destroys the editor by destroying the watchdog.
+	 *
+	 * @private
 	 */
 	_destroyEditor() {
 		// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
@@ -172,7 +193,8 @@ export default class CKEditor extends React.Component {
 	/**
 	 * Returns true when the editor should be updated.
 	 *
-	 * @param {*} nextProps React's properties.
+	 * @private
+	 * @param {Object} nextProps React's properties.
 	 * @returns {Boolean}
 	 */
 	_shouldUpdateEditor( nextProps ) {
@@ -192,6 +214,12 @@ export default class CKEditor extends React.Component {
 		return true;
 	}
 
+	/**
+	 * Returns the editor configuration.
+	 *
+	 * @private
+	 * @return {Object}
+	 */
 	_getConfig() {
 		if ( this.props.data && this.props.config.initialData ) {
 			console.warn(
@@ -277,12 +305,7 @@ class EditorWatchdogAdapter {
 	 * An editor instance.
 	 */
 	get editor() {
-		// TODO - try/catch should not be necessary as `getItem` could return `null` instead of throwing errors.
-		try {
-			return this._contextWatchdog.getItem( this._id );
-		} catch ( err ) {
-			return null;
-		}
+		return this._contextWatchdog.getItem( this._id );
 	}
 }
 
@@ -313,3 +336,7 @@ CKEditor.defaultProps = {
 	config: {},
 	onError: ( error, details ) => console.error( error, details )
 };
+
+// Store the API in the static property to easily overwrite it in tests.
+// Too bad dependency injection does not work in Webpack + ES 6 (const) + Babel.
+CKEditor._EditorWatchdog = EditorWatchdog;

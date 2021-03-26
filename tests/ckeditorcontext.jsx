@@ -11,12 +11,12 @@ import CKEditor from '../src/ckeditor.jsx';
 import EditorMock from './_utils/editor.js';
 import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
-import turnOffDefaultErrorCatching from './_utils-tests/turnoffdefaulterrorcatching.js';
+import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
 import ContextMock from './_utils/context.js';
 
 configure( { adapter: new Adapter() } );
 
-describe( 'CKEditor Context Component', () => {
+describe( '<CKEditorContext> Component', () => {
 	let wrapper;
 
 	afterEach( () => {
@@ -37,6 +37,14 @@ describe( 'CKEditor Context Component', () => {
 
 			expect( component.contextWatchdog ).to.be.an( 'object' );
 			expect( component.contextWatchdog ).to.be.instanceOf( ContextWatchdog );
+		} );
+
+		it( 'should not create anything if the layout is not ready', async () => {
+			wrapper = mount( <CKEditorContext context={ ContextMock } isLayoutReady={ false }/> );
+
+			const component = wrapper.instance();
+
+			expect( component.contextWatchdog ).to.equal( null );
 		} );
 
 		it( 'should render its children', async () => {
@@ -172,9 +180,26 @@ describe( 'CKEditor Context Component', () => {
 					willContextRestart: true
 				} );
 			} );
+
+			it( 'displays an error if something went wrong and "onError" callback was not specified', async () => {
+				const error = new Error( 'Something went wrong.' );
+				const consoleErrorStub = sinon.stub( console, 'error' );
+
+				sinon.stub( ContextWatchdog.prototype, 'create' ).rejects( error );
+
+				await turnOffDefaultErrorCatching( () => {
+					wrapper = mount(
+						<CKEditorContext context={ ContextMock }></CKEditorContext>
+					);
+				} );
+
+				consoleErrorStub.restore();
+
+				expect( consoleErrorStub.callCount ).to.equal( 1 );
+			} );
 		} );
 
-		describe( 'onReady', () => {
+		describe( '#onReady', () => {
 			it( 'should be called when all editors are ready', async () => {
 				const editorReadySpy = sinon.spy();
 
@@ -195,8 +220,8 @@ describe( 'CKEditor Context Component', () => {
 		} );
 	} );
 
-	describe( 'Restarting CKEditor Context with editor', () => {
-		it( 'should restart the Context and all editors if the Context id changes', async () => {
+	describe( 'restarting CKEditorContext with nested CKEditor components', () => {
+		it( 'should restart the Context and all editors if the Context#id has changed', async () => {
 			const oldContext = await new Promise( res => {
 				wrapper = mount(
 					<CKEditorContext context={ ContextMock } id="1" onReady={ res }>
@@ -214,6 +239,121 @@ describe( 'CKEditor Context Component', () => {
 
 			expect( newContext ).to.not.equal( oldContext );
 			expect( newContext ).to.be.an.instanceOf( ContextMock );
+		} );
+
+		it( 'should re-render the entire component when the layout is ready', async () => {
+			wrapper = mount(
+				<CKEditorContext context={ ContextMock } id="1" isLayoutReady={ false }>
+					<CKEditor editor={ EditorMock } />
+				</CKEditorContext>
+			);
+
+			const context = await new Promise( res => {
+				wrapper.setProps( {
+					onReady: res,
+					isLayoutReady: true
+				} );
+			} );
+
+			expect( context ).to.be.an.instanceOf( ContextMock );
+			expect( wrapper.instance().contextWatchdog ).to.not.equal( null );
+		} );
+
+		it( 'should not re-render the component if layout is not ready after initialization', async () => {
+			const oldContext = await new Promise( res => {
+				wrapper = mount(
+					<CKEditorContext context={ ContextMock } id="1" onReady={ res }>
+						<CKEditor editor={ EditorMock } />
+					</CKEditorContext>
+				);
+			} );
+
+			wrapper.setProps( {
+				isLayoutReady: false
+			} );
+
+			const componentInstance = wrapper.instance(); // <CKEditorContext>
+
+			expect( componentInstance.contextWatchdog.context ).to.equal( oldContext );
+		} );
+
+		it( 'should restart the Context and all editors if children has changed', async () => {
+			await new Promise( res => {
+				wrapper = mount(
+					<CKEditorContext context={ ContextMock } id="1" onReady={ res }>
+						<CKEditor editor={ EditorMock } />
+					</CKEditorContext>
+				);
+			} );
+
+			wrapper.setProps( {
+				children: [
+					// The `key` property is required when defining children this way.
+					// See: https://reactjs.org/docs/lists-and-keys.html#keys.
+					<CKEditor editor={ EditorMock } key="id-1" />,
+					<CKEditor editor={ EditorMock } key="id-2" />
+				]
+			} );
+
+			expect( wrapper.instance().props.children.length ).to.equal( 2 );
+		} );
+	} );
+} );
+
+describe( 'EditorWatchdogAdapter', () => {
+	let wrapper;
+
+	afterEach( () => {
+		sinon.restore();
+
+		if ( wrapper ) {
+			wrapper.unmount();
+		}
+	} );
+
+	describe( '#on', () => {
+		const error = new Error( 'Example error.' );
+
+		it( 'should execute the onError callback if an error was reported by the CKEditorContext component', async () => {
+			const errorSpy = sinon.spy();
+
+			await new Promise( res => {
+				wrapper = mount(
+					<CKEditorContext context={ ContextMock } id="1">
+						<CKEditor editor={ EditorMock } onReady={ res } onError={ errorSpy } />
+					</CKEditorContext>
+				);
+			} );
+
+			const { watchdog } = wrapper.childAt( 0 ).instance();
+
+			watchdog._contextWatchdog._fire( 'itemError', { error, itemId: watchdog._id } );
+
+			expect( errorSpy.calledOnce ).to.equal( true );
+			expect( errorSpy.firstCall.args[ 0 ] ).to.equal( error );
+		} );
+
+		it( 'should execute the onError callback for proper editor', async () => {
+			const firstEditorErrorSpy = sinon.spy();
+			const secondEditorErrorSpy = sinon.spy();
+
+			await new Promise( res => {
+				wrapper = mount(
+					<CKEditorContext context={ ContextMock } id="1">
+						<CKEditor editor={ EditorMock } onReady={ res } onError={ firstEditorErrorSpy } />
+						<CKEditor editor={ EditorMock } onReady={ res } onError={ secondEditorErrorSpy } />
+					</CKEditorContext>
+				);
+			} );
+
+			// Report an error for the second editor.
+			const { watchdog } = wrapper.childAt( 1 ).instance();
+
+			watchdog._contextWatchdog._fire( 'itemError', { error, itemId: watchdog._id } );
+
+			expect( firstEditorErrorSpy.called ).to.equal( false );
+			expect( secondEditorErrorSpy.calledOnce ).to.equal( true );
+			expect( secondEditorErrorSpy.firstCall.args[ 0 ] ).to.equal( error );
 		} );
 	} );
 } );

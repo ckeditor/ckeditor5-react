@@ -13,42 +13,44 @@ import { CKEditor, CKEditorContext } from '../dist/ckeditor';
 
 configure( { adapter: new Adapter() } );
 
-describe( 'index.js - CKEditor', () => {
-	let wrapper;
+describe( 'index.js', () => {
+	describe( 'the <CKEditor> component', () => {
+		let wrapper;
 
-	afterEach( () => {
-		if ( wrapper ) {
-			wrapper.unmount();
-		}
-	} );
-
-	it( 'should be a CKEditor Component', async () => {
-		expect( CKEditor ).to.be.a( 'function' );
-
-		const editor = await new Promise( res => {
-			wrapper = mount( <CKEditor editor={ Editor } onReady={ res } /> );
+		afterEach( () => {
+			if ( wrapper ) {
+				wrapper.unmount();
+			}
 		} );
 
-		expect( editor ).to.be.instanceOf( Editor );
-	} );
-} );
+		it( 'should be the CKEditor Component', async () => {
+			expect( CKEditor ).to.be.a( 'function' );
 
-describe( 'index.js - CKEditorContext', () => {
-	let wrapper;
+			const editor = await new Promise( res => {
+				wrapper = mount( <CKEditor editor={ Editor } onReady={ res } /> );
+			} );
 
-	afterEach( () => {
-		if ( wrapper ) {
-			wrapper.unmount();
-		}
+			expect( editor ).to.be.instanceOf( Editor );
+		} );
 	} );
 
-	it( 'should be a CKEditorContext Component', async () => {
-		expect( CKEditorContext ).to.be.a( 'function' );
+	describe( 'the <CKEditorContext> component', () => {
+		let wrapper;
 
-		const context = await new Promise( res => {
-			wrapper = mount( <CKEditorContext context={ ContextMock } onReady={ res } /> );
+		afterEach( () => {
+			if ( wrapper ) {
+				wrapper.unmount();
+			}
 		} );
 
-		expect( context ).to.be.instanceOf( ContextMock );
+		it( 'should be the CKEditorContext Component', async () => {
+			expect( CKEditorContext ).to.be.a( 'function' );
+
+			const context = await new Promise( res => {
+				wrapper = mount( <CKEditorContext context={ ContextMock } onReady={ res } /> );
+			} );
+
+			expect( context ).to.be.instanceOf( ContextMock );
+		} );
 	} );
 } );
