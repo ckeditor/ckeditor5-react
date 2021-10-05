@@ -1,6 +1,11 @@
 Changelog
 =========
 
+## [3.0.3](https://github.com/ckeditor/ckeditor5-react/compare/v3.0.2...v3.0.3) (2021-10-05)
+
+Internal changes only (updated dependencies, documentation, etc.).
+
+
 ## [3.0.2](https://github.com/ckeditor/ckeditor5-react/compare/v3.0.1...v3.0.2) (2021-03-08)
 
 ### Bug fixes
