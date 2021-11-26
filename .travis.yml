@@ -6,7 +6,7 @@ language: node_js
 services:
 - xvfb
 node_js:
-- '12'
+- '14'
 cache:
 - node_modules
 install:
