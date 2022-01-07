@@ -23,7 +23,7 @@
     "@babel/core": "^7.10.5",
     "@babel/preset-react": "^7.10.4",
     "@ckeditor/ckeditor5-build-classic": "^20.0.0",
-    "@ckeditor/ckeditor5-dev-env": "^23.0.0",
+    "@ckeditor/ckeditor5-dev-env": "^27.4.0",
     "@ckeditor/ckeditor5-dev-utils": "^23.0.0",
     "@ckeditor/ckeditor5-utils": "^22.0.0",
     "@ckeditor/ckeditor5-watchdog": "^22.0.0",
