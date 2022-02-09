@@ -119,6 +119,36 @@ describe( '<CKEditorContext> Component', () => {
 			expect( editorCreateSpy.firstCall.args[ 1 ].initialData ).to.equal( '<p>Foo</p>' );
 			expect( editorCreateSpy.secondCall.args[ 1 ].initialData ).to.equal( '<p>Bar</p>' );
 		} );
+
+		it( 'should wait for the `ContextWatchdog#destroy()` promise when destroying the context feature', async () => {
+			let watchdog;
+
+			await new Promise( ( res, rej ) => {
+				wrapper = mount(
+					<CKEditorContext context={ ContextMock } onError={ rej }>
+					</CKEditorContext>
+				);
+
+				watchdog = wrapper.instance().contextWatchdog;
+
+				watchdog.on( 'stateChange', () => {
+					if ( watchdog.state === 'ready' ) {
+						res();
+					}
+				} );
+			} );
+
+			wrapper.unmount();
+			wrapper = null;
+
+			return new Promise( resolve => {
+				setTimeout( () => {
+					expect( watchdog._context ).to.equal( null );
+
+					resolve();
+				} );
+			} );
+		} );
 	} );
 
 	describe( 'properties', () => {
