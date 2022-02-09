@@ -1,6 +1,21 @@
 Changelog
 =========
 
+## [4.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v3.0.3...v4.0.0) (2022-02-09)
+
+### BREAKING CHANGES
+
+* Upgraded the minimal versions of Node.js to `14.0.0` due to the end of LTS.
+
+### Bug fixes
+
+* Use `async/await` in `CKEditorContext#_destroyContext()` to handle context destruction properly. Closes [#283](https://github.com/ckeditor/ckeditor5-react/issues/283). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/af2cdba407280834ecd3369fda5b7665340d58fa))
+
+### Other changes
+
+* Updated the required version of Node.js to 14. See [ckeditor/ckeditor5#10972](https://github.com/ckeditor/ckeditor5/issues/10972). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/dcb0c8f92e08065443a5caa4cb7440d55dd0f26e))
+
+
 ## [3.0.3](https://github.com/ckeditor/ckeditor5-react/compare/v3.0.2...v3.0.3) (2021-10-05)
 
 Internal changes only (updated dependencies, documentation, etc.).
