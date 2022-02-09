@@ -79,9 +79,9 @@ export default class CKEditorContext extends React.Component {
 		} );
 	}
 
-	_destroyContext() {
+	async _destroyContext() {
 		if ( this.contextWatchdog ) {
-			this.contextWatchdog.destroy();
+			await this.contextWatchdog.destroy();
 			this.contextWatchdog = null;
 		}
 	}
