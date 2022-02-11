@@ -37,7 +37,7 @@
     "eslint-plugin-react": "^7.20.4",
     "husky": "^4.2.5",
     "istanbul-instrumenter-loader": "^3.0.1",
-    "karma": "^5.1.0",
+    "karma": "^6.3.14",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.1.0",
     "karma-coverage": "^2.0.3",
