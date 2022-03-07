@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/%40ckeditor%2Fckeditor5-react.svg)](https://www.npmjs.com/package/@ckeditor/ckeditor5-react)
 [![Build Status](https://travis-ci.org/ckeditor/ckeditor5-react.svg?branch=master)](https://travis-ci.org/ckeditor/ckeditor5-react)
 [![Coverage Status](https://coveralls.io/repos/github/ckeditor/ckeditor5-react/badge.svg?branch=master)](https://coveralls.io/github/ckeditor/ckeditor5-react?branch=master)
-![Libraries.io dependency status for latest release](https://img.shields.io/librariesio/release/npm/@ckeditor/ckeditor5-react)
+![Dependency Status](https://img.shields.io/librariesio/release/npm/@ckeditor/ckeditor5-react)
 
 Official [CKEditor 5](https://ckeditor.com/ckeditor-5/) rich text editor component for React.
 
