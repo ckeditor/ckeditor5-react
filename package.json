@@ -33,7 +33,7 @@
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint": "^7.5.0",
-    "eslint-config-ckeditor5": "^3.0.0",
+    "eslint-config-ckeditor5": "^4.0.0",
     "eslint-plugin-react": "^7.20.4",
     "husky": "^4.2.5",
     "istanbul-instrumenter-loader": "^3.0.1",
@@ -65,7 +65,7 @@
     "npm": ">=5.7.1"
   },
   "scripts": {
-    "lint": "eslint --quiet '**/*.js' '**/*.jsx'",
+    "lint": "eslint --quiet \"**/*.js\" \"**/*.jsx\"",
     "build": "webpack --mode production",
     "develop": "webpack --mode development --watch",
     "changelog": "node ./scripts/changelog.js",

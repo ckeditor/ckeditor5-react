@@ -1,6 +1,6 @@
 /**
  * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
- * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
+ * For licensing, see LICENSE.md.
  */
 
 /* eslint-env node */
@@ -28,7 +28,13 @@ module.exports = {
 	'rules': {
 		'react/prop-types': 'off',
 		'no-console': 'off',
-		'no-trailing-spaces': 'error'
+		'no-trailing-spaces': 'error',
+		'ckeditor5-rules/license-header': [ 'error', { headerLines: [
+			'/**',
+			' * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.',
+			' * For licensing, see LICENSE.md.',
+			' */'
+		] } ]
 	},
 	'settings': {
 		'react': {
