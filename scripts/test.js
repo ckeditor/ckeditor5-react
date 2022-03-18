@@ -13,10 +13,14 @@
 // See: https://github.com/ckeditor/ckeditor5-react/issues/25
 
 const getKarmaConfig = require( './utils/getkarmaconfig' );
-const { Server: KarmaServer } = require( 'karma' );
+const karma = require( 'karma' );
+
+const KarmaServer = karma.Server;
+const parseConfig = karma.config.parseConfig;
 
 const config = getKarmaConfig();
+const parsedConfig = parseConfig( null, config, { throwErrors: true } );
 
-const server = new KarmaServer( config );
+const server = new KarmaServer( parsedConfig );
 
 server.start();
