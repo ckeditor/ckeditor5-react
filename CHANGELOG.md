@@ -1,6 +1,14 @@
 Changelog
 =========
 
+## [4.0.1](https://github.com/ckeditor/ckeditor5-react/compare/v4.0.0...v4.0.1) (2022-04-01)
+
+### Other changes
+
+* Bumped Karma test runner to v6.x. Closes [#292](https://github.com/ckeditor/ckeditor5-react/issues/292). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/5071381bcbe0e94f8e1aee9fa092263f1df7a00b))
+* Support for React 18. Closes [#297](https://github.com/ckeditor/ckeditor5-react/issues/297). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/1eafc295e5c9832b52ead152171f02810b7ba7a5))
+
+
 ## [4.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v3.0.3...v4.0.0) (2022-02-09)
 
 ### BREAKING CHANGES
