@@ -268,7 +268,7 @@ class EditorWatchdogAdapter {
 	/**
 	 * Adds an editor configuration to the context watchdog registry. Creates an instance of it.
 	 *
-	 * @param {HTMLElement | string} sourceElementOrData A source element or data for the new editor.
+	 * @param {HTMLElement|string} sourceElementOrData A source element or data for the new editor.
 	 * @param {Object} config CKEditor 5 editor config.
 	 * @returns {Promise}
 	 */
@@ -345,6 +345,17 @@ CKEditor.defaultProps = {
 // Too bad dependency injection does not work in Webpack + ES 6 (const) + Babel.
 CKEditor._EditorWatchdog = EditorWatchdog;
 
+/**
+ * Starting from v34.0.0, CKEditor 5 introduces a lock mechanism for enabling/disabling the read-only mode.
+ *
+ * To avoid unnecessary breaking changes, the integration supports both ways of switching the editor's state.
+ *
+ * (1.) Use the lock mechanism for version `v34+`
+ * (2.) Use the `Editor#isReadOnly` setter for lower versions (<v34).
+ *
+ * @param {Object} editor
+ * @param {Boolean} value
+ */
 function setReadOnly( editor, value ) {
 	const { CKEDITOR_VERSION } = window;
 
