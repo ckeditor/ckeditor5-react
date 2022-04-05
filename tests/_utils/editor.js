@@ -55,6 +55,7 @@ Editor._editing = {
 function createDocument() {
 	return {
 		on() {},
+		off() {},
 		getRootNames() {
 			return [ 'main' ];
 		}

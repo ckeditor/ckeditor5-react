@@ -23,7 +23,7 @@ module.exports = function getKarmaConfig() {
 				{
 					test: /\.jsx$/,
 					loader: 'babel-loader',
-					query: {
+					options: {
 						compact: false,
 						presets: [ '@babel/preset-react' ]
 					}
@@ -35,7 +35,7 @@ module.exports = function getKarmaConfig() {
 	const karmaConfig = {
 		basePath,
 
-		frameworks: [ 'mocha', 'chai', 'sinon' ],
+		frameworks: [ 'mocha', 'chai', 'sinon', 'webpack' ],
 
 		files: [
 			// If the file below is imported in tests directly, it leads to an error related to CKEDITOR_VERSION collision.
@@ -130,7 +130,7 @@ module.exports = function getKarmaConfig() {
 			exclude: [
 				/node_modules/
 			],
-			query: {
+			options: {
 				esModules: true
 			}
 		} );
