@@ -36,6 +36,8 @@
 		const readOnlyButton = document.getElementById( 'readOnly' );
 		const simulateErrorButton = document.getElementById( 'simulateError' );
 
+		const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
+
 		class App extends React.Component {
 			constructor( props ) {
 				super( props );
@@ -47,6 +49,7 @@
 				return React.createElement( CKEditor.CKEditor, {
 					editor: ClassicEditor,
 					data: this.state.documents[ this.state.documentID ],
+					// disabled: true,
 					id: this.state.documentID,
 					onReady: editor => {
 						window.editor = editor;
@@ -82,12 +85,12 @@
 						} );
 
 						editor.ui.view.listenTo( readOnlyButton, 'click', () => {
-							editor.isReadOnly = !editor.isReadOnly;
+							editor.enableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID, !editor.isReadOnly );
 
 							if ( editor.isReadOnly ) {
-								this.innerText = 'Switch to editable mode';
+								readOnlyButton.innerText = 'Switch to editable mode';
 							} else {
-								this.innerText = 'Switch to read-only mode';
+								readOnlyButton.innerText = 'Switch to read-only mode';
 							}
 						} );
 					},
