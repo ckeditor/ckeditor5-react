@@ -10,6 +10,10 @@
  */
 export default class Editor {
 	constructor() {
+		this.initializeProperties();
+	}
+
+	initializeProperties() {
 		this.model = Editor._model;
 		this.editing = Editor._editing;
 		this.isReadOnly = false;
