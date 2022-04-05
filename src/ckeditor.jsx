@@ -356,7 +356,7 @@ function setReadOnly( editor, value ) {
 
 	const [ major ] = CKEDITOR_VERSION.split( '.' ).map( Number );
 
-	// Use the lock mechanism when using the editor in the version 34+. See: https://github.com/ckeditor/ckeditor5/pull/10496.
+	// Use the lock mechanism when using the editor in the version 34+. See: https://github.com/ckeditor/ckeditor5/issues/10496.
 	if ( major >= 34 ) {
 		editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID, value );
 	}

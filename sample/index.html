@@ -49,7 +49,6 @@
 				return React.createElement( CKEditor.CKEditor, {
 					editor: ClassicEditor,
 					data: this.state.documents[ this.state.documentID ],
-					// disabled: true,
 					id: this.state.documentID,
 					onReady: editor => {
 						window.editor = editor;
