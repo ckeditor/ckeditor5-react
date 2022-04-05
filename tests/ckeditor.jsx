@@ -3,12 +3,13 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global HTMLDivElement */
+/* global window, HTMLDivElement */
 
 import React from 'react';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import Editor from './_utils/editor';
+import EditorReadOnlyLock from './_utils/editorreadonlylock';
 import CKEditor from '../src/ckeditor.jsx';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
@@ -466,27 +467,85 @@ describe( '<CKEditor> Component', () => {
 		} );
 
 		describe( '#disabled', () => {
-			it( 'switches the editor to read-only mode if [disabled={true}]', done => {
-				const onReady = function( editor ) {
-					expect( editor.isReadOnly ).to.be.true;
+			let CKEDITOR_VERSION;
 
+			beforeEach( () => {
+				CKEDITOR_VERSION = window.CKEDITOR_VERSION;
+			} );
+
+			afterEach( () => {
+				window.CKEDITOR_VERSION = CKEDITOR_VERSION;
+			} );
+
+			it( 'should do nothing if the "window.CKEDITOR_VERSION" variable is not available', done => {
+				delete window.CKEDITOR_VERSION;
+				const warnStub = sinon.stub( console, 'warn' );
+
+				const onReady = function() {
+					expect( warnStub.callCount ).to.equal( 1 );
+					expect( warnStub.firstCall.args[ 0 ] ).to.equal( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
 					done();
 				};
 
-				wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onReady={ onReady } /> );
+				wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onReady={ onReady }/> );
 			} );
 
-			it( 'switches the editor to read-only mode when [disabled={true}] property was set in runtime', async () => {
-				await new Promise( ( res, rej ) => {
-					wrapper = mount( <CKEditor
-						editor={ Editor }
-						onReady={ res }
-						onError={ rej } /> );
+			describe( 'CKEditor 5 - the build version lower than 34.0.0', () => {
+				beforeEach( () => {
+					window.CKEDITOR_VERSION = '20.0.0';
 				} );
 
-				wrapper.setProps( { disabled: true } );
+				it( 'switches the editor to read-only mode if [disabled={true}]', done => {
+					const onReady = function( editor ) {
+						expect( editor.isReadOnly ).to.be.true;
 
-				expect( wrapper.instance().editor.isReadOnly ).to.be.true;
+						done();
+					};
+
+					wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onReady={ onReady } /> );
+				} );
+
+				it( 'switches the editor to read-only mode when [disabled={true}] property was set in runtime', async () => {
+					await new Promise( ( res, rej ) => {
+						wrapper = mount( <CKEditor
+							editor={ Editor }
+							onReady={ res }
+							onError={ rej } /> );
+					} );
+
+					wrapper.setProps( { disabled: true } );
+
+					expect( wrapper.instance().editor.isReadOnly ).to.be.true;
+				} );
+			} );
+
+			describe( 'CKEditor 5 - the build version higher or equal 34.0.0', () => {
+				beforeEach( () => {
+					window.CKEDITOR_VERSION = '34.0.0';
+				} );
+
+				it( 'switches the editor to read-only mode if [disabled={true}]', done => {
+					const onReady = function( editor ) {
+						expect( editor.isReadOnly ).to.be.true;
+
+						done();
+					};
+
+					wrapper = mount( <CKEditor editor={ EditorReadOnlyLock } disabled={ true } onReady={ onReady } /> );
+				} );
+
+				it( 'switches the editor to read-only mode when [disabled={true}] property was set in runtime', async () => {
+					await new Promise( ( res, rej ) => {
+						wrapper = mount( <CKEditor
+							editor={ EditorReadOnlyLock }
+							onReady={ res }
+							onError={ rej } /> );
+					} );
+
+					wrapper.setProps( { disabled: true } );
+
+					expect( wrapper.instance().editor.isReadOnly ).to.be.true;
+				} );
 			} );
 		} );
 

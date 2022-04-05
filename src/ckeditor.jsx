@@ -3,12 +3,16 @@
  * For licensing, see LICENSE.md.
  */
 
+/* globals window */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import uid from '@ckeditor/ckeditor5-utils/src/uid';
 import { ContextWatchdogContext } from './ckeditorcontext.jsx';
 import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
+
+const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
 export default class CKEditor extends React.Component {
 	constructor( props ) {
@@ -61,7 +65,7 @@ export default class CKEditor extends React.Component {
 		}
 
 		if ( 'disabled' in nextProps ) {
-			this.editor.isReadOnly = nextProps.disabled;
+			setReadOnly( this.editor, nextProps.disabled );
 		}
 
 		return false;
@@ -134,7 +138,7 @@ export default class CKEditor extends React.Component {
 		return this.props.editor.create( element, config )
 			.then( editor => {
 				if ( 'disabled' in this.props ) {
-					editor.isReadOnly = this.props.disabled;
+					setReadOnly( editor, this.props.disabled );
 				}
 
 				const modelDocument = editor.model.document;
@@ -340,3 +344,24 @@ CKEditor.defaultProps = {
 // Store the API in the static property to easily overwrite it in tests.
 // Too bad dependency injection does not work in Webpack + ES 6 (const) + Babel.
 CKEditor._EditorWatchdog = EditorWatchdog;
+
+function setReadOnly( editor, value ) {
+	const { CKEDITOR_VERSION } = window;
+
+	if ( !CKEDITOR_VERSION ) {
+		console.warn( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
+
+		return;
+	}
+
+	const [ major ] = CKEDITOR_VERSION.split( '.' ).map( Number );
+
+	// Use the lock mechanism when using the editor in the version 34+. See: https://github.com/ckeditor/ckeditor5/pull/10496.
+	if ( major >= 34 ) {
+		editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID, value );
+	}
+	// Otherwise, use the old `#isReadOnly` flag.
+	else {
+		editor.isReadOnly = value;
+	}
+}
