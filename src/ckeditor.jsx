@@ -28,6 +28,21 @@ export default class CKEditor extends React.Component {
 		 * @type {module:watchdog/watchdog~Watchdog|EditorWatchdogAdapter}
 		 */
 		this.watchdog = null;
+
+		const { CKEDITOR_VERSION } = window;
+
+		// Starting from v34.0.0, CKEditor 5 introduces a lock mechanism enabling/disabling the read-only mode.
+		// As it is a breaking change between major releases of the integration, the component requires using
+		// CKEditor 5 in version 34 or higher.
+		if ( CKEDITOR_VERSION ) {
+			const [ major ] = CKEDITOR_VERSION.split( '.' ).map( Number );
+
+			if ( major < 34 ) {
+				console.warn( 'The <CKEditor> component requires using CKEditor 5 in version 34 or higher.' );
+			}
+		} else {
+			console.warn( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
+		}
 	}
 
 	/**
@@ -65,7 +80,7 @@ export default class CKEditor extends React.Component {
 		}
 
 		if ( 'disabled' in nextProps ) {
-			setReadOnly( this.editor, nextProps.disabled );
+			this.editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID, nextProps.disabled );
 		}
 
 		return false;
@@ -138,7 +153,7 @@ export default class CKEditor extends React.Component {
 		return this.props.editor.create( element, config )
 			.then( editor => {
 				if ( 'disabled' in this.props ) {
-					setReadOnly( editor, this.props.disabled );
+					editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID, this.props.disabled );
 				}
 
 				const modelDocument = editor.model.document;
@@ -344,35 +359,3 @@ CKEditor.defaultProps = {
 // Store the API in the static property to easily overwrite it in tests.
 // Too bad dependency injection does not work in Webpack + ES 6 (const) + Babel.
 CKEditor._EditorWatchdog = EditorWatchdog;
-
-/**
- * Starting from v34.0.0, CKEditor 5 introduces a lock mechanism for enabling/disabling the read-only mode.
- *
- * To avoid unnecessary breaking changes, the integration supports both ways of switching the editor's state.
- *
- * (1.) Use the lock mechanism for version `v34+`
- * (2.) Use the `Editor#isReadOnly` setter for lower versions (<v34).
- *
- * @param {Object} editor
- * @param {Boolean} value
- */
-function setReadOnly( editor, value ) {
-	const { CKEDITOR_VERSION } = window;
-
-	if ( !CKEDITOR_VERSION ) {
-		console.warn( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
-
-		return;
-	}
-
-	const [ major ] = CKEDITOR_VERSION.split( '.' ).map( Number );
-
-	// Use the lock mechanism when using the editor in the version 34+. See: https://github.com/ckeditor/ckeditor5/issues/10496.
-	if ( major >= 34 ) {
-		editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID, value );
-	}
-	// Otherwise, use the old `#isReadOnly` flag.
-	else {
-		editor.isReadOnly = value;
-	}
-}

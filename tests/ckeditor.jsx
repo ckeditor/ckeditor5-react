@@ -9,7 +9,6 @@ import React from 'react';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import Editor from './_utils/editor';
-import EditorReadOnlyLock from './_utils/editorreadonlylock';
 import CKEditor from '../src/ckeditor.jsx';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
@@ -17,9 +16,12 @@ import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
 configure( { adapter: new Adapter() } );
 
 describe( '<CKEditor> Component', () => {
-	let wrapper;
+	let wrapper, CKEDITOR_VERSION;
 
 	beforeEach( () => {
+		CKEDITOR_VERSION = window.CKEDITOR_VERSION;
+
+		window.CKEDITOR_VERSION = '34.0.0';
 		sinon.stub( Editor._model.document, 'on' );
 		sinon.stub( Editor._editing.view.document, 'on' );
 	} );
@@ -30,14 +32,56 @@ describe( '<CKEditor> Component', () => {
 		if ( wrapper ) {
 			wrapper.unmount();
 		}
+
+		window.CKEDITOR_VERSION = CKEDITOR_VERSION;
 	} );
 
 	describe( 'initialization', () => {
+		it( 'should print a warning if the "window.CKEDITOR_VERSION" variable is not available', done => {
+			delete window.CKEDITOR_VERSION;
+			const warnStub = sinon.stub( console, 'warn' );
+
+			const onReady = () => {
+				expect( warnStub.callCount ).to.equal( 1 );
+				expect( warnStub.firstCall.args[ 0 ] ).to.equal( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
+				done();
+			};
+
+			wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onReady={ onReady }/> );
+		} );
+
+		it( 'should print a warning if using CKEditor 5 in version lower than 34', done => {
+			window.CKEDITOR_VERSION = '30.0.0';
+			const warnStub = sinon.stub( console, 'warn' );
+
+			const onReady = () => {
+				expect( warnStub.callCount ).to.equal( 1 );
+				expect( warnStub.firstCall.args[ 0 ] ).to.equal(
+					'The <CKEditor> component requires using CKEditor 5 in version 34 or higher.'
+				);
+				done();
+			};
+
+			wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onReady={ onReady }/> );
+		} );
+
+		it( 'should not print any warninig if using CKEditor 5 in version 34 or higher', done => {
+			window.CKEDITOR_VERSION = '34.1.0';
+			const warnStub = sinon.stub( console, 'warn' );
+
+			const onReady = () => {
+				expect( warnStub.callCount ).to.equal( 0 );
+				done();
+			};
+
+			wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onReady={ onReady }/> );
+		} );
+
 		it( 'calls "Editor#create()" with default configuration if not specified', async () => {
 			sinon.stub( Editor, 'create' ).resolves( new Editor() );
 
 			await new Promise( res => {
-				wrapper = mount( <CKEditor editor={ Editor } onReady={ res } /> );
+				wrapper = mount( <CKEditor editor={ Editor } onReady={ res }/> );
 			} );
 
 			expect( Editor.create.calledOnce ).to.be.true;
@@ -48,7 +92,7 @@ describe( '<CKEditor> Component', () => {
 		it( 'passes configuration object directly to the "Editor#create()" method', async () => {
 			sinon.stub( Editor, 'create' ).resolves( new Editor() );
 
-			function myPlugin() { }
+			function myPlugin() {}
 
 			const editorConfig = {
 				plugins: [
@@ -60,7 +104,7 @@ describe( '<CKEditor> Component', () => {
 			};
 
 			await new Promise( res => {
-				wrapper = mount( <CKEditor editor={ Editor } config={ editorConfig } onReady={ res } /> );
+				wrapper = mount( <CKEditor editor={ Editor } config={ editorConfig } onReady={ res }/> );
 			} );
 
 			expect( Editor.create.calledOnce ).to.be.true;
@@ -80,7 +124,7 @@ describe( '<CKEditor> Component', () => {
 			sinon.stub( Editor, 'create' ).resolves( new Editor() );
 
 			await new Promise( res => {
-				wrapper = mount( <CKEditor editor={ Editor } data="<p>Hello CKEditor 5!</p>" onReady={ res } /> );
+				wrapper = mount( <CKEditor editor={ Editor } data="<p>Hello CKEditor 5!</p>" onReady={ res }/> );
 			} );
 
 			expect( Editor.create.firstCall.args[ 1 ].initialData ).to.equal(
@@ -92,7 +136,7 @@ describe( '<CKEditor> Component', () => {
 			sinon.stub( Editor, 'create' ).resolves( new Editor() );
 
 			await new Promise( res => {
-				wrapper = mount( <CKEditor editor={ Editor } config={ { initialData: '<p>Hello CKEditor 5!</p>' } } onReady={ res } /> );
+				wrapper = mount( <CKEditor editor={ Editor } config={ { initialData: '<p>Hello CKEditor 5!</p>' } } onReady={ res }/> );
 			} );
 
 			expect( Editor.create.firstCall.args[ 1 ].initialData ).to.equal(
@@ -126,7 +170,7 @@ describe( '<CKEditor> Component', () => {
 			await new Promise( res => {
 				wrapper = mount( <CKEditor editor={ Editor } data="<p>Foo</p>" config={ {
 					initialData: '<p>Bar</p>'
-				} } onReady={ res } /> );
+				} } onReady={ res }/> );
 			} );
 
 			// We must restore "console.warn" before assertions in order to see warnings if they were logged.
@@ -147,7 +191,7 @@ describe( '<CKEditor> Component', () => {
 				wrapper = mount( <CKEditor
 					editor={ Editor }
 					data="<p>Hello CKEditor 5!</p>"
-					onReady={ res } /> );
+					onReady={ res }/> );
 			} );
 
 			expect( editorInstance.setData.called ).to.be.false;
@@ -157,7 +201,7 @@ describe( '<CKEditor> Component', () => {
 			sinon.stub( Editor, 'create' ).resolves( new Editor() );
 
 			await new Promise( res => {
-				wrapper = mount( <CKEditor editor={ Editor } onReady={ res } /> );
+				wrapper = mount( <CKEditor editor={ Editor } onReady={ res }/> );
 			} );
 
 			const component = wrapper.instance();
@@ -168,11 +212,12 @@ describe( '<CKEditor> Component', () => {
 
 		it( 'displays an error if something went wrong and "onError" callback was not specified', async () => {
 			const error = new Error( 'Something went wrong.' );
-			const consoleErrorStub = sinon.stub( console, 'error' ).callsFake( () => { } );
+			const consoleErrorStub = sinon.stub( console, 'error' ).callsFake( () => {
+			} );
 
 			sinon.stub( Editor, 'create' ).rejects( error );
 
-			wrapper = mount( <CKEditor editor={ Editor } /> );
+			wrapper = mount( <CKEditor editor={ Editor }/> );
 
 			await new Promise( res => setTimeout( res ) );
 
@@ -216,7 +261,7 @@ describe( '<CKEditor> Component', () => {
 
 			sinon.stub( Editor, 'create' ).resolves( editorInstance );
 
-			wrapper = mount( <CKEditor editor={ Editor } /> );
+			wrapper = mount( <CKEditor editor={ Editor }/> );
 
 			const component = wrapper.instance();
 			let shouldComponentUpdate;
@@ -234,7 +279,7 @@ describe( '<CKEditor> Component', () => {
 				sinon.stub( Editor, 'create' ).resolves( editorInstance );
 
 				const editor = await new Promise( resolve => {
-					wrapper = mount( <CKEditor editor={ Editor } onReady={ resolve } /> );
+					wrapper = mount( <CKEditor editor={ Editor } onReady={ resolve }/> );
 				} );
 
 				expect( editor ).to.equal( editorInstance );
@@ -254,7 +299,7 @@ describe( '<CKEditor> Component', () => {
 						editor={ Editor }
 						onChange={ onChange }
 						onReady={ res }
-						onError={ rej } /> );
+						onError={ rej }/> );
 				} );
 
 				const fireChanges = modelDocument.on.firstCall.args[ 1 ];
@@ -278,7 +323,7 @@ describe( '<CKEditor> Component', () => {
 					wrapper = mount( <CKEditor
 						editor={ Editor }
 						onReady={ res }
-						onError={ rej } /> );
+						onError={ rej }/> );
 				} );
 
 				wrapper.setProps( { onChange } );
@@ -366,7 +411,7 @@ describe( '<CKEditor> Component', () => {
 				sinon.stub( editorInstance, 'getData' ).returns( '<p>Foo.</p>' );
 
 				await new Promise( res => {
-					wrapper = mount( <CKEditor editor={ Editor } onReady={ res } /> );
+					wrapper = mount( <CKEditor editor={ Editor } onReady={ res }/> );
 				} );
 
 				// More events are being attached to `viewDocument`.
@@ -427,7 +472,7 @@ describe( '<CKEditor> Component', () => {
 				sinon.stub( Editor, 'create' ).rejects( originalError );
 
 				const { error, details } = await new Promise( res => {
-					wrapper = mount( <CKEditor editor={ Editor } onError={ ( error, details ) => res( { error, details } ) } /> );
+					wrapper = mount( <CKEditor editor={ Editor } onError={ ( error, details ) => res( { error, details } ) }/> );
 				} );
 
 				expect( error ).to.equal( error );
@@ -440,7 +485,7 @@ describe( '<CKEditor> Component', () => {
 					wrapper = mount( <CKEditor
 						editor={ Editor }
 						onReady={ res }
-						onError={ rej } /> );
+						onError={ rej }/> );
 				} );
 
 				const error = new CKEditorError( 'foo', wrapper.instance().editor );
@@ -467,85 +512,24 @@ describe( '<CKEditor> Component', () => {
 		} );
 
 		describe( '#disabled', () => {
-			let CKEDITOR_VERSION;
+			it( 'switches the editor to read-only mode if [disabled={true}]', done => {
+				const onReady = editor => {
+					expect( editor.isReadOnly ).to.be.true;
 
-			beforeEach( () => {
-				CKEDITOR_VERSION = window.CKEDITOR_VERSION;
-			} );
-
-			afterEach( () => {
-				window.CKEDITOR_VERSION = CKEDITOR_VERSION;
-			} );
-
-			it( 'should do nothing if the "window.CKEDITOR_VERSION" variable is not available', done => {
-				delete window.CKEDITOR_VERSION;
-				const warnStub = sinon.stub( console, 'warn' );
-
-				const onReady = function() {
-					expect( warnStub.callCount ).to.equal( 1 );
-					expect( warnStub.firstCall.args[ 0 ] ).to.equal( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
 					done();
 				};
 
 				wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onReady={ onReady }/> );
 			} );
 
-			describe( 'CKEditor 5 - the build version lower than 34.0.0', () => {
-				beforeEach( () => {
-					window.CKEDITOR_VERSION = '20.0.0';
+			it( 'switches the editor to read-only mode when [disabled={true}] property was set in runtime', async () => {
+				await new Promise( ( res, rej ) => {
+					wrapper = mount( <CKEditor editor={ Editor } onReady={ res } onError={ rej }/> );
 				} );
 
-				it( 'switches the editor to read-only mode if [disabled={true}]', done => {
-					const onReady = function( editor ) {
-						expect( editor.isReadOnly ).to.be.true;
+				wrapper.setProps( { disabled: true } );
 
-						done();
-					};
-
-					wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onReady={ onReady } /> );
-				} );
-
-				it( 'switches the editor to read-only mode when [disabled={true}] property was set in runtime', async () => {
-					await new Promise( ( res, rej ) => {
-						wrapper = mount( <CKEditor
-							editor={ Editor }
-							onReady={ res }
-							onError={ rej } /> );
-					} );
-
-					wrapper.setProps( { disabled: true } );
-
-					expect( wrapper.instance().editor.isReadOnly ).to.be.true;
-				} );
-			} );
-
-			describe( 'CKEditor 5 - the build version higher or equal 34.0.0', () => {
-				beforeEach( () => {
-					window.CKEDITOR_VERSION = '34.0.0';
-				} );
-
-				it( 'switches the editor to read-only mode if [disabled={true}]', done => {
-					const onReady = function( editor ) {
-						expect( editor.isReadOnly ).to.be.true;
-
-						done();
-					};
-
-					wrapper = mount( <CKEditor editor={ EditorReadOnlyLock } disabled={ true } onReady={ onReady } /> );
-				} );
-
-				it( 'switches the editor to read-only mode when [disabled={true}] property was set in runtime', async () => {
-					await new Promise( ( res, rej ) => {
-						wrapper = mount( <CKEditor
-							editor={ EditorReadOnlyLock }
-							onReady={ res }
-							onError={ rej } /> );
-					} );
-
-					wrapper.setProps( { disabled: true } );
-
-					expect( wrapper.instance().editor.isReadOnly ).to.be.true;
-				} );
+				expect( wrapper.instance().editor.isReadOnly ).to.be.true;
 			} );
 		} );
 
@@ -627,7 +611,7 @@ describe( '<CKEditor> Component', () => {
 				const consoleErrorStub = sinon.stub( console, 'error' );
 				const onInit = sinon.spy();
 
-				wrapper = mount( <CKEditor editor={ Editor } onInit={ onInit } /> );
+				wrapper = mount( <CKEditor editor={ Editor } onInit={ onInit }/> );
 
 				consoleErrorStub.restore();
 
@@ -650,7 +634,7 @@ describe( '<CKEditor> Component', () => {
 				wrapper = mount( <CKEditor
 					editor={ Editor }
 					onReady={ res }
-					onError={ rej } /> );
+					onError={ rej }/> );
 			} );
 
 			await new Promise( res => {
@@ -677,7 +661,7 @@ describe( '<CKEditor> Component', () => {
 				wrapper = mount( <CKEditor
 					editor={ Editor }
 					onReady={ res }
-					onError={ rej } /> );
+					onError={ rej }/> );
 			} );
 
 			const component = wrapper.instance();
@@ -700,7 +684,7 @@ describe( '<CKEditor> Component', () => {
 				wrapper = mount( <CKEditor
 					editor={ Editor }
 					onReady={ res }
-					onError={ rej } /> );
+					onError={ rej }/> );
 			} );
 
 			const firstEditor = wrapper.instance().editor;
