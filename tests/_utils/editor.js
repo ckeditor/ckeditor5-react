@@ -35,12 +35,8 @@ export default class Editor {
 		throw new Error( 'Cannot use this setter anymore' );
 	}
 
-	enableReadOnlyMode( lockId, value ) {
-		if ( value ) {
-			this._readOnlyLocks.add( lockId );
-		} else {
-			this.disableReadOnlyMode( lockId );
-		}
+	enableReadOnlyMode( lockId ) {
+		this._readOnlyLocks.add( lockId );
 	}
 
 	disableReadOnlyMode( lockId ) {

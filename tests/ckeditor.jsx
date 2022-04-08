@@ -531,6 +531,18 @@ describe( '<CKEditor> Component', () => {
 
 				expect( wrapper.instance().editor.isReadOnly ).to.be.true;
 			} );
+
+			it( 'disables the read-only mode when [disabled={false}] property was set in runtime', async () => {
+				await new Promise( ( res, rej ) => {
+					wrapper = mount( <CKEditor editor={ Editor } onReady={ res } onError={ rej } disabled={ true } /> );
+				} );
+
+				expect( wrapper.instance().editor.isReadOnly ).to.be.true;
+
+				wrapper.setProps( { disabled: false } );
+
+				expect( wrapper.instance().editor.isReadOnly ).to.be.false;
+			} );
 		} );
 
 		describe( '#id', () => {

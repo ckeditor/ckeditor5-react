@@ -16,7 +16,7 @@ describe( 'Editor', () => {
 	} );
 
 	describe( 'enableReadOnlyMode()', () => {
-		it( 'should enable the read-only mode for given identifier when passing "true" as the second argument', async () => {
+		it( 'should enable the read-only mode for given identifier', async () => {
 			const editor = await Editor.create();
 
 			expect( editor.isReadOnly ).is.false;
@@ -24,16 +24,6 @@ describe( 'Editor', () => {
 			editor.enableReadOnlyMode( 'foo', true );
 
 			expect( editor.isReadOnly ).is.true;
-		} );
-
-		it( 'should disable the read-only mode for given identifier when passing "false" as the second argument', async () => {
-			const editor = await Editor.create();
-
-			expect( editor.isReadOnly ).is.false;
-
-			editor.enableReadOnlyMode( 'foo', false );
-
-			expect( editor.isReadOnly ).is.false;
 		} );
 	} );
 

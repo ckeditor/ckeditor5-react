@@ -80,7 +80,11 @@ export default class CKEditor extends React.Component {
 		}
 
 		if ( 'disabled' in nextProps ) {
-			this.editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID, nextProps.disabled );
+			if ( nextProps.disabled ) {
+				this.editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+			} else {
+				this.editor.disableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+			}
 		}
 
 		return false;
@@ -153,7 +157,11 @@ export default class CKEditor extends React.Component {
 		return this.props.editor.create( element, config )
 			.then( editor => {
 				if ( 'disabled' in this.props ) {
-					editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID, this.props.disabled );
+					// Switch to the read-only mode if the `[disabled]` attribute is specified.
+					/* istanbul ignore else */
+					if ( this.props.disabled ) {
+						editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+					}
 				}
 
 				const modelDocument = editor.model.document;
