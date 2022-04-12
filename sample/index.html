@@ -84,12 +84,12 @@
 						} );
 
 						editor.ui.view.listenTo( readOnlyButton, 'click', () => {
-							editor.enableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID, !editor.isReadOnly );
-
 							if ( editor.isReadOnly ) {
-								readOnlyButton.innerText = 'Switch to editable mode';
-							} else {
+								editor.disableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID );
 								readOnlyButton.innerText = 'Switch to read-only mode';
+							} else {
+								editor.enableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID );
+								readOnlyButton.innerText = 'Switch to editable mode';
 							}
 						} );
 					},
