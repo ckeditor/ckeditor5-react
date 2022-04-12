@@ -36,6 +36,8 @@
 		const readOnlyButton = document.getElementById( 'readOnly' );
 		const simulateErrorButton = document.getElementById( 'simulateError' );
 
+		const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
+
 		class App extends React.Component {
 			constructor( props ) {
 				super( props );
@@ -82,12 +84,12 @@
 						} );
 
 						editor.ui.view.listenTo( readOnlyButton, 'click', () => {
-							editor.isReadOnly = !editor.isReadOnly;
-
 							if ( editor.isReadOnly ) {
-								this.innerText = 'Switch to editable mode';
+								editor.disableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID );
+								readOnlyButton.innerText = 'Switch to read-only mode';
 							} else {
-								this.innerText = 'Switch to read-only mode';
+								editor.enableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID );
+								readOnlyButton.innerText = 'Switch to editable mode';
 							}
 						} );
 					},

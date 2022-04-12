@@ -3,12 +3,16 @@
  * For licensing, see LICENSE.md.
  */
 
+/* globals window */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import uid from '@ckeditor/ckeditor5-utils/src/uid';
 import { ContextWatchdogContext } from './ckeditorcontext.jsx';
 import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
+
+const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
 export default class CKEditor extends React.Component {
 	constructor( props ) {
@@ -24,6 +28,21 @@ export default class CKEditor extends React.Component {
 		 * @type {module:watchdog/watchdog~Watchdog|EditorWatchdogAdapter}
 		 */
 		this.watchdog = null;
+
+		const { CKEDITOR_VERSION } = window;
+
+		// Starting from v34.0.0, CKEditor 5 introduces a lock mechanism enabling/disabling the read-only mode.
+		// As it is a breaking change between major releases of the integration, the component requires using
+		// CKEditor 5 in version 34 or higher.
+		if ( CKEDITOR_VERSION ) {
+			const [ major ] = CKEDITOR_VERSION.split( '.' ).map( Number );
+
+			if ( major < 34 ) {
+				console.warn( 'The <CKEditor> component requires using CKEditor 5 in version 34 or higher.' );
+			}
+		} else {
+			console.warn( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
+		}
 	}
 
 	/**
@@ -61,7 +80,11 @@ export default class CKEditor extends React.Component {
 		}
 
 		if ( 'disabled' in nextProps ) {
-			this.editor.isReadOnly = nextProps.disabled;
+			if ( nextProps.disabled ) {
+				this.editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+			} else {
+				this.editor.disableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+			}
 		}
 
 		return false;
@@ -134,7 +157,11 @@ export default class CKEditor extends React.Component {
 		return this.props.editor.create( element, config )
 			.then( editor => {
 				if ( 'disabled' in this.props ) {
-					editor.isReadOnly = this.props.disabled;
+					// Switch to the read-only mode if the `[disabled]` attribute is specified.
+					/* istanbul ignore else */
+					if ( this.props.disabled ) {
+						editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+					}
 				}
 
 				const modelDocument = editor.model.document;
@@ -264,7 +291,7 @@ class EditorWatchdogAdapter {
 	/**
 	 * Adds an editor configuration to the context watchdog registry. Creates an instance of it.
 	 *
-	 * @param {HTMLElement | string} sourceElementOrData A source element or data for the new editor.
+	 * @param {HTMLElement|string} sourceElementOrData A source element or data for the new editor.
 	 * @param {Object} config CKEditor 5 editor config.
 	 * @returns {Promise}
 	 */

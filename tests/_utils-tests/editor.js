@@ -13,11 +13,49 @@ describe( 'Editor', () => {
 			expect( editor.model ).is.not.undefined;
 			expect( editor.editing ).is.not.undefined;
 		} );
+	} );
 
-		it( 'read-only mode is disabled by default', () => {
+	describe( 'enableReadOnlyMode()', () => {
+		it( 'should enable the read-only mode for given identifier', async () => {
+			const editor = await Editor.create();
+
+			expect( editor.isReadOnly ).is.false;
+
+			editor.enableReadOnlyMode( 'foo', true );
+
+			expect( editor.isReadOnly ).is.true;
+		} );
+	} );
+
+	describe( 'disableReadOnlyMode()', () => {
+		it( 'should enable the read-only mode for given lock identifier', async () => {
+			const editor = await Editor.create();
+
+			expect( editor.isReadOnly ).is.false;
+
+			editor.enableReadOnlyMode( 'foo', true );
+
+			expect( editor.isReadOnly ).is.true;
+
+			editor.disableReadOnlyMode( 'foo' );
+
+			expect( editor.isReadOnly ).is.false;
+		} );
+	} );
+
+	describe( '#isReadOnly', () => {
+		it( 'should be disabled by default when creating a new instance of the editor', () => {
 			const editor = new Editor();
 
 			expect( editor.isReadOnly ).is.false;
+		} );
+
+		it( 'should throw an error when using the setter for switching to read-only mode', async () => {
+			const editor = await Editor.create();
+
+			expect( () => {
+				editor.isReadOnly = true;
+			} ).to.throw( Error, 'Cannot use this setter anymore' );
 		} );
 	} );
 

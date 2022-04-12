@@ -10,9 +10,12 @@
  */
 export default class Editor {
 	constructor() {
+		this.initializeProperties();
+	}
+
+	initializeProperties() {
 		this.model = Editor._model;
 		this.editing = Editor._editing;
-		this.isReadOnly = false;
 		this.data = {
 			get() {
 				return '';
@@ -21,6 +24,23 @@ export default class Editor {
 
 			}
 		};
+		this._readOnlyLocks = new Set();
+	}
+
+	get isReadOnly() {
+		return this._readOnlyLocks.size > 0;
+	}
+
+	set isReadOnly( value ) {
+		throw new Error( 'Cannot use this setter anymore' );
+	}
+
+	enableReadOnlyMode( lockId ) {
+		this._readOnlyLocks.add( lockId );
+	}
+
+	disableReadOnlyMode( lockId ) {
+		this._readOnlyLocks.delete( lockId );
 	}
 
 	destroy() {
