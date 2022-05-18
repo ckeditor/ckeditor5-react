@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## [5.0.1](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.0...v5.0.1) (2022-05-18)
+
+### Bug fixes
+
+* Fixed component double rendering in StrictMode. Closes [#294](https://github.com/ckeditor/ckeditor5-react/issues/294). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/b17ddd4e7b6d0b3e51a1b52fc8f828cf51c8639c))
+
+
 ## [5.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v4.0.1...v5.0.0) (2022-04-12)
 
 ### BREAKING CHANGES
