@@ -20,20 +20,20 @@ export default class CKEditorContext extends React.Component {
 		}
 	}
 
-	shouldComponentUpdate( nextProps ) {
+	async shouldComponentUpdate( nextProps ) {
 		// If the configuration changes then the ContextWatchdog needs to be destroyed and recreated
 		// On top of the new configuration.
 		if ( nextProps.id !== this.props.id ) {
 			/* istanbul ignore else */
 			if ( this.contextWatchdog ) {
-				this.contextWatchdog.destroy();
+				await this.contextWatchdog.destroy();
 			}
 
-			this._initializeContextWatchdog( nextProps.config );
+			await this._initializeContextWatchdog( nextProps.config );
 		}
 
 		if ( nextProps.isLayoutReady && !this.contextWatchdog ) {
-			this._initializeContextWatchdog( nextProps.config );
+			await this._initializeContextWatchdog( nextProps.config );
 
 			return true;
 		}
@@ -50,20 +50,12 @@ export default class CKEditorContext extends React.Component {
 		);
 	}
 
-	componentWillUnmount() {
-		this._destroyContext();
+	async componentWillUnmount() {
+		await this._destroyContext();
 	}
 
-	_initializeContextWatchdog( config ) {
+	async _initializeContextWatchdog( config ) {
 		this.contextWatchdog = new ContextWatchdog( this.props.context );
-
-		this.contextWatchdog.create( config )
-			.catch( error => {
-				this.props.onError( error, {
-					phase: 'initialization',
-					willContextRestart: false
-				} );
-			} );
 
 		this.contextWatchdog.on( 'error', ( _, errorEvent ) => {
 			this.props.onError( errorEvent.error, {
@@ -77,6 +69,14 @@ export default class CKEditorContext extends React.Component {
 				this.props.onReady( this.contextWatchdog.context );
 			}
 		} );
+
+		await this.contextWatchdog.create( config )
+			.catch( error => {
+				this.props.onError( error, {
+					phase: 'initialization',
+					willContextRestart: false
+				} );
+			} );
 	}
 
 	async _destroyContext() {

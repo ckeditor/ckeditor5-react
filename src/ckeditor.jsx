@@ -92,24 +92,30 @@ export default class CKEditor extends React.Component {
 
 	/**
 	 * Initialize the editor when the component is mounted.
+	 *
+	 * @returns {Promise}
  	 */
-	componentDidMount() {
-		this._initializeEditor();
+	async componentDidMount() {
+		await this._initializeEditor();
 	}
 
 	/**
 	 * Re-render the entire component once again. The old editor will be destroyed and the new one will be created.
+	 *
+	 * @returns {Promise}
 	 */
-	componentDidUpdate() {
-		this._destroyEditor();
-		this._initializeEditor();
+	async componentDidUpdate() {
+		await this._destroyEditor();
+		await this._initializeEditor();
 	}
 
 	/**
 	 * Destroy the editor before unmounting the component.
+	 *
+	 * @returns {Promise}
  	 */
-	componentWillUnmount() {
-		this._destroyEditor();
+	async componentWillUnmount() {
+		await this._destroyEditor();
 	}
 
 	/**
@@ -127,8 +133,13 @@ export default class CKEditor extends React.Component {
 	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
 	 *
 	 * @private
+	 * @returns {Promise}
 	 */
-	_initializeEditor() {
+	async _initializeEditor() {
+		if ( this.watchdog ) {
+			return;
+		}
+
 		if ( this.context instanceof ContextWatchdog ) {
 			this.watchdog = new EditorWatchdogAdapter( this.context );
 		} else {
@@ -141,7 +152,7 @@ export default class CKEditor extends React.Component {
 			this.props.onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
 		} );
 
-		this.watchdog.create( this.domContainer.current, this._getConfig() )
+		await this.watchdog.create( this.domContainer.current, this._getConfig() )
 			.catch( error => this.props.onError( error, { phase: 'initialization', willEditorRestart: false } ) );
 	}
 
@@ -205,15 +216,16 @@ export default class CKEditor extends React.Component {
 	 * Destroys the editor by destroying the watchdog.
 	 *
 	 * @private
+	 * @returns {Promise}
 	 */
-	_destroyEditor() {
+	async _destroyEditor() {
 		// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
 		/* istanbul ignore next */
-		if ( !this.watchdog ) {
+		if ( !this.editor ) {
 			return;
 		}
 
-		this.watchdog.destroy();
+		await this.watchdog.destroy();
 		this.watchdog = null;
 	}
 
