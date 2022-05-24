@@ -26,7 +26,7 @@ module.exports = {
 		}
 	},
 
-	entry: path.join( __dirname, 'src', 'index.js' ),
+	entry: [require.resolve( 'regenerator-runtime/runtime.js' ),path.resolve( __dirname, 'src', 'index.js' )],
 
 	output: {
 		library: 'CKEditor',
@@ -35,6 +35,7 @@ module.exports = {
 		filename: 'ckeditor.js',
 		libraryTarget: 'umd'
 	},
+	target: ['web', 'es5'],
 
 	optimization: {
 		minimizer: [
@@ -60,6 +61,17 @@ module.exports = {
 
 	module: {
 		rules: [
+			{
+				test: /\.js$/,
+				use: [
+					{
+						loader: 'babel-loader',
+						options: {
+							presets: [ require( '@babel/preset-env' ) ,'@babel/preset-react' ]
+						}
+					}
+				]
+			},
 			{
 				test: /\.jsx$/,
 				loader: 'babel-loader',

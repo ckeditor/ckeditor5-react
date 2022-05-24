@@ -1,6 +1,6 @@
 {
-  "name": "@ckeditor/ckeditor5-react",
-  "version": "5.0.1",
+  "name": "@mdfe/ckeditor5-react",
+  "version": "1.0.2",
   "main": "dist/ckeditor.js",
   "description": "Official React component for CKEditor 5 – the best browser-based rich text editor.",
   "keywords": [
@@ -17,11 +17,13 @@
     "ckeditor 5"
   ],
   "dependencies": {
-    "prop-types": "^15.7.2"
+    "@babel/preset-env": "^7.18.0",
+    "prop-types": "^15.7.2",
+    "regenerator-runtime": "^0.13.9"
   },
   "devDependencies": {
-    "@babel/core": "^7.10.5",
-    "@babel/preset-react": "^7.10.4",
+    "@babel/core": "^7.18.0",
+    "@babel/preset-react": "^7.17.12",
     "@ckeditor/ckeditor5-build-classic": "^34.0.0",
     "@ckeditor/ckeditor5-dev-env": "^30.0.0",
     "@ckeditor/ckeditor5-dev-utils": "^30.0.0",
