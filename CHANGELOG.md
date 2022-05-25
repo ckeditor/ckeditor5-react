@@ -1,32 +1,6 @@
 Changelog
 =========
 
-## [5.0.1](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.0...v5.0.1) (2022-05-18)
-
-### Bug fixes
-
-* Fixed component double rendering in StrictMode. Closes [#294](https://github.com/ckeditor/ckeditor5-react/issues/294). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/b17ddd4e7b6d0b3e51a1b52fc8f828cf51c8639c))
-
-
-## [5.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v4.0.1...v5.0.0) (2022-04-12)
-
-### BREAKING CHANGES
-
-* Due to introducing the lock mechanism for the `Editor#isReadOnly` property, the `<CKEditor>` component uses the new way of enabling the read-only mode in the editor. The component requires an instance of CKEditor 5 in version 34 or higher. See [ckeditor/ckeditor5#10496](https://github.com/ckeditor/ckeditor5/issues/10496).
-
-### Other changes
-
-* Aligned the `<CKEditor>` component API to use the new lock mechanism when enabling/disabling the read-only mode. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/df734432610aef9483bd676a0445fe7c3f662cf8))
-
-
-## [4.0.1](https://github.com/ckeditor/ckeditor5-react/compare/v4.0.0...v4.0.1) (2022-04-01)
-
-### Other changes
-
-* Bumped Karma test runner to v6.x. Closes [#292](https://github.com/ckeditor/ckeditor5-react/issues/292). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/5071381bcbe0e94f8e1aee9fa092263f1df7a00b))
-* Support for React 18. Closes [#297](https://github.com/ckeditor/ckeditor5-react/issues/297). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/1eafc295e5c9832b52ead152171f02810b7ba7a5))
-
-
 ## [4.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v3.0.3...v4.0.0) (2022-02-09)
 
 ### BREAKING CHANGES

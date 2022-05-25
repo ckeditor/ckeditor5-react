@@ -35,7 +35,7 @@ module.exports = {
 		filename: 'ckeditor.js',
 		libraryTarget: 'umd'
 	},
-	target: ['web', 'es5'],
+	// target: ['web', 'es5'],
 
 	optimization: {
 		minimizer: [
