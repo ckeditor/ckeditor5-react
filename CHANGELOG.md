@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## [5.0.2](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.1...v5.0.2) (2022-05-26)
+
+### Other changes
+
+* Upgraded the [`@ckeditor/ckeditor5-watchdog`](https://www.npmjs.com/package/@ckeditor/ckeditor5-watchdog) package to the latest version. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/c85db21f342d371ee43adc1122b88594c6be0b16))
+
+
 ## [5.0.1](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.0...v5.0.1) (2022-05-18)
 
 ### Bug fixes
