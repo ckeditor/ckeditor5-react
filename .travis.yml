@@ -10,8 +10,7 @@ node_js:
 cache:
 - node_modules
 before_install:
-  - export COVERALLS_SERVICE_JOB_ID=$( TRAVIS_JOB_ID )
-  - export COVERALLS_SERVICE_NAME="ckeditor/ckeditor5-react code coverage"
+- export COVERALLS_SERVICE_JOB_ID=$( TRAVIS_JOB_ID )
 install:
 - npm install
 script:
