@@ -116,20 +116,24 @@ module.exports = function getKarmaConfig() {
 			]
 		};
 
-		webpackConfig.module.rules.push( {
+		webpackConfig.module.rules[ 0 ] = {
 			test: /\.jsx?$/,
-			loader: 'istanbul-instrumenter-loader',
-			include: [
-				/src/,
-				/_utils-tests/
-			],
-			exclude: [
-				/node_modules/
-			],
+			loader: 'babel-loader',
 			options: {
-				esModules: true
+				plugins: [
+					[ 'babel-plugin-istanbul', {
+						include: [
+							'src',
+							'tests/_utils-tests'
+						],
+						exclude: [
+							'node_modules'
+						]
+					} ]
+				],
+				presets: [ '@babel/preset-react' ]
 			}
-		} );
+		};
 	}
 
 	if ( options.sourceMap ) {
