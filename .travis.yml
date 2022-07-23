@@ -18,4 +18,4 @@ script:
 - npm run lint
 - npm run build
 - npm run coverage
-- cat coverage/*/lcov.info | ./node_modules/.bin/coveralls
+- if [[ $TRAVIS_TEST_RESULT -eq 0 ]]; then cat coverage/*/lcov.info | ./node_modules/.bin/coveralls; fi
