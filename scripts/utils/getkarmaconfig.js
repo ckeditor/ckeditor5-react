@@ -97,10 +97,6 @@ module.exports = function getKarmaConfig() {
 	if ( options.coverage ) {
 		karmaConfig.reporters.push( 'coverage' );
 
-		if ( process.env.TRAVIS ) {
-			karmaConfig.reporters.push( 'coveralls' );
-		}
-
 		karmaConfig.coverageReporter = {
 			reporters: [
 				// Prints a table after tests result.

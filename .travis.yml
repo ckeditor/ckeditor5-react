@@ -9,9 +9,12 @@ node_js:
 - '14'
 cache:
 - node_modules
+before_install:
+- export COVERALLS_SERVICE_JOB_ID=$( TRAVIS_JOB_ID )
 install:
 - npm install
 script:
 - npm run lint
 - npm run build
 - npm run coverage
+- if [[ $TRAVIS_TEST_RESULT -eq 0 ]]; then cat coverage/*/lcov.info | ./node_modules/.bin/coveralls; fi
