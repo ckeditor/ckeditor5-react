@@ -29,6 +29,8 @@ export default class CKEditor extends React.Component {
 		 */
 		this.watchdog = null;
 
+		this.rootDivProps = props.rootDivProps || {};
+
 		const { CKEDITOR_VERSION } = window;
 
 		// Starting from v34.0.0, CKEditor 5 introduces a lock mechanism enabling/disabling the read-only mode.
@@ -125,7 +127,7 @@ export default class CKEditor extends React.Component {
 	 */
 	render() {
 		return (
-			<div ref={ this.domContainer }></div>
+			<div ref={ this.domContainer } {...this.rootDivProps}></div>
 		);
 	}
 
@@ -361,6 +363,7 @@ CKEditor.propTypes = {
 	onBlur: PropTypes.func,
 	onError: PropTypes.func,
 	disabled: PropTypes.bool,
+	rootDivProps: PropTypes.object,
 	onInit: ( props, propName ) => {
 		if ( props[ propName ] ) {
 			return new Error(
