@@ -25,6 +25,7 @@ module.exports = {
 		'shallow': true,
 		'mount': true
 	},
+	'ignorePatterns': [ 'index.d.ts' ],
 	'rules': {
 		'react/prop-types': 'off',
 		'no-console': 'off',
