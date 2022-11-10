@@ -19,12 +19,12 @@ export default class CKEditor extends React.Component {
 		super( props );
 
 		/**
-		 * While cleanup from unmounting is in progress, contains a promise that resolves when cleanup is complete.
+		 * While cleanup from destroying an editor is in progress, contains a promise that resolves when cleanup is complete.
 		 * Otherwise it contains null.
 		 *
 		 * @type {Promise|null}
 		 */
-		this.cleanupInProgress = null;
+		this.editorDestructionInProgress = null;
 
 		// After mounting the editor, the variable will contain a reference to the created editor.
 		// @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
@@ -123,13 +123,7 @@ export default class CKEditor extends React.Component {
 	 * @returns {Promise}
  	 */
 	async componentWillUnmount() {
-		this.cleanupInProgress = new Promise( resolve => {
-			this._destroyEditor().then( () => {
-				resolve();
-			} );
-		} ).then( () => {
-			this.cleanupInProgress = null;
-		} );
+		await this._destroyEditor();
 	}
 
 	/**
@@ -150,8 +144,8 @@ export default class CKEditor extends React.Component {
 	 * @returns {Promise}
 	 */
 	async _initializeEditor() {
-		if ( this.cleanupInProgress ) {
-			await this.cleanupInProgress;
+		if ( this.editorDestructionInProgress ) {
+			await this.editorDestructionInProgress;
 		}
 
 		if ( this.watchdog ) {
@@ -237,14 +231,29 @@ export default class CKEditor extends React.Component {
 	 * @returns {Promise}
 	 */
 	async _destroyEditor() {
-		// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
-		/* istanbul ignore next */
-		if ( !this.editor ) {
-			return;
-		}
+		this.editorDestructionInProgress = new Promise( resolve => {
+			// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
+			/* istanbul ignore next */
+			if ( !this.editor ) {
+				return;
+			}
 
-		await this.watchdog.destroy();
-		this.watchdog = null;
+			const destruction = this.watchdog.destroy();
+
+			if ( destruction instanceof Promise ) {
+				destruction.then( () => {
+					this.watchdog = null;
+					resolve();
+				} );
+			} else {
+				this.watchdog = null;
+				resolve();
+			}
+		} )
+			.then( () => {
+				this.editorDestructionInProgress = null;
+			} )
+			.catch( error => this.props.onError( error, { phase: 'runtime', willEditorRestart: false } ) );
 	}
 
 	/**
