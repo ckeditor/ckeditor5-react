@@ -148,10 +148,6 @@ export default class CKEditor extends React.Component {
 			await this.editorDestructionInProgress;
 		}
 
-		if ( this.watchdog ) {
-			return;
-		}
-
 		if ( this.context instanceof ContextWatchdog ) {
 			this.watchdog = new EditorWatchdogAdapter( this.context );
 		} else {
