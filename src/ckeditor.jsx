@@ -18,6 +18,14 @@ export default class CKEditor extends React.Component {
 	constructor( props ) {
 		super( props );
 
+		/**
+		 * While cleanup from unmounting is in progress, contains a promise that resolves when cleanup is complete.
+		 * Otherwise it contains null.
+		 *
+		 * @type {Promise|null}
+		 */
+		this.cleanupInProgress = null;
+
 		// After mounting the editor, the variable will contain a reference to the created editor.
 		// @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
 		this.domContainer = React.createRef();
@@ -115,7 +123,13 @@ export default class CKEditor extends React.Component {
 	 * @returns {Promise}
  	 */
 	async componentWillUnmount() {
-		await this._destroyEditor();
+		this.cleanupInProgress = new Promise( resolve => {
+			this._destroyEditor().then( () => {
+				resolve();
+			} );
+		} ).then( () => {
+			this.cleanupInProgress = null;
+		} );
 	}
 
 	/**
@@ -136,6 +150,10 @@ export default class CKEditor extends React.Component {
 	 * @returns {Promise}
 	 */
 	async _initializeEditor() {
+		if ( this.cleanupInProgress ) {
+			await this.cleanupInProgress;
+		}
+
 		if ( this.watchdog ) {
 			return;
 		}
