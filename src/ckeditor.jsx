@@ -145,6 +145,10 @@ export default class CKEditor extends React.Component {
 	async _initializeEditor() {
 		await this.editorDestructionInProgress;
 
+		if ( this.watchdog ) {
+			return;
+		}
+
 		if ( this.context instanceof ContextWatchdog ) {
 			this.watchdog = new EditorWatchdogAdapter( this.context );
 		} else {
@@ -209,7 +213,7 @@ export default class CKEditor extends React.Component {
 				// Ideally this part should be moved to the watchdog item creator listeners.
 				setTimeout( () => {
 					if ( this.props.onReady ) {
-						this.props.onReady( this.editor );
+						this.props.onReady( editor );
 					}
 				} );
 
@@ -224,18 +228,18 @@ export default class CKEditor extends React.Component {
 	 * @returns {Promise}
 	 */
 	async _destroyEditor() {
-		await this.editorDestructionInProgress;
-
-		this.editorDestructionInProgress = await new Promise( resolve => {
+		this.editorDestructionInProgress = new Promise( resolve => {
 			// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
 			/* istanbul ignore next */
-			if ( this.editor ) {
-				this.watchdog.destroy();
+			if ( this.watchdog ) {
+				this.watchdog.destroy().then( () => {
+					this.watchdog = null;
+
+					resolve();
+				} );
+			} else {
+				resolve();
 			}
-
-			this.watchdog = null;
-
-			resolve();
 		} );
 	}
 
