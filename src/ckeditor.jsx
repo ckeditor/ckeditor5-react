@@ -19,7 +19,7 @@ export default class CKEditor extends React.Component {
 		super( props );
 
 		/**
-		 * While cleanup from destroying an editor is in progress, contains a promise that resolves when cleanup is complete.
+		 * While cleanup from destroying an editor is in progress, it contains a promise that resolves when cleanup is complete.
 		 * Otherwise it contains null.
 		 *
 		 * @type {Promise|null}
@@ -144,9 +144,7 @@ export default class CKEditor extends React.Component {
 	 * @returns {Promise}
 	 */
 	async _initializeEditor() {
-		if ( this.editorDestructionInProgress ) {
-			await this.editorDestructionInProgress;
-		}
+		await this.editorDestructionInProgress;
 
 		if ( this.context instanceof ContextWatchdog ) {
 			this.watchdog = new EditorWatchdogAdapter( this.context );
@@ -227,29 +225,19 @@ export default class CKEditor extends React.Component {
 	 * @returns {Promise}
 	 */
 	async _destroyEditor() {
-		this.editorDestructionInProgress = new Promise( resolve => {
+		this.editorDestructionInProgress = await new Promise( resolve => {
 			// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
 			/* istanbul ignore next */
-			if ( !this.editor ) {
-				return;
+			if ( this.editor ) {
+				this.watchdog.destroy();
 			}
 
-			const destruction = this.watchdog.destroy();
+			this.watchdog = null;
 
-			if ( destruction instanceof Promise ) {
-				destruction.then( () => {
-					this.watchdog = null;
-					resolve();
-				} );
-			} else {
-				this.watchdog = null;
-				resolve();
-			}
-		} )
-			.then( () => {
-				this.editorDestructionInProgress = null;
-			} )
-			.catch( error => this.props.onError( error, { phase: 'runtime', willEditorRestart: false } ) );
+			resolve();
+		} );
+
+		this.editorDestructionInProgress = null;
 	}
 
 	/**

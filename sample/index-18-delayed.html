@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>CKEditor 5 – React Component – development sample</title>
+	<style>
+		body {
+			max-width: 800px;
+			margin: 20px auto;
+		}
+
+		.button_read-only {
+			margin: 10px 0;
+		}
+
+	</style>
+</head>
+
+<body>
+	<h1>CKEditor 5 – React@18 Component – development sample</h1>
+	<p style="text-align: center;">Component's events are logged to the console. <b>React.StrictMode</b> is enabled.</p>
+	<button id="readOnly" class="button_read-only" disabled>Switch to read-only mode</button>
+	<button id="simulateError" class="button_read-only" disabled>Simulate an error</button>
+	<button id="previousDocumentID" class="button_read-only" disabled>Previous document id</button>
+	<button id="nextDocumentID" class="button_read-only">Next document id</button>
+	<div id="root"></div>
+	<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+	<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+	<script src="https://cdn.ckeditor.com/ckeditor5/34.0.0/classic/ckeditor.js"></script>
+	<script src="../dist/ckeditor.js"></script>
+	<script>
+		// TODO: Move buttons to the App component.
+		const nextDocumentIDButton = document.getElementById( 'nextDocumentID' );
+		const previousDocumentIDButton = document.getElementById( 'previousDocumentID' );
+		const readOnlyButton = document.getElementById( 'readOnly' );
+		const simulateErrorButton = document.getElementById( 'simulateError' );
+
+		const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
+
+		class App extends React.Component {
+			constructor( props ) {
+				super( props );
+
+				this.state = {
+					documents: [ editorContent ],
+					documentID: 0,
+					isLoading: true
+				}
+			}
+
+			render() {
+				// Simulate the delay before loading the editor.
+				setTimeout( () => {
+					this.setState( { isLoading: false } );
+				}, 2000 );
+
+				const placeholderElement = React.createElement( 'i', null, 'LOADING SIMULATION...');
+
+				const editorElement = React.createElement( CKEditor.CKEditor, {
+					editor: ClassicEditor,
+					data: this.state.documents[ this.state.documentID ],
+					id: this.state.documentID,
+					onReady: editor => {
+						window.editor = editor;
+
+						console.log( 'event: onReady' );
+						console.log( 'Editor is ready to use! You can use "editor" variable to play with it.' );
+
+						readOnlyButton.disabled = false;
+						simulateErrorButton.disabled = false;
+						previousDocumentIDButton.disabled = this.state.documentID === 0;
+
+						editor.ui.view.listenTo( simulateErrorButton, 'click', () => {
+							setTimeout( () => {
+								const err = new Error( 'foo' );
+								err.context = editor;
+								err.is = () => true;
+
+								throw err;
+							} );
+						} );
+
+						editor.ui.view.listenTo( nextDocumentIDButton, 'click', () => {
+							this.setState( {
+								documentID: this.state.documentID + 1,
+								documents: this.state.documents.length < this.state.documentID + 1 ?
+									this.state.documents :
+									[ ...this.state.documents, editorContent ]
+							} )
+						} );
+
+						editor.ui.view.listenTo( previousDocumentIDButton, 'click', () => {
+							this.setState( { documentID: Math.max( this.state.documentID - 1, 0 ) } )
+						} );
+
+						editor.ui.view.listenTo( readOnlyButton, 'click', () => {
+							if ( editor.isReadOnly ) {
+								editor.disableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID );
+								readOnlyButton.innerText = 'Switch to read-only mode';
+							} else {
+								editor.enableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID );
+								readOnlyButton.innerText = 'Switch to editable mode';
+							}
+						} );
+					},
+					onChange: ( event, editor ) => {
+						this.updateData();
+
+						console.log( 'event: onChange', { event, editor } );
+					},
+
+					onBlur: ( event, editor ) => {
+						console.log( 'event: onBlur', { event, editor } );
+					},
+					onFocus: ( event, editor ) => {
+						console.log( 'event: onFocus', { event, editor } );
+					}
+				} );
+
+				return React.createElement(
+					React.Fragment,
+					null,
+					this.state.isLoading ?
+						placeholderElement :
+						editorElement
+				);
+			}
+
+			updateData() {
+				this.setState( {
+					documents: this.state.documents.map( ( data, index ) => {
+						if ( index === this.state.documentID ) {
+							return editor.getData();
+						}
+
+						return data;
+					} )
+				} );
+			}
+		}
+
+		const editorContent = `
+<h2>Sample</h2>
+<p>This is an instance of the <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/overview.html#classic-editor">classic editor build</a>.</p>
+<figure class="image">
+	<img src="./sample.jpg" alt="CKEditor 5 Sample image." />
+</figure>
+<p>You can use this sample to validate whether your <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a> works fine.</p>
+`;
+
+		document.addEventListener( 'DOMContentLoaded', () => {
+			ReactDOM
+				.createRoot( document.getElementById( 'root' ) )
+				.render( React.createElement( React.StrictMode, null, React.createElement( App ) ) );
+		} );
+	</script>
+</body>
+
+</html>
