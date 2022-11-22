@@ -19,8 +19,7 @@ export default class CKEditor extends React.Component {
 		super( props );
 
 		/**
-		 * While cleanup from destroying an editor is in progress, it contains a promise that resolves when cleanup is complete.
-		 * Otherwise it contains null.
+		 * Contains a promise that resolves when the editor destruction is finished.
 		 *
 		 * @type {Promise|null}
 		 */
@@ -225,6 +224,8 @@ export default class CKEditor extends React.Component {
 	 * @returns {Promise}
 	 */
 	async _destroyEditor() {
+		await this.editorDestructionInProgress;
+
 		this.editorDestructionInProgress = await new Promise( resolve => {
 			// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
 			/* istanbul ignore next */
@@ -236,8 +237,6 @@ export default class CKEditor extends React.Component {
 
 			resolve();
 		} );
-
-		this.editorDestructionInProgress = null;
 	}
 
 	/**
