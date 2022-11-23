@@ -1,6 +1,15 @@
 Changelog
 =========
 
+## [5.0.3](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.2...v5.0.3) (2022-11-23)
+
+### Bug fixes
+
+* Fixed the component initialization procedure to enforce cleanup completion before subsequent editor initialization. Closes [#321](https://github.com/ckeditor/ckeditor5-react/issues/321), [#338](https://github.com/ckeditor/ckeditor5-react/issues/338). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/fe3a179b8be9d2eb7d69e901d0e4f174c30f3d34))
+
+  Thanks to [@corymharper](https://github.com/corymharper).
+
+
 ## [5.0.2](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.1...v5.0.2) (2022-05-26)
 
 ### Other changes
