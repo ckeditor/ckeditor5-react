@@ -18,6 +18,13 @@ export default class CKEditor extends React.Component {
 	constructor( props ) {
 		super( props );
 
+		/**
+		 * Contains a promise that resolves when the editor destruction is finished.
+		 *
+		 * @type {Promise|null}
+		 */
+		this.editorDestructionInProgress = null;
+
 		// After mounting the editor, the variable will contain a reference to the created editor.
 		// @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
 		this.domContainer = React.createRef();
@@ -136,6 +143,8 @@ export default class CKEditor extends React.Component {
 	 * @returns {Promise}
 	 */
 	async _initializeEditor() {
+		await this.editorDestructionInProgress;
+
 		if ( this.watchdog ) {
 			return;
 		}
@@ -204,7 +213,7 @@ export default class CKEditor extends React.Component {
 				// Ideally this part should be moved to the watchdog item creator listeners.
 				setTimeout( () => {
 					if ( this.props.onReady ) {
-						this.props.onReady( this.editor );
+						this.props.onReady( editor );
 					}
 				} );
 
@@ -219,14 +228,19 @@ export default class CKEditor extends React.Component {
 	 * @returns {Promise}
 	 */
 	async _destroyEditor() {
-		// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
-		/* istanbul ignore next */
-		if ( !this.editor ) {
-			return;
-		}
+		this.editorDestructionInProgress = new Promise( resolve => {
+			// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
+			/* istanbul ignore next */
+			if ( this.watchdog ) {
+				this.watchdog.destroy().then( () => {
+					this.watchdog = null;
 
-		await this.watchdog.destroy();
-		this.watchdog = null;
+					resolve();
+				} );
+			} else {
+				resolve();
+			}
+		} );
 	}
 
 	/**

@@ -289,6 +289,30 @@ describe( '<CKEditorContext> Component', () => {
 			expect( wrapper.instance().contextWatchdog ).to.not.equal( null );
 		} );
 
+		it( 'should not create the component watchdog if layout is not ready', async () => {
+			wrapper = mount(
+				<CKEditorContext context={ ContextMock } id="1" isLayoutReady={ false }>
+					<CKEditor editor={ EditorMock } />
+				</CKEditorContext>
+			);
+
+			const { watchdog: firstWatchdog } = wrapper.childAt( 0 ).instance();
+
+			expect( firstWatchdog ).to.equal( null );
+
+			await new Promise( res => {
+				wrapper.setProps( {
+					onReady: res,
+					isLayoutReady: true
+				} );
+			} );
+
+			const { watchdog: secondWatchdog } = wrapper.childAt( 0 ).instance();
+
+			expect( secondWatchdog ).to.not.equal( null );
+			expect( secondWatchdog._contextWatchdog.state ).to.equal( 'ready' );
+		} );
+
 		it( 'should not re-render the component if layout is not ready after initialization', async () => {
 			const oldContext = await new Promise( res => {
 				wrapper = mount(
