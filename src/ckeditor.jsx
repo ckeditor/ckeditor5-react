@@ -347,11 +347,11 @@ class EditorWatchdogAdapter {
 		} );
 	}
 
-	/**
-	 * Removes the editor from registered editors and destroys it.
-	 */
 	destroy() {
-		this._contextWatchdog.remove( this._id );
+		// Destroying an editor instance is handled in the `ContextWatchdog` class.
+		// As `EditorWatchdogAdapter` is an adapter, we should not destroy the editor manually.
+		// Otherwise, it causes that the editor is destroyed twice.
+		return Promise.resolve();
 	}
 
 	/**
