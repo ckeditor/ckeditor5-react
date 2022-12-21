@@ -40,7 +40,7 @@ module.exports = function getKarmaConfig() {
 		files: [
 			// If the file below is imported in tests directly, it leads to an error related to CKEDITOR_VERSION collision.
 			// It may be related to presets that are required for *.jsx files.
-			require.resolve( '@ckeditor/ckeditor5-build-classic' ),
+			path.resolve( __dirname, '..', '..', 'tests', '_utils', '_buildclassicdll.js' ),
 			'tests/**/*.js',
 			'tests/**/*.jsx'
 		],
