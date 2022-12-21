@@ -83,7 +83,13 @@ describe( 'issue #349: crash when destroying an editor with the context', () => 
 	// Watchdog and Context features are asynchronous. They reject a promise instead of throwing an error.
 	// React does not handle async errors. Hence, we add a custom error handler for unhandled rejections.
 	it( 'should not crash when destroying an editor with the context feature', async () => {
-		const errorHandler = sinon.stub();
+		// Create a stub to describe exact assertions.
+		const handlerStub = sinon.stub();
+
+		// Save a callback to a variable to remove the listener at the end.
+		const errorHandler = evt => {
+			return handlerStub( evt.reason.message );
+		};
 
 		window.addEventListener( 'unhandledrejection', errorHandler );
 
@@ -92,8 +98,10 @@ describe( 'issue #349: crash when destroying an editor with the context', () => 
 		// Does not work with `0`.
 		await wait( 1 );
 
-		expect( errorHandler.callCount ).to.equal( 0 );
 		window.removeEventListener( 'unhandledrejection', errorHandler );
+
+		sinon.assert.neverCalledWith( handlerStub, 'Cannot read properties of undefined (reading \'then\')' );
+		sinon.assert.neverCalledWith( handlerStub, 'Cannot read properties of null (reading \'model\')' );
 	} );
 } );
 
