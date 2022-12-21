@@ -17,7 +17,6 @@
     "ckeditor 5"
   ],
   "dependencies": {
-    "@ckeditor/ckeditor5-dev-ci": "^32.0.1",
     "prop-types": "^15.7.2"
   },
   "devDependencies": {
@@ -25,6 +24,7 @@
     "@babel/preset-react": "^7.10.4",
     "@ckeditor/ckeditor5-build-classic": "^34.1.0",
     "@ckeditor/ckeditor5-dev-bump-year": "^32.0.1",
+    "@ckeditor/ckeditor5-dev-ci": "^32.0.1",
     "@ckeditor/ckeditor5-dev-release-tools": "^32.0.1",
     "@ckeditor/ckeditor5-dev-utils": "^32.0.1",
     "@ckeditor/ckeditor5-utils": "^34.1.0",
