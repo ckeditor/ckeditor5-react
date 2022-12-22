@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## [5.0.4](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.3...v5.0.4) (2022-12-22)
+
+### Bug fixes
+
+* The `<CKEditor>` component does not emit an error when destroying the context feature. Closes [#349](https://github.com/ckeditor/ckeditor5-react/issues/349), [#339](https://github.com/ckeditor/ckeditor5-react/issues/339). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/70e0d6514a25d887e8727517c033ddbb45dd4dcb))
+
+
 ## [5.0.3](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.2...v5.0.3) (2022-11-23)
 
 ### Bug fixes
