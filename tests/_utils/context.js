@@ -17,10 +17,6 @@ export default class ContextMock {
 		return Promise.resolve( new ContextMock( config ) );
 	}
 
-	static destroy() {
-		return Promise.resolve();
-	}
-
 	destroy() {
 		return Promise.resolve();
 	}
