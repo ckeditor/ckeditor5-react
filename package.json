@@ -104,7 +104,8 @@
   },
   "homepage": "https://github.com/ckeditor/ckeditor5-react",
   "files": [
-    "dist"
+    "dist",
+    "scripts/postinstall.js"
   ],
   "lint-staged": {
     "**/*.js": [
