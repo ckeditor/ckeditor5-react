@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## [5.0.5](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.4...v5.0.5) (2022-12-22)
+
+### Bug fixes
+
+* Addes a missing postinstall script to published files. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/d0a21f200bc746ee4396308706010e911d059313))
+
+
 ## [5.0.4](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.3...v5.0.4) (2022-12-22)
 
 ### Bug fixes
