@@ -366,7 +366,7 @@ class EditorWatchdogAdapter {
 		//
 		// See #354 for more information.
 		if ( this._contextWatchdog.state === 'ready' ) {
-			this._contextWatchdog.remove( this._id );
+			return this._contextWatchdog.remove( this._id );
 		}
 
 		return Promise.resolve();
