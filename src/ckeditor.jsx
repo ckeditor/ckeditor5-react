@@ -230,16 +230,23 @@ export default class CKEditor extends React.Component {
 	async _destroyEditor() {
 		this.editorDestructionInProgress = new Promise( resolve => {
 			// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
+			//
+			// Additionally, we need to find a way to detect if the whole context has been destroyed. As `componentWillUnmount()`
+			// could be fired by <CKEditorContext /> and <CKEditor /> at the same time, this `setTimeout()` makes sure
+			// that <CKEditorContext /> component will be destroyed first, so during the code execution
+			// the `ContextWatchdog#state` would have a correct value. See `EditorWatchdogAdapter#destroy()` for more information.
 			/* istanbul ignore next */
-			if ( this.watchdog ) {
-				this.watchdog.destroy().then( () => {
-					this.watchdog = null;
+			setTimeout( () => {
+				if ( this.watchdog ) {
+					this.watchdog.destroy().then( () => {
+						this.watchdog = null;
 
+						resolve();
+					} );
+				} else {
 					resolve();
-				} );
-			} else {
-				resolve();
-			}
+				}
+			} );
 		} );
 	}
 
@@ -348,9 +355,20 @@ class EditorWatchdogAdapter {
 	}
 
 	destroy() {
-		// Destroying an editor instance is handled in the `ContextWatchdog` class.
+		// Destroying an editor instance after destroying the Context is handled in the `ContextWatchdog` class.
 		// As `EditorWatchdogAdapter` is an adapter, we should not destroy the editor manually.
-		// Otherwise, it causes that the editor is destroyed twice.
+		// Otherwise, it causes that the editor is destroyed twice. However, there is a case, when the editor
+		// needs to be removed from the context, without destroying the context itself. We may assume the following
+		// relations with `ContextWatchdog#state`:
+		//
+		// a) `ContextWatchdog#state` === 'ready' - context is not destroyed; it's safe to destroy the editor manually.
+		// b) `ContextWatchdog#state` === 'destroyed' - context is destroyed; let `ContextWatchdog` handle the whole process.
+		//
+		// See #354 for more information.
+		if ( this._contextWatchdog.state === 'ready' ) {
+			this._contextWatchdog.remove( this._id );
+		}
+
 		return Promise.resolve();
 	}
 
