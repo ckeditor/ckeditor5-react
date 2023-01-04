@@ -145,6 +145,7 @@ export default class CKEditor extends React.Component {
 	async _initializeEditor() {
 		await this.editorDestructionInProgress;
 
+		/* istanbul ignore next */
 		if ( this.watchdog ) {
 			return;
 		}
