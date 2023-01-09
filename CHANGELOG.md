@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## [5.0.6](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.5...v5.0.6) (2023-01-09)
+
+### Bug fixes
+
+* Fixed destroy process of a single editor instance working within Context. Closes [#354](https://github.com/ckeditor/ckeditor5-react/issues/354). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/446a76be2821046d619e7171bfb5555db2dbecf8))
+
+
 ## [5.0.5](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.4...v5.0.5) (2022-12-22)
 
 ### Bug fixes
