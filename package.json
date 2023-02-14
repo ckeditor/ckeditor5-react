@@ -47,7 +47,7 @@
     "babel-loader": "^8.1.0",
     "babel-plugin-istanbul": "^6.1.0",
     "chai": "^4.2.0",
-    "ckeditor5": "^35.4.0",
+    "ckeditor5": "^36.0.0",
     "coveralls": "^3.1.1",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
