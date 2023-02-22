@@ -39,6 +39,20 @@ describe( '<CKEditorContext> Component', () => {
 			expect( component.contextWatchdog ).to.be.instanceOf( ContextWatchdog );
 		} );
 
+		it( 'should pass the watchdog config to the ContextWatchdog', async () => {
+			const myWatchdogConfig = { crashNumberLimit: 678 };
+
+			await new Promise( res => {
+				wrapper = mount( <CKEditorContext context={ ContextMock } onReady={ res } watchdogConfig={ myWatchdogConfig }/> );
+			} );
+
+			const component = wrapper.instance();
+
+			expect( component.contextWatchdog ).to.be.an( 'object' );
+			expect( component.contextWatchdog ).to.be.instanceOf( ContextWatchdog );
+			expect( component.contextWatchdog._crashNumberLimit ).to.equal( 678 );
+		} );
+
 		it( 'should not create anything if the layout is not ready', async () => {
 			wrapper = mount( <CKEditorContext context={ ContextMock } isLayoutReady={ false }/> );
 

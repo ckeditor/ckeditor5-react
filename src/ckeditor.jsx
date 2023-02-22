@@ -153,7 +153,7 @@ export default class CKEditor extends React.Component {
 		if ( this.context instanceof ContextWatchdog ) {
 			this.watchdog = new EditorWatchdogAdapter( this.context );
 		} else {
-			this.watchdog = new CKEditor._EditorWatchdog( this.props.editor );
+			this.watchdog = new CKEditor._EditorWatchdog( this.props.editor, this.props.watchdogConfig );
 		}
 
 		this.watchdog.setCreator( ( el, config ) => this._createEditor( el, config ) );
@@ -302,7 +302,7 @@ export default class CKEditor extends React.Component {
  */
 class EditorWatchdogAdapter {
 	/**
-	 * @param {ContextWatchdog} contextWatchdog The context watchdog instance that will be wrapped into wditor watchdog API.
+	 * @param {ContextWatchdog} contextWatchdog The context watchdog instance that will be wrapped into editor watchdog API.
 	 */
 	constructor( contextWatchdog ) {
 		this._contextWatchdog = contextWatchdog;

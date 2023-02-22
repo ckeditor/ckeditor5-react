@@ -55,7 +55,7 @@ export default class CKEditorContext extends React.Component {
 	}
 
 	async _initializeContextWatchdog( config ) {
-		this.contextWatchdog = new ContextWatchdog( this.props.context );
+		this.contextWatchdog = new ContextWatchdog( this.props.context, this.props.watchdogConfig );
 
 		this.contextWatchdog.on( 'error', ( _, errorEvent ) => {
 			this.props.onError( errorEvent.error, {
