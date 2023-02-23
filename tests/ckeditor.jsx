@@ -252,6 +252,30 @@ describe( '<CKEditor> Component', () => {
 
 			CKEditor._EditorWatchdog = EditorWatchdog;
 		} );
+
+		it( 'passes the watchdog config to the watchdog feature', async () => {
+			const EditorWatchdog = CKEditor._EditorWatchdog;
+			const constructorSpy = sinon.spy();
+			const myWatchdogConfig = { crashNumberLimit: 678 };
+
+			class CustomEditorWatchdog extends EditorWatchdog {
+				constructor( ...args ) {
+					super( ...args );
+					constructorSpy( ...args );
+				}
+			}
+
+			CKEditor._EditorWatchdog = CustomEditorWatchdog;
+
+			await new Promise( res => {
+				wrapper = mount( <CKEditor editor={ Editor } onReady={ res } watchdogConfig={ myWatchdogConfig }/> );
+			} );
+
+			expect( constructorSpy.called ).to.equal( true );
+			expect( constructorSpy.firstCall.args[ 1 ] ).to.deep.equal( myWatchdogConfig );
+
+			CKEditor._EditorWatchdog = EditorWatchdog;
+		} );
 	} );
 
 	describe( 'properties', () => {

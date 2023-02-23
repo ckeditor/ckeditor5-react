@@ -49,6 +49,9 @@
 				return React.createElement( CKEditor.CKEditor, {
 					editor: ClassicEditor,
 					data: this.state.documents[ this.state.documentID ],
+					watchdogConfig: {
+						crashNumberLimit: 10
+					},
 					id: this.state.documentID,
 					onReady: editor => {
 						window.editor = editor;
