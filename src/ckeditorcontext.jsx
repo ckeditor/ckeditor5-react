@@ -97,6 +97,7 @@ CKEditorContext.propTypes = {
 	id: PropTypes.string,
 	isLayoutReady: PropTypes.bool,
 	context: PropTypes.func,
+	watchdogConfig: PropTypes.object,
 	config: PropTypes.object,
 	onReady: PropTypes.func,
 	onError: PropTypes.func

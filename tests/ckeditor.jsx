@@ -272,7 +272,7 @@ describe( '<CKEditor> Component', () => {
 			} );
 
 			expect( constructorSpy.called ).to.equal( true );
-			expect( constructorSpy.firstCall.args[ 1 ] ).to.equal( myWatchdogConfig );
+			expect( constructorSpy.firstCall.args[ 1 ] ).to.deep.equal( myWatchdogConfig );
 
 			CKEditor._EditorWatchdog = EditorWatchdog;
 		} );

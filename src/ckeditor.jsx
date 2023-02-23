@@ -388,6 +388,7 @@ CKEditor.propTypes = {
 	editor: PropTypes.func.isRequired,
 	data: PropTypes.string,
 	config: PropTypes.object,
+	watchdogConfig: PropTypes.object,
 	onChange: PropTypes.func,
 	onReady: PropTypes.func,
 	onFocus: PropTypes.func,
