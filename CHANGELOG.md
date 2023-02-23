@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## [5.1.0](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.6...v5.1.0) (2023-02-23)
+
+### Features
+
+* Added the `watchdogConfig` property that allows defining configuration for the [Watchdog](https://ckeditor.com/docs/ckeditor5/latest/features/watchdog.html) feature. Closes [#360](https://github.com/ckeditor/ckeditor5-react/issues/360). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/beea3969f5724ccf2cd144744be9a36c2e3b9d91))
+
+
 ## [5.0.6](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.5...v5.0.6) (2023-01-09)
 
 ### Bug fixes
