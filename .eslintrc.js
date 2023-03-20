@@ -13,7 +13,6 @@ module.exports = {
 		'node': true,
 		'mocha': true
 	},
-	'parser': 'babel-eslint',
 	'extends': [
 		'eslint:recommended',
 		'ckeditor5',
@@ -45,7 +44,9 @@ module.exports = {
 		{
 			'files': [
 				'**/*.js',
-				'**/*.jsx'
+				'**/*.jsx',
+				'**/*.ts',
+				'**/*.tsx'
 			],
 			'rules': {
 				'ckeditor5-rules/ckeditor-error-message': 'off'
@@ -54,7 +55,9 @@ module.exports = {
 		{
 			'files': [
 				'tests/**/*.js',
-				'tests/**/*.jsx'
+				'tests/**/*.jsx',
+				'tests/**/*.ts',
+				'tests/**/*.tsx'
 			],
 			'rules': {
 				'no-unused-expressions': 'off'

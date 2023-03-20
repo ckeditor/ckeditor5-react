@@ -6,8 +6,8 @@
 import React from 'react';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import CKEditorContext from '../src/ckeditorcontext.jsx';
-import CKEditor from '../src/ckeditor.jsx';
+import CKEditorContext from '../src/ckeditorcontext.tsx';
+import CKEditor from '../src/ckeditor.tsx';
 import EditorMock from './_utils/editor.js';
 import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';

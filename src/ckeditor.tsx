@@ -7,10 +7,9 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
-import uid from '@ckeditor/ckeditor5-utils/src/uid';
-import { ContextWatchdogContext } from './ckeditorcontext.jsx';
-import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
+import { uid } from '@ckeditor/ckeditor5-utils';
+import { ContextWatchdogContext } from './ckeditorcontext';
+import { EditorWatchdog, ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 

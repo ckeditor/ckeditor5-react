@@ -8,8 +8,8 @@
 import React from 'react';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import CKEditor from '../../src/ckeditor.jsx';
-import CKEditorContext from '../../src/ckeditorcontext.jsx';
+import CKEditor from '../../src/ckeditor.tsx';
+import CKEditorContext from '../../src/ckeditorcontext.tsx';
 
 const { Context } = window.CKEditor5.core;
 

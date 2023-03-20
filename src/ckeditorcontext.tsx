@@ -4,23 +4,25 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
-import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
+import PropTypes, { InferProps } from 'prop-types';
+import { ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
 
 export const ContextWatchdogContext = React.createContext( 'contextWatchdog' );
 
-export default class CKEditorContext extends React.Component {
-	constructor( props, context ) {
-		super( props, context );
+type Props = InferProps<typeof CKEditorContext.propTypes>;
 
-		this.contextWatchdog = null;
+export default class CKEditorContext extends React.Component<Props, {}> {
+	public contextWatchdog: ContextWatchdog | null = null;
+
+	constructor( props: Props, context ) {
+		super( props, context );
 
 		if ( this.props.isLayoutReady ) {
 			this._initializeContextWatchdog( this.props.config );
 		}
 	}
 
-	async shouldComponentUpdate( nextProps ) {
+	public override async shouldComponentUpdate( nextProps: Readonly<Props> ): boolean {
 		// If the configuration changes then the ContextWatchdog needs to be destroyed and recreated
 		// On top of the new configuration.
 		if ( nextProps.id !== this.props.id ) {
@@ -44,7 +46,7 @@ export default class CKEditorContext extends React.Component {
 
 	render() {
 		return (
-			<ContextWatchdogContext.Provider value={ this.contextWatchdog } >
+			<ContextWatchdogContext.Provider value={ this.contextWatchdog }>
 				{ this.props.children }
 			</ContextWatchdogContext.Provider>
 		);
@@ -85,21 +87,19 @@ export default class CKEditorContext extends React.Component {
 			this.contextWatchdog = null;
 		}
 	}
+
+	public static defaultProps = {
+		isLayoutReady: true,
+		onError: ( error, details ) => console.error( error, details )
+	};
+
+	public static propTypes = {
+		id: PropTypes.string,
+		isLayoutReady: PropTypes.bool,
+		context: PropTypes.func,
+		watchdogConfig: PropTypes.object,
+		config: PropTypes.object,
+		onReady: PropTypes.func,
+		onError: PropTypes.func
+	};
 }
-
-CKEditorContext.defaultProps = {
-	isLayoutReady: true,
-	onError: ( error, details ) => console.error( error, details )
-};
-
-// Properties definition.
-CKEditorContext.propTypes = {
-	id: PropTypes.string,
-	isLayoutReady: PropTypes.bool,
-	context: PropTypes.func,
-	watchdogConfig: PropTypes.object,
-	config: PropTypes.object,
-	onReady: PropTypes.func,
-	onError: PropTypes.func
-};
-
