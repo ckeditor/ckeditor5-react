@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "lib": [
+      "ES2019",
       "DOM",
       "DOM.Iterable"
     ],
@@ -14,7 +15,10 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "jsx": "react"
+    "jsx": "react",
+    "declaration": true,
+    "declarationDir": "./dist",
+    "esModuleInterop": true
   },
   "include": [
     "src"

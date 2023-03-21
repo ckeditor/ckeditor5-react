@@ -3,18 +3,20 @@
  * For licensing, see LICENSE.md.
  */
 
-import React from 'react';
-import PropTypes, { InferProps } from 'prop-types';
+import React, { ReactNode } from 'react';
+import PropTypes, { InferProps, Validator } from 'prop-types';
+
 import { ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
+import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 
-export const ContextWatchdogContext = React.createContext( 'contextWatchdog' );
+import type { Context, ContextConfig } from '@ckeditor/ckeditor5-core';
 
-type Props = InferProps<typeof CKEditorContext.propTypes>;
+export const ContextWatchdogContext = React.createContext( 'contextWatchdog' as unknown as ContextWatchdog | null );
 
-export default class CKEditorContext extends React.Component<Props, {}> {
-	public contextWatchdog: ContextWatchdog | null = null;
+export default class CKEditorContext<TContext extends Context = Context> extends React.Component<Props<TContext>, {}> {
+	public contextWatchdog: ContextWatchdog<TContext> | null = null;
 
-	constructor( props: Props, context ) {
+	constructor( props: Props<TContext>, context: any ) {
 		super( props, context );
 
 		if ( this.props.isLayoutReady ) {
@@ -22,7 +24,14 @@ export default class CKEditorContext extends React.Component<Props, {}> {
 		}
 	}
 
-	public override async shouldComponentUpdate( nextProps: Readonly<Props> ): boolean {
+	public override shouldComponentUpdate( nextProps: Readonly<Props<TContext> & { children?: ReactNode | undefined }> ): boolean {
+		return this._shouldComponentUpdate( nextProps ) as unknown as boolean;
+	}
+
+	/**
+	 * Wrapper for the async handler. Note that this is an implementation bug, see https://github.com/ckeditor/ckeditor5-react/issues/312.
+	 */
+	private async _shouldComponentUpdate( nextProps: Readonly<Props<TContext> & { children?: ReactNode | undefined }> ): Promise<boolean> {
 		// If the configuration changes then the ContextWatchdog needs to be destroyed and recreated
 		// On top of the new configuration.
 		if ( nextProps.id !== this.props.id ) {
@@ -44,7 +53,7 @@ export default class CKEditorContext extends React.Component<Props, {}> {
 		return this.props.children !== nextProps.children;
 	}
 
-	render() {
+	public override render(): JSX.Element {
 		return (
 			<ContextWatchdogContext.Provider value={ this.contextWatchdog }>
 				{ this.props.children }
@@ -52,12 +61,12 @@ export default class CKEditorContext extends React.Component<Props, {}> {
 		);
 	}
 
-	async componentWillUnmount() {
-		await this._destroyContext();
+	public override componentWillUnmount(): void {
+		this._destroyContext();
 	}
 
-	async _initializeContextWatchdog( config ) {
-		this.contextWatchdog = new ContextWatchdog( this.props.context, this.props.watchdogConfig );
+	private async _initializeContextWatchdog( config?: ContextConfig ): Promise<void> {
+		this.contextWatchdog = new ContextWatchdog( this.props.context!, this.props.watchdogConfig );
 
 		this.contextWatchdog.on( 'error', ( _, errorEvent ) => {
 			this.props.onError( errorEvent.error, {
@@ -67,8 +76,8 @@ export default class CKEditorContext extends React.Component<Props, {}> {
 		} );
 
 		this.contextWatchdog.on( 'stateChange', () => {
-			if ( this.contextWatchdog.state === 'ready' && this.props.onReady ) {
-				this.props.onReady( this.contextWatchdog.context );
+			if ( this.contextWatchdog!.state === 'ready' && this.props.onReady ) {
+				this.props.onReady( this.contextWatchdog!.context );
 			}
 		} );
 
@@ -81,14 +90,14 @@ export default class CKEditorContext extends React.Component<Props, {}> {
 			} );
 	}
 
-	async _destroyContext() {
+	private async _destroyContext(): Promise<void> {
 		if ( this.contextWatchdog ) {
 			await this.contextWatchdog.destroy();
 			this.contextWatchdog = null;
 		}
 	}
 
-	public static defaultProps = {
+	public static defaultProps: Partial<Props<Context>> = {
 		isLayoutReady: true,
 		onError: ( error, details ) => console.error( error, details )
 	};
@@ -96,10 +105,23 @@ export default class CKEditorContext extends React.Component<Props, {}> {
 	public static propTypes = {
 		id: PropTypes.string,
 		isLayoutReady: PropTypes.bool,
-		context: PropTypes.func,
-		watchdogConfig: PropTypes.object,
-		config: PropTypes.object,
+		context: PropTypes.shape( {
+			create: PropTypes.func.isRequired
+		} ),
+		watchdogConfig: PropTypes.object as Validator<WatchdogConfig | undefined>,
+		config: PropTypes.object as Validator<ContextConfig | undefined>,
 		onReady: PropTypes.func,
 		onError: PropTypes.func
 	};
+}
+
+interface Props<TContext extends Context> extends InferProps<typeof CKEditorContext.propTypes> {
+	context?: { create( ...args: any ): Promise<TContext> }
+	// onReady?: (editor: TEditor ) => void;
+	onError: ( error: Error, details: ErrorDetails ) => void;
+}
+
+interface ErrorDetails {
+	phase: 'initialization' | 'runtime';
+	willContextRestart: boolean;
 }
