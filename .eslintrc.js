@@ -62,6 +62,15 @@ module.exports = {
 			'rules': {
 				'no-unused-expressions': 'off'
 			}
+		},
+		{
+			'files': [
+				'demo/**/*.ts',
+				'demo/**/*.tsx'
+			],
+			'rules': {
+				'ckeditor5-rules/license-header': 'off'
+			}
 		}
 	]
 };

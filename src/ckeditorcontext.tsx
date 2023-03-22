@@ -53,7 +53,7 @@ export default class CKEditorContext<TContext extends Context = Context> extends
 		return this.props.children !== nextProps.children;
 	}
 
-	public override render(): JSX.Element {
+	public override render(): ReactNode {
 		return (
 			<ContextWatchdogContext.Provider value={ this.contextWatchdog }>
 				{ this.props.children }
@@ -105,7 +105,7 @@ export default class CKEditorContext<TContext extends Context = Context> extends
 	public static propTypes = {
 		id: PropTypes.string,
 		isLayoutReady: PropTypes.bool,
-		context: PropTypes.func,
+		context: PropTypes.func as unknown as Validator<{ create( ...args: any ): Promise<any> } | undefined>,
 		watchdogConfig: PropTypes.object,
 		config: PropTypes.object,
 		onReady: PropTypes.func,
@@ -114,10 +114,7 @@ export default class CKEditorContext<TContext extends Context = Context> extends
 }
 
 interface Props<TContext extends Context> extends InferProps<typeof CKEditorContext.propTypes> {
-	context?: {
-		( ...args: any ): TContext; // To satisfy run-time PropTypes.func.
-		create( ...args: any ): Promise<TContext>;
-	};
+	context?: { create( ...args: any ): Promise<TContext>; };
 	watchdogConfig?: WatchdogConfig;
 	config?: ContextConfig;
 	onReady?: ( context: Context ) => void; // TODO this should accept TContext (after ContextWatchdog release).
