@@ -277,17 +277,15 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 	// Properties definition.
 	public static propTypes = {
-		editor: PropTypes.shape( {
-			create: PropTypes.func.isRequired
-		} ).isRequired,
+		editor: PropTypes.func.isRequired,
 		data: PropTypes.string,
-		config: PropTypes.object.isRequired as Validator<EditorConfig>,
-		watchdogConfig: PropTypes.object as Validator<WatchdogConfig | undefined>,
+		config: PropTypes.object,
+		watchdogConfig: PropTypes.object,
 		onChange: PropTypes.func,
 		onReady: PropTypes.func,
 		onFocus: PropTypes.func,
 		onBlur: PropTypes.func,
-		onError: PropTypes.func.isRequired,
+		onError: PropTypes.func,
 		disabled: PropTypes.bool,
 		id: PropTypes.string,
 		onInit: ( props: Record<string, any>, propName: string ): Error | void => {
@@ -310,8 +308,16 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	public static _EditorWatchdog = EditorWatchdog;
 }
 
+/**
+ * TODO this is type space definition for props, the CKEditor.propTypes is a run-time props validation that should match.
+ */
 interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propTypes> {
-	editor: { create( ...args: any ): Promise<TEditor> };
+	editor: {
+		( ...args: any ): TEditor; // To satisfy run-time PropTypes.func.
+		create( ...args: any ): Promise<TEditor>
+	};
+	config: EditorConfig;
+	watchdogConfig?: WatchdogConfig;
 	onReady?: (editor: TEditor ) => void;
 	onError: ( error: Error, details: ErrorDetails ) => void;
 	onChange?: ( event: EventInfo, editor: TEditor ) => void;

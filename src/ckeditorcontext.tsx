@@ -11,7 +11,7 @@ import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 
 import type { Context, ContextConfig } from '@ckeditor/ckeditor5-core';
 
-export const ContextWatchdogContext = React.createContext( 'contextWatchdog' as unknown as ContextWatchdog | null );
+export const ContextWatchdogContext = React.createContext<ContextWatchdog | 'contextWatchdog' | null>( 'contextWatchdog' );
 
 export default class CKEditorContext<TContext extends Context = Context> extends React.Component<Props<TContext>, {}> {
 	public contextWatchdog: ContextWatchdog<TContext> | null = null;
@@ -77,7 +77,7 @@ export default class CKEditorContext<TContext extends Context = Context> extends
 
 		this.contextWatchdog.on( 'stateChange', () => {
 			if ( this.contextWatchdog!.state === 'ready' && this.props.onReady ) {
-				this.props.onReady( this.contextWatchdog!.context );
+				this.props.onReady( this.contextWatchdog!.context! );
 			}
 		} );
 
@@ -105,19 +105,22 @@ export default class CKEditorContext<TContext extends Context = Context> extends
 	public static propTypes = {
 		id: PropTypes.string,
 		isLayoutReady: PropTypes.bool,
-		context: PropTypes.shape( {
-			create: PropTypes.func.isRequired
-		} ),
-		watchdogConfig: PropTypes.object as Validator<WatchdogConfig | undefined>,
-		config: PropTypes.object as Validator<ContextConfig | undefined>,
+		context: PropTypes.func,
+		watchdogConfig: PropTypes.object,
+		config: PropTypes.object,
 		onReady: PropTypes.func,
 		onError: PropTypes.func
 	};
 }
 
 interface Props<TContext extends Context> extends InferProps<typeof CKEditorContext.propTypes> {
-	context?: { create( ...args: any ): Promise<TContext> }
-	// onReady?: (editor: TEditor ) => void;
+	context?: {
+		( ...args: any ): TContext; // To satisfy run-time PropTypes.func.
+		create( ...args: any ): Promise<TContext>;
+	};
+	watchdogConfig?: WatchdogConfig;
+	config?: ContextConfig;
+	onReady?: ( context: Context ) => void; // TODO this should accept TContext (after ContextWatchdog release).
 	onError: ( error: Error, details: ErrorDetails ) => void;
 }
 

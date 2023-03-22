@@ -2,7 +2,7 @@
   "name": "@ckeditor/ckeditor5-react",
   "version": "5.1.0",
   "main": "dist/ckeditor.js",
-  "types": "dist/ckeditor.d.ts",
+  "types": "dist/index.d.ts",
   "description": "Official React component for CKEditor 5 – the best browser-based rich text editor.",
   "keywords": [
     "wysiwyg",
