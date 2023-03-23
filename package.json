@@ -120,14 +120,12 @@
     "scripts/postinstall.js"
   ],
   "lint-staged": {
-    "**/*.js": [
-      "eslint --quiet"
-    ],
-    "**/*.jsx": [
+    "**/*.{js,jsx,ts,tsx}": [
       "eslint --quiet"
     ]
   },
   "eslintIgnore": [
+    "**/*.d.ts",
     "dist/**",
     "coverage/**"
   ]

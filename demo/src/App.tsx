@@ -1,26 +1,29 @@
-import React from 'react';
+import React, { type ReactNode } from 'react';
 import EditorDemo from './EditorDemo';
 import ContextDemo from './ContextDemo';
 
 type AppState = {
-	demo: 'editor' | 'context'
+	demo: 'editor' | 'context';
 };
 
 const editorContent = `
 	<h2>Sample</h2>
-	<p>This is an instance of the <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/overview.html#classic-editor">classic editor build</a>.</p>
+	<p>This is an instance of the <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/overview.html#classic-editor">
+	classic editor build</a>.</p>
 	<!--<figure class="image">
 		<img src="./sample.jpg" alt="CKEditor 5 Sample image." />
 	</figure>-->
-	<p>You can use this sample to validate whether your <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a> works fine.</p>
+	<p>You can use this sample to validate whether your 
+	<a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a> works fine.</p>
 `;
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export default class App extends React.Component<{}, AppState> {
-	state: AppState = {
+	public state: AppState = {
 		demo: 'editor'
 	};
 
-	render() {
+	public render(): ReactNode {
 		return (
 			<>
 				<h1>CKEditor 5 – React Component – development sample</h1>
@@ -41,18 +44,17 @@ export default class App extends React.Component<{}, AppState> {
 					</button>
 				</div>
 				{
-					this.state.demo == 'editor'
-						? <EditorDemo content={ editorContent }/>
-						: <ContextDemo content={ editorContent }/>
+					this.state.demo == 'editor' ?
+						<EditorDemo content={ editorContent }/> :
+						<ContextDemo content={ editorContent }/>
 				}
 			</>
 		);
 	}
 
-	showDemo( demo: AppState[ 'demo' ] ) {
+	private showDemo( demo: AppState[ 'demo' ] ) {
 		this.setState( {
 			demo
 		} );
 	}
-
 }

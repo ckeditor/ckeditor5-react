@@ -3,8 +3,8 @@
  * For licensing, see LICENSE.md.
  */
 
-import React, { ReactNode } from 'react';
-import PropTypes, { InferProps, Validator } from 'prop-types';
+import React, { type ReactNode } from 'react';
+import PropTypes, { type InferProps, type Validator } from 'prop-types';
 
 import { ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
@@ -13,6 +13,7 @@ import type { Context, ContextConfig } from '@ckeditor/ckeditor5-core';
 
 export const ContextWatchdogContext = React.createContext<ContextWatchdog | 'contextWatchdog' | null>( 'contextWatchdog' );
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export default class CKEditorContext<TContext extends Context = Context> extends React.Component<Props<TContext>, {}> {
 	public contextWatchdog: ContextWatchdog<TContext> | null = null;
 
@@ -114,7 +115,7 @@ export default class CKEditorContext<TContext extends Context = Context> extends
 }
 
 interface Props<TContext extends Context> extends InferProps<typeof CKEditorContext.propTypes> {
-	context?: { create( ...args: any ): Promise<TContext>; };
+	context?: { create( ...args: any ): Promise<TContext> };
 	watchdogConfig?: WatchdogConfig;
 	config?: ContextConfig;
 	onReady?: ( context: Context ) => void; // TODO this should accept TContext (after ContextWatchdog release).

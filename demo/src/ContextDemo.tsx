@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { type ReactNode } from 'react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import { CKEditorContext } from "@ckeditor/ckeditor5-react";
+import { CKEditor, CKEditorContext } from '@ckeditor/ckeditor5-react';
 
 type ContextDemoProps = {
 	content: string;
@@ -13,16 +12,16 @@ type ContextDemoState = {
 };
 
 export default class ContextDemo extends React.Component<ContextDemoProps, ContextDemoState> {
-	state: ContextDemoState = {
+	public state: ContextDemoState = {
 		editor1: null,
 		editor2: null
 	};
 
-	render() {
+	public render(): ReactNode {
 		return (
 			<>
 				<h2 className="subtitle">Editor Context Demo</h2>
-				<p className="info">Component's events are logged to the console.</p>
+				<p className="info">Component&apos;s events are logged to the console.</p>
 
 				<CKEditorContext context={ ClassicEditor.Context }>
 					<div className="buttons">
@@ -75,7 +74,7 @@ export default class ContextDemo extends React.Component<ContextDemoProps, Conte
 		);
 	}
 
-	simulateError( editor: ClassicEditor ) {
+	private simulateError( editor: ClassicEditor ) {
 		setTimeout( () => {
 			const err: any = new Error( 'foo' );
 

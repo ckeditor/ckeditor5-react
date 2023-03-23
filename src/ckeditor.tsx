@@ -6,7 +6,7 @@
 /* globals window */
 
 import React from 'react';
-import PropTypes, { InferProps, Validator } from 'prop-types';
+import PropTypes, { type InferProps, type Validator } from 'prop-types';
 
 import uid from '@ckeditor/ckeditor5-utils/src/uid';
 
@@ -22,6 +22,7 @@ import { ContextWatchdogContext } from './ckeditorcontext';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export default class CKEditor<TEditor extends Editor> extends React.Component<Props<TEditor>, {}> {
 	/**
 	 * Contains a promise that resolves when the editor destruction is finished.
@@ -289,6 +290,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		onError: PropTypes.func,
 		disabled: PropTypes.bool,
 		id: PropTypes.any,
+		// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
 		onInit: ( props: Record<string, any>, propName: string ): Error | void => {
 			if ( props[ propName ] ) {
 				return new Error(
@@ -316,7 +318,7 @@ interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propT
 	editor: { create( ...args: any ): Promise<TEditor> };
 	config: EditorConfig;
 	watchdogConfig?: WatchdogConfig;
-	onReady?: (editor: TEditor ) => void;
+	onReady?: ( editor: TEditor ) => void;
 	onError: ( error: Error, details: ErrorDetails ) => void;
 	onChange?: ( event: EventInfo, editor: TEditor ) => void;
 	onFocus?: ( event: EventInfo, editor: TEditor ) => void;
@@ -382,7 +384,7 @@ class EditorWatchdogAdapter<TEditor extends Editor> {
 	 * Creates a listener that is attached to context watchdog's item and run when the context watchdog fires.
 	 * Currently works only for the `error` event.
 	 */
-	on( _: string, callback: ( _: null, data: { error: Error, causesRestart?: boolean } ) => void ): void {
+	public on( _: string, callback: ( _: null, data: { error: Error; causesRestart?: boolean } ) => void ): void {
 		// Assume that the event name was error.
 		this._contextWatchdog.on( 'itemError', ( _, { itemId, error } ) => {
 			if ( itemId === this._id ) {

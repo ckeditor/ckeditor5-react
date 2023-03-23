@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { type ReactNode } from 'react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { CKEditor } from "@ckeditor/ckeditor5-react";
+import { CKEditor } from '@ckeditor/ckeditor5-react';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
@@ -15,17 +15,17 @@ type EditorDemoState = {
 };
 
 export default class EditorDemo extends React.Component<EditorDemoProps, EditorDemoState> {
-	state: EditorDemoState = {
+	public state: EditorDemoState = {
 		documents: [ this.props.content ],
 		documentID: 0,
 		editor: null
 	};
 
-	render() {
+	public render(): ReactNode {
 		return (
 			<>
 				<h2 className="subtitle">Editor Demo</h2>
-				<p className="info">Component's events are logged to the console.</p>
+				<p className="info">Component&apos;s events are logged to the console.</p>
 
 				<div className="buttons">
 					<button
@@ -89,7 +89,7 @@ export default class EditorDemo extends React.Component<EditorDemoProps, EditorD
 		);
 	}
 
-	updateData() {
+	private updateData() {
 		this.setState( {
 			documents: this.state.documents.map( ( data, index ) => {
 				if ( index === this.state.documentID ) {
@@ -101,7 +101,7 @@ export default class EditorDemo extends React.Component<EditorDemoProps, EditorD
 		} );
 	}
 
-	toggleReadOnly() {
+	private toggleReadOnly() {
 		const editor = this.state.editor!;
 
 		if ( editor.isReadOnly ) {
@@ -111,7 +111,7 @@ export default class EditorDemo extends React.Component<EditorDemoProps, EditorD
 		}
 	}
 
-	simulateError() {
+	private simulateError() {
 		setTimeout( () => {
 			const err: any = new Error( 'foo' );
 
@@ -122,16 +122,16 @@ export default class EditorDemo extends React.Component<EditorDemoProps, EditorD
 		} );
 	}
 
-	nextDocumentID() {
+	private nextDocumentID() {
 		this.setState( {
 			documentID: this.state.documentID + 1,
 			documents: this.state.documents.length < this.state.documentID + 1 ?
 				this.state.documents :
 				[ ...this.state.documents, this.props.content ]
-		} )
+		} );
 	}
 
-	previousDocumentID(): void {
-		this.setState( { documentID: Math.max( this.state.documentID - 1, 0 ) } )
+	private previousDocumentID(): void {
+		this.setState( { documentID: Math.max( this.state.documentID - 1, 0 ) } );
 	}
 }
