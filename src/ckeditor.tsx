@@ -9,6 +9,7 @@ import React from 'react';
 import PropTypes, { InferProps, Validator } from 'prop-types';
 
 import uid from '@ckeditor/ckeditor5-utils/src/uid';
+
 import type { EventInfo } from '@ckeditor/ckeditor5-utils';
 import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
 import type { DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';

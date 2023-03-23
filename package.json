@@ -79,7 +79,11 @@
     "webpack-cli": "^4.9.2"
   },
   "peerDependencies": {
-    "react": "^16.13.1 || ^17.0.0 || ^18.0.0"
+    "react": "^16.13.1 || ^17.0.0 || ^18.0.0",
+    "@ckeditor/ckeditor5-core": ">=37.0.0-alpha.3",
+    "@ckeditor/ckeditor5-engine": ">=37.0.0-alpha.3",
+    "@ckeditor/ckeditor5-utils": ">=37.0.0-alpha.3",
+    "@ckeditor/ckeditor5-watchdog": ">=37.0.0-alpha.3"
   },
   "resolutions": {
     "@typescript-eslint/eslint-plugin": "~5.43.0"

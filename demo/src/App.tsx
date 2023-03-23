@@ -17,7 +17,7 @@ const editorContent = `
 
 export default class App extends React.Component<{}, AppState> {
 	state: AppState = {
-		demo: 'context'
+		demo: 'editor'
 	};
 
 	render() {

@@ -15,7 +15,7 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "jsx": "react-jsx",
+    "jsx": "react",
     "declaration": true,
     "declarationDir": "./dist",
     "esModuleInterop": true
