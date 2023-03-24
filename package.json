@@ -85,9 +85,6 @@
     "@ckeditor/ckeditor5-utils": ">=37.0.0-alpha.3",
     "@ckeditor/ckeditor5-watchdog": ">=37.0.0-alpha.3"
   },
-  "resolutions": {
-    "@typescript-eslint/eslint-plugin": "~5.43.0"
-  },
   "engines": {
     "node": ">=14.0.0",
     "npm": ">=5.7.1"
