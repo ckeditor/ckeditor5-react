@@ -13,11 +13,11 @@ before_install:
 - export COVERALLS_SERVICE_JOB_ID=$( TRAVIS_JOB_ID )
 - export START_TIME=$( date +%s )
 install:
-- npm install
+- yarn install
 script:
-- npm run lint
-- npm run build
-- npm run coverage
+- yarn run lint
+- yarn run build
+- yarn run coverage
 - if [[ $TRAVIS_TEST_RESULT -eq 0 ]]; then cat coverage/lcov.info | ./node_modules/.bin/coveralls; fi
 after_script:
 - export END_TIME=$( date +%s )
