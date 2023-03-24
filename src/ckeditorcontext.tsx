@@ -120,6 +120,7 @@ interface Props<TContext extends Context> extends InferProps<typeof CKEditorCont
 	config?: ContextConfig;
 	onReady?: ( context: Context ) => void; // TODO this should accept TContext (after ContextWatchdog release).
 	onError: ( error: Error, details: ErrorDetails ) => void;
+	children?: ReactNode;
 }
 
 interface ErrorDetails {

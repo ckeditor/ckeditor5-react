@@ -21,7 +21,7 @@ export default class EditorDemo extends React.Component<EditorDemoProps, EditorD
 		editor: null
 	};
 
-	public render(): ReactNode {
+	public render(): JSX.Element {
 		return (
 			<>
 				<h2 className="subtitle">Editor Demo</h2>

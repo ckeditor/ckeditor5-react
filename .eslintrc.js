@@ -65,8 +65,8 @@ module.exports = {
 		},
 		{
 			'files': [
-				'demo/**/*.ts',
-				'demo/**/*.tsx'
+				'demo*/**/*.ts',
+				'demo*/**/*.tsx'
 			],
 			'rules': {
 				'ckeditor5-rules/license-header': 'off'
