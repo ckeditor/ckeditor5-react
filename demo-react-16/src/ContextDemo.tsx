@@ -17,7 +17,7 @@ export default class ContextDemo extends React.Component<ContextDemoProps, Conte
 		editor2: null
 	};
 
-	public render(): JSX.Element {
+	public render(): ReactNode {
 		return (
 			<>
 				<h2 className="subtitle">Editor Context Demo</h2>

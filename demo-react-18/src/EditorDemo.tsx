@@ -103,6 +103,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				</button>
 			</div>
 
+			{ /* @ts-expect-error: Caused by linking to parent project and conflicting react types */ }
 			<CKEditor
 				editor={ ClassicEditor }
 				id={ state.documentID }
