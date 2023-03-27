@@ -407,10 +407,9 @@
   dependencies:
     ckeditor5 "^37.0.0-alpha.3"
 
-"@ckeditor/ckeditor5-react@file:..":
-  version "5.1.0"
-  dependencies:
-    prop-types "^15.7.2"
+"@ckeditor/ckeditor5-react@link:..":
+  version "0.0.0"
+  uid ""
 
 "@ckeditor/ckeditor5-select-all@^37.0.0-alpha.3":
   version "37.0.0-alpha.3"
