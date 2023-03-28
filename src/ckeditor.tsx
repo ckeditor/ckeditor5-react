@@ -132,8 +132,6 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
 	 */
 	private async _initializeEditor(): Promise<unknown> {
-		const onError = this.props.onError || ( ( error, details ) => console.error( error, details ) );
-
 		await this.editorDestructionInProgress;
 
 		/* istanbul ignore next */
@@ -150,11 +148,16 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		this.watchdog.setCreator( ( el, config ) => this._createEditor( el, config ) );
 
 		this.watchdog.on( 'error', ( _, { error, causesRestart } ) => {
+			const onError = this.props.onError || console.error;
 			onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
 		} );
 
-		await this.watchdog.create( this.domContainer.current!, this._getConfig() )
-			.catch( error => onError( error, { phase: 'initialization', willEditorRestart: false } ) );
+		await this.watchdog
+			.create( this.domContainer.current!, this._getConfig() )
+			.catch( error => {
+				const onError = this.props.onError || console.error;
+				onError( error, { phase: 'initialization', willEditorRestart: false } );
+			} );
 	}
 
 	/**
