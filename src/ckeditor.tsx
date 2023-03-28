@@ -132,6 +132,8 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
 	 */
 	private async _initializeEditor(): Promise<unknown> {
+		const onError = this.props.onError || ( ( error, details ) => console.error( error, details ) );
+
 		await this.editorDestructionInProgress;
 
 		/* istanbul ignore next */
@@ -148,11 +150,11 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		this.watchdog.setCreator( ( el, config ) => this._createEditor( el, config ) );
 
 		this.watchdog.on( 'error', ( _, { error, causesRestart } ) => {
-			this.props.onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
+			onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
 		} );
 
 		await this.watchdog.create( this.domContainer.current!, this._getConfig() )
-			.catch( error => this.props.onError( error, { phase: 'initialization', willEditorRestart: false } ) );
+			.catch( error => onError( error, { phase: 'initialization', willEditorRestart: false } ) );
 	}
 
 	/**
@@ -261,7 +263,9 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Returns the editor configuration.
 	 */
 	private _getConfig(): EditorConfig {
-		if ( this.props.data && this.props.config.initialData ) {
+		const config = this.props.config || {};
+
+		if ( this.props.data && config.initialData ) {
 			console.warn(
 				'Editor data should be provided either using `config.initialData` or `data` properties. ' +
 				'The config property is over the data value and the first one will be used when specified both.'
@@ -270,8 +274,8 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 		// Merge two possible ways of providing data into the `config.initialData` field.
 		return {
-			...this.props.config,
-			initialData: this.props.config.initialData || this.props.data || ''
+			...config,
+			initialData: config.initialData || this.props.data || ''
 		};
 	}
 
@@ -300,12 +304,6 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		}
 	};
 
-	// Default values for non-required properties.
-	public static defaultProps: Partial<Props<Editor>> = {
-		config: {},
-		onError: ( error, details ) => console.error( error, details )
-	};
-
 	// Store the API in the static property to easily overwrite it in tests.
 	// Too bad dependency injection does not work in Webpack + ES 6 (const) + Babel.
 	public static _EditorWatchdog = EditorWatchdog;
@@ -316,10 +314,10 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
  */
 interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propTypes> {
 	editor: { create( ...args: any ): Promise<TEditor> };
-	config: EditorConfig;
+	config?: EditorConfig;
 	watchdogConfig?: WatchdogConfig;
 	onReady?: ( editor: TEditor ) => void;
-	onError: ( error: Error, details: ErrorDetails ) => void;
+	onError?: ( error: Error, details: ErrorDetails ) => void;
 	onChange?: ( event: EventInfo, editor: TEditor ) => void;
 	onFocus?: ( event: EventInfo, editor: TEditor ) => void;
 	onBlur?: ( event: EventInfo, editor: TEditor ) => void;

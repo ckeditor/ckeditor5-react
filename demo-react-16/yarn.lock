@@ -407,9 +407,10 @@
   dependencies:
     ckeditor5 "^37.0.0-alpha.3"
 
-"@ckeditor/ckeditor5-react@link:..":
-  version "0.0.0"
-  uid ""
+"@ckeditor/ckeditor5-react@file:..":
+  version "5.1.0"
+  dependencies:
+    prop-types "^15.7.2"
 
 "@ckeditor/ckeditor5-select-all@^37.0.0-alpha.3":
   version "37.0.0-alpha.3"
@@ -655,9 +656,9 @@
     "@types/react" "^16"
 
 "@types/react@^16", "@types/react@^16.14.35":
-  version "16.14.35"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.14.35.tgz#9d3cf047d85aca8006c4776693124a5be90ee429"
-  integrity sha512-NUEiwmSS1XXtmBcsm1NyRRPYjoZF2YTE89/5QiLt5mlGffYK9FQqOKuOLuXNrjPQV04oQgaZG+Yq02ZfHoFyyg==
+  version "16.14.36"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.14.36.tgz#05d6239d2e61f9e81e9e87596e6f69a99765f199"
+  integrity sha512-tVq2ZJ5ZYoBYdRX4v18Ki4VCMPmy4dXC3eYMmHkApa1+4wgnpd2tQS4Dy7q7qBf9jMXOICnZXEE6ttvYIgNIjg==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -759,9 +760,9 @@ debug@^4.1.0:
     ms "2.1.2"
 
 electron-to-chromium@^1.4.284:
-  version "1.4.340"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.340.tgz#3a6d7414c1fc2dbf84b6f7af3ec24270606c85b8"
-  integrity sha512-zx8hqumOqltKsv/MF50yvdAlPF9S/4PXbyfzJS6ZGhbddGkRegdwImmfSVqCkEziYzrIGZ/TlrzBND4FysfkDg==
+  version "1.4.341"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.341.tgz#ab31e9e57ef7758a14c7a7977a1978d599514470"
+  integrity sha512-R4A8VfUBQY9WmAhuqY5tjHRf5fH2AAf6vqitBOE0y6u2PgHgqHSrhZmu78dIX3fVZtjqlwJNX1i2zwC3VpHtQQ==
 
 esbuild@^0.17.5:
   version "0.17.14"
