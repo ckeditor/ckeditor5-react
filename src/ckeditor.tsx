@@ -27,7 +27,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	/**
 	 * Contains a promise that resolves when the editor destruction is finished.
 	 */
-	private editorDestructionInProgress: Promise<unknown> | null = null;
+	private editorDestructionInProgress: Promise<void> | null = null;
 
 	/**
 	 * After mounting the editor, the variable will contain a reference to the created editor.
@@ -99,24 +99,23 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	/**
 	 * Initialize the editor when the component is mounted.
  	 */
-	public override componentDidMount(): void {
-		this._initializeEditor();
+	public override async componentDidMount(): Promise<void> {
+		await this._initializeEditor();
 	}
 
 	/**
 	 * Re-render the entire component once again. The old editor will be destroyed and the new one will be created.
 	 */
-	public override componentDidUpdate(): void {
-		Promise.resolve()
-			.then( () => this._destroyEditor() )
-			.then( () => this._initializeEditor() );
+	public override async componentDidUpdate(): Promise<void> {
+		await this._destroyEditor();
+		await this._initializeEditor();
 	}
 
 	/**
 	 * Destroy the editor before unmounting the component.
  	 */
-	public override componentWillUnmount(): void {
-		this._destroyEditor();
+	public override async componentWillUnmount(): Promise<void> {
+		await this._destroyEditor();
 	}
 
 	/**
