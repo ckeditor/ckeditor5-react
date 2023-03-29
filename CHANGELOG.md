@@ -1,6 +1,22 @@
 Changelog
 =========
 
+## [6.0.0-alpha.0](https://github.com/ckeditor/ckeditor5-react/compare/v5.1.0...v6.0.0-alpha.0) (2023-03-29)
+
+### BREAKING CHANGES
+
+* Integration now requires Editor version 37 or later.
+* Upgraded the minimal versions of Node.js to `16.0.0` due to the end of LTS.
+
+### Features
+
+* Migrate package to TypeScript. Closes [ckeditor/ckeditor5#13542](https://github.com/ckeditor/ckeditor5/issues/13542). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/4f6c3831a2c948b3fe1484b19d67b9013a3f0595))
+
+### Other changes
+
+* Updated the required version of Node.js to 16. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/8dbce7c9d8398f66b51507016fd73c9777bee856))
+
+
 ## [5.1.0](https://github.com/ckeditor/ckeditor5-react/compare/v5.0.6...v5.1.0) (2023-02-23)
 
 ### Features
