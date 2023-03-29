@@ -20,7 +20,7 @@ export default function App(): JSX.Element {
 	const [ demo, setDemo ] = useState<Demo>( 'editor' );
 
 	return (
-		<>
+		<React.StrictMode>
 			<h1>CKEditor 5 – React Component – development sample</h1>
 
 			<div className="buttons" style={ { textAlign: 'center' } }>
@@ -43,6 +43,6 @@ export default function App(): JSX.Element {
 					<EditorDemo content={editorContent}/> :
 					<ContextDemo content={editorContent}/>
 			}
-		</>
+		</React.StrictMode>
 	);
 }

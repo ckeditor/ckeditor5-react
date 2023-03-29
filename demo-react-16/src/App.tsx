@@ -26,7 +26,7 @@ export default class App extends React.Component<{}, AppState> {
 
 	public render(): ReactNode {
 		return (
-			<>
+			<React.StrictMode>
 				<h1>CKEditor 5 – React Component – development sample</h1>
 
 				<div className="buttons" style={{ textAlign: 'center' }}>
@@ -49,7 +49,7 @@ export default class App extends React.Component<{}, AppState> {
 						<EditorDemo content={ editorContent }/> :
 						<ContextDemo content={ editorContent }/>
 				}
-			</>
+			</React.StrictMode>
 		);
 	}
 
