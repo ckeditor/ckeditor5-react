@@ -357,28 +357,28 @@
     "@ckeditor/ckeditor5-utils" "^37.0.0-alpha.3"
     lodash-es "^4.17.15"
 
-"@ckeditor/ckeditor5-dev-bump-year@^34.0.0":
-  version "34.1.3"
-  resolved "https://registry.npmjs.org/@ckeditor/ckeditor5-dev-bump-year/-/ckeditor5-dev-bump-year-34.1.3.tgz"
-  integrity sha512-nvFXoxVIw43h/jHC+apglMTi5i0oR3aCRQVTU698XVZ7XS+WU2FjKzy4i/hHivCJEn/gGu6FVmPoR3FNwUFhWw==
+"@ckeditor/ckeditor5-dev-bump-year@^35.0.0":
+  version "35.0.6"
+  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-dev-bump-year/-/ckeditor5-dev-bump-year-35.0.6.tgz#cd0bfc84a7f21fe7d6fd595476239817eee5c618"
+  integrity sha512-0kspzpsYIZaiRZuGSrhWe1rlgChlkD+K34n4N1d4n5t3cxHZLhJoispnDnjs2huWq20XNuPgn8zpIRFvUybbZA==
   dependencies:
     chalk "^4.1.0"
     glob "^7.1.6"
 
-"@ckeditor/ckeditor5-dev-ci@^34.0.0":
-  version "34.1.3"
-  resolved "https://registry.npmjs.org/@ckeditor/ckeditor5-dev-ci/-/ckeditor5-dev-ci-34.1.3.tgz"
-  integrity sha512-mist4iDLsAnKl1wipdQGlnCbidnJ43LoudVUJ93i2DPp2k89WI+hrGQWHoWg4jYAfZqo6Jf2We7bZnzEKgAOJQ==
+"@ckeditor/ckeditor5-dev-ci@^35.0.0":
+  version "35.0.6"
+  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-dev-ci/-/ckeditor5-dev-ci-35.0.6.tgz#e50cb7e1079d8da4d80f22070c3843f087aef670"
+  integrity sha512-rbx2E5Jh9cSAnFuy5mVEQzrRu63vaCj4bxaBlWIZu2fz02s+QqIyTTK8t4zCUUYFN78Lsociwp1mTt+TEeULCg==
   dependencies:
     node-fetch "^2.6.7"
-    slack-notify "^0.1.7"
+    slack-notify "^2.0.6"
 
-"@ckeditor/ckeditor5-dev-release-tools@^34.0.0":
-  version "34.1.3"
-  resolved "https://registry.npmjs.org/@ckeditor/ckeditor5-dev-release-tools/-/ckeditor5-dev-release-tools-34.1.3.tgz"
-  integrity sha512-e+CW2WHVI1UzLMWly7uiggClbfB2B/nODjf1neb2Qke6Th8q0uf1By/6jtjjSWHv+VkDOSRNPVgcpNOm8+O+yg==
+"@ckeditor/ckeditor5-dev-release-tools@^35.0.0":
+  version "35.0.6"
+  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-dev-release-tools/-/ckeditor5-dev-release-tools-35.0.6.tgz#3297a8eae6afc54d23ec14895f4b68d0bdbc02a2"
+  integrity sha512-VeiKCHMLB5RpAtxoQ0Ei6xJpF9ipM8E9kGJG2ELkrQlpBzfgH7Fl+9nw5J62hD7ZIhi6k+pvQ5m59kZemDuZjQ==
   dependencies:
-    "@ckeditor/ckeditor5-dev-utils" "^34.1.3"
+    "@ckeditor/ckeditor5-dev-utils" "^35.0.6"
     "@octokit/rest" "^17.9.2"
     chalk "^4.0.0"
     cli-table "^0.3.1"
@@ -388,6 +388,7 @@
     conventional-commits-filter "^2.0.6"
     conventional-commits-parser "^3.1.0"
     diff "^5.0.0"
+    fs-extra "^9.1.0"
     git-raw-commits "^2.0.7"
     glob "^7.1.6"
     inquirer "^7.1.0"
@@ -397,10 +398,10 @@
     parse-github-url "^1.0.2"
     semver "^7.3.2"
 
-"@ckeditor/ckeditor5-dev-translations@^34.1.3":
-  version "34.1.3"
-  resolved "https://registry.npmjs.org/@ckeditor/ckeditor5-dev-translations/-/ckeditor5-dev-translations-34.1.3.tgz"
-  integrity sha512-opSNrbvFAsKYBuRXQk7HQD21x6SquIOly3g2eNDKKd4tkC+mSwaYOwLeRS9lnf07Wst/wF+ANZD8+QUGHrOBQA==
+"@ckeditor/ckeditor5-dev-translations@^35.0.6":
+  version "35.0.6"
+  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-dev-translations/-/ckeditor5-dev-translations-35.0.6.tgz#bd817f0b7bc6910a47516b4ac92df89cee018594"
+  integrity sha512-6SZ2adCEe03GT4r5rmYD7xGHfxI5BOVnXh2ZtwABOqx5xoXAiLfDL5mKfLGwDxJ9Bg+BHpXxXceGNQCh+xjKmA==
   dependencies:
     "@babel/parser" "^7.18.9"
     "@babel/traverse" "^7.18.9"
@@ -409,12 +410,12 @@
     rimraf "^3.0.2"
     webpack-sources "^2.0.1"
 
-"@ckeditor/ckeditor5-dev-utils@^34.0.0", "@ckeditor/ckeditor5-dev-utils@^34.1.3":
-  version "34.1.3"
-  resolved "https://registry.npmjs.org/@ckeditor/ckeditor5-dev-utils/-/ckeditor5-dev-utils-34.1.3.tgz"
-  integrity sha512-V/0FCwrjVUzPAQKavCWG/Gk3ScSSBAV3WZ3bo0OTNxVqlx1nDoaxX2WNXPCE3sPvl/4SY+dV/T98bsz2BJ4z/Q==
+"@ckeditor/ckeditor5-dev-utils@^35.0.0", "@ckeditor/ckeditor5-dev-utils@^35.0.6":
+  version "35.0.6"
+  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-dev-utils/-/ckeditor5-dev-utils-35.0.6.tgz#8bcb5a757f0d7f215afe1410a6d7f6f46e38da2b"
+  integrity sha512-5ZZv1hEDRUTdakie2J83W4opMYUV+7RIiEmxDCvyHTOZ3wz6gmfNbB4pSMToV+4feFr6UNx+HPFLVT1qAFm8aQ==
   dependencies:
-    "@ckeditor/ckeditor5-dev-translations" "^34.1.3"
+    "@ckeditor/ckeditor5-dev-translations" "^35.0.6"
     chalk "^3.0.0"
     cli-cursor "^3.1.0"
     cli-spinners "^2.6.1"
@@ -1546,6 +1547,11 @@ asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz"
   integrity sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==
+
+at-least-node@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/at-least-node/-/at-least-node-1.0.0.tgz#602cd4b46e844ad4effc92a8011a3c46e0238dc2"
+  integrity sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==
 
 available-typed-arrays@^1.0.5:
   version "1.0.5"
@@ -3121,6 +3127,16 @@ fs-extra@^8.1.0:
     jsonfile "^4.0.0"
     universalify "^0.1.0"
 
+fs-extra@^9.1.0:
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-9.1.0.tgz#5954460c764a8da2094ba3554bf839e6b9a7c86d"
+  integrity sha512-hcg3ZmepS30/7BSFqRvoo3DOMQu7IjqxO5nCDt+zM9XWjb33Wg7ziNT+Qvqbuc3+gWpzO02JubVyk2G4Zvo1OQ==
+  dependencies:
+    at-least-node "^1.0.0"
+    graceful-fs "^4.2.0"
+    jsonfile "^6.0.1"
+    universalify "^2.0.0"
+
 fs-minipass@^2.0.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/fs-minipass/-/fs-minipass-2.1.0.tgz"
@@ -3976,6 +3992,15 @@ jsonfile@^4.0.0:
   optionalDependencies:
     graceful-fs "^4.1.6"
 
+jsonfile@^6.0.1:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/jsonfile/-/jsonfile-6.1.0.tgz#bc55b2634793c679ec6403094eb13698a6ec0aae"
+  integrity sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==
+  dependencies:
+    universalify "^2.0.0"
+  optionalDependencies:
+    graceful-fs "^4.1.6"
+
 jsonparse@^1.2.0:
   version "1.3.1"
   resolved "https://registry.npmjs.org/jsonparse/-/jsonparse-1.3.1.tgz"
@@ -4241,7 +4266,7 @@ lodash.uniq@^4.5.0:
   resolved "https://registry.npmjs.org/lodash.uniq/-/lodash.uniq-4.5.0.tgz"
   integrity sha512-xfBaXQd9ryd9dlSDvnvI0lvxfLJlYAZzXomUYzLKtUeOQvOP5piqAWuGtrhWeqaXK9hhoM/iyJc5AV+XfsX3HQ==
 
-lodash@^4.17.10, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.21:
+lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.21:
   version "4.17.21"
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -5486,7 +5511,7 @@ regexpp@^3.1.0:
   resolved "https://registry.npmjs.org/regexpp/-/regexpp-3.2.0.tgz"
   integrity sha512-pq2bWo9mVD43nbts2wGv17XLiNLya+GklZ8kaDLV2Z08gDCsGpnKn9BFMepvWuHCbyVvY7J5o5+BVvoQbmlJLg==
 
-request@^2.51.0, request@^2.88.2:
+request@^2.88.2:
   version "2.88.2"
   resolved "https://registry.npmjs.org/request/-/request-2.88.2.tgz"
   integrity sha512-MsvtOrfG9ZcrOwAW+Qi+F6HbD0CWXEh9ou77uOb7FM2WPhwT7smM833PzanhJLsgXjN89Ir6V2PczXNnMpwKhw==
@@ -5785,13 +5810,10 @@ sinon@^14.0.0:
     nise "^5.1.2"
     supports-color "^7.2.0"
 
-slack-notify@^0.1.7:
-  version "0.1.7"
-  resolved "https://registry.npmjs.org/slack-notify/-/slack-notify-0.1.7.tgz"
-  integrity sha512-eDWa4JTy77xbuOM8fZHqBFcEh+xDlol6gttnFxKFwNS0iNayzQ2G1cgbyHXSmBhk/55vooX15ar6W9DnEhw6yQ==
-  dependencies:
-    lodash "^4.17.10"
-    request "^2.51.0"
+slack-notify@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/slack-notify/-/slack-notify-2.0.6.tgz#03052d6eebfd72e76a76e11feff7fa6bd8224f6c"
+  integrity sha512-9JJGBzdODgcIgtx5unQZX9yHx9ckM5kXkSJHhU//Eh1rj7vhAK6L89ElXU5ftprID2qbcMADPuzyu4XEp/142Q==
 
 slash@^3.0.0:
   version "3.0.0"
@@ -6429,6 +6451,11 @@ universalify@^0.1.0:
   version "0.1.2"
   resolved "https://registry.npmjs.org/universalify/-/universalify-0.1.2.tgz"
   integrity sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg==
+
+universalify@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/universalify/-/universalify-2.0.0.tgz#75a4984efedc4b08975c5aeb73f530d02df25717"
+  integrity sha512-hAZsKq7Yy11Zu1DE0OzWjw7nnLZmJZYTDZZyEFHZdUhV8FkH5MCfoU1XMaxXovpyW5nq5scPqq0ZDP9Zyl04oQ==
 
 unpipe@1.0.0, unpipe@~1.0.0:
   version "1.0.0"
