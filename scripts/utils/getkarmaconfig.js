@@ -18,6 +18,10 @@ module.exports = function getKarmaConfig() {
 	const webpackConfig = {
 		mode: 'development',
 
+		output: {
+			path: path.join( __dirname, '..', '..', '.tmp' )
+		},
+
 		module: {
 			rules: [
 				{
@@ -27,8 +31,21 @@ module.exports = function getKarmaConfig() {
 						compact: false,
 						presets: [ '@babel/preset-react' ]
 					}
+				},
+				{
+					test: /\.([cm]?ts|tsx)$/,
+					loader: 'ts-loader'
 				}
 			]
+		},
+
+		resolve: {
+			extensions: [ '.ts', '.tsx', '.js', '.jsx' ],
+			extensionAlias: {
+				'.ts': [ '.js', '.ts' ],
+				'.cts': [ '.cjs', '.cts' ],
+				'.mts': [ '.mjs', '.mts' ]
+			}
 		}
 	};
 

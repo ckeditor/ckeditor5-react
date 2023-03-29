@@ -10,7 +10,7 @@ import ReactDOM from 'react-dom';
 import { configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
-import CKEditor from '../../src/ckeditor.jsx';
+import CKEditor from '../../src/ckeditor.tsx';
 
 configure( { adapter: new Adapter() } );
 

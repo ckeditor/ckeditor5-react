@@ -9,7 +9,7 @@ import React from 'react';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import Editor from './_utils/editor';
-import CKEditor from '../src/ckeditor.jsx';
+import CKEditor from '../src/ckeditor.tsx';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
 
@@ -21,7 +21,7 @@ describe( '<CKEditor> Component', () => {
 	beforeEach( () => {
 		CKEDITOR_VERSION = window.CKEDITOR_VERSION;
 
-		window.CKEDITOR_VERSION = '34.0.0';
+		window.CKEDITOR_VERSION = '37.0.0';
 		sinon.stub( Editor._model.document, 'on' );
 		sinon.stub( Editor._editing.view.document, 'on' );
 	} );
@@ -50,14 +50,14 @@ describe( '<CKEditor> Component', () => {
 			wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onReady={ onReady }/> );
 		} );
 
-		it( 'should print a warning if using CKEditor 5 in version lower than 34', done => {
-			window.CKEDITOR_VERSION = '30.0.0';
+		it( 'should print a warning if using CKEditor 5 in version lower than 37', done => {
+			window.CKEDITOR_VERSION = '36.0.0';
 			const warnStub = sinon.stub( console, 'warn' );
 
 			const onReady = () => {
 				expect( warnStub.callCount ).to.equal( 1 );
 				expect( warnStub.firstCall.args[ 0 ] ).to.equal(
-					'The <CKEditor> component requires using CKEditor 5 in version 34 or higher.'
+					'The <CKEditor> component requires using CKEditor 5 in version 37 or higher.'
 				);
 				done();
 			};
@@ -65,8 +65,8 @@ describe( '<CKEditor> Component', () => {
 			wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onReady={ onReady }/> );
 		} );
 
-		it( 'should not print any warninig if using CKEditor 5 in version 34 or higher', done => {
-			window.CKEDITOR_VERSION = '34.1.0';
+		it( 'should not print any warninig if using CKEditor 5 in version 37 or higher', done => {
+			window.CKEDITOR_VERSION = '37.0.0';
 			const warnStub = sinon.stub( console, 'warn' );
 
 			const onReady = () => {
@@ -639,23 +639,6 @@ describe( '<CKEditor> Component', () => {
 				expect( firstWatchdog ).to.not.equal( secondWatchdog );
 				expect( firstWatchdog.state ).to.equal( 'destroyed' );
 				expect( secondWatchdog.state ).to.equal( 'ready' );
-			} );
-		} );
-
-		describe( '#onInit', () => {
-			it( 'should throw an error when using the unsupported property', async () => {
-				const consoleErrorStub = sinon.stub( console, 'error' );
-				const onInit = sinon.spy();
-
-				wrapper = mount( <CKEditor editor={ Editor } onInit={ onInit }/> );
-
-				consoleErrorStub.restore();
-
-				expect( onInit.called ).to.equal( false );
-				expect( consoleErrorStub.calledOnce ).to.equal( true );
-				expect( consoleErrorStub.firstCall.args[ 0 ] ).to.match(
-					/The "onInit" property is not supported anymore by the CKEditor component\. Use the "onReady" property instead./
-				);
 			} );
 		} );
 	} );
