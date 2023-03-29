@@ -2747,21 +2747,21 @@ escape-string-regexp@^1.0.5:
   resolved "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz"
   integrity sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==
 
-eslint-config-ckeditor5@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.npmjs.org/eslint-config-ckeditor5/-/eslint-config-ckeditor5-4.2.0.tgz"
-  integrity sha512-f0RQtlR594bAJk81ZaTqF1TIRAZ0jgW5ECjdbqs23yRvjLnpzA2rnbGcJec1Htk5aZ7+GD9hOXtttFdZFDS8wg==
+eslint-config-ckeditor5@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-ckeditor5/-/eslint-config-ckeditor5-4.3.0.tgz#b45270733c4e7fed8dff19eec59a5c6236f9d0fa"
+  integrity sha512-K9/k89vnjWbuLU2ahL+IR4KWXdnQ5P34kNmHmTj0hcUlC1hXVT8LeYvnIIL1izy6GtczaF0W6zFiauC+T+jHrw==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^5.26.0"
     "@typescript-eslint/parser" "^5.26.0"
-    eslint-plugin-ckeditor5-rules "^4.2.0"
+    eslint-plugin-ckeditor5-rules "^4.3.0"
     eslint-plugin-mocha "^7.0.0"
     typescript "^4.7.2"
 
-eslint-plugin-ckeditor5-rules@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.npmjs.org/eslint-plugin-ckeditor5-rules/-/eslint-plugin-ckeditor5-rules-4.2.0.tgz"
-  integrity sha512-J0r1EROF1JCxAjqXMY5ghGRWHl262kiaeNpR75OChyesX7jl0PoRJjQ5Dqwc1SRc9jJO0Ux3k+RjI+Xe++/SMQ==
+eslint-plugin-ckeditor5-rules@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-ckeditor5-rules/-/eslint-plugin-ckeditor5-rules-4.3.0.tgz#fc925b746d681cefe2297716bd23b7317f3345de"
+  integrity sha512-CHG08gtvoruUTbm5bpTxBChH7z+CiSuY+4ZnYnJnJCTvixmlAUu6EkBHuyvhahKIMRPIDTfT64cRa4UrRCuxPw==
   dependencies:
     "@es-joy/jsdoccomment" "^0.36.1"
     "@typescript-eslint/parser" "^5.52.0"
