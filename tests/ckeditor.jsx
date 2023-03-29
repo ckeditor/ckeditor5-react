@@ -641,23 +641,6 @@ describe( '<CKEditor> Component', () => {
 				expect( secondWatchdog.state ).to.equal( 'ready' );
 			} );
 		} );
-
-		describe( '#onInit', () => {
-			it( 'should throw an error when using the unsupported property', async () => {
-				const consoleErrorStub = sinon.stub( console, 'error' );
-				const onInit = sinon.spy();
-
-				wrapper = mount( <CKEditor editor={ Editor } onInit={ onInit }/> );
-
-				consoleErrorStub.restore();
-
-				expect( onInit.called ).to.equal( false );
-				expect( consoleErrorStub.calledOnce ).to.equal( true );
-				expect( consoleErrorStub.firstCall.args[ 0 ] ).to.match(
-					/The "onInit" property is not supported anymore by the CKEditor component\. Use the "onReady" property instead./
-				);
-			} );
-		} );
 	} );
 
 	describe( 'destroy', () => {
