@@ -295,15 +295,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		onBlur: PropTypes.func,
 		onError: PropTypes.func,
 		disabled: PropTypes.bool,
-		id: PropTypes.any,
-		// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-		onInit: ( props: Record<string, any>, propName: string ): Error | void => {
-			if ( props[ propName ] ) {
-				return new Error(
-					'The "onInit" property is not supported anymore by the CKEditor component. Use the "onReady" property instead.'
-				);
-			}
-		}
+		id: PropTypes.any
 	};
 
 	// Store the API in the static property to easily overwrite it in tests.
