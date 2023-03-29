@@ -32,7 +32,7 @@ module.exports = {
 		library: 'CKEditor',
 
 		path: path.join( __dirname, 'dist' ),
-		filename: 'ckeditor.js',
+		filename: 'index.js',
 		libraryTarget: 'umd'
 	},
 

@@ -3,7 +3,5 @@
  * For licensing, see LICENSE.md.
  */
 
-import CKEditor from './ckeditor';
-import CKEditorContext from './ckeditorcontext';
-
-export { CKEditor, CKEditorContext };
+export { default as CKEditor } from './ckeditor';
+export { default as CKEditorContext } from './ckeditorcontext';
