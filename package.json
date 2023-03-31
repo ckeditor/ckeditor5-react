@@ -28,10 +28,10 @@
     "@ckeditor/ckeditor5-block-quote": "37.0.0-alpha.3",
     "@ckeditor/ckeditor5-build-classic": "37.0.0-alpha.3",
     "@ckeditor/ckeditor5-cloud-services": "37.0.0-alpha.3",
-    "@ckeditor/ckeditor5-dev-bump-year": "^35.0.0",
-    "@ckeditor/ckeditor5-dev-ci": "^35.0.0",
-    "@ckeditor/ckeditor5-dev-release-tools": "^35.0.0",
-    "@ckeditor/ckeditor5-dev-utils": "^35.0.0",
+    "@ckeditor/ckeditor5-dev-bump-year": "^36.0.0",
+    "@ckeditor/ckeditor5-dev-ci": "^36.0.0",
+    "@ckeditor/ckeditor5-dev-release-tools": "^36.0.0",
+    "@ckeditor/ckeditor5-dev-utils": "^36.0.0",
     "@ckeditor/ckeditor5-editor-classic": "37.0.0-alpha.3",
     "@ckeditor/ckeditor5-essentials": "37.0.0-alpha.3",
     "@ckeditor/ckeditor5-heading": "37.0.0-alpha.3",
@@ -75,7 +75,7 @@
     "terser-webpack-plugin": "^4.2.3",
     "ts-loader": "^9.4.2",
     "typescript": "^4.9.5",
-    "webpack": "^5.71.0",
+    "webpack": "^5.77.0",
     "webpack-cli": "^4.9.2"
   },
   "peerDependencies": {
