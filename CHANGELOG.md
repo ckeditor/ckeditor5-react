@@ -1,6 +1,11 @@
 Changelog
 =========
 
+## [6.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v6.0.0-alpha.0...v6.0.0) (2023-04-07)
+
+Internal changes only (updated dependencies, documentation, etc.).
+
+
 ## [6.0.0-alpha.0](https://github.com/ckeditor/ckeditor5-react/compare/v5.1.0...v6.0.0-alpha.0) (2023-03-29)
 
 ### BREAKING CHANGES
