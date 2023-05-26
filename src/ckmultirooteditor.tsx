@@ -146,7 +146,7 @@ export default class CKMultiRootEditor<TEditor extends Editor> extends React.Com
 			this.watchdog = new CKMultiRootEditor._EditorWatchdog( this.props.editor, this.props.watchdogConfig );
 		}
 
-		this.watchdog.setCreator( ( el, config ) => this._createEditor( el as any, config ) );
+		this.watchdog.setCreator( ( el, config ) => this._createEditor( el, config ) );
 
 		this.watchdog.on( 'error', ( _, { error, causesRestart } ) => {
 			const onError = this.props.onError || console.error;
@@ -167,7 +167,10 @@ export default class CKMultiRootEditor<TEditor extends Editor> extends React.Com
 	 * @param element The source element.
 	 * @param config CKEditor 5 editor configuration.
 	 */
-	private _createEditor( element: HTMLElement | string | Record<string, HTMLElement>, config: EditorConfig ): Promise<TEditor> {
+	private _createEditor(
+		element: HTMLElement | string | Record<string, string> | Record<string, HTMLElement>,
+		config: EditorConfig
+	): Promise<TEditor> {
 		return this.props.editor.create( element, config )
 			.then( editor => {
 				if ( 'disabled' in this.props ) {

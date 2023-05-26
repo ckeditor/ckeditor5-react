@@ -1,7 +1,7 @@
 import React, { useState, useRef, type ChangeEvent } from 'react';
 import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 // import { CKMultiRootEditor } from '@ckeditor/ckeditor5-react';
-import { CKMultiRootEditor } from '@ckeditor/ckeditor5-react';
+import { CKMultiRootEditor } from '../../src';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
@@ -9,53 +9,48 @@ type EditorDemoProps = {
 	content: Record<string, string>;
 };
 
-type EditorDemoState = {
-	documents: Array<Record<string, string>>;
-	documentID: number;
-	editor: MultiRootEditor | null;
-};
-
 export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	const editorsRef = useRef<HTMLDivElement>( null );
 	const rootsRef = useRef<Record<string, HTMLDivElement>>( {} );
 
-	const [ state, setState ] = useState<EditorDemoState>( {
-		documents: [ props.content ],
-		documentID: 0,
-		editor: null
-	} );
-
+	const [ editor, setEditor ] = useState<MultiRootEditor | null>( null );
+	const [ state, setState ] = useState<Record<string, string>>( props.content );
 	const [ selectedRoot, setSelectedRoot ] = useState<string>();
+	const [ disabledRoots, setDisabledRoots ] = useState<Array<string>>( [] );
 
 	const updateData = ( changedRoots: Array<string> ) => {
-		setState( prevState => ( {
-			...prevState,
-			documents: state.documents.map( ( data, index ) => {
-				if ( index === state.documentID ) {
-					const changedData = changedRoots.reduce( ( result, rootName ) => {
-						result[ rootName ] = state.editor!.getData( { rootName } );
+		setState( prevState => {
+			const changedData = changedRoots.reduce( ( result, rootName ) => {
+				result[ rootName ] = editor!.getData( { rootName } );
 
-						return result;
-					}, {} as Record<string, string> );
+				return result;
+			}, {} as Record<string, string> );
 
-					return {
-						...data,
-						...changedData
-					};
-				}
-
-				return data;
-			} )
-		} ) );
+			return {
+				...prevState,
+				...changedData
+			};
+		} );
 	};
 
 	const toggleReadOnly = () => {
-		const editor = state.editor!;
+		const root = editor!.model.document.selection.getFirstRange()!.root;
 
-		if ( editor.isReadOnly ) {
-			editor.disableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID );
+		if ( !root || !root.rootName ) {
+			return;
+		}
+
+		const index = disabledRoots.indexOf( root.rootName );
+
+		if ( index >= 0 ) {
+			disabledRoots.splice( index, 1 );
+			setDisabledRoots( [ ...disabledRoots ] );
+
+			editor!.enableRoot( root.rootName, SAMPLE_READ_ONLY_LOCK_ID );
 		} else {
-			editor.enableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID );
+			setDisabledRoots( [ ...disabledRoots, root.rootName ] );
+
+			editor!.disableRoot( root.rootName, SAMPLE_READ_ONLY_LOCK_ID );
 		}
 	};
 
@@ -70,37 +65,23 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		} );
 	};
 
-	const nextDocumentID = () => {
-		// setState( prevState => ( {
-		// 	...prevState,
-		// 	documentID: state.documentID + 1,
-		// 	documents: state.documents.length < state.documentID + 1 ?
-		// 		state.documents :
-		// 		[ ...state.documents, props.content ]
-		// } ) );
-	};
-
-	const previousDocumentID = () => {
-		setState( prevState => ( { ...prevState, documentID: Math.max( state.documentID - 1, 0 ) } ) );
-	};
-
-	const addRootBelow = () => {
-		state.editor!.addRoot( 'root' + new Date().getTime() );
+	const addRoot = () => {
+		editor!.addRoot( 'root' + new Date().getTime() );
 	};
 
 	const removeRoot = () => {
-		state.editor!.detachRoot( selectedRoot!, true );
+		editor!.detachRoot( selectedRoot!, true );
 	};
 
 	const handleNewRoot = ( root: any ) => {
-		const domElement = state.editor!.createEditable( root ) as HTMLDivElement;
+		const domElement = editor!.createEditable( root ) as HTMLDivElement;
 
 		rootsRef.current[ root.rootName ] = domElement;
 		editorsRef.current!.appendChild( domElement );
 	};
 
 	const handleRemovedRoot = ( root: any ) => {
-		state.editor!.detachEditable( root );
+		editor!.detachEditable( root );
 
 		rootsRef.current[ root.rootName ].remove();
 		delete rootsRef.current[ root.rootName ];
@@ -123,34 +104,21 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 			<div className="buttons">
 				<button
-					onClick={ () => toggleReadOnly() }
-					disabled={ !state.editor }
+					onClick={ toggleReadOnly }
+					disabled={ !editor }
 				>
 					Toggle read-only mode
 				</button>
 
 				<button
-					onClick={ () => simulateError() }
-					disabled={ !state.editor }
+					onClick={ simulateError }
+					disabled={ !editor }
 				>
 					Simulate an error
 				</button>
 
 				<button
-					onClick={ () => previousDocumentID() }
-					disabled={ !state.editor || state.documentID == 0 }
-				>
-					Previous document ID
-				</button>
-
-				<button
-					onClick={ () => nextDocumentID() }
-				>
-					Next document ID
-				</button>
-
-				<button
-					onClick={ () => addRootBelow() }
+					onClick={ addRoot }
 				>
 					Add root below
 				</button>
@@ -158,13 +126,13 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 			<div className="buttons">
 				<button
-					onClick={removeRoot}
-					disabled={!selectedRoot}
+					onClick={ removeRoot }
+					disabled={ !selectedRoot }
 				>
 					Remove selected root
 				</button>
 
-				<select value={selectedRoot || 'placeholder'} onChange={ ( evt: ChangeEvent<HTMLSelectElement> ) => {
+				<select value={ selectedRoot || 'placeholder'} onChange={ ( evt: ChangeEvent<HTMLSelectElement> ) => {
 					setSelectedRoot( evt.target.value );
 				}}>
 					<option hidden value='placeholder'>Select root to remove</option>
@@ -178,8 +146,8 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			{ /* @ts-expect-error: Caused by linking to parent project and conflicting react types */ }
 			<CKMultiRootEditor
 				editor={ MultiRootEditor }
-				id={ state.documentID }
-				data={ state.documents[ state.documentID ] }
+				id="0"
+				data={ state }
 				sourceElements={ rootsRef.current }
 				watchdogConfig={ { crashNumberLimit: 10 } }
 
@@ -189,7 +157,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 					console.log( 'event: onReady' );
 					console.log( 'Editor is ready to use! You can use "editor" variable to play with it.' );
 
-					setState( prevState => ( { ...prevState, editor } ) );
+					setEditor( editor );
 				} }
 
 				onChange={ ( event, editor, changedRoots ) => {
@@ -210,7 +178,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				onRemoveRoot={ handleRemovedRoot }
 			>
 				<div className="flex">
-					<div id="intro" ref={ setSourceElement } />
+					<div id="intro" data-ck-root-name="intro" ref={ setSourceElement } />
 					<div id="content" ref={ setSourceElement } />
 				</div>
 			</CKMultiRootEditor>
@@ -221,7 +189,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				<div id="outro" ref={ setSourceElement } />
 			</div>
 
-			<div id="editors" ref={editorsRef}></div>
+			<div id="editors" ref={ editorsRef }></div>
 		</>
 	);
 }
