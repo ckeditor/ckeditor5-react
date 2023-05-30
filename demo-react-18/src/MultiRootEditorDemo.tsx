@@ -10,7 +10,7 @@ type EditorDemoProps = {
 };
 
 export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
-	const editorsRef = useRef<HTMLDivElement>( null );
+	const sectionRefs = useRef<Record<string, HTMLDivElement>>( {} );
 	const rootsRef = useRef<Record<string, HTMLDivElement>>( {} );
 
 	const [ editor, setEditor ] = useState<MultiRootEditor | null>( null );
@@ -65,8 +65,8 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		} );
 	};
 
-	const addRoot = () => {
-		editor!.addRoot( 'root' + new Date().getTime() );
+	const addRoot = ( attributes: Record<string, unknown> ) => {
+		editor!.addRoot( 'root' + new Date().getTime(), { attributes } );
 	};
 
 	const removeRoot = () => {
@@ -75,9 +75,10 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 	const handleNewRoot = ( root: any ) => {
 		const domElement = editor!.createEditable( root ) as HTMLDivElement;
+		const section = root.getAttribute( 'section' ) as string;
 
 		rootsRef.current[ root.rootName ] = domElement;
-		editorsRef.current!.appendChild( domElement );
+		sectionRefs.current[ section ].appendChild( domElement );
 	};
 
 	const handleRemovedRoot = ( root: any ) => {
@@ -116,12 +117,6 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				>
 					Simulate an error
 				</button>
-
-				<button
-					onClick={ addRoot }
-				>
-					Add root below
-				</button>
 			</div>
 
 			<div className="buttons">
@@ -129,7 +124,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 					onClick={ removeRoot }
 					disabled={ !selectedRoot }
 				>
-					Remove selected root
+					Remove root
 				</button>
 
 				<select value={ selectedRoot || 'placeholder'} onChange={ ( evt: ChangeEvent<HTMLSelectElement> ) => {
@@ -141,6 +136,41 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 						<option key={ rootName } value={ rootName }>{ rootName }</option>
 					) ) }
 				</select>
+			</div>
+
+			<br />
+
+			<div>
+				<h2>Section 1</h2>
+
+				<button
+					onClick={ () => addRoot( { section: 'section-1' } ) }
+				>
+					Add root below
+				</button>
+
+				<div className="flex" ref={ el => {
+					sectionRefs.current![ 'section-1' ] = el!;
+				} }>
+					<div id="intro" data-ck-root-name="intro" ref={ setSourceElement } />
+					<div id="content" ref={ setSourceElement } />
+				</div>
+			</div>
+
+			<div>
+				<h2>Section 2</h2>
+
+				<button
+					onClick={ () => addRoot( { section: 'section-2' } ) }
+				>
+					Add root below
+				</button>
+
+				<div className="wrapper" ref={ el => {
+					sectionRefs.current![ 'section-2' ] = el!;
+				} }>
+					<div id="outro" ref={ setSourceElement } />
+				</div>
 			</div>
 
 			{ /* @ts-expect-error: Caused by linking to parent project and conflicting react types */ }
@@ -176,20 +206,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 				onAddRoot={ handleNewRoot }
 				onRemoveRoot={ handleRemovedRoot }
-			>
-				<div className="flex">
-					<div id="intro" data-ck-root-name="intro" ref={ setSourceElement } />
-					<div id="content" ref={ setSourceElement } />
-				</div>
-			</CKMultiRootEditor>
-
-			<p>Some content from the page.</p>
-
-			<div className="wrapper">
-				<div id="outro" ref={ setSourceElement } />
-			</div>
-
-			<div id="editors" ref={ editorsRef }></div>
+			/>
 		</>
 	);
 }

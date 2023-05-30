@@ -25,10 +25,11 @@
 		.flex {
 			display: flex;
 			gap: 10px;
+			flex-wrap: wrap;
 		}
 
 		.flex > .ck-editor__editable_inline {
-			width: 100%;
+			flex-basis: calc( 50% - 30px);
 		}
 
 		.ck.ck-content.ck-editor__editable.ck-editor__editable_inline {
