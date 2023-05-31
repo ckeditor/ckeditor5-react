@@ -1,22 +1,50 @@
-import React, { useState, useRef, type ChangeEvent } from 'react';
+import React, { useState, useRef, type ChangeEvent, useEffect } from 'react';
 import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 // import { CKMultiRootEditor } from '@ckeditor/ckeditor5-react';
 import { CKMultiRootEditor } from '../../src';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
+enum Sections {
+	'section-1' = 'section-1',
+	'section-2' = 'section-2'
+}
+
 type EditorDemoProps = {
 	content: Record<string, string>;
+	rootsAttributes: Record<string, Record<string, unknown>>;
+};
+
+type RootStateElement = {
+	element: JSX.Element;
+	attributes: Record<string, unknown>;
 };
 
 export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
-	const sectionRefs = useRef<Record<string, HTMLDivElement>>( {} );
-	const rootsRef = useRef<Record<string, HTMLDivElement>>( {} );
+	const initialRootsRefs: Record<string, HTMLDivElement> = {};
 
+	const sectionRefs = useRef<Record<string, HTMLDivElement>>( {} );
 	const [ editor, setEditor ] = useState<MultiRootEditor | null>( null );
 	const [ state, setState ] = useState<Record<string, string>>( props.content );
 	const [ selectedRoot, setSelectedRoot ] = useState<string>();
 	const [ disabledRoots, setDisabledRoots ] = useState<Array<string>>( [] );
+
+	const setInitialSourceElement = ( element: HTMLDivElement | null ) => {
+		if ( element && element.id ) {
+			const rootName = element.id;
+
+			initialRootsRefs[ rootName ] = element;
+		}
+	};
+
+	const [ elements, setElements ] = useState<Array<RootStateElement>>(
+		Object.keys( props.content ).map( rootName => {
+			return {
+				element: <div id={rootName} key={rootName} ref={ setInitialSourceElement }></div>,
+				attributes: props.rootsAttributes[ rootName ]
+			};
+		} )
+	);
 
 	const updateData = ( changedRoots: Array<string> ) => {
 		setState( prevState => {
@@ -73,29 +101,19 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		editor!.detachRoot( selectedRoot!, true );
 	};
 
-	const handleNewRoot = ( root: any ) => {
-		const domElement = editor!.createEditable( root ) as HTMLDivElement;
-		const section = root.getAttribute( 'section' ) as string;
-
-		rootsRef.current[ root.rootName ] = domElement;
-		sectionRefs.current[ section ].appendChild( domElement );
+	const handleNewRoot = ( createRootElement: ( props?: Record<string, unknown> ) => JSX.Element ) => {
+		setElements( [ ...elements, { element: createRootElement(), attributes: { section: Sections[ 'section-1' ] } } ] );
 	};
 
 	const handleRemovedRoot = ( root: any ) => {
-		editor!.detachEditable( root );
+		const rootName = root.rootName;
 
-		rootsRef.current[ root.rootName ].remove();
-		delete rootsRef.current[ root.rootName ];
-
+		delete state[ rootName ];
+		setState( { ...state } );
+		setElements( elements.filter( ( { element } ) => element.props.id !== rootName ) );
 		setSelectedRoot( '' );
-	};
 
-	const setSourceElement = ( element: HTMLDivElement | null ) => {
-		if ( element && element.id ) {
-			const rootName = element.id;
-
-			rootsRef.current[ rootName ] = element;
-		}
+		editor!.detachEditable( root );
 	};
 
 	return (
@@ -132,7 +150,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				}}>
 					<option hidden value='placeholder'>Select root to remove</option>
 
-					{ Object.keys( rootsRef.current ).map( rootName => (
+					{ Object.keys( state ).map( rootName => (
 						<option key={ rootName } value={ rootName }>{ rootName }</option>
 					) ) }
 				</select>
@@ -144,7 +162,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				<h2>Section 1</h2>
 
 				<button
-					onClick={ () => addRoot( { section: 'section-1' } ) }
+					onClick={ () => addRoot( { section: 'section-1', order: 10 } ) }
 				>
 					Add root below
 				</button>
@@ -152,8 +170,8 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				<div className="flex" ref={ el => {
 					sectionRefs.current![ 'section-1' ] = el!;
 				} }>
-					<div id="intro" data-ck-root-name="intro" ref={ setSourceElement } />
-					<div id="content" ref={ setSourceElement } />
+					{ elements.map( ( { element, attributes } ) =>
+						attributes.section === Sections[ 'section-1' ] && element ) }
 				</div>
 			</div>
 
@@ -169,7 +187,8 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				<div className="wrapper" ref={ el => {
 					sectionRefs.current![ 'section-2' ] = el!;
 				} }>
-					<div id="outro" ref={ setSourceElement } />
+					{ elements.map( ( { element, attributes } ) =>
+						attributes.section === Sections[ 'section-2' ] && element ) }
 				</div>
 			</div>
 
@@ -178,8 +197,11 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				editor={ MultiRootEditor }
 				id="0"
 				data={ state }
-				sourceElements={ rootsRef.current }
+				sourceElements={ initialRootsRefs }
 				watchdogConfig={ { crashNumberLimit: 10 } }
+				config={ {
+					rootsAttributes: props.rootsAttributes
+				} as any }
 
 				onReady={ editor => {
 					window.editor = editor;

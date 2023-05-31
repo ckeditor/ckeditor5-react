@@ -19,6 +19,7 @@ import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 
 import { ContextWatchdogContext } from './ckeditorcontext';
+import type MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -187,7 +188,7 @@ export default class CKMultiRootEditor<TEditor extends Editor> extends React.Com
 				modelDocument.on<DocumentChangeEvent>( 'change:data', event => {
 					const changedRoots = modelDocument.differ.getChanges()
 						.map( change => {
-							if ( 'position' in change ) {
+							if ( 'position' in change && change.type !== 'remove' ) {
 								return change.position.root.rootName;
 							}
 						} )
@@ -201,7 +202,20 @@ export default class CKMultiRootEditor<TEditor extends Editor> extends React.Com
 
 				editor.on( 'addRoot', ( evt, root ) => {
 					if ( this.props.onAddRoot ) {
-						this.props.onAddRoot( root );
+						const reactElement = ( props?: Record<string, unknown> ) => <div
+							ref={el => {
+								const editable = ( editor as MultiRootEditor ).ui.view.createEditable( root.rootName, el );
+
+								( editor as MultiRootEditor ).ui.addEditable( editable );
+
+								editor.editing.view.forceRender();
+							}}
+							key={ root.rootName }
+							id={ root.rootName }
+							{...props}
+						/>;
+
+						this.props.onAddRoot( reactElement );
 					}
 				} );
 

@@ -25,6 +25,21 @@ const multiRootEditorContent = {
 		'<a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a> works fine.</p>'
 };
 
+const rootsAttributes = {
+	intro: {
+		order: 10,
+		section: 'section-1'
+	},
+	content: {
+		order: 20,
+		section: 'section-1'
+	},
+	outro: {
+		order: 10,
+		section: 'section-2'
+	}
+};
+
 export default function App(): JSX.Element {
 	const [ demo, setDemo ] = useState<Demo>( 'editor' );
 
@@ -55,7 +70,7 @@ export default function App(): JSX.Element {
 				</button>
 			</div>
 
-			<MultiRootEditorDemo content={multiRootEditorContent} />
+			<MultiRootEditorDemo content={multiRootEditorContent} rootsAttributes={rootsAttributes} />
 		</React.StrictMode>
 	);
 }
