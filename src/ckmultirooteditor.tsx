@@ -215,7 +215,13 @@ export default class CKMultiRootEditor<TEditor extends Editor> extends React.Com
 							{...props}
 						/>;
 
-						this.props.onAddRoot( reactElement );
+						const attributes: Record<string, unknown> = {};
+
+						for ( const [ key, value ] of root.getAttributes() ) {
+							attributes[ key ] = value;
+						}
+
+						this.props.onAddRoot( reactElement, attributes );
 					}
 				} );
 

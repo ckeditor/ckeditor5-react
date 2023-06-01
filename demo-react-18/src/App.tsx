@@ -27,15 +27,12 @@ const multiRootEditorContent = {
 
 const rootsAttributes = {
 	intro: {
-		order: 10,
 		section: 'section-1'
 	},
 	content: {
-		order: 20,
 		section: 'section-1'
 	},
 	outro: {
-		order: 10,
 		section: 'section-2'
 	}
 };

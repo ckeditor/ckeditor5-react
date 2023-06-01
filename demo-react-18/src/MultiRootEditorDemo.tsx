@@ -101,18 +101,50 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		editor!.detachRoot( selectedRoot!, true );
 	};
 
-	const handleNewRoot = ( createRootElement: ( props?: Record<string, unknown> ) => JSX.Element ) => {
-		setElements( [ ...elements, { element: createRootElement(), attributes: { section: Sections[ 'section-1' ] } } ] );
+	const swapRoots = ( dir: 1 | -1 ) => {
+		const root = editor!.model.document.selection.getFirstRange()!.root;
+
+		if ( !root || !root.rootName ) {
+			return;
+		}
+
+		const index = elements.findIndex( el => el.element.props.id === root.rootName );
+		const rootElement = elements[ index ];
+
+		for ( let i = index + dir; dir > 0 ? i >= 0 : i < elements.length; i += dir ) {
+			if ( !elements[ i ] ) {
+				return;
+			}
+
+			if ( rootElement.attributes.section === elements[ i ].attributes.section ) {
+				elements[ index ] = elements[ i ];
+				elements[ i ] = rootElement;
+
+				setElements( [ ...elements ] );
+
+				break;
+			}
+		}
+	};
+
+	const handleNewRoot = (
+		createRootElement: ( props?: Record<string, unknown> ) => JSX.Element,
+		attributes: Record<string, unknown>
+	) => {
+		setElements( [ ...elements, { element: createRootElement(), attributes } ] );
 	};
 
 	const handleRemovedRoot = ( root: any ) => {
 		const rootName = root.rootName;
 
+		// TODO: should we handle it in onChange?
 		delete state[ rootName ];
 		setState( { ...state } );
+
 		setElements( elements.filter( ( { element } ) => element.props.id !== rootName ) );
 		setSelectedRoot( '' );
 
+		// TODO: move it to plugin or not?
 		editor!.detachEditable( root );
 	};
 
@@ -134,6 +166,20 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 					disabled={ !editor }
 				>
 					Simulate an error
+				</button>
+
+				<button
+					onClick={ () => swapRoots( -1 ) }
+					disabled={ !editor }
+				>
+					Move root back
+				</button>
+
+				<button
+					onClick={ () => swapRoots( 1 ) }
+					disabled={ !editor }
+				>
+					Move root forward
 				</button>
 			</div>
 
