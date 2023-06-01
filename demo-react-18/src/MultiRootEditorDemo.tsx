@@ -1,7 +1,7 @@
 import React, { useState, useRef, type ChangeEvent, useEffect } from 'react';
 import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 // import { CKMultiRootEditor } from '@ckeditor/ckeditor5-react';
-import { CKMultiRootEditor } from '../../src';
+import { CKEditor } from '../../src';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
@@ -47,6 +47,10 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	);
 
 	const updateData = ( changedRoots: Array<string> ) => {
+		if ( !changedRoots.length ) {
+			return;
+		}
+
 		setState( prevState => {
 			const changedData = changedRoots.reduce( ( result, rootName ) => {
 				result[ rootName ] = editor!.getData( { rootName } );
@@ -204,6 +208,12 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 			<br />
 
+			<div ref={ el => {
+				if ( editor ) {
+					el?.appendChild( editor!.ui.view.toolbar.element! );
+				}
+			}}></div>
+
 			<div>
 				<h2>Section 1</h2>
 
@@ -239,7 +249,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			</div>
 
 			{ /* @ts-expect-error: Caused by linking to parent project and conflicting react types */ }
-			<CKMultiRootEditor
+			<CKEditor
 				editor={ MultiRootEditor }
 				id="0"
 				data={ state }
