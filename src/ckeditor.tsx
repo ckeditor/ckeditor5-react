@@ -166,6 +166,15 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * @param config CKEditor 5 editor configuration.
 	 */
 	private _createEditor( element: HTMLElement | string | Record<string, string>, config: EditorConfig ): Promise<TEditor> {
+		if ( !element ) {
+			// In our case, the only way this element is falsy is if we're caught in
+			// the middle of tearing down this component. This isn't really an error,
+			// so it doesn't make sense to reject the promise-- that would make the
+			// watchdog explode anyway. Just create an empty editor so the watchdog
+			// can shutdown properly.
+			return this.props.editor.create( '', {} );
+		}
+
 		return this.props.editor.create( element as HTMLElement, config )
 			.then( editor => {
 				if ( 'disabled' in this.props ) {
