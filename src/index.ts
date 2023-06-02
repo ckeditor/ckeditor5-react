@@ -4,5 +4,4 @@
  */
 
 export { default as CKEditor } from './ckeditor';
-export { default as CKMultiRootEditor } from './ckmultirooteditor';
 export { default as CKEditorContext } from './ckeditorcontext';
