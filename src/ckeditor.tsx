@@ -17,9 +17,9 @@ import type { DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';
 import { EditorWatchdog, ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
-import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 
 import { ContextWatchdogContext } from './ckeditorcontext';
+import type MultiRootEditorUI from '@ckeditor/ckeditor5-editor-multi-root/src/multirooteditorui';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -221,9 +221,10 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 					if ( this.props.onAddRoot ) {
 						const reactElement = ( props?: Record<string, unknown> ) => <div
 							ref={el => {
-								const editable = ( editor as MultiRootEditor ).ui.view.createEditable( root.rootName, el );
+								const editorUI = editor.ui as MultiRootEditorUI;
+								const editable = editorUI.view.createEditable( root.rootName, el! );
 
-								( editor as MultiRootEditor ).ui.addEditable( editable );
+								editorUI.addEditable( editable );
 
 								editor.editing.view.forceRender();
 							}}
@@ -319,9 +320,11 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			return false;
 		}
 
+		const roots = Object.keys( this.props.data );
+
 		// We should not change data if the editor's content is equal to the `#data` property.
-		if ( this.props.editor === MultiRootEditor ) {
-			for ( const rootName of Object.keys( this.props.data ) ) {
+		if ( roots ) {
+			for ( const rootName of roots ) {
 				if ( this.editor!.data.get( { rootName } ) !== nextProps.data[ rootName ] ) {
 					return true;
 				}
