@@ -38,7 +38,6 @@ export default function App(): JSX.Element {
 					Context demo
 				</button>
 			</div>
-
 			{
 				demo == 'editor' ?
 					<EditorDemo content={editorContent}/> :
