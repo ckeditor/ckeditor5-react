@@ -203,31 +203,41 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 				const viewDocument = editor.editing.view.document;
 
 				modelDocument.on<DocumentChangeEvent>( 'change:data', event => {
-					const changedRoots = modelDocument.differ.getChanges()
-						.map( change => {
+					const changedRoots: ChangedRoots = {};
+
+					modelDocument.differ.getChanges()
+						.forEach( change => {
 							if ( 'position' in change && change.position.root.isAttached() ) {
-								return change.position.root.rootName;
+								const { rootName } = change.position.root;
+
+								changedRoots[ rootName! ] = { changedData: true };
 							}
-						} )
-						.filter( ( el ): el is string => !!el );
+						} );
+
+					modelDocument.differ.getChangedRoots()
+						.forEach( changedRoot => {
+							const rootName = changedRoot.name;
+
+							changedRoots[ rootName! ] = { ...changedRoots[ rootName! ], changedAttributes: true };
+						} );
 
 					/* istanbul ignore else */
 					if ( this.props.onChange ) {
-						this.props.onChange( event, editor, [ ...new Set( changedRoots ) ] );
+						this.props.onChange( event, editor, changedRoots );
 					}
 				} );
 
 				editor.on( 'addRoot', ( evt, root ) => {
 					if ( this.props.onAddRoot ) {
 						const reactElement = ( props?: Record<string, unknown> ) => <div
-							ref={el => {
+							ref={ el => {
 								const editorUI = editor.ui as MultiRootEditorUI;
 								const editable = editorUI.view.createEditable( root.rootName, el! );
 
 								editorUI.addEditable( editable );
 
 								editor.editing.view.forceRender();
-							}}
+							} }
 							key={ root.rootName }
 							id={ root.rootName }
 							{...props}
@@ -246,6 +256,8 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 				editor.on( 'detachRoot', ( evt, root ) => {
 					if ( this.props.onRemoveRoot ) {
 						this.props.onRemoveRoot( root );
+
+						( editor as any ).detachEditable( root );
 					}
 				} );
 
@@ -394,7 +406,7 @@ interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propT
 	disableWatchdog?: boolean;
 	onReady?: ( editor: TEditor ) => void;
 	onError?: ( error: Error, details: ErrorDetails ) => void;
-	onChange?: ( event: EventInfo, editor: TEditor, changedRoots: Array<string> ) => void;
+	onChange?: ( event: EventInfo, editor: TEditor, changedRoots: ChangedRoots ) => void;
 	onFocus?: ( event: EventInfo, editor: TEditor ) => void;
 	onBlur?: ( event: EventInfo, editor: TEditor ) => void;
 	onAddRoot?: ( createElement: () => JSX.Element, attributes: Record<string, unknown> ) => void;
@@ -405,6 +417,8 @@ interface ErrorDetails {
 	phase: 'initialization' | 'runtime';
 	willEditorRestart?: boolean;
 }
+
+type ChangedRoots = Record<string, { changedData?: boolean; changedAttributes?: boolean }>;
 
 /**
  * An adapter aligning the context watchdog API to the editor watchdog API for easier usage.

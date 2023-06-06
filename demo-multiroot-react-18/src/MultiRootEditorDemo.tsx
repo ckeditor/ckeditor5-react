@@ -2,6 +2,7 @@ import React, { useState, useRef, type ChangeEvent } from 'react';
 import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 // import { CKEditor } from '@ckeditor/ckeditor5-react';
 import { CKEditor } from '../../src';
+import { element } from 'prop-types';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
@@ -13,11 +14,6 @@ enum Sections {
 type EditorDemoProps = {
 	content: Record<string, string>;
 	rootsAttributes: Record<string, Record<string, unknown>>;
-};
-
-type RootStateElement = {
-	element: JSX.Element;
-	attributes: Record<string, unknown>;
 };
 
 export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
@@ -37,32 +33,34 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		}
 	};
 
-	const [ elements, setElements ] = useState<Array<RootStateElement>>(
-		Object.keys( props.content ).map( rootName => {
-			return {
-				element: <div id={rootName} key={rootName} ref={ setInitialSourceElement }></div>,
-				attributes: props.rootsAttributes[ rootName ]
-			};
-		} )
+	const [ elements, setElements ] = useState<Array<JSX.Element>>(
+		Object.keys( props.content ).map( rootName => <div id={rootName} key={rootName} ref={ setInitialSourceElement }></div> )
 	);
+	const [ attributes, setAttributes ] = useState<Record<string, Record<string, unknown>>>( props.rootsAttributes );
 
-	const updateData = ( changedRoots: Array<string> ) => {
-		if ( !changedRoots.length ) {
+	const updateData = ( changedRoots: Record<string, { changedData?: boolean; changedAttributes?: boolean }> ) => {
+		if ( !Object.keys( changedRoots ).length ) {
 			return;
 		}
 
-		setState( prevState => {
-			const changedData = changedRoots.reduce( ( result, rootName ) => {
-				result[ rootName ] = editor!.getData( { rootName } );
+		const newState: Record<string, string> = {};
+		let hasNewAttributes = false;
 
-				return result;
-			}, {} as Record<string, string> );
+		for ( const [ rootName, { changedData, changedAttributes } ] of Object.entries( changedRoots ) ) {
+			if ( changedData ) {
+				newState[ rootName ] = editor!.getData( { rootName } );
+			}
 
-			return {
-				...prevState,
-				...changedData
-			};
-		} );
+			if ( changedAttributes && !hasNewAttributes ) {
+				hasNewAttributes = true;
+			}
+		}
+
+		setState( { ...state, ...newState } );
+
+		if ( hasNewAttributes ) {
+			setAttributes( { ...editor!.getRootsAttributes() } );
+		}
 	};
 
 	const toggleReadOnly = () => {
@@ -97,8 +95,15 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		} );
 	};
 
+	const getSectionElements = ( section: Sections ) => elements
+		.filter( element => attributes[ element.props.id ].section === section )
+		.sort( ( a, b ) =>
+			( attributes[ a.props.id ].order as number ) - ( attributes[ b.props.id ].order as number ) );
+
 	const addRoot = ( attributes: Record<string, unknown> ) => {
-		editor!.addRoot( 'root' + new Date().getTime(), { attributes } );
+		editor!.addRoot( 'root' + new Date().getTime(), {
+			attributes: { ...attributes, order: ( elements.length + 1 ) * 10 }
+		} );
 	};
 
 	const removeRoot = () => {
@@ -112,44 +117,36 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			return;
 		}
 
-		const index = elements.findIndex( el => el.element.props.id === root.rootName );
-		const rootElement = elements[ index ];
+		const sectionElements = getSectionElements( attributes[ root.rootName ].section as Sections );
+		const index = sectionElements.findIndex( el => el.props.id === root.rootName );
 
-		for ( let i = index + dir; dir > 0 ? i >= 0 : i < elements.length; i += dir ) {
-			if ( !elements[ i ] ) {
-				return;
-			}
-
-			if ( rootElement.attributes.section === elements[ i ].attributes.section ) {
-				elements[ index ] = elements[ i ];
-				elements[ i ] = rootElement;
-
-				setElements( [ ...elements ] );
-
-				break;
-			}
+		if ( !sectionElements[ index + dir ] ) {
+			return;
 		}
+
+		const swapRoot = editor!.model.document.getRoot( sectionElements[ index + dir ].props.id )!;
+
+		editor!.model.change( writer => {
+			const rootNewOrder = swapRoot.getAttribute( 'order' );
+			const swapRootNewOrder = root.getAttribute( 'order' );
+
+			writer.setAttribute( 'order', rootNewOrder, root );
+			writer.setAttribute( 'order', swapRootNewOrder, swapRoot );
+		} );
 	};
 
-	const handleNewRoot = (
-		createRootElement: ( props?: Record<string, unknown> ) => JSX.Element,
-		attributes: Record<string, unknown>
-	) => {
-		setElements( [ ...elements, { element: createRootElement(), attributes } ] );
+	const handleNewRoot = ( createRootElement: ( props?: Record<string, unknown> ) => JSX.Element ) => {
+		setElements( [ ...elements, createRootElement() ] );
 	};
 
 	const handleRemovedRoot = ( root: any ) => {
 		const rootName = root.rootName;
 
-		// TODO: should we handle it in onChange?
 		delete state[ rootName ];
 		setState( { ...state } );
 
-		setElements( elements.filter( ( { element } ) => element.props.id !== rootName ) );
+		setElements( elements.filter( element => element.props.id !== rootName ) );
 		setSelectedRoot( '' );
-
-		// TODO: move it to plugin or not?
-		editor!.detachEditable( root );
 	};
 
 	return (
@@ -218,7 +215,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				<h2>Section 1</h2>
 
 				<button
-					onClick={ () => addRoot( { section: 'section-1', order: 10 } ) }
+					onClick={ () => addRoot( { section: 'section-1' } ) }
 				>
 					Add root below
 				</button>
@@ -226,8 +223,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				<div className="flex" ref={ el => {
 					sectionRefs.current![ 'section-1' ] = el!;
 				} }>
-					{ elements.map( ( { element, attributes } ) =>
-						attributes.section === Sections[ 'section-1' ] && element ) }
+					{ getSectionElements( Sections[ 'section-1' ] ) }
 				</div>
 			</div>
 
@@ -243,8 +239,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				<div className="wrapper" ref={ el => {
 					sectionRefs.current![ 'section-2' ] = el!;
 				} }>
-					{ elements.map( ( { element, attributes } ) =>
-						attributes.section === Sections[ 'section-2' ] && element ) }
+					{ getSectionElements( Sections[ 'section-2' ] ) }
 				</div>
 			</div>
 

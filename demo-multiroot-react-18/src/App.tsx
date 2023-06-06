@@ -11,13 +11,16 @@ const multiRootEditorContent = {
 
 const rootsAttributes = {
 	intro: {
-		section: 'section-1'
+		section: 'section-1',
+		order: 10
 	},
 	content: {
-		section: 'section-1'
+		section: 'section-1',
+		order: 20
 	},
 	outro: {
-		section: 'section-2'
+		section: 'section-2',
+		order: 10
 	}
 };
 
