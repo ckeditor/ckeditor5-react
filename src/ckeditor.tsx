@@ -96,9 +96,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			return true;
 		}
 
-		if ( this._shouldUpdateEditor( nextProps ) ) {
-			this.editor.data.set( nextProps.data! );
-		}
+		this._handleEditorState( nextProps );
 
 		if ( 'disabled' in nextProps ) {
 			if ( nextProps.disabled ) {
@@ -318,36 +316,99 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		} );
 	}
 
+	private getStateDiff( previousState: Record<string, unknown>, newState: Record<string, unknown> ):
+		{ addedKeys: Array<string>; removedKeys: Array<string>; modifiedKeys: Array<string> } {
+		const previousStateKeys = Object.keys( previousState );
+		const newStateKeys = Object.keys( newState );
+
+		return {
+			addedKeys: newStateKeys.filter( key => previousStateKeys.indexOf( key ) === -1 ),
+			removedKeys: previousStateKeys.filter( key => newStateKeys.indexOf( key ) === -1 ),
+			modifiedKeys: previousStateKeys.filter( key => newStateKeys.indexOf( key ) !== -1 &&
+				JSON.stringify( previousState[ key ] ) !== JSON.stringify( newState[ key ] ) )
+		};
+	}
+
+	private _handleRoots = (
+		nextProps: any,
+		newRoots: Array<string>,
+		removedRoots: Array<string>,
+		modifiedRoots: Array<string>
+	) => {
+		newRoots.forEach( root => {
+			( this.editor as any ).addRoot( root, { attributes: nextProps.attributes[ root ] } );
+		} );
+
+		removedRoots.forEach( root => {
+			( this.editor as any ).detachRoot( root, true );
+		} );
+
+		for ( const modifiedRoot of modifiedRoots ) {
+			if ( this.editor!.data.get( { rootName: modifiedRoot } ) !== nextProps.data[ modifiedRoot ] ) {
+				this.editor!.data.set( nextProps.data! );
+
+				break;
+			}
+		}
+	};
+
+	private _handleRootsAttributes = (
+		writer: any,
+		nextProps: any,
+		newRootsAttributes: Array<string>,
+		removedRootsAttributes: Array<string>,
+		modifiedRootsAttributes: Array<string>
+	) => {
+		[ ...newRootsAttributes, ...modifiedRootsAttributes ].forEach( root => {
+			writer.setAttributes( nextProps.attributes[ root ], this.editor!.model.document.getRoot( root ) );
+		} );
+
+		removedRootsAttributes.forEach( root => {
+			writer.setAttributes( {}, this.editor!.model.document.getRoot( root ) );
+		} );
+	};
+
 	/**
 	 * Returns true when the editor should be updated.
 	 *
 	 * @param nextProps React's properties.
 	 */
-	private _shouldUpdateEditor( nextProps: Readonly<Props<TEditor>> ): boolean {
+	private _handleEditorState( nextProps: Readonly<Props<TEditor>> ): void {
 		// Check whether `nextProps.data` is equal to `this.props.data` is required if somebody defined the `#data`
 		// property as a static string and updated a state of component when the editor's content has been changed.
 		// If we avoid checking those properties, the editor's content will back to the initial value because
 		// the state has been changed and React will call this method.
-		if ( this.props.data === nextProps.data ) {
-			return false;
+		if ( this.props.data === nextProps.data && this.props.attributes === nextProps.attributes ) {
+			return;
 		}
 
 		const roots = Object.keys( this.props.data );
 
 		// We should not change data if the editor's content is equal to the `#data` property.
 		if ( roots ) {
-			for ( const rootName of roots ) {
-				if ( this.editor!.data.get( { rootName } ) !== nextProps.data[ rootName ] ) {
-					return true;
-				}
-			}
+			const editor = this.editor as any;
 
-			return false;
-		} else if ( this.editor!.data.get() === nextProps.data ) {
-			return false;
+			const editorData = editor.getFullData();
+			const editorAttributes = editor.getRootsAttributes();
+
+			const { addedKeys: newRoots, removedKeys: removedRoots, modifiedKeys: modifiedRoots } =
+				this.getStateDiff( editorData, nextProps.data );
+			const { addedKeys: newAttributes, removedKeys: removedAttributes, modifiedKeys: modifiedAttributes } =
+				this.getStateDiff( editorAttributes, nextProps.attributes );
+
+			const newRootAttributes = newAttributes.filter( rootAttr =>
+				newRoots.indexOf( rootAttr ) === -1 && nextProps.data[ rootAttr ] );
+			const removedRootAttributes = removedAttributes.filter( rootAttr =>
+				removedRoots.indexOf( rootAttr ) === -1 && nextProps.data[ rootAttr ] );
+			const modifiedRootAttributes = modifiedAttributes.filter( rootAttr => nextProps.data[ rootAttr ] );
+
+			editor.model.change( writer => {
+				this._handleRoots( nextProps, newRoots, removedRoots, modifiedRoots );
+				this._handleRootsAttributes( writer, nextProps, newRootAttributes, removedRootAttributes, modifiedRootAttributes );
+			} );
+		} else if ( this.editor!.data.get() !== nextProps.data ) {
+			this.editor!.data.set( nextProps.data! );
 		}
-
-		return true;
 	}
 
 	/**
@@ -376,6 +437,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	public static propTypes = {
 		editor: PropTypes.func.isRequired as unknown as Validator<{ create( ...args: any ): Promise<any> }>,
 		data: PropTypes.any,
+		attributes: PropTypes.any,
 		sourceElements: PropTypes.object,
 		config: PropTypes.object,
 		disableWatchdog: PropTypes.bool,
