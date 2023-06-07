@@ -28,10 +28,10 @@
     "@ckeditor/ckeditor5-block-quote": "^37.0.0",
     "@ckeditor/ckeditor5-build-classic": "^37.0.0",
     "@ckeditor/ckeditor5-cloud-services": "^37.0.0",
-    "@ckeditor/ckeditor5-dev-bump-year": "^36.0.0",
-    "@ckeditor/ckeditor5-dev-ci": "^36.0.0",
-    "@ckeditor/ckeditor5-dev-release-tools": "^36.0.0",
-    "@ckeditor/ckeditor5-dev-utils": "^36.0.0",
+    "@ckeditor/ckeditor5-dev-bump-year": "^38.0.0",
+    "@ckeditor/ckeditor5-dev-ci": "^38.0.0",
+    "@ckeditor/ckeditor5-dev-release-tools": "^38.0.0",
+    "@ckeditor/ckeditor5-dev-utils": "^38.0.0",
     "@ckeditor/ckeditor5-editor-classic": "^37.0.0",
     "@ckeditor/ckeditor5-essentials": "^37.0.0",
     "@ckeditor/ckeditor5-heading": "^37.0.0",
@@ -67,6 +67,7 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^5.0.0",
     "lint-staged": "^10.2.11",
+    "listr2": "^6.5.0",
     "minimist": "^1.2.5",
     "mocha": "^10.0.0",
     "react": "^16.13.1",
@@ -96,9 +97,8 @@
     "postbuild": "tsc -p ./tsconfig.json --emitDeclarationOnly",
     "develop": "webpack --mode development --watch",
     "changelog": "node ./scripts/changelog.js",
-    "release:bump-version": "node ./scripts/bump-version.js",
-    "release:publish": "node ./scripts/publish.js",
-    "preversion": "npm run build",
+    "release:prepare-packages": "node ./scripts/preparepackages.js",
+    "release:publish-packages": "node ./scripts/publishpackages.js",
     "test": "node ./scripts/test.js",
     "coverage": "node ./scripts/test.js --coverage"
   },
@@ -114,7 +114,10 @@
   "homepage": "https://github.com/ckeditor/ckeditor5-react",
   "files": [
     "dist",
-    "scripts/postinstall.js"
+    "scripts/postinstall.js",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE.md"
   ],
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
