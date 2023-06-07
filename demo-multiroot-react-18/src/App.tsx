@@ -26,10 +26,10 @@ const rootsAttributes = {
 
 export default function App(): JSX.Element {
 	return (
-		<React.StrictMode>
+		<>
 			<h1>CKEditor 5 – React Component – development sample</h1>
 
 			<MultiRootEditorDemo content={multiRootEditorContent} rootsAttributes={rootsAttributes} />
-		</React.StrictMode>
+		</>
 	);
 }

@@ -99,54 +99,26 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		.sort( ( a, b ) =>
 			( attributes[ a.props.id ].order as number ) - ( attributes[ b.props.id ].order as number ) );
 
-	const addRoot = ( attributes: Record<string, unknown> ) => {
-		editor!.addRoot( 'root' + new Date().getTime(), {
-			attributes: { ...attributes, order: ( elements.length + 1 ) * 10 }
-		} );
+	const addRoot = ( newRootAttributes: Record<string, unknown> ) => {
+		const rootName = 'root' + new Date().getTime();
+
+		setState( { ...state, [ rootName ]: '' } );
+		setAttributes( { ...attributes, [ rootName ]: { ...newRootAttributes, order: ( elements.length + 1 ) * 10 } } );
 	};
 
 	const removeRoot = () => {
-		editor!.detachRoot( selectedRoot!, true );
-	};
+		const { [ selectedRoot! ]: _, ...newState } = state;
 
-	const swapRoots = ( dir: 1 | -1 ) => {
-		const root = editor!.model.document.selection.getFirstRange()!.root;
-
-		if ( !root || !root.rootName ) {
-			return;
-		}
-
-		const sectionElements = getSectionElements( attributes[ root.rootName ].section as Sections );
-		const index = sectionElements.findIndex( el => el.props.id === root.rootName );
-
-		if ( !sectionElements[ index + dir ] ) {
-			return;
-		}
-
-		const swapRoot = editor!.model.document.getRoot( sectionElements[ index + dir ].props.id )!;
-
-		editor!.model.change( writer => {
-			const rootNewOrder = swapRoot.getAttribute( 'order' );
-			const swapRootNewOrder = root.getAttribute( 'order' );
-
-			writer.setAttribute( 'order', rootNewOrder, root );
-			writer.setAttribute( 'order', swapRootNewOrder, swapRoot );
-		} );
+		setState( { ...newState } );
+		setElements( elements.filter( element => element.props.id !== selectedRoot! ) );
+		setSelectedRoot( '' );
 	};
 
 	const handleNewRoot = ( createRootElement: ( props?: Record<string, unknown> ) => JSX.Element ) => {
 		setElements( [ ...elements, createRootElement() ] );
 	};
 
-	const handleRemovedRoot = ( root: any ) => {
-		const rootName = root.rootName;
-
-		delete state[ rootName ];
-		setState( { ...state } );
-
-		setElements( elements.filter( element => element.props.id !== rootName ) );
-		setSelectedRoot( '' );
-	};
+	const handleRemovedRoot = ( root: any ) => {};
 
 	return (
 		<>
@@ -166,20 +138,6 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 					disabled={ !editor }
 				>
 					Simulate an error
-				</button>
-
-				<button
-					onClick={ () => swapRoots( -1 ) }
-					disabled={ !editor }
-				>
-					Move root back
-				</button>
-
-				<button
-					onClick={ () => swapRoots( 1 ) }
-					disabled={ !editor }
-				>
-					Move root forward
 				</button>
 			</div>
 
@@ -247,6 +205,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				editor={ MultiRootEditor }
 				id="0"
 				data={ state }
+				attributes={ attributes }
 				sourceElements={ initialRootsRefs }
 				watchdogConfig={ { crashNumberLimit: 10 } }
 				config={ {
