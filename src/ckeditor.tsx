@@ -19,6 +19,7 @@ import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 
 import { ContextWatchdogContext } from './ckeditorcontext';
+import type { MultiRootEditor } from '@ckeditor/ckeditor5-editor-multi-root';
 import type MultiRootEditorUI from '@ckeditor/ckeditor5-editor-multi-root/src/multirooteditorui';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
@@ -385,8 +386,8 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		const roots = Object.keys( this.props.data );
 
 		// We should not change data if the editor's content is equal to the `#data` property.
-		if ( roots ) {
-			const editor = this.editor as any;
+		if ( roots && 'getFullData' in this.editor! ) {
+			const editor = this.editor as MultiRootEditor;
 
 			const editorData = editor.getFullData();
 			const editorAttributes = editor.getRootsAttributes();

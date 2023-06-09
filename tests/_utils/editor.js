@@ -56,6 +56,8 @@ export default class Editor {
 		return this.data.get.call( this, ...args );
 	}
 
+	on() { }
+
 	static create() {
 		return Promise.resolve( new this() );
 	}
@@ -78,6 +80,14 @@ function createDocument() {
 		off() {},
 		getRootNames() {
 			return [ 'main' ];
+		},
+		differ: {
+			getChanges() {
+				return [];
+			},
+			getChangedRoots() {
+				return [];
+			}
 		}
 	};
 }

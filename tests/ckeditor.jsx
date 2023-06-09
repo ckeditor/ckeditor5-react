@@ -21,7 +21,7 @@ describe( '<CKEditor> Component', () => {
 	beforeEach( () => {
 		CKEDITOR_VERSION = window.CKEDITOR_VERSION;
 
-		window.CKEDITOR_VERSION = '37.0.0';
+		window.CKEDITOR_VERSION = '38.0.1';
 		sinon.stub( Editor._model.document, 'on' );
 		sinon.stub( Editor._editing.view.document, 'on' );
 	} );
