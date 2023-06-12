@@ -316,6 +316,32 @@
     "@ckeditor/ckeditor5-table" "^38.0.1"
     "@ckeditor/ckeditor5-typing" "^38.0.1"
 
+"@ckeditor/ckeditor5-build-multi-root@^38.0.1":
+  version "38.0.1"
+  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-build-multi-root/-/ckeditor5-build-multi-root-38.0.1.tgz#9a718ffa099a15e27c20bda6059983bc925bb7ef"
+  integrity sha512-405ML6Xd7faNrJf7avpXxJgbF+QbI5YDGo+ZXAleAESMFh6wYFOZcWfCrMF2QsRTtHZ/nVXic/oEA56kmDZDcg==
+  dependencies:
+    "@ckeditor/ckeditor5-adapter-ckfinder" "^38.0.1"
+    "@ckeditor/ckeditor5-autoformat" "^38.0.1"
+    "@ckeditor/ckeditor5-basic-styles" "^38.0.1"
+    "@ckeditor/ckeditor5-block-quote" "^38.0.1"
+    "@ckeditor/ckeditor5-ckbox" "^38.0.1"
+    "@ckeditor/ckeditor5-ckfinder" "^38.0.1"
+    "@ckeditor/ckeditor5-cloud-services" "^38.0.1"
+    "@ckeditor/ckeditor5-easy-image" "^38.0.1"
+    "@ckeditor/ckeditor5-editor-multi-root" "^38.0.1"
+    "@ckeditor/ckeditor5-essentials" "^38.0.1"
+    "@ckeditor/ckeditor5-heading" "^38.0.1"
+    "@ckeditor/ckeditor5-image" "^38.0.1"
+    "@ckeditor/ckeditor5-indent" "^38.0.1"
+    "@ckeditor/ckeditor5-link" "^38.0.1"
+    "@ckeditor/ckeditor5-list" "^38.0.1"
+    "@ckeditor/ckeditor5-media-embed" "^38.0.1"
+    "@ckeditor/ckeditor5-paragraph" "^38.0.1"
+    "@ckeditor/ckeditor5-paste-from-office" "^38.0.1"
+    "@ckeditor/ckeditor5-table" "^38.0.1"
+    "@ckeditor/ckeditor5-typing" "^38.0.1"
+
 "@ckeditor/ckeditor5-ckbox@^38.0.1":
   version "38.0.1"
   resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-ckbox/-/ckeditor5-ckbox-38.0.1.tgz#797a380dfa618a7a7d6c22dc2222d3af6897f867"
