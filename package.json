@@ -117,7 +117,6 @@
   "homepage": "https://github.com/ckeditor/ckeditor5-react",
   "files": [
     "dist",
-    "scripts/postinstall.js",
     "README.md",
     "CHANGELOG.md",
     "LICENSE.md"

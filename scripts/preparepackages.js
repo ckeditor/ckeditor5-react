@@ -60,12 +60,7 @@ const tasks = new Listr( [
 		title: 'Cleaning-up.',
 		task: () => {
 			return releaseTools.cleanUpPackages( {
-				packagesDirectory: 'release',
-				packageJsonFieldsToRemove: [
-					// TODO: Preserve `scripts.postinstall`.
-					// See: https://github.com/ckeditor/ckeditor5/issues/14318.
-					'devDependencies'
-				]
+				packagesDirectory: 'release'
 			} );
 		}
 	},
