@@ -334,6 +334,7 @@ describe( '<CKEditor> Component', () => {
 				expect( onChange.calledOnce ).to.equal( true );
 				expect( onChange.firstCall.args[ 0 ] ).to.equal( event );
 				expect( onChange.firstCall.args[ 1 ] ).to.equal( editorInstance );
+				expect( onChange.firstCall.args[ 2 ] ).to.deep.equal( {} );
 			} );
 
 			it( 'executes "onChange" callback if it is available in runtime when the editor\'s data has changed', async () => {
@@ -360,6 +361,7 @@ describe( '<CKEditor> Component', () => {
 				expect( onChange.calledOnce ).to.equal( true );
 				expect( onChange.firstCall.args[ 0 ] ).to.equal( event );
 				expect( onChange.firstCall.args[ 1 ] ).to.equal( editorInstance );
+				expect( onChange.firstCall.args[ 2 ] ).to.deep.equal( {} );
 			} );
 		} );
 
