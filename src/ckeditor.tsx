@@ -215,6 +215,11 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 					modelDocument.differ.getChangedRoots()
 						.forEach( changedRoot => {
+							// Ignore the deleting and restoring roots.
+							if ( changedRoot.state ) {
+								return;
+							}
+
 							const rootName = changedRoot.name;
 
 							changedRoots[ rootName! ] = { ...changedRoots[ rootName! ], changedAttributes: true };
@@ -337,11 +342,11 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		modifiedRoots: Array<string>
 	) => {
 		newRoots.forEach( root => {
-			( this.editor as any ).addRoot( root, { attributes: nextProps.attributes[ root ] } );
+			( this.editor as MultiRootEditor ).addRoot( root, { attributes: nextProps.attributes[ root ], isUndoable: true } );
 		} );
 
 		removedRoots.forEach( root => {
-			( this.editor as any ).detachRoot( root, true );
+			( this.editor as MultiRootEditor ).detachRoot( root, true );
 		} );
 
 		for ( const modifiedRoot of modifiedRoots ) {

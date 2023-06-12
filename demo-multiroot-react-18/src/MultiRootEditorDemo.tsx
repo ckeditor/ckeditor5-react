@@ -5,11 +5,6 @@ import { CKEditor } from '../../src';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
-enum Sections {
-	'section-1' = 'section-1',
-	'section-2' = 'section-2'
-}
-
 type EditorDemoProps = {
 	content: Record<string, string>;
 	rootsAttributes: Record<string, Record<string, unknown>>;
@@ -18,10 +13,10 @@ type EditorDemoProps = {
 export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	const initialRootsRefs: Record<string, HTMLDivElement> = {};
 
-	const sectionRefs = useRef<Record<string, HTMLDivElement>>( {} );
 	const [ editor, setEditor ] = useState<MultiRootEditor | null>( null );
 	const [ state, setState ] = useState<Record<string, string>>( props.content );
 	const [ selectedRoot, setSelectedRoot ] = useState<string>();
+	const [ numberOfRoots, setNumberOfRoots ] = useState<number>( 1 );
 	const [ disabledRoots, setDisabledRoots ] = useState<Array<string>>( [] );
 
 	const setInitialSourceElement = ( element: HTMLDivElement | null ) => {
@@ -94,31 +89,57 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		} );
 	};
 
-	const getSectionElements = ( section: Sections ) => elements
-		.filter( element => attributes[ element.props.id ].section === section )
-		.sort( ( a, b ) =>
-			( attributes[ a.props.id ].order as number ) - ( attributes[ b.props.id ].order as number ) );
+	const addRoot = ( newRootAttributes: Record<string, unknown>, rootId?: string ) => {
+		const id = rootId || new Date().getTime();
 
-	const addRoot = ( newRootAttributes: Record<string, unknown> ) => {
-		const rootName = 'root' + new Date().getTime();
+		for ( let i = 1; i <= numberOfRoots; i++ ) {
+			const rootName = `root-${ i }-${ id }`;
 
-		setState( { ...state, [ rootName ]: '' } );
-		setAttributes( { ...attributes, [ rootName ]: { ...newRootAttributes, order: ( elements.length + 1 ) * 10 } } );
+			state[ rootName ] = '';
+			attributes[ rootName ] = { ...newRootAttributes, order: i * 10, row: id };
+		}
+
+		setState( { ...state } );
+		setAttributes( { ...attributes } );
+		setNumberOfRoots( 1 );
 	};
 
-	const removeRoot = () => {
-		const { [ selectedRoot! ]: _, ...newState } = state;
+	const removeRoot = ( rootName: string ) => {
+		setState( previousState => {
+			const { [ rootName! ]: _, ...newState } = previousState;
 
-		setState( { ...newState } );
-		setElements( elements.filter( element => element.props.id !== selectedRoot! ) );
+			return { ...newState };
+		} );
+
 		setSelectedRoot( '' );
 	};
 
 	const handleNewRoot = ( createRootElement: ( props?: Record<string, unknown> ) => JSX.Element ) => {
-		setElements( [ ...elements, createRootElement() ] );
+		const element = createRootElement();
+
+		setElements( previousElements => [ ...previousElements, element ] );
 	};
 
-	const handleRemovedRoot = ( root: any ) => {};
+	const handleRemovedRoot = ( { rootName }: { rootName: string } ) => {
+		// Handling of undo operations.
+		if ( state[ rootName ] !== undefined ) {
+			removeRoot( rootName );
+		}
+
+		setElements( previousElements => previousElements.filter( element => element.props.id !== rootName ) );
+	};
+
+	const groupedElements = Object.entries(
+		elements
+			.sort( ( a, b ) => ( attributes[ a.props.id ].order as number ) - ( attributes[ b.props.id ].order as number ) )
+			.reduce( ( acc: Record<string, Array<JSX.Element>>, element ) => {
+				const row = attributes[ element.props.id ].row as string;
+				acc[ row ] = acc[ row ] || [];
+				acc[ row ].push( element );
+
+				return acc;
+			}, {} )
+	);
 
 	return (
 		<>
@@ -143,7 +164,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 			<div className="buttons">
 				<button
-					onClick={ removeRoot }
+					onClick={ () => removeRoot( selectedRoot! ) }
 					disabled={ !selectedRoot }
 				>
 					Remove root
@@ -160,6 +181,16 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				</select>
 			</div>
 
+			<div className="buttons">
+				<button
+					onClick={ () => addRoot( { row: 'section-1' } ) }
+				>
+					Add row with roots
+				</button>
+
+				<input type="number" min="1" max="4" value={ numberOfRoots } onChange={e => setNumberOfRoots( Number( e.target.value ) )} />
+			</div>
+
 			<br />
 
 			<div ref={ el => {
@@ -168,37 +199,11 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				}
 			}}></div>
 
-			<div>
-				<h2>Section 1</h2>
-
-				<button
-					onClick={ () => addRoot( { section: 'section-1' } ) }
-				>
-					Add root below
-				</button>
-
-				<div className="flex" ref={ el => {
-					sectionRefs.current![ 'section-1' ] = el!;
-				} }>
-					{ getSectionElements( Sections[ 'section-1' ] ) }
+			{ groupedElements.map( ( [ row, elements ] ) => (
+				<div key={row} className={`flex wrapper-row-${ row }`}>
+					{ elements }
 				</div>
-			</div>
-
-			<div>
-				<h2>Section 2</h2>
-
-				<button
-					onClick={ () => addRoot( { section: 'section-2' } ) }
-				>
-					Add root below
-				</button>
-
-				<div className="wrapper" ref={ el => {
-					sectionRefs.current![ 'section-2' ] = el!;
-				} }>
-					{ getSectionElements( Sections[ 'section-2' ] ) }
-				</div>
-			</div>
+			) ) }
 
 			{ /* @ts-expect-error: Caused by linking to parent project and conflicting react types */ }
 			<CKEditor
