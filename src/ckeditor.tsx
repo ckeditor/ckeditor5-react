@@ -342,7 +342,10 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		modifiedRoots: Array<string>
 	) => {
 		newRoots.forEach( root => {
-			( this.editor as MultiRootEditor ).addRoot( root, { attributes: nextProps.attributes[ root ], isUndoable: true } );
+			( this.editor as MultiRootEditor ).addRoot( root, {
+				data: nextProps.data[ root ] || '',
+				attributes: nextProps.attributes?.[ root ] || {},
+				isUndoable: true } );
 		} );
 
 		removedRoots.forEach( root => {
@@ -370,7 +373,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		} );
 
 		removedRootsAttributes.forEach( root => {
-			writer.setAttributes( {}, this.editor!.model.document.getRoot( root ) );
+			writer.clearAttributes( this.editor!.model.document.getRoot( root ) );
 		} );
 	};
 
@@ -398,15 +401,15 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			const editorAttributes = editor.getRootsAttributes();
 
 			const { addedKeys: newRoots, removedKeys: removedRoots, modifiedKeys: modifiedRoots } =
-				this.getStateDiff( editorData, nextProps.data );
+				this.getStateDiff( editorData, nextProps.data || {} );
 			const { addedKeys: newAttributes, removedKeys: removedAttributes, modifiedKeys: modifiedAttributes } =
-				this.getStateDiff( editorAttributes, nextProps.attributes );
+				this.getStateDiff( editorAttributes, nextProps.attributes || {} );
 
 			const newRootAttributes = newAttributes.filter( rootAttr =>
-				newRoots.indexOf( rootAttr ) === -1 && nextProps.data[ rootAttr ] );
+				newRoots.indexOf( rootAttr ) === -1 && nextProps.data[ rootAttr ] !== undefined );
 			const removedRootAttributes = removedAttributes.filter( rootAttr =>
-				removedRoots.indexOf( rootAttr ) === -1 && nextProps.data[ rootAttr ] );
-			const modifiedRootAttributes = modifiedAttributes.filter( rootAttr => nextProps.data[ rootAttr ] );
+				removedRoots.indexOf( rootAttr ) === -1 && nextProps.data[ rootAttr ] !== undefined );
+			const modifiedRootAttributes = modifiedAttributes.filter( rootAttr => nextProps.data[ rootAttr ] !== undefined );
 
 			editor.model.change( writer => {
 				this._handleRoots( nextProps, newRoots, removedRoots, modifiedRoots );
