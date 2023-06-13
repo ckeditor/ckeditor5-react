@@ -537,6 +537,64 @@ describe( '<CKEditor> Component', () => {
 			} );
 		} );
 
+		describe( '#onRootAdd', () => {
+			beforeEach( () => {
+				sinon.stub( Editor, '_on' );
+			} );
+
+			it( 'executes "onAddRoot" callback if the new root has been created', async () => {
+				const onAddRoot = sinon.spy();
+				const editorInstance = new Editor();
+
+				sinon.stub( Editor, 'create' ).resolves( editorInstance );
+
+				await new Promise( ( res, rej ) => {
+					wrapper = mount( <CKEditor
+						editor={ Editor }
+						onAddRoot={ onAddRoot }
+						onReady={ res }
+						onError={ rej }/> );
+				} );
+
+				const fireChanges = Editor._on.firstCall.args[ 1 ];
+				const event = { name: 'addRoot' };
+				const root = { rootName: 'test', getAttributes: () => [ [ 'attr', 'value' ] ] };
+				fireChanges( event, root );
+
+				expect( onAddRoot.calledOnce ).to.equal( true );
+				expect( onAddRoot.firstCall.args[ 0 ]() ).to.deep.include( { type: 'div', props: { id: 'test' } } );
+				expect( onAddRoot.firstCall.args[ 1 ] ).to.deep.equal( { attr: 'value' } );
+			} );
+		} );
+
+		describe( '#onRootRemove', () => {
+			beforeEach( () => {
+				sinon.stub( Editor, '_on' );
+			} );
+
+			it( 'executes "onRemoveRoot" callback if the root has been removed', async () => {
+				const onRemoveRoot = sinon.spy();
+				const editorInstance = new Editor();
+
+				sinon.stub( Editor, 'create' ).resolves( editorInstance );
+
+				await new Promise( ( res, rej ) => {
+					wrapper = mount( <CKEditor
+						editor={ Editor }
+						onRemoveRoot={ onRemoveRoot }
+						onReady={ res }
+						onError={ rej }/> );
+				} );
+
+				const fireChanges = Editor._on.secondCall.args[ 1 ];
+				const event = { name: 'detachRoot' };
+				const root = { rootName: 'test', getAttributes: () => [ [ 'attr', 'value' ] ] };
+				fireChanges( event, root );
+
+				expect( onRemoveRoot.calledOnce ).to.equal( true );
+			} );
+		} );
+
 		describe( '#disabled', () => {
 			it( 'switches the editor to read-only mode if [disabled={true}]', done => {
 				const onReady = editor => {

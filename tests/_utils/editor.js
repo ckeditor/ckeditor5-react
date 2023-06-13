@@ -16,6 +16,7 @@ export default class Editor {
 	initializeProperties() {
 		this.model = Editor._model;
 		this.editing = Editor._editing;
+		this.on = Editor._on;
 		this.data = {
 			get() {
 				return '';
@@ -43,6 +44,10 @@ export default class Editor {
 		this._readOnlyLocks.delete( lockId );
 	}
 
+	detachEditable() {
+		return Promise.resolve();
+	}
+
 	destroy() {
 		return Promise.resolve();
 	}
@@ -56,14 +61,14 @@ export default class Editor {
 		return this.data.get.call( this, ...args );
 	}
 
-	on() { }
-
 	static create() {
 		return Promise.resolve( new this() );
 	}
 }
 
 // In order to tests events, we need to somehow mock those properties.
+Editor._on = () => {};
+
 Editor._model = {
 	document: createDocument()
 };
