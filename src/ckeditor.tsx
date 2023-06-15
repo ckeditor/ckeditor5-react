@@ -341,20 +341,23 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		removedRoots: Array<string>,
 		modifiedRoots: Array<string>
 	) => {
+		const editor = this.editor as MultiRootEditor;
+
 		newRoots.forEach( root => {
-			( this.editor as MultiRootEditor ).addRoot( root, {
+			editor.addRoot( root, {
 				data: nextProps.data[ root ] || '',
 				attributes: nextProps.attributes?.[ root ] || {},
-				isUndoable: true } );
+				isUndoable: true
+			} );
 		} );
 
 		removedRoots.forEach( root => {
-			( this.editor as MultiRootEditor ).detachRoot( root, true );
+			editor.detachRoot( root, true );
 		} );
 
 		for ( const modifiedRoot of modifiedRoots ) {
-			if ( this.editor!.data.get( { rootName: modifiedRoot } ) !== nextProps.data[ modifiedRoot ] ) {
-				this.editor!.data.set( nextProps.data! );
+			if ( editor.data.get( { rootName: modifiedRoot } ) !== nextProps.data[ modifiedRoot ] ) {
+				editor!.data.set( nextProps.data! );
 
 				break;
 			}
