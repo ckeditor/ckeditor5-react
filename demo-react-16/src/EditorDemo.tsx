@@ -11,6 +11,7 @@ type EditorDemoProps = {
 type EditorDemoState = {
 	documents: Array<string>;
 	documentID: number;
+	isWatchdogDisabled: boolean;
 	editor: ClassicEditor | null;
 };
 
@@ -18,6 +19,7 @@ export default class EditorDemo extends React.Component<EditorDemoProps, EditorD
 	public state: EditorDemoState = {
 		documents: [ this.props.content ],
 		documentID: 0,
+		isWatchdogDisabled: false,
 		editor: null
 	};
 
@@ -54,11 +56,17 @@ export default class EditorDemo extends React.Component<EditorDemoProps, EditorD
 					>
 						Next document ID
 					</button>
+					<button
+						onClick={ () => this.setIsWatchdogDisabled() }
+					>
+						{ this.state.isWatchdogDisabled ? 'Enable' : 'Disable' } watchdog
+					</button>
 				</div>
 
 				<CKEditor
 					editor={ ClassicEditor }
 					id={ this.state.documentID }
+					disableWatchdog={ this.state.isWatchdogDisabled }
 					data={ this.state.documents[ this.state.documentID ] }
 					watchdogConfig={ { crashNumberLimit: 10 } }
 
@@ -129,6 +137,10 @@ export default class EditorDemo extends React.Component<EditorDemoProps, EditorD
 				this.state.documents :
 				[ ...this.state.documents, this.props.content ]
 		} );
+	}
+
+	private setIsWatchdogDisabled() {
+		this.setState( { isWatchdogDisabled: !this.state.isWatchdogDisabled } );
 	}
 
 	private previousDocumentID(): void {

@@ -37,8 +37,14 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 	/**
 	 * An instance of EditorWatchdog or an instance of EditorWatchdog-like adapter for ContextWatchdog.
+	 * It holds the instance of the editor under `this.watchdog.editor` if `props.disableWatchdog` is set to false.
 	 */
 	private watchdog: EditorWatchdog<TEditor> | EditorWatchdogAdapter<TEditor> | null = null;
+
+	/**
+	 * Holds the instance of the editor if `props.disableWatchdog` is set to true.
+	 */
+	private instance: Editor | undefined | null;
 
 	constructor( props: Props<TEditor> ) {
 		super( props );
@@ -60,6 +66,10 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * An editor instance.
 	 */
 	public get editor(): Editor | null {
+		if ( this.props.disableWatchdog ) {
+			return this.instance!;
+		}
+
 		if ( !this.watchdog ) {
 			return null;
 		}
@@ -78,6 +88,10 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 		// Only when the component identifier changes the whole structure should be re-created once again.
 		if ( nextProps.id !== this.props.id ) {
+			return true;
+		}
+
+		if ( nextProps.disableWatchdog !== this.props.disableWatchdog ) {
 			return true;
 		}
 
@@ -132,6 +146,11 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 */
 	private async _initializeEditor(): Promise<unknown> {
 		await this.editorDestructionInProgress;
+
+		if ( this.props.disableWatchdog ) {
+			this.instance = await this._createEditor( this.domContainer.current!, this._getConfig() );
+			return;
+		}
 
 		/* istanbul ignore next */
 		if ( this.watchdog ) {
@@ -225,16 +244,20 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			// that <CKEditorContext /> component will be destroyed first, so during the code execution
 			// the `ContextWatchdog#state` would have a correct value. See `EditorWatchdogAdapter#destroy()` for more information.
 			/* istanbul ignore next */
-			setTimeout( () => {
+			setTimeout( async () => {
 				if ( this.watchdog ) {
-					this.watchdog.destroy().then( () => {
-						this.watchdog = null;
-
-						resolve();
-					} );
-				} else {
-					resolve();
+					await this.watchdog.destroy();
+					this.watchdog = null;
+					return resolve();
 				}
+
+				if ( this.instance ) {
+					await this.instance.destroy();
+					this.instance = null;
+					return resolve();
+				}
+
+				resolve();
 			} );
 		} );
 	}
@@ -288,6 +311,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		editor: PropTypes.func.isRequired as unknown as Validator<{ create( ...args: any ): Promise<any> }>,
 		data: PropTypes.string,
 		config: PropTypes.object,
+		disableWatchdog: PropTypes.bool,
 		watchdogConfig: PropTypes.object,
 		onChange: PropTypes.func,
 		onReady: PropTypes.func,
@@ -310,6 +334,7 @@ interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propT
 	editor: { create( ...args: any ): Promise<TEditor> };
 	config?: EditorConfig;
 	watchdogConfig?: WatchdogConfig;
+	disableWatchdog?: boolean;
 	onReady?: ( editor: TEditor ) => void;
 	onError?: ( error: Error, details: ErrorDetails ) => void;
 	onChange?: ( event: EventInfo, editor: TEditor ) => void;

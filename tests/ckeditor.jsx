@@ -641,6 +641,58 @@ describe( '<CKEditor> Component', () => {
 				expect( secondWatchdog.state ).to.equal( 'ready' );
 			} );
 		} );
+
+		describe( '#disableWatchdog', () => {
+			it( 'should not initialize watchdog if disableWatchdog is set to true', async () => {
+				await new Promise( ( res, rej ) => {
+					wrapper = mount( <CKEditor
+						editor={ Editor }
+						onReady={ res }
+						onError={ rej }
+						config={ { initialData: '<p>foo</p>' } }
+						disableWatchdog={ true }
+						id="1"
+					/> );
+				} );
+
+				const { watchdog } = wrapper.instance();
+
+				expect( watchdog ).to.equal( null );
+			} );
+
+			it( 'should initialize watchdog if disableWatchdog is set to false', async () => {
+				await new Promise( ( res, rej ) => {
+					wrapper = mount( <CKEditor
+						editor={ Editor }
+						onReady={ res }
+						onError={ rej }
+						config={ { initialData: '<p>foo</p>' } }
+						disableWatchdog={ false }
+						id="1"
+					/> );
+				} );
+
+				const { watchdog } = wrapper.instance();
+
+				expect( watchdog ).not.to.equal( null );
+			} );
+
+			it( 'should initialize watchdog if disableWatchdog is not set', async () => {
+				await new Promise( ( res, rej ) => {
+					wrapper = mount( <CKEditor
+						editor={ Editor }
+						onReady={ res }
+						onError={ rej }
+						config={ { initialData: '<p>foo</p>' } }
+						id="1"
+					/> );
+				} );
+
+				const { watchdog } = wrapper.instance();
+
+				expect( watchdog ).not.to.equal( null );
+			} );
+		} );
 	} );
 
 	describe( 'destroy', () => {

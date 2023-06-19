@@ -15,6 +15,7 @@ type EditorDemoState = {
 };
 
 export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
+	const [ isWatchdogDisabled, setIsWatchdogDisabled ] = useState( false );
 	const [ state, setState ] = useState<EditorDemoState>( {
 		documents: [ props.content ],
 		documentID: 0,
@@ -101,12 +102,18 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				>
 					Next document ID
 				</button>
+				<button
+					onClick={ () => setIsWatchdogDisabled( !isWatchdogDisabled ) }
+				>
+					{ isWatchdogDisabled ? 'Enable' : 'Disable' } watchdog
+				</button>
 			</div>
 
 			{ /* @ts-expect-error: Caused by linking to parent project and conflicting react types */ }
 			<CKEditor
 				editor={ ClassicEditor }
 				id={ state.documentID }
+				disableWatchdog={ isWatchdogDisabled }
 				data={ state.documents[ state.documentID ] }
 				watchdogConfig={ { crashNumberLimit: 10 } }
 
