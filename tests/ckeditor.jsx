@@ -692,6 +692,35 @@ describe( '<CKEditor> Component', () => {
 
 				expect( watchdog ).not.to.equal( null );
 			} );
+
+			it( 'should re-render when disableWatchdog has changed', async () => {
+				await new Promise( ( res, rej ) => {
+					wrapper = mount( <CKEditor
+						editor={ Editor }
+						onReady={ res }
+						onError={ rej }
+						config={ { initialData: '<p>foo</p>' } }
+						id="1"
+					/> );
+				} );
+
+				const { watchdog: watchdog1 } = wrapper.instance();
+				expect( watchdog1 ).not.to.equal( null );
+
+				await new Promise( res => {
+					wrapper.setProps( { onReady: res, disableWatchdog: true } );
+				} );
+
+				const { watchdog: watchdog2 } = wrapper.instance();
+				expect( watchdog2 ).to.equal( null );
+
+				await new Promise( res => {
+					wrapper.setProps( { onReady: res, disableWatchdog: false } );
+				} );
+
+				const { watchdog: watchdog3 } = wrapper.instance();
+				expect( watchdog3 ).not.to.equal( null );
+			} );
 		} );
 	} );
 
