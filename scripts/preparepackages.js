@@ -34,17 +34,17 @@ const tasks = new Listr( [
 		}
 	},
 	{
-		title: 'Running build command.',
-		task: () => {
-			return tools.shExec( 'yarn run build', { async: true, verbosity: 'silent' } );
-		}
-	},
-	{
 		title: 'Updating the `#version` field.',
 		task: () => {
 			return releaseTools.updateVersions( {
 				version: latestVersion
 			} );
+		}
+	},
+	{
+		title: 'Running build command.',
+		task: () => {
+			return tools.shExec( 'yarn run build', { async: true, verbosity: 'silent' } );
 		}
 	},
 	{
