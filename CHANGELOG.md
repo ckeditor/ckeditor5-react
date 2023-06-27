@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## [6.1.0](https://github.com/ckeditor/ckeditor5-react/compare/v6.0.0...v6.1.0) (2023-06-27)
+
+### Features
+
+* Added the `disableWatchdog` property to the `<CKEditor>` component that allows disabling integration with [the watchdog feature](https://ckeditor.com/docs/ckeditor5/latest/features/watchdog.html). Closes [ckeditor/ckeditor5-react#373](https://github.com/ckeditor/ckeditor5-react/issues/373). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/3fa02f4a1d9a6419f8d969a6b2cffad143ee7ee4))
+
+
 ## [6.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v5.1.0...v6.0.0) (2023-04-07)
 
 ### BREAKING CHANGES
