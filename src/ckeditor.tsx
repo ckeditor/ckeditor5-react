@@ -6,13 +6,12 @@
 /* globals window */
 
 import React from 'react';
-import PropTypes, { type InferProps, type Validator } from 'prop-types';
 
 import uid from '@ckeditor/ckeditor5-utils/src/uid';
 
 import type { EventInfo } from '@ckeditor/ckeditor5-utils';
 import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
-import type { DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';
+import type { DocumentChangeEvent, RootElement, Writer } from '@ckeditor/ckeditor5-engine';
 
 import { EditorWatchdog, ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
@@ -20,6 +19,7 @@ import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/edi
 
 import { ContextWatchdogContext } from './ckeditorcontext';
 import type { MultiRootEditor } from '@ckeditor/ckeditor5-editor-multi-root';
+import type { AddRootEvent, DetachRootEvent } from '@ckeditor/ckeditor5-editor-multi-root/src/multirooteditor';
 import type MultiRootEditorUI from '@ckeditor/ckeditor5-editor-multi-root/src/multirooteditorui';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
@@ -210,6 +210,8 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 								const { rootName } = change.position.root;
 
 								changedRoots[ rootName! ] = { changedData: true };
+							} else {
+								console.log( change );
 							}
 						} );
 
@@ -231,7 +233,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 					}
 				} );
 
-				editor.on( 'addRoot', ( evt, root ) => {
+				editor.on<AddRootEvent>( 'addRoot', ( evt, root ) => {
 					if ( this.props.onAddRoot ) {
 						const reactElement = ( props?: Record<string, unknown> ) => <div
 							ref={ el => {
@@ -257,7 +259,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 					}
 				} );
 
-				editor.on( 'detachRoot', ( evt, root ) => {
+				editor.on<DetachRootEvent>( 'detachRoot', ( evt, root ) => {
 					if ( this.props.onRemoveRoot ) {
 						this.props.onRemoveRoot( root );
 
@@ -322,31 +324,40 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		} );
 	}
 
-	private getStateDiff( previousState: Record<string, unknown>, newState: Record<string, unknown> ):
-		{ addedKeys: Array<string>; removedKeys: Array<string>; modifiedKeys: Array<string> } {
+	private _getStateDiff(
+		previousState: Record<string, unknown>,
+		newState: Record<string, unknown>
+	): {
+		addedKeys: Array<string>;
+		removedKeys: Array<string>;
+		modifiedKeys: Array<string>;
+	} {
 		const previousStateKeys = Object.keys( previousState );
 		const newStateKeys = Object.keys( newState );
 
 		return {
-			addedKeys: newStateKeys.filter( key => previousStateKeys.indexOf( key ) === -1 ),
-			removedKeys: previousStateKeys.filter( key => newStateKeys.indexOf( key ) === -1 ),
-			modifiedKeys: previousStateKeys.filter( key => newStateKeys.indexOf( key ) !== -1 &&
-				JSON.stringify( previousState[ key ] ) !== JSON.stringify( newState[ key ] ) )
+			addedKeys: newStateKeys.filter( key => !previousStateKeys.includes( key ) ),
+			removedKeys: previousStateKeys.filter( key => !newStateKeys.includes( key ) ),
+			modifiedKeys: previousStateKeys.filter( key => (
+				newStateKeys.includes( key ) &&
+				JSON.stringify( previousState[ key ] ) !== JSON.stringify( newState[ key ] )
+			) )
 		};
 	}
 
 	private _handleRoots = (
-		nextProps: any,
+		nextProps: Props<TEditor>,
 		newRoots: Array<string>,
 		removedRoots: Array<string>,
 		modifiedRoots: Array<string>
 	) => {
 		const editor = this.editor as MultiRootEditor;
+		const nextData = nextProps.data as Record<string, string>;
 
 		newRoots.forEach( root => {
 			editor.addRoot( root, {
-				data: nextProps.data[ root ] || '',
-				attributes: nextProps.attributes?.[ root ] || {},
+				data: nextData[ root ] || '',
+				attributes: nextProps.attributes?.[ root ] || {} as any,
 				isUndoable: true
 			} );
 		} );
@@ -356,7 +367,10 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		} );
 
 		for ( const modifiedRoot of modifiedRoots ) {
-			if ( editor.data.get( { rootName: modifiedRoot } ) !== nextProps.data[ modifiedRoot ] ) {
+			// Currently, there is no possibility to set data only for one root in a multi-root editor.
+			// That is why the whole content is updated when at least one root is changed. After that,
+			// the loop is stopped since the content is up-to-date for the entire editor.
+			if ( editor.data.get( { rootName: modifiedRoot } ) !== nextData[ modifiedRoot ] ) {
 				editor!.data.set( nextProps.data! );
 
 				break;
@@ -365,18 +379,18 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	};
 
 	private _handleRootsAttributes = (
-		writer: any,
-		nextProps: any,
+		writer: Writer,
+		nextProps: Props<TEditor>,
 		newRootsAttributes: Array<string>,
 		removedRootsAttributes: Array<string>,
 		modifiedRootsAttributes: Array<string>
 	) => {
 		[ ...newRootsAttributes, ...modifiedRootsAttributes ].forEach( root => {
-			writer.setAttributes( nextProps.attributes[ root ], this.editor!.model.document.getRoot( root ) );
+			writer.setAttributes( nextProps.attributes![ root ] as Record<string, any>, this.editor!.model.document.getRoot( root )! );
 		} );
 
 		removedRootsAttributes.forEach( root => {
-			writer.clearAttributes( this.editor!.model.document.getRoot( root ) );
+			writer.clearAttributes( this.editor!.model.document.getRoot( root )! );
 		} );
 	};
 
@@ -397,22 +411,29 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		const roots = Object.keys( this.props.data );
 
 		// We should not change data if the editor's content is equal to the `#data` property.
-		if ( roots && 'getFullData' in this.editor! ) {
+		if ( roots.length && 'getFullData' in this.editor! ) {
 			const editor = this.editor as MultiRootEditor;
 
 			const editorData = editor.getFullData();
 			const editorAttributes = editor.getRootsAttributes();
+			const nextData = nextProps.data as Record<string, string>;
 
-			const { addedKeys: newRoots, removedKeys: removedRoots, modifiedKeys: modifiedRoots } =
-				this.getStateDiff( editorData, nextProps.data || {} );
-			const { addedKeys: newAttributes, removedKeys: removedAttributes, modifiedKeys: modifiedAttributes } =
-				this.getStateDiff( editorAttributes, nextProps.attributes || {} );
+			const {
+				addedKeys: newRoots,
+				removedKeys: removedRoots,
+				modifiedKeys: modifiedRoots
+			} = this._getStateDiff( editorData, nextData || {} );
+			const {
+				addedKeys: newAttributes,
+				removedKeys: removedAttributes,
+				modifiedKeys: modifiedAttributes
+			} = this._getStateDiff( editorAttributes, nextProps.attributes || {} );
 
 			const newRootAttributes = newAttributes.filter( rootAttr =>
-				newRoots.indexOf( rootAttr ) === -1 && nextProps.data[ rootAttr ] !== undefined );
+				!newRoots.includes( rootAttr ) && nextData[ rootAttr ] !== undefined );
 			const removedRootAttributes = removedAttributes.filter( rootAttr =>
-				removedRoots.indexOf( rootAttr ) === -1 && nextProps.data[ rootAttr ] !== undefined );
-			const modifiedRootAttributes = modifiedAttributes.filter( rootAttr => nextProps.data[ rootAttr ] !== undefined );
+				!removedRoots.includes( rootAttr ) && nextData[ rootAttr ] !== undefined );
+			const modifiedRootAttributes = modifiedAttributes.filter( rootAttr => nextData[ rootAttr ] !== undefined );
 
 			editor.model.change( writer => {
 				this._handleRoots( nextProps, newRoots, removedRoots, modifiedRoots );
@@ -476,6 +497,9 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propTypes> {
 	editor: { create( ...args: any ): Promise<TEditor> };
 	config?: EditorConfig;
+	data: Record<string, string> | string;
+	attributes?: Record<string, unknown>;
+	sourceElements?: Record<string, HTMLDivElement>;
 	watchdogConfig?: WatchdogConfig;
 	disableWatchdog?: boolean;
 	onReady?: ( editor: TEditor ) => void;
@@ -484,7 +508,9 @@ interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propT
 	onFocus?: ( event: EventInfo, editor: TEditor ) => void;
 	onBlur?: ( event: EventInfo, editor: TEditor ) => void;
 	onAddRoot?: ( createElement: () => JSX.Element, attributes: Record<string, unknown> ) => void;
-	onRemoveRoot?: ( root: any ) => void;
+	onRemoveRoot?: ( root: RootElement ) => void;
+	disabled: boolean;
+	id: any;
 }
 
 interface ErrorDetails {

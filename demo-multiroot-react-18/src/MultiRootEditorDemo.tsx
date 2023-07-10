@@ -172,7 +172,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				<select value={ selectedRoot || 'placeholder'} onChange={ ( evt: ChangeEvent<HTMLSelectElement> ) => {
 					setSelectedRoot( evt.target.value );
 				}}>
-					<option hidden value='placeholder'>Select root to remove</option>
+					<option hidden value="placeholder">Select root to remove</option>
 
 					{ Object.keys( state ).map( rootName => (
 						<option key={ rootName } value={ rootName }>{ rootName }</option>
@@ -193,10 +193,10 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			<br />
 
 			<div ref={ el => {
-				if ( editor ) {
-					el?.appendChild( editor!.ui.view.toolbar.element! );
+				if ( editor && el ) {
+					el.appendChild( editor.ui.view.toolbar.element! );
 				}
-			}}></div>
+			} }></div>
 
 			{ groupedElements.map( ( [ row, elements ] ) => (
 				<div key={row} className={`flex wrapper-row-${ row }`}>
@@ -214,7 +214,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				watchdogConfig={ { crashNumberLimit: 10 } }
 				config={ {
 					rootsAttributes: props.rootsAttributes
-				} as any }
+				} }
 
 				onReady={ editor => {
 					window.editor = editor;
