@@ -6,6 +6,7 @@
 /* globals window */
 
 import React from 'react';
+import PropTypes, { type InferProps, type Validator } from 'prop-types';
 
 import uid from '@ckeditor/ckeditor5-utils/src/uid';
 
@@ -210,8 +211,6 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 								const { rootName } = change.position.root;
 
 								changedRoots[ rootName! ] = { changedData: true };
-							} else {
-								console.log( change );
 							}
 						} );
 
@@ -345,12 +344,12 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		};
 	}
 
-	private _handleRoots = (
+	private _handleRoots(
 		nextProps: Props<TEditor>,
 		newRoots: Array<string>,
 		removedRoots: Array<string>,
 		modifiedRoots: Array<string>
-	) => {
+	) {
 		const editor = this.editor as MultiRootEditor;
 		const nextData = nextProps.data as Record<string, string>;
 
@@ -376,15 +375,15 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 				break;
 			}
 		}
-	};
+	}
 
-	private _handleRootsAttributes = (
+	private _handleRootsAttributes(
 		writer: Writer,
 		nextProps: Props<TEditor>,
 		newRootsAttributes: Array<string>,
 		removedRootsAttributes: Array<string>,
 		modifiedRootsAttributes: Array<string>
-	) => {
+	) {
 		[ ...newRootsAttributes, ...modifiedRootsAttributes ].forEach( root => {
 			writer.setAttributes( nextProps.attributes![ root ] as Record<string, any>, this.editor!.model.document.getRoot( root )! );
 		} );
@@ -392,7 +391,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		removedRootsAttributes.forEach( root => {
 			writer.clearAttributes( this.editor!.model.document.getRoot( root )! );
 		} );
-	};
+	}
 
 	/**
 	 * Returns true when the editor should be updated.
@@ -469,8 +468,11 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	// Properties definition.
 	public static propTypes = {
 		editor: PropTypes.func.isRequired as unknown as Validator<{ create( ...args: any ): Promise<any> }>,
-		data: PropTypes.any,
-		attributes: PropTypes.any,
+		data: PropTypes.oneOfType( [
+			PropTypes.object,
+			PropTypes.string
+		] ),
+		attributes: PropTypes.object,
 		sourceElements: PropTypes.object,
 		config: PropTypes.object,
 		disableWatchdog: PropTypes.bool,
@@ -509,8 +511,6 @@ interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propT
 	onBlur?: ( event: EventInfo, editor: TEditor ) => void;
 	onAddRoot?: ( createElement: () => JSX.Element, attributes: Record<string, unknown> ) => void;
 	onRemoveRoot?: ( root: RootElement ) => void;
-	disabled: boolean;
-	id: any;
 }
 
 interface ErrorDetails {
