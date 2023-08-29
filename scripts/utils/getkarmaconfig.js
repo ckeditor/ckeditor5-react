@@ -186,7 +186,7 @@ function getBrowsers( browsers ) {
 			return browser;
 		}
 
-		return process.env.TRAVIS ? 'CHROME_CI' : 'CHROME_LOCAL';
+		return process.env.CI ? 'CHROME_CI' : 'CHROME_LOCAL';
 	} );
 }
 
