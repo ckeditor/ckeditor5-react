@@ -1,0 +1,129 @@
+version: 2.1
+
+parameters:
+  isNightly:
+    type: boolean
+    default: false
+
+commands:
+  prepare_environment_command:
+    description: "Prepare environment (RAM, browsers, hosts, etc.)"
+    steps:
+      # CircleCI does not use the latest Chrome. Hence, we must install it manually.
+      - run:
+          name: Install the latest Chrome
+          command: yarn ckeditor5-dev-ci-install-latest-chrome
+
+  bootstrap_repository_command:
+    description: "Bootstrap the repository"
+    steps:
+      - install_ssh_keys_command
+      - run:
+          name: Install dependencies
+          command: yarn install
+
+  install_ssh_keys_command:
+    description: "Install SSH keys"
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+              - "2a:97:94:d9:ae:a0:8d:bd:c2:2a:2d:cf:8d:d1:94:bd"
+
+jobs:
+  notify_ci_failure:
+    machine: true
+    parameters:
+      hideAuthor:
+        type: string
+        default: "false"
+    steps:
+      - checkout
+      - bootstrap_repository_command
+      - run:
+          # In the PRs that comes from forked repositories, we do not share secret variables.
+          # Hence, some of the scripts will not be executed.
+          name: 👤 Verify if the build was triggered by community - Check if the build should continue
+          command: |
+            #!/bin/bash
+
+            if [[ -z ${COVERALLS_REPO_TOKEN} ]];
+            then
+              circleci-agent step halt
+            fi
+      - run:
+          environment:
+            CKE5_SLACK_NOTIFY_HIDE_AUTHOR: << parameters.hideAuthor >>
+            CKE5_PIPELINE_NUMBER: << pipeline.number >>
+          name: Waiting for other jobs to finish and sending notification on failure
+          command: yarn ckeditor5-dev-ci-circle-workflow-notifier
+          no_output_timeout: 1h
+
+  main:
+    machine: true
+    steps:
+      - checkout
+      - bootstrap_repository_command
+      - prepare_environment_command
+      - run:
+          name: Execute ESLint
+          command: yarn run lint
+      - run:
+          name: Run build
+          command: yarn run build
+      - run:
+          name: Run unit tests
+          command: yarn run coverage
+      - run:
+          name: Verify the code coverage
+          command: |
+            #!/bin/bash
+
+            # Create the `nyc` directory.
+            mkdir .nyc_output
+
+            # Copy results.
+            cp coverage/coverage-final.json .nyc_output
+
+            # Verify results.
+            npx nyc check-coverage --branches 100 --functions 100 --lines 100 --statements 100
+      - unless:
+          # Upload the code coverage results for non-nightly builds only.
+          condition: << pipeline.parameters.isNightly >>
+          steps:
+            - run:
+                # In the PRs that comes from forked repositories, we do not share secret variables.
+                # Hence, some of the scripts will not be executed.
+                name: 👤 Verify if the build was triggered by community - Check if the build should continue
+                command: |
+                  #!/bin/bash
+
+                  if [[ -z ${COVERALLS_REPO_TOKEN} ]];
+                  then
+                    circleci-agent step halt
+                  fi
+            - run:
+                name: Upload code coverage
+                command: cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+
+workflows:
+  version: 2
+  main:
+    unless: << pipeline.parameters.isNightly >>
+    jobs:
+      - main
+      - notify_ci_failure:
+          filters:
+            branches:
+              only:
+                - master
+
+  nightly:
+    when: << pipeline.parameters.isNightly >>
+    jobs:
+      - main
+      - notify_ci_failure:
+          hideAuthor: "true"
+          filters:
+            branches:
+              only:
+                - master
