@@ -6,10 +6,9 @@
 import React, { type ReactNode } from 'react';
 import PropTypes, { type InferProps, type Validator } from 'prop-types';
 
-import { ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
-import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
-
-import type { Context, ContextConfig } from '@ckeditor/ckeditor5-core';
+// TODO: `WatchdogConfig` is not available in v37.0.0 and even v39.0.2.
+import { ContextWatchdog, type WatchdogConfig } from 'ckeditor5/src/watchdog';
+import type { Context, ContextConfig } from 'ckeditor5/src/core';
 
 export const ContextWatchdogContext = React.createContext<ContextWatchdog | 'contextWatchdog' | null>( 'contextWatchdog' );
 

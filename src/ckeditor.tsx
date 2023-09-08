@@ -8,15 +8,12 @@
 import React from 'react';
 import PropTypes, { type InferProps, type Validator } from 'prop-types';
 
-import uid from '@ckeditor/ckeditor5-utils/src/uid';
+import { uid, type EventInfo } from 'ckeditor5/src/utils';
+import type { Editor, EditorConfig } from 'ckeditor5/src/core';
+import type { DocumentChangeEvent } from 'ckeditor5/src/engine';
 
-import type { EventInfo } from '@ckeditor/ckeditor5-utils';
-import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
-import type { DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';
-
-import { EditorWatchdog, ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
-import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
-import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
+// TODO: `EditorCreatorFunction` is not available in v37.0.0 and even v39.0.2.
+import { EditorWatchdog, ContextWatchdog, type WatchdogConfig, type EditorCreatorFunction } from 'ckeditor5/src/watchdog';
 
 import { ContextWatchdogContext } from './ckeditorcontext';
 
