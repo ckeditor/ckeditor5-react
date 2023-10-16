@@ -207,16 +207,22 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 					modelDocument.differ.getChanges()
 						.forEach( change => {
-							if ( 'position' in change && change.position.root.isAttached() ) {
-								const { rootName } = change.position.root;
+							let rootName: string;
 
-								changedRoots[ rootName! ] = { changedData: true };
+							if ( change.type == 'insert' || change.type == 'remove' ) {
+								rootName = change.position.root.rootName!;
+							} else {
+								// Must be `attribute` diff item.
+								rootName = change.range.root.rootName!;
 							}
+
+							changedRoots[ rootName ] = { changedData: true };
 						} );
 
 					modelDocument.differ.getChangedRoots()
 						.forEach( changedRoot => {
-							// Ignore the deleting and restoring roots.
+							// Ignore added and removed roots. They are handled by a different function.
+							// Only register if roots attributes changed.
 							if ( changedRoot.state ) {
 								return;
 							}
@@ -365,15 +371,11 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			editor.detachRoot( root, true );
 		} );
 
-		for ( const modifiedRoot of modifiedRoots ) {
-			// Currently, there is no possibility to set data only for one root in a multi-root editor.
-			// That is why the whole content is updated when at least one root is changed. After that,
-			// the loop is stopped since the content is up-to-date for the entire editor.
-			if ( editor.data.get( { rootName: modifiedRoot } ) !== nextData[ modifiedRoot ] ) {
-				editor!.data.set( nextProps.data! );
-
-				break;
-			}
+		// If any of the roots content has changed, set the editor data.
+		// Unfortunately, we cannot set the editor data just for one root, so we need to overwrite all roots (`nextProps.data` is an
+		// object with data for each root).
+		if ( modifiedRoots.length ) {
+			editor!.data.set( nextProps.data! );
 		}
 	}
 
@@ -394,7 +396,8 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	}
 
 	/**
-	 * Returns true when the editor should be updated.
+	 * Checks if the editor content or roots attributes should be updated and, if so, changes the editor content and/or attributes
+	 * accordingly to the data in `nextProps`.
 	 *
 	 * @param nextProps React's properties.
 	 */
@@ -406,7 +409,6 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		if ( this.props.data === nextProps.data && this.props.attributes === nextProps.attributes ) {
 			return;
 		}
-
 		const roots = Object.keys( this.props.data );
 
 		// We should not change data if the editor's content is equal to the `#data` property.

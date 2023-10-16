@@ -13,10 +13,10 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	const initialRootsRefs: Record<string, HTMLDivElement> = {};
 
 	const [ editor, setEditor ] = useState<MultiRootEditor | null>( null );
-	const [ state, setState ] = useState<Record<string, string>>( props.content );
+	const [ content, setContent ] = useState<Record<string, string>>( props.content );
 	const [ selectedRoot, setSelectedRoot ] = useState<string>();
 	const [ numberOfRoots, setNumberOfRoots ] = useState<number>( 1 );
-	const [ disabledRoots, setDisabledRoots ] = useState<Array<string>>( [] );
+	const [ disabledRoots, setDisabledRoots ] = useState<Set<string>>( new Set() );
 
 	const setInitialSourceElement = ( element: HTMLDivElement | null ) => {
 		if ( element && element.id ) {
@@ -36,12 +36,12 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			return;
 		}
 
-		const newState: Record<string, string> = {};
+		const newContent: Record<string, string> = {};
 		let hasNewAttributes = false;
 
 		for ( const [ rootName, { changedData, changedAttributes } ] of Object.entries( changedRoots ) ) {
 			if ( changedData ) {
-				newState[ rootName ] = editor!.getData( { rootName } );
+				newContent[ rootName ] = editor!.getData( { rootName } );
 			}
 
 			if ( changedAttributes && !hasNewAttributes ) {
@@ -49,7 +49,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			}
 		}
 
-		setState( { ...state, ...newState } );
+		setContent( { ...content, ...newContent } );
 
 		if ( hasNewAttributes ) {
 			setAttributes( { ...editor!.getRootsAttributes() } );
@@ -63,28 +63,25 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			return;
 		}
 
-		const index = disabledRoots.indexOf( root.rootName );
+		const isReadOnly = disabledRoots.has( root.rootName );
 
-		if ( index >= 0 ) {
-			disabledRoots.splice( index, 1 );
-			setDisabledRoots( [ ...disabledRoots ] );
-
+		if ( isReadOnly ) {
+			disabledRoots.delete( root.rootName );
 			editor!.enableRoot( root.rootName, SAMPLE_READ_ONLY_LOCK_ID );
 		} else {
-			setDisabledRoots( [ ...disabledRoots, root.rootName ] );
-
+			disabledRoots.add( root.rootName );
 			editor!.disableRoot( root.rootName, SAMPLE_READ_ONLY_LOCK_ID );
 		}
+
+		setDisabledRoots( new Set( disabledRoots ) );
 	};
 
 	const simulateError = () => {
-		setTimeout( () => {
-			const err: any = new Error( 'foo' );
+		editor!.model.change( writer => {
+			const root = editor!.model.document.selection.getFirstRange()!.root;
+			const pos = writer.createPositionFromPath( root, [ 1, 2, 3, 4, 5, 6 ] );
 
-			err.context = state.editor;
-			err.is = () => true;
-
-			throw err;
+			const parent = pos.parent;
 		} );
 	};
 
@@ -94,20 +91,20 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		for ( let i = 1; i <= numberOfRoots; i++ ) {
 			const rootName = `root-${ i }-${ id }`;
 
-			state[ rootName ] = '';
+			content[ rootName ] = '';
 			attributes[ rootName ] = { ...newRootAttributes, order: i * 10, row: id };
 		}
 
-		setState( { ...state } );
+		setContent( { ...content } );
 		setAttributes( { ...attributes } );
 		setNumberOfRoots( 1 );
 	};
 
 	const removeRoot = ( rootName: string ) => {
-		setState( previousState => {
-			const { [ rootName! ]: _, ...newState } = previousState;
+		setContent( previousContent => {
+			const { [ rootName! ]: _, ...newContent } = previousContent;
 
-			return { ...newState };
+			return { ...newContent };
 		} );
 
 		setSelectedRoot( '' );
@@ -121,7 +118,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 	const handleRemovedRoot = ( { rootName }: { rootName: string } ) => {
 		// Handling of undo operations.
-		if ( state[ rootName ] !== undefined ) {
+		if ( content[ rootName ] !== undefined ) {
 			removeRoot( rootName );
 		}
 
@@ -174,7 +171,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				}}>
 					<option hidden value="placeholder">Select root to remove</option>
 
-					{ Object.keys( state ).map( rootName => (
+					{ Object.keys( content ).map( rootName => (
 						<option key={ rootName } value={ rootName }>{ rootName }</option>
 					) ) }
 				</select>
@@ -208,7 +205,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			<CKEditor
 				editor={ MultiRootEditor }
 				id="0"
-				data={ state }
+				data={ content }
 				attributes={ attributes }
 				sourceElements={ initialRootsRefs }
 				watchdogConfig={ { crashNumberLimit: 10 } }
