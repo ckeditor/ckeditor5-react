@@ -280,9 +280,8 @@ describe( '<CKEditor> Component', () => {
 
 	describe( 'properties', () => {
 		// See: #83.
-		it( 'does not update anything if component is not ready', () => {
+		it( 'does not update anything if component is not ready', async () => {
 			const editorInstance = new Editor();
-
 			sinon.stub( Editor, 'create' ).resolves( editorInstance );
 
 			wrapper = mount( <CKEditor editor={ Editor }/> );

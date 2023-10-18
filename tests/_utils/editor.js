@@ -3,6 +3,8 @@
  * For licensing, see LICENSE.md.
  */
 
+/* globals document */
+
 /**
  * Mock of class that representing a basic, generic editor.
  *
@@ -25,6 +27,12 @@ export default class Editor {
 
 			}
 		};
+		this.ui = {
+			getEditableElement() {
+				return document.createElement( 'div' );
+			}
+		};
+		this.plugins = new Set();
 		this._readOnlyLocks = new Set();
 	}
 
@@ -70,7 +78,8 @@ export default class Editor {
 Editor._on = () => {};
 
 Editor._model = {
-	document: createDocument()
+	document: createDocument(),
+	markers: []
 };
 
 Editor._editing = {
@@ -92,6 +101,19 @@ function createDocument() {
 			},
 			getChangedRoots() {
 				return [];
+			}
+		},
+		roots: {
+			filter() {
+				return [ {
+					getAttributes: () => {
+						return {};
+					},
+					getChildren: () => {
+						return [];
+					},
+					_isLoaded: false
+				} ];
 			}
 		}
 	};
