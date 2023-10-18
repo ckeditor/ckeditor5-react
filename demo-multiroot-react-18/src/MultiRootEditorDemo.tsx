@@ -1,4 +1,4 @@
-import React, { useState, type ChangeEvent } from 'react';
+import React, { useState, type ChangeEvent, useEffect, useRef } from 'react';
 import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 
@@ -17,6 +17,21 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	const [ selectedRoot, setSelectedRoot ] = useState<string>();
 	const [ numberOfRoots, setNumberOfRoots ] = useState<number>( 1 );
 	const [ disabledRoots, setDisabledRoots ] = useState<Set<string>>( new Set() );
+	const toolbarRef = useRef<HTMLDivElement>( null );
+
+	useEffect( () => {
+		const container = toolbarRef.current!;
+
+		if ( container && editor ) {
+			container.appendChild( editor.ui.view.toolbar.element! );
+		}
+
+		return () => {
+			if ( container.firstChild ) {
+				container.removeChild( container.firstChild! );
+			}
+		};
+	}, [ editor ] );
 
 	const setInitialSourceElement = ( element: HTMLDivElement | null ) => {
 		if ( element && element.id ) {
@@ -77,11 +92,13 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	};
 
 	const simulateError = () => {
-		editor!.model.change( writer => {
-			const root = editor!.model.document.selection.getFirstRange()!.root;
-			const pos = writer.createPositionFromPath( root, [ 1, 2, 3, 4, 5, 6 ] );
+		setTimeout( () => {
+			const err: any = new Error( 'foo' );
 
-			const parent = pos.parent;
+			err.context = editor;
+			err.is = () => true;
+
+			throw err;
 		} );
 	};
 
@@ -189,11 +206,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 			<br />
 
-			<div ref={ el => {
-				if ( editor && el ) {
-					el.appendChild( editor.ui.view.toolbar.element! );
-				}
-			} }></div>
+			<div ref={ toolbarRef }></div>
 
 			{ groupedElements.map( ( [ row, elements ] ) => (
 				<div key={row} className={`flex wrapper-row-${ row }`}>
