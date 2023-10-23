@@ -12,11 +12,21 @@ type EditorDemoProps = {
 export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	const initialRootsRefs: Record<string, HTMLDivElement> = {};
 
+	// State variables for managing the current editor instance, its content and attributes.
 	const [ editor, setEditor ] = useState<MultiRootEditor | null>( null );
 	const [ content, setContent ] = useState<Record<string, string>>( props.content );
+	const [ attributes, setAttributes ] = useState<Record<string, Record<string, unknown>>>( props.rootsAttributes );
+
+	// The select element state to pick the root for removing.
 	const [ selectedRoot, setSelectedRoot ] = useState<string>();
+
+	// The number of roots that should be added in one row. It is used to present the adding new editor roots feature.
 	const [ numberOfRoots, setNumberOfRoots ] = useState<number>( 1 );
+
+	// The Set of disabled roots. It is used to support read-only feature in multi root editor.
 	const [ disabledRoots, setDisabledRoots ] = useState<Set<string>>( new Set() );
+
+	// The reference for the toolbar element.
 	const toolbarRef = useRef<HTMLDivElement>( null );
 
 	const setInitialSourceElement = ( element: HTMLDivElement | null ) => {
@@ -27,11 +37,14 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		}
 	};
 
+	// Contains the JSX elements for each editor root.
 	const [ elements, setElements ] = useState<Array<JSX.Element>>(
 		Object.keys( props.content ).map( rootName => <div id={rootName} key={rootName} ref={ setInitialSourceElement }></div> )
 	);
-	const [ attributes, setAttributes ] = useState<Record<string, Record<string, unknown>>>( props.rootsAttributes );
 
+	// This hook is essential when integrating with Watchdog.
+	// It ensures reinitializing the toolbar element and updating the state.
+	// After restarting, the new editor instance might have different state, saved with a delay.
 	useEffect( () => {
 		const container = toolbarRef.current!;
 
@@ -50,6 +63,9 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		};
 	}, [ editor ] );
 
+	// Function to update content and attributes when root data or attributes change.
+	// This callback is invoked whenever data or attributes change in the editor.
+	// It enables two-way communication for the 'content' state.
 	const updateData = ( changedRoots: Record<string, { changedData?: boolean; changedAttributes?: boolean }> ) => {
 		if ( !Object.keys( changedRoots ).length ) {
 			return;
@@ -75,6 +91,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		}
 	};
 
+	// Function to toggle read-only mode for selected root.
 	const toggleReadOnly = () => {
 		const root = editor!.model.document.selection.getFirstRange()!.root;
 
@@ -95,6 +112,8 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		setDisabledRoots( new Set( disabledRoots ) );
 	};
 
+	// Function to simulate an error in the editor.
+	// It is used to trigger watchdog to restart the editor.
 	const simulateError = () => {
 		setTimeout( () => {
 			const err: any = new Error( 'foo' );
@@ -131,12 +150,16 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		setSelectedRoot( '' );
 	};
 
+	// Function to handle the addition of a new root element to the editor.
+	// This callback is necessary to correctly handle the multi root editor state.
 	const handleNewRoot = ( createRootElement: ( props?: Record<string, unknown> ) => JSX.Element ) => {
 		const element = createRootElement();
 
 		setElements( previousElements => [ ...previousElements, element ] );
 	};
 
+	// Function to handle the removal of a root element from the editor.
+	// This callback is necessary to correctly handle the multi root editor state.
 	const handleRemovedRoot = ( { rootName }: { rootName: string } ) => {
 		// Handling of undo operations.
 		if ( content[ rootName ] !== undefined ) {
@@ -146,6 +169,8 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		setElements( previousElements => previousElements.filter( element => element.props.id !== rootName ) );
 	};
 
+	// Grouping elements based on their row attribute and sorting them by order attribute.
+	// It is used only for presentation purposes.
 	const groupedElements = Object.entries(
 		elements
 			.sort( ( a, b ) => ( attributes[ a.props.id ].order as number ) - ( attributes[ b.props.id ].order as number ) )

@@ -208,11 +208,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 						.forEach( change => {
 							let rootName: string;
 
-							if ( change.type == 'remove' ) {
-								return;
-							}
-
-							if ( change.type == 'insert' ) {
+							if ( change.type == 'insert' || change.type == 'remove' ) {
 								rootName = change.position.root.rootName!;
 							} else {
 								// Must be `attribute` diff item.
@@ -227,6 +223,10 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 							// Ignore added and removed roots. They are handled by a different function.
 							// Only register if roots attributes changed.
 							if ( changedRoot.state ) {
+								if ( changedRoots[ changedRoot.name ] ) {
+									delete changedRoots[ changedRoot.name ];
+								}
+
 								return;
 							}
 
