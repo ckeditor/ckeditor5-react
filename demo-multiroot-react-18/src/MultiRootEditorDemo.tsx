@@ -1,6 +1,6 @@
 import React, { useState, type ChangeEvent, useEffect, useRef } from 'react';
 import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
-import { CKEditor } from '../../src';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
