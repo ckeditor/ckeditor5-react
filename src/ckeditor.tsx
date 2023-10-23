@@ -9,8 +9,8 @@ import React from 'react';
 import PropTypes, { type InferProps, type Validator } from 'prop-types';
 
 import uid from '@ckeditor/ckeditor5-utils/src/uid';
+import type EventInfo from '@ckeditor/ckeditor5-utils/src/eventinfo';
 
-import type { EventInfo } from '@ckeditor/ckeditor5-utils';
 import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
 import type { DocumentChangeEvent, RootElement, Writer } from '@ckeditor/ckeditor5-engine';
 
@@ -21,7 +21,6 @@ import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/edi
 import { ContextWatchdogContext } from './ckeditorcontext';
 import type { MultiRootEditor } from '@ckeditor/ckeditor5-editor-multi-root';
 import type { AddRootEvent, DetachRootEvent } from '@ckeditor/ckeditor5-editor-multi-root/src/multirooteditor';
-import type MultiRootEditorUI from '@ckeditor/ckeditor5-editor-multi-root/src/multirooteditorui';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -209,7 +208,11 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 						.forEach( change => {
 							let rootName: string;
 
-							if ( change.type == 'insert' || change.type == 'remove' ) {
+							if ( change.type == 'remove' ) {
+								return;
+							}
+
+							if ( change.type == 'insert' ) {
 								rootName = change.position.root.rootName!;
 							} else {
 								// Must be `attribute` diff item.
@@ -240,14 +243,13 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 				editor.on<AddRootEvent>( 'addRoot', ( evt, root ) => {
 					if ( this.props.onAddRoot ) {
+						const editable = ( editor as unknown as MultiRootEditor ).createEditable( root );
+
 						const reactElement = ( props?: Record<string, unknown> ) => <div
 							ref={ el => {
-								const editorUI = editor.ui as MultiRootEditorUI;
-								const editable = editorUI.view.createEditable( root.rootName, el! );
-
-								editorUI.addEditable( editable );
-
-								editor.editing.view.forceRender();
+								if ( el ) {
+									el.appendChild( editable );
+								}
 							} }
 							key={ root.rootName }
 							id={ root.rootName }
@@ -409,6 +411,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		if ( this.props.data === nextProps.data && this.props.attributes === nextProps.attributes ) {
 			return;
 		}
+
 		const roots = Object.keys( this.props.data );
 
 		// We should not change data if the editor's content is equal to the `#data` property.

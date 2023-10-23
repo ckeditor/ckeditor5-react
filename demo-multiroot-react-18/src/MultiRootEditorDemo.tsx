@@ -1,6 +1,6 @@
 import React, { useState, type ChangeEvent, useEffect, useRef } from 'react';
 import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
+import { CKEditor } from '../../src';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
@@ -19,20 +19,6 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	const [ disabledRoots, setDisabledRoots ] = useState<Set<string>>( new Set() );
 	const toolbarRef = useRef<HTMLDivElement>( null );
 
-	useEffect( () => {
-		const container = toolbarRef.current!;
-
-		if ( container && editor ) {
-			container.appendChild( editor.ui.view.toolbar.element! );
-		}
-
-		return () => {
-			if ( container.firstChild ) {
-				container.removeChild( container.firstChild! );
-			}
-		};
-	}, [ editor ] );
-
 	const setInitialSourceElement = ( element: HTMLDivElement | null ) => {
 		if ( element && element.id ) {
 			const rootName = element.id;
@@ -45,6 +31,24 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		Object.keys( props.content ).map( rootName => <div id={rootName} key={rootName} ref={ setInitialSourceElement }></div> )
 	);
 	const [ attributes, setAttributes ] = useState<Record<string, Record<string, unknown>>>( props.rootsAttributes );
+
+	useEffect( () => {
+		const container = toolbarRef.current!;
+
+		if ( container && editor ) {
+			container.appendChild( editor.ui.view.toolbar.element! );
+
+			// Update the content after reinitializing the editor, for instance after crashing.
+			setContent( editor.getFullData() );
+			setElements( [ ...elements ].filter( element => Object.keys( editor.getFullData() ).includes( element.props.id ) ) );
+		}
+
+		return () => {
+			if ( container.firstChild ) {
+				container.removeChild( container.firstChild! );
+			}
+		};
+	}, [ editor ] );
 
 	const updateData = ( changedRoots: Record<string, { changedData?: boolean; changedAttributes?: boolean }> ) => {
 		if ( !Object.keys( changedRoots ).length ) {
@@ -228,9 +232,6 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 				onReady={ editor => {
 					window.editor = editor;
-
-					console.log( 'event: onReady' );
-					console.log( 'Editor is ready to use! You can use "editor" variable to play with it.' );
 
 					setEditor( editor );
 				} }
