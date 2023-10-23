@@ -27,6 +27,7 @@ export default class Editor {
 
 			}
 		};
+		this.createEditable = () => document.createElement( 'div' );
 		this.ui = {
 			getEditableElement() {
 				return document.createElement( 'div' );
