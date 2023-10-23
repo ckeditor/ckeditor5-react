@@ -233,6 +233,9 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				onReady={ editor => {
 					window.editor = editor;
 
+					console.log( 'event: onReady' );
+					console.log( 'Editor is ready to use! You can use "editor" variable to play with it.' );
+
 					setEditor( editor );
 				} }
 
