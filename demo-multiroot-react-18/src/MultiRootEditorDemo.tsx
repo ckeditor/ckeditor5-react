@@ -167,10 +167,11 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 	// Function to handle the addition of a new root element to the editor.
 	//
-	// After adding the editor root the React state (elements, content and attributes) should be updated
-	// to ensure the displayed data up to date.
+	// After adding an editor root, the React state (elements, content and attributes) should be updated
+	// to ensure that the displayed data is up to date.
 	//
-	// Additionally, it is also necessary in real time collaboration where the other user can create a new root.
+	// This function is called when a root is created directly (using the editor API),
+	// through undo or redo, and during real-time collaboration by a remote user.
 	const handleNewRoot = ( createRootElement: ( props?: Record<string, unknown> ) => JSX.Element ) => {
 		const element = createRootElement();
 
@@ -179,11 +180,11 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 	// Function to handle the removal of a root element from the editor.
 	//
-	// After removing the editor root the React state (elements, content and attributes) should be updated
-	// to ensure the displayed data up to date.
+	// After removing an editor root, the React state (elements, content and attributes) should be updated
+	// to ensure that the displayed data is up to date.
 	//
-	// Additionally, it is also necessary in real time collaboration where the other user can remove the root.
-	// Added root can be also undone, which will also trigger the removing function and should be handled.
+	// This function is called when a root is removed directly (using the editor API),
+	// through undo or redo, and during real-time collaboration by a remote user.
 	const handleRemovedRoot = ( { rootName }: { rootName: string } ) => {
 		// Handling of undo operations.
 		if ( content[ rootName ] !== undefined ) {
