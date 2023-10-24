@@ -12,19 +12,22 @@ type EditorDemoProps = {
 export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	const initialRootsRefs: Record<string, HTMLDivElement> = {};
 
-	// State variables for managing the current editor instance, its content and attributes.
+	// Current editor instance. It may change if the editor is re-initialized by the Watchdog after an error.
 	const [ editor, setEditor ] = useState<MultiRootEditor | null>( null );
+
+	// Current editor content. An object where each key is a root name and the value is the root content.
 	const [ content, setContent ] = useState<Record<string, string>>( props.content );
+
+	// Current roots attributes. An object where each key is a root name and the value is an object with root attributes.
 	const [ attributes, setAttributes ] = useState<Record<string, Record<string, unknown>>>( props.rootsAttributes );
 
-	// The select element state to pick the root for removing.
+	// The <select> element state, used to pick the root to remove.
+	// This is for demo purposes, and you may remove it in the actual integration or change accordingly to your needs.
 	const [ selectedRoot, setSelectedRoot ] = useState<string>();
 
-	// The number of roots that should be added in one row. It is used to present the adding new editor roots feature.
+	// The <input> element state with number of roots that should be added in one row.
+	// This is for demo purposes, and you may remove it in the actual integration or change accordingly to your needs.
 	const [ numberOfRoots, setNumberOfRoots ] = useState<number>( 1 );
-
-	// The Set of disabled roots. It is used to support read-only feature in multi root editor.
-	const [ disabledRoots, setDisabledRoots ] = useState<Set<string>>( new Set() );
 
 	// The reference for the toolbar element.
 	const toolbarRef = useRef<HTMLDivElement>( null );
@@ -42,9 +45,16 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		Object.keys( props.content ).map( rootName => <div id={rootName} key={rootName} ref={ setInitialSourceElement }></div> )
 	);
 
-	// This hook is essential when integrating with Watchdog.
-	// It ensures reinitializing the toolbar element and updating the state.
-	// After restarting, the new editor instance might have different state, saved with a delay.
+	// This hook is essential for Watchdog integration.
+	//
+	// When the editor throws an error, the Watchdog will try to re-initialize the editor, so
+	// the user is able to continue working.
+	//
+	// In this handler, we ensure that the old toolbar element (from the crashed editor) is properly removed.
+	//
+	// We also reset the integration state, so it matches the state of the restarted editor. The editor content is cached
+	// by the Watchdog in an interval, and the cached content is used to re-initialize the editor. Because of that,
+	// the editor content after re-initialization may be different from the integration state. It is essential to keep them in sync.
 	useEffect( () => {
 		const container = toolbarRef.current!;
 
@@ -72,24 +82,25 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		}
 
 		const newContent: Record<string, string> = {};
-		let hasNewAttributes = false;
+		const newAttributes: Record<string, Record<string, unknown>> = {};
 
 		for ( const [ rootName, { changedData, changedAttributes } ] of Object.entries( changedRoots ) ) {
 			if ( changedData ) {
 				newContent[ rootName ] = editor!.getData( { rootName } );
 			}
 
-			if ( changedAttributes && !hasNewAttributes ) {
-				hasNewAttributes = true;
+			if ( changedAttributes ) {
+				newAttributes[ rootName ] = editor!.getRootAttributes( rootName );
 			}
 		}
 
 		setContent( { ...content, ...newContent } );
-
-		if ( hasNewAttributes ) {
-			setAttributes( { ...editor!.getRootsAttributes() } );
-		}
+		setAttributes( { ...attributes, ...newAttributes } );
 	};
+
+	// A set with disabled roots. It is used to support read-only feature in multi root editor.
+	// This is for demo purposes, and you may remove it in the actual integration or change accordingly to your needs.
+	const [ disabledRoots, setDisabledRoots ] = useState<Set<string>>( new Set() );
 
 	// Function to toggle read-only mode for selected root.
 	const toggleReadOnly = () => {
@@ -113,7 +124,8 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	};
 
 	// Function to simulate an error in the editor.
-	// It is used to trigger watchdog to restart the editor.
+	// It is used for testing purposes to trigger the Watchdog to restart the editor.
+	// Remove it in the actual integration.
 	const simulateError = () => {
 		setTimeout( () => {
 			const err: any = new Error( 'foo' );
@@ -132,11 +144,14 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			const rootName = `root-${ i }-${ id }`;
 
 			content[ rootName ] = '';
+
+			// Remove code related to rows if you don't need to handle multiple roots in one row.
 			attributes[ rootName ] = { ...newRootAttributes, order: i * 10, row: id };
 		}
 
 		setContent( { ...content } );
 		setAttributes( { ...attributes } );
+		// Reset the input to the default value.
 		setNumberOfRoots( 1 );
 	};
 
@@ -151,7 +166,11 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	};
 
 	// Function to handle the addition of a new root element to the editor.
-	// This callback is necessary to correctly handle the multi root editor state.
+	//
+	// After adding the editor root the React state (elements, content and attributes) should be updated
+	// to ensure the displayed data up to date.
+	//
+	// Additionally, it is also necessary in real time collaboration where the other user can create a new root.
 	const handleNewRoot = ( createRootElement: ( props?: Record<string, unknown> ) => JSX.Element ) => {
 		const element = createRootElement();
 
@@ -159,7 +178,12 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	};
 
 	// Function to handle the removal of a root element from the editor.
-	// This callback is necessary to correctly handle the multi root editor state.
+	//
+	// After removing the editor root the React state (elements, content and attributes) should be updated
+	// to ensure the displayed data up to date.
+	//
+	// Additionally, it is also necessary in real time collaboration where the other user can remove the root.
+	// Added root can be also undone, which will also trigger the removing function and should be handled.
 	const handleRemovedRoot = ( { rootName }: { rootName: string } ) => {
 		// Handling of undo operations.
 		if ( content[ rootName ] !== undefined ) {
@@ -169,8 +193,9 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		setElements( previousElements => previousElements.filter( element => element.props.id !== rootName ) );
 	};
 
-	// Grouping elements based on their row attribute and sorting them by order attribute.
-	// It is used only for presentation purposes.
+	// Group elements based on their row attribute and sort them by order attribute.
+	// Grouping in a row is used for presentation purposes, and you may remove it in actual integration.
+	// However, we recommend ordering the roots, so that rows are put in a correct places when undo/redo is used.
 	const groupedElements = Object.entries(
 		elements
 			.sort( ( a, b ) => ( attributes[ a.props.id ].order as number ) - ( attributes[ b.props.id ].order as number ) )
@@ -235,8 +260,14 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 			<br />
 
+			{ /*
+				The toolbar element will be rendered inside the following <div> element.
+				It is important to use the `ref` feature to easily handle the toolbar element
+				after restarting the editor.
+			*/ }
 			<div ref={ toolbarRef }></div>
 
+			{ /* Maps through groupedElements array to render rows that contains the editor roots. */ }
 			{ groupedElements.map( ( [ row, elements ] ) => (
 				<div key={row} className={`flex wrapper-row-${ row }`}>
 					{ elements }
