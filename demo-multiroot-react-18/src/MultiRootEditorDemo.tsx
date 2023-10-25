@@ -66,7 +66,11 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			// Update the content after reinitializing the editor, for instance after crashing.
 			const editorData = editor.getFullData();
 
-			// Filter all roots that has been removed not to restore the old value.
+			// Filter all roots that have been removed to avoid restoring the old value.
+			//
+			// The watchdog saves the data at intervals, potentially restoring removed roots data after restarting.
+			// However, there is no need to retain it since the elements are no longer rendered and have been removed
+			// from the 'elements' state.
 			setContent(
 				Object.keys( editorData )
 					.filter( key => !!content[ key ] )
@@ -76,7 +80,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 						return obj;
 					}, {} as Record<string, string> )
 			);
-			setElements( [ ...elements ].filter( element => Object.keys( editor.getFullData() ).includes( element.props.id ) ) );
+			setElements( [ ...elements ].filter( element => Object.keys( editorData ).includes( element.props.id ) ) );
 		}
 
 		return () => {
