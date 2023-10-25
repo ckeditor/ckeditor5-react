@@ -68,9 +68,9 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 			// Filter all roots that have been removed to avoid restoring the old value.
 			//
-			// The watchdog saves the data at intervals, potentially restoring removed roots data after restarting.
+			// The Watchdog saves the data at intervals, potentially restoring removed roots data after restarting.
 			// However, there is no need to retain it since the elements are no longer rendered and have been removed
-			// from the 'elements' state.
+			// from the `elements` state.
 			setContent(
 				Object.keys( editorData )
 					.filter( key => !!content[ key ] )
