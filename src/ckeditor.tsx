@@ -415,7 +415,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		const roots = Object.keys( this.props.data );
 
 		// We should not change data if the editor's content is equal to the `#data` property.
-		if ( roots.length && 'getFullData' in this.editor! ) {
+		if ( roots.length !== undefined && 'getFullData' in this.editor! ) {
 			const editor = this.editor as MultiRootEditor;
 
 			const editorData = editor.getFullData();

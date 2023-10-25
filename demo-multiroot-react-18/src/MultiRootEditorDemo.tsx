@@ -32,17 +32,19 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	// The reference for the toolbar element.
 	const toolbarRef = useRef<HTMLDivElement>( null );
 
-	const setInitialSourceElement = ( element: HTMLDivElement | null ) => {
-		if ( element && element.id ) {
-			const rootName = element.id;
-
+	const setInitialSourceElement = ( element: HTMLDivElement | null, rootName: string ) => {
+		if ( element ) {
 			initialRootsRefs[ rootName ] = element;
 		}
 	};
 
 	// Contains the JSX elements for each editor root.
 	const [ elements, setElements ] = useState<Array<JSX.Element>>(
-		Object.keys( props.content ).map( rootName => <div id={rootName} key={rootName} ref={ setInitialSourceElement }></div> )
+		Object.keys( props.content ).map( rootName => (
+			<div id={rootName} key={rootName}>
+				<div ref={ el => setInitialSourceElement( el, rootName ) }></div>
+			</div>
+		) )
 	);
 
 	// This hook is essential for Watchdog integration.
@@ -62,7 +64,18 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			container.appendChild( editor.ui.view.toolbar.element! );
 
 			// Update the content after reinitializing the editor, for instance after crashing.
-			setContent( editor.getFullData() );
+			const editorData = editor.getFullData();
+
+			// Filter all roots that has been removed not to restore the old value.
+			setContent(
+				Object.keys( editorData )
+					.filter( key => !!content[ key ] )
+					.reduce( ( obj, key ) => {
+						obj[ key ] = editorData[ key ];
+
+						return obj;
+					}, {} as Record<string, string> )
+			);
 			setElements( [ ...elements ].filter( element => Object.keys( editor.getFullData() ).includes( element.props.id ) ) );
 		}
 
@@ -151,7 +164,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 		setContent( { ...content } );
 		setAttributes( { ...attributes } );
-		// Reset the input to the default value.
+		// Reset the <input> element to the default value.
 		setNumberOfRoots( 1 );
 	};
 
@@ -174,6 +187,13 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	// through undo or redo, and during real-time collaboration by a remote user.
 	const handleNewRoot = ( createRootElement: ( props?: Record<string, unknown> ) => JSX.Element ) => {
 		const element = createRootElement();
+		const rootName = element.props.id;
+
+		// Handling of undo operations.
+		if ( !content[ rootName ] ) {
+			setContent( { ...content, [ rootName ]: editor!.getData( { rootName } ) } );
+			setAttributes( { ...attributes, [ rootName ]: editor!.getRootAttributes( rootName ) } );
+		}
 
 		setElements( previousElements => [ ...previousElements, element ] );
 	};
@@ -217,7 +237,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			<div className="buttons">
 				<button
 					onClick={ toggleReadOnly }
-					disabled={ !editor }
+					disabled={ !editor || !Object.keys( content ).length }
 				>
 					Toggle read-only mode
 				</button>
@@ -256,7 +276,13 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 					Add row with roots
 				</button>
 
-				<input type="number" min="1" max="4" value={ numberOfRoots } onChange={e => setNumberOfRoots( Number( e.target.value ) )} />
+				<input
+					type="number"
+					min="1"
+					max="4"
+					value={ numberOfRoots }
+					onChange={e => Number( e.target.value ) <= 4 && setNumberOfRoots( Number( e.target.value ) )}
+				/>
 			</div>
 
 			<br />
@@ -268,7 +294,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			*/ }
 			<div ref={ toolbarRef }></div>
 
-			{ /* Maps through groupedElements array to render rows that contains the editor roots. */ }
+			{ /* Maps through `groupedElements` array to render rows that contains the editor roots. */ }
 			{ groupedElements.map( ( [ row, elements ] ) => (
 				<div key={row} className={`flex wrapper-row-${ row }`}>
 					{ elements }
