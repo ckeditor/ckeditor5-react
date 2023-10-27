@@ -5,7 +5,7 @@
 
 /* globals window */
 
-import React from 'react';
+import React, { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
 import PropTypes, { type InferProps, type Validator } from 'prop-types';
 
 import uid from '@ckeditor/ckeditor5-utils/src/uid';
@@ -23,6 +23,58 @@ import type { MultiRootEditor } from '@ckeditor/ckeditor5-editor-multi-root';
 import type { AddRootEvent, DetachRootEvent } from '@ckeditor/ckeditor5-editor-multi-root/src/multirooteditor';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
+
+export const useMultiRootEditorElements = (
+	editor: MultiRootEditor | null,
+	initialRootsRefs: Record<string, HTMLDivElement>,
+	initialContent: Record<string, string>
+): [ Array<JSX.Element>, Dispatch<SetStateAction<Array<JSX.Element>>> ] => {
+	const setInitialSourceElement = ( element: HTMLDivElement | null, rootName: string ) => {
+		if ( element ) {
+			initialRootsRefs[ rootName ] = element;
+		}
+	};
+
+	const [ elements, setElements ] = useState<Array<JSX.Element>>(
+		Object.keys( initialContent ).map( rootName => (
+			<div id={rootName} key={rootName}>
+				<div ref={ el => setInitialSourceElement( el, rootName ) }></div>
+			</div>
+		) )
+	);
+
+	useEffect( () => {
+		if ( editor ) {
+			const editorData = editor.getFullData();
+
+			setElements( [
+				...Object.keys( editorData ).map( rootName => {
+					const element = elements.find( el => el.props.id === rootName );
+
+					if ( element ) {
+						return element;
+					}
+
+					return (
+						<div
+							id={rootName}
+							key={rootName}
+							ref={el => {
+								if ( el ) {
+									const root = editor.model.document.getRoot( rootName )!;
+									const editable = editor.createEditable( root );
+									el.appendChild( editable );
+								}
+							}}
+						></div>
+					);
+				} )
+			] );
+		}
+	}, [ editor ] );
+
+	return [ elements, setElements ];
+};
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export default class CKEditor<TEditor extends Editor> extends React.Component<Props<TEditor>, {}> {

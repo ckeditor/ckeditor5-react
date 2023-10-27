@@ -3,5 +3,5 @@
  * For licensing, see LICENSE.md.
  */
 
-export { default as CKEditor } from './ckeditor';
+export { default as CKEditor, useMultiRootEditorElements } from './ckeditor';
 export { default as CKEditorContext } from './ckeditorcontext';

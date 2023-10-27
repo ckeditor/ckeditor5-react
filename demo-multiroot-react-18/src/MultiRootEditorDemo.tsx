@@ -1,6 +1,6 @@
 import React, { useState, type ChangeEvent, useEffect, useRef } from 'react';
 import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
+import { CKEditor, useMultiRootEditorElements } from '@ckeditor/ckeditor5-react';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
@@ -9,9 +9,9 @@ type EditorDemoProps = {
 	rootsAttributes: Record<string, Record<string, unknown>>;
 };
 
-export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
-	const initialRootsRefs: Record<string, HTMLDivElement> = {};
+const initialRootsRefs: Record<string, HTMLDivElement> = {};
 
+export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	// Current editor instance. It may change if the editor is re-initialized by the Watchdog after an error.
 	const [ editor, setEditor ] = useState<MultiRootEditor | null>( null );
 
@@ -32,20 +32,8 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	// The reference for the toolbar element.
 	const toolbarRef = useRef<HTMLDivElement>( null );
 
-	const setInitialSourceElement = ( element: HTMLDivElement | null, rootName: string ) => {
-		if ( element ) {
-			initialRootsRefs[ rootName ] = element;
-		}
-	};
-
 	// Contains the JSX elements for each editor root.
-	const [ elements, setElements ] = useState<Array<JSX.Element>>(
-		Object.keys( props.content ).map( rootName => (
-			<div id={rootName} key={rootName}>
-				<div ref={ el => setInitialSourceElement( el, rootName ) }></div>
-			</div>
-		) )
-	);
+	const [ elements, setElements ] = useMultiRootEditorElements( editor, initialRootsRefs, props.content );
 
 	// This hook is essential for Watchdog integration.
 	//
@@ -64,23 +52,8 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			container.appendChild( editor.ui.view.toolbar.element! );
 
 			// Update the content after reinitializing the editor, for instance after crashing.
-			const editorData = editor.getFullData();
-
-			// Filter all roots that have been removed to avoid restoring the old value.
-			//
-			// The Watchdog saves the data at intervals, potentially restoring removed roots data after restarting.
-			// However, there is no need to retain it since the elements are no longer rendered and have been removed
-			// from the `elements` state.
-			setContent(
-				Object.keys( editorData )
-					.filter( key => !!content[ key ] )
-					.reduce( ( obj, key ) => {
-						obj[ key ] = editorData[ key ];
-
-						return obj;
-					}, {} as Record<string, string> )
-			);
-			setElements( [ ...elements ].filter( element => Object.keys( editorData ).includes( element.props.id ) ) );
+			setContent( { ...editor.getFullData() } );
+			setAttributes( { ...editor.getRootsAttributes() } );
 		}
 
 		return () => {
