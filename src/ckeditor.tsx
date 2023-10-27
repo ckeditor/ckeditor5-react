@@ -377,7 +377,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		// Unfortunately, we cannot set the editor data just for one root, so we need to overwrite all roots (`nextProps.data` is an
 		// object with data for each root).
 		if ( modifiedRoots.length ) {
-			editor!.data.set( nextProps.data! );
+			editor!.data.set( nextProps.data!, { suppressErrorInCollaboration: true } as any );
 		}
 	}
 
