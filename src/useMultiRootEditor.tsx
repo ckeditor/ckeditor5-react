@@ -5,12 +5,12 @@
 
 /* globals window */
 
-import React, { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
+import React, { useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
 
 import uid from '@ckeditor/ckeditor5-utils/src/uid';
 
-import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
-import type { DocumentChangeEvent, RootElement, Writer } from '@ckeditor/ckeditor5-engine';
+import type { EditorConfig } from '@ckeditor/ckeditor5-core';
+import type { DocumentChangeEvent, Writer } from '@ckeditor/ckeditor5-engine';
 
 import { ContextWatchdog, EditorWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
@@ -40,6 +40,11 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	// Contains the JSX elements for each editor root.
 	const [ elements, setElements ] = useState<Array<JSX.Element>>( [] );
 
+	// The reference for the toolbar element.
+	const toolbarRef = useRef<HTMLDivElement>( null );
+
+	const toolbarElement = <div ref={toolbarRef}></div>;
+
 	useEffect( () => {
 		_initializeEditor();
 
@@ -49,6 +54,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	}, [] );
 
 	useEffect( () => {
+		const container = toolbarRef.current;
+
 		if ( editor ) {
 			const editorData = editor.getFullData();
 
@@ -74,7 +81,17 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 					);
 				} )
 			] );
+
+			if ( container ) {
+				container.appendChild( editor.ui.view.toolbar.element! );
+			}
 		}
+
+		return () => {
+			if ( container && container.firstChild ) {
+				container.removeChild( container.firstChild! );
+			}
+		};
 	}, [ editor ] );
 
 	/**
@@ -290,9 +307,9 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 		watchdog = new EditorWatchdog( props.editor, props.watchdogConfig );
 
+		// 	TODO: handle the context
 		// if ( props.context instanceof ContextWatchdog ) {
-		// 	// TODO: handle the context
-		// 	// this.watchdog = new EditorWatchdogAdapter( this.context );
+		// 	this.watchdog = new EditorWatchdogAdapter( this.context );
 		// } else {
 		//
 		// }
@@ -407,7 +424,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	};
 
 	return {
-		editor, elements,
+		editor, elements, toolbarElement,
 		content, setContent,
 		attributes, setAttributes
 	};
@@ -439,6 +456,7 @@ export type MultiRootHookProps = {
 export type MultiRootHookReturns = {
 	editor: MultiRootEditor | null;
 	elements: Array<JSX.Element>;
+	toolbarElement: JSX.Element;
 	content: Record<string, string>;
 	setContent: Dispatch<SetStateAction<Record<string, string>>>;
 	attributes: Record<string, Record<string, unknown>>;

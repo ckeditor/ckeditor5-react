@@ -1,4 +1,4 @@
-import React, { useState, type ChangeEvent, useEffect, useRef } from 'react';
+import React, { useState, type ChangeEvent } from 'react';
 import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 
 import useMultiRootEditor, { type MultiRootHookProps } from '../../src/useMultiRootEditor';
@@ -37,7 +37,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	};
 
 	const {
-		editor, elements,
+		editor, elements, toolbarElement,
 		content, setContent,
 		attributes, setAttributes
 	} = useMultiRootEditor( editorProps );
@@ -189,6 +189,8 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			</div>
 
 			<br />
+
+			{ toolbarElement }
 
 			{ /* Maps through `groupedElements` array to render rows that contains the editor roots. */ }
 			{ groupedElements.map( ( [ row, elements ] ) => (
