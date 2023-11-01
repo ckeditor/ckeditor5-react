@@ -5,3 +5,4 @@
 
 export { default as CKEditor, useMultiRootEditorElements } from './ckeditor';
 export { default as CKEditorContext } from './ckeditorcontext';
+export { default as useMultiRootEditor, type MultiRootHookProps, type MultiRootHookReturns } from './useMultiRootEditor';

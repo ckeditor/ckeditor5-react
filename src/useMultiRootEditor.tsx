@@ -3,8 +3,6 @@
  * For licensing, see LICENSE.md.
  */
 
-/* globals window */
-
 import React, { useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
 
 import uid from '@ckeditor/ckeditor5-utils/src/uid';
@@ -40,18 +38,24 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	// Contains the JSX elements for each editor root.
 	const [ elements, setElements ] = useState<Array<JSX.Element>>( [] );
 
+	const shouldUpdateEditor = useRef<boolean>( true );
+
 	// The reference for the toolbar element.
 	const toolbarRef = useRef<HTMLDivElement>( null );
 
-	const toolbarElement = <div ref={toolbarRef}></div>;
+	const toolbarElement = <div ref={ toolbarRef }></div>;
 
 	useEffect( () => {
+		if ( props.isLayoutReady === false ) {
+			return;
+		}
+
 		_initializeEditor();
 
 		return () => {
 			_destroyEditor();
 		};
-	}, [] );
+	}, [ props.isLayoutReady ] );
 
 	useEffect( () => {
 		const container = toolbarRef.current;
@@ -143,6 +147,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 					modelDocument.differ.getChanges()
 						.forEach( change => {
 							let rootName: string;
+							console.log( change );
 
 							if ( change.type == 'insert' || change.type == 'remove' ) {
 								rootName = change.position.root.rootName!;
@@ -173,10 +178,14 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 					if ( Object.keys( newContent ).length ) {
 						setContent( previousContent => ( { ...previousContent, ...newContent } ) );
+
+						shouldUpdateEditor.current = false;
 					}
 
 					if ( Object.keys( newAttributes ).length ) {
 						setAttributes( previousAttributes => ( { ...previousAttributes, ...newAttributes } ) );
+
+						shouldUpdateEditor.current = false;
 					}
 
 					/* istanbul ignore else */
@@ -335,6 +344,12 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			return;
 		}
 
+		if ( !shouldUpdateEditor.current ) {
+			shouldUpdateEditor.current = true;
+
+			return;
+		}
+
 		const editorData = editor.getFullData();
 		const editorAttributes = editor.getRootsAttributes();
 
@@ -349,6 +364,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			removedKeys: removedAttributes,
 			modifiedKeys: modifiedAttributes
 		} = _getStateDiff( editorAttributes, attributes || {} );
+
+		console.log( editorData.intro, content.intro );
 
 		const newRootAttributes = newAttributes.filter( rootAttr =>
 			!newRoots.includes( rootAttr ) && attributes[ rootAttr ] !== undefined );
@@ -438,6 +455,7 @@ interface ErrorDetails {
 }
 
 export type MultiRootHookProps = {
+	isLayoutReady?: boolean;
 	content: Record<string, string>;
 	rootsAttributes: Record<string, Record<string, unknown>>;
 	editor: typeof MultiRootEditor;
@@ -450,7 +468,7 @@ export type MultiRootHookProps = {
 	onFocus?: ( event: EventInfo, editor: MultiRootEditor ) => void;
 	onBlur?: ( event: EventInfo, editor: MultiRootEditor ) => void;
 
-	config: EditorConfig;
+	config: any;
 };
 
 export type MultiRootHookReturns = {
