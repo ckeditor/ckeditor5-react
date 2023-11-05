@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global MultiRootEditor, window */
+/* global MultiRootEditor */
 
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks/dom';
@@ -11,6 +11,7 @@ import { renderHook } from '@testing-library/react-hooks/dom';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 
 import useMultiRootEditor from '../src/useMultiRootEditor.tsx';
+import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
 
 describe( 'useMultiRootEditor', () => {
 	const content = {
@@ -38,6 +39,20 @@ describe( 'useMultiRootEditor', () => {
 		}
 	};
 
+	let originalConsoleError;
+
+	beforeEach( () => {
+		originalConsoleError = console.error;
+
+		console.error = sinon.stub();
+	} );
+
+	afterEach( () => {
+		console.error = originalConsoleError;
+
+		sinon.restore();
+	} );
+
 	describe( 'editor', () => {
 		it( 'should initialize the MultiRootEditor instance after mounting', async () => {
 			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
@@ -50,11 +65,6 @@ describe( 'useMultiRootEditor', () => {
 		} );
 
 		it( 'should reinitialize the editor instance after crashing when watchdog is enabled', async () => {
-			const originalErrorHandler = window.onerror;
-			const originalConsoleError = console.error;
-			window.onerror = sinon.spy();
-			console.error = sinon.spy();
-
 			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitForNextUpdate();
@@ -62,9 +72,13 @@ describe( 'useMultiRootEditor', () => {
 			const { editor, content, attributes } = result.current;
 
 			// Mock the error.
-			sinon.stub( editor, 'focus' ).callsFake( () => {
-				setTimeout( () => {
-					throw new CKEditorError( 'a-custom-error', editor );
+			sinon.stub( editor, 'focus' ).callsFake( async () => {
+				await turnOffDefaultErrorCatching( () => {
+					return new Promise( () => {
+						setTimeout( () => {
+							throw new CKEditorError( 'a-custom-error', editor );
+						} );
+					} );
 				} );
 			} );
 
@@ -79,9 +93,6 @@ describe( 'useMultiRootEditor', () => {
 			expect( newEditor.id ).to.not.be.equal( editor.id );
 			expect( newContent ).to.deep.equal( content );
 			expect( newAttributes ).to.deep.equal( attributes );
-
-			window.onerror = originalErrorHandler;
-			console.error = originalConsoleError;
 		} );
 
 		it( 'should not initialize the editor when config#isLayoutReady flag is false', async () => {
@@ -122,11 +133,6 @@ describe( 'useMultiRootEditor', () => {
 		} );
 
 		it( 'should be reinitialized after crashing when watchdog is enabled', async () => {
-			const originalErrorHandler = window.onerror;
-			const originalConsoleError = console.error;
-			window.onerror = sinon.spy();
-			console.error = sinon.spy();
-
 			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitForNextUpdate();
@@ -134,9 +140,13 @@ describe( 'useMultiRootEditor', () => {
 			const { editor, toolbarElement } = result.current;
 
 			// Mock the error.
-			sinon.stub( editor, 'focus' ).callsFake( () => {
-				setTimeout( () => {
-					throw new CKEditorError( 'a-custom-error', editor );
+			sinon.stub( editor, 'focus' ).callsFake( async () => {
+				await turnOffDefaultErrorCatching( () => {
+					return new Promise( () => {
+						setTimeout( () => {
+							throw new CKEditorError( 'a-custom-error', editor );
+						} );
+					} );
 				} );
 			} );
 
@@ -149,9 +159,6 @@ describe( 'useMultiRootEditor', () => {
 
 			expect( newToolbarElement ).to.be.exist;
 			expect( newToolbarElement ).to.not.be.equal( toolbarElement );
-
-			window.onerror = originalErrorHandler;
-			console.error = originalConsoleError;
 		} );
 	} );
 
@@ -200,24 +207,87 @@ describe( 'useMultiRootEditor', () => {
 	} );
 
 	describe( 'callbacks', () => {
-		it( 'should call onReady callback when editor has been initialized', () => {
+		it( 'should call onReady callback when editor has been initialized', async () => {
+			const spy = sinon.spy();
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				onReady: spy
+			} ) );
 
+			await waitForNextUpdate();
+
+			sinon.assert.calledOnce( spy );
+			sinon.assert.calledWithExactly( spy, result.current.editor );
 		} );
 
-		it( 'should call onError callback when an error has been thrown', () => {
+		it( 'should call onError callback when an error has been thrown', async () => {
+			const error = new Error( 'Error was thrown.' );
 
+			sinon.stub( MultiRootEditor, 'create' ).rejects( error );
+
+			const spy = sinon.spy();
+			const { waitFor } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				onError: spy
+			} ) );
+
+			await waitFor( () => sinon.assert.calledOnce( spy ) );
+
+			sinon.assert.calledWith( spy, error, { phase: 'initialization', willEditorRestart: false } );
+
+			sinon.restore();
 		} );
 
-		it( 'should call onChange callback when the editor has been updated', () => {
+		it( 'should call onChange callback when the editor has been updated', async () => {
+			const spy = sinon.spy();
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				onChange: spy
+			} ) );
 
+			await waitForNextUpdate();
+
+			const { editor, content } = result.current;
+
+			content.intro = 'new Data';
+			editor.setData( { ...content } );
+
+			sinon.assert.calledOnce( spy );
+			sinon.assert.calledWith( spy, sinon.match.any, editor );
 		} );
 
-		it( 'should call onFocus callback when the editor has been focused', () => {
+		it( 'should call onFocus callback when the editor has been focused', async () => {
+			const spy = sinon.spy();
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				onFocus: spy
+			} ) );
 
+			await waitForNextUpdate();
+
+			const { editor } = result.current;
+
+			editor.editing.view.document.fire( 'focus' );
+
+			sinon.assert.calledOnce( spy );
+			sinon.assert.calledWith( spy, sinon.match.any, editor );
 		} );
 
-		it( 'should call onBlur callback when the editor has been blurred', () => {
+		it( 'should call onBlur callback when the editor has been blurred', async () => {
+			const spy = sinon.spy();
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				onBlur: spy
+			} ) );
 
+			await waitForNextUpdate();
+
+			const { editor } = result.current;
+
+			editor.editing.view.document.fire( 'blur', { target: {} } );
+
+			sinon.assert.calledOnce( spy );
+			sinon.assert.calledWith( spy, sinon.match.any, editor );
 		} );
 	} );
 } );

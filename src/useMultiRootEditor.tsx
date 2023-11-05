@@ -21,11 +21,12 @@ import type EventInfo from '@ckeditor/ckeditor5-utils/src/eventinfo';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
-let watchdog: EditorWatchdog | null = null;
-let editorDestructionInProgress: Promise<void> | null = null;
-
 /* eslint-disable @typescript-eslint/no-use-before-define */
 const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns => {
+	let watchdog: EditorWatchdog | null = null;
+
+	let editorDestructionInProgress: Promise<void> | null = null;
+
 	// Current editor instance. It may change if the editor is re-initialized by the Watchdog after an error.
 	const [ editor, setEditor ] = useState<MultiRootEditor | null>( null );
 
@@ -144,7 +145,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 					modelDocument.differ.getChanges()
 						.forEach( change => {
 							let rootName: string;
-							console.log( change );
 
 							if ( change.type == 'insert' || change.type == 'remove' ) {
 								rootName = change.position.root.rootName!;
@@ -334,6 +334,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			.create( content, _getConfig() )
 			.catch( error => {
 				const onError = props.onError || console.error;
+
 				onError( error, { phase: 'initialization', willEditorRestart: false } );
 			} );
 	};
