@@ -33,7 +33,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	const [ content, setContent ] = useState<Record<string, string>>( props.content );
 
 	// Current roots attributes. An object where each key is a root name and the value is an object with root attributes.
-	const [ attributes, setAttributes ] = useState<Record<string, Record<string, unknown>>>( props.rootsAttributes );
+	const [ attributes, setAttributes ] = useState<Record<string, Record<string, unknown>>>( props.rootsAttributes || {} );
 
 	// Contains the JSX elements for each editor root.
 	const [ elements, setElements ] = useState<Array<JSX.Element>>( [] );
@@ -111,10 +111,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			);
 		}
 
-		// Merge two possible ways of providing data into the `config.initialData` field.
-		return {
-			...config
-		};
+		return config;
 	};
 
 	/**
@@ -208,7 +205,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 						id={ rootName }
 					/>;
 
-					// Handling of undo operations.
+					// TODO: add comment
 					if ( content[ rootName ] === undefined ) {
 						setContent( previousContent =>
 							( { ...previousContent, [ rootName ]: editor.getData( { rootName } ) } )
@@ -224,7 +221,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				editor.on<DetachRootEvent>( 'detachRoot', ( evt, root ) => {
 					const rootName = root.rootName;
 
-					// Handling of undo operations.
+					// TODO: ADD COMMENT
 					if ( !content[ rootName ] ) {
 						setContent( previousContent => {
 							const { [ rootName! ]: _, ...newContent } = previousContent;
@@ -307,6 +304,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 		if ( props.disableWatchdog ) {
 			await _createEditor( props.content, _getConfig() );
+
+			return;
 		}
 
 		/* istanbul ignore next */
@@ -364,8 +363,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			removedKeys: removedAttributes,
 			modifiedKeys: modifiedAttributes
 		} = _getStateDiff( editorAttributes, attributes || {} );
-
-		console.log( editorData.intro, content.intro );
 
 		const newRootAttributes = newAttributes.filter( rootAttr =>
 			!newRoots.includes( rootAttr ) && attributes[ rootAttr ] !== undefined );
@@ -441,7 +438,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	};
 
 	return {
-		editor, elements, toolbarElement,
+		editor, editableElements: elements, toolbarElement,
 		content, setContent,
 		attributes, setAttributes
 	};
@@ -457,7 +454,7 @@ interface ErrorDetails {
 export type MultiRootHookProps = {
 	isLayoutReady?: boolean;
 	content: Record<string, string>;
-	rootsAttributes: Record<string, Record<string, unknown>>;
+	rootsAttributes?: Record<string, Record<string, unknown>>;
 	editor: typeof MultiRootEditor;
 	watchdogConfig?: WatchdogConfig;
 	disableWatchdog?: boolean;
@@ -468,12 +465,12 @@ export type MultiRootHookProps = {
 	onFocus?: ( event: EventInfo, editor: MultiRootEditor ) => void;
 	onBlur?: ( event: EventInfo, editor: MultiRootEditor ) => void;
 
-	config: any;
+	config?: Record<string, unknown>;
 };
 
 export type MultiRootHookReturns = {
 	editor: MultiRootEditor | null;
-	elements: Array<JSX.Element>;
+	editableElements: Array<JSX.Element>;
 	toolbarElement: JSX.Element;
 	content: Record<string, string>;
 	setContent: Dispatch<SetStateAction<Record<string, string>>>;

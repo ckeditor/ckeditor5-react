@@ -37,7 +37,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	};
 
 	const {
-		editor, elements, toolbarElement,
+		editor, editableElements, toolbarElement,
 		content, setContent,
 		attributes, setAttributes
 	} = useMultiRootEditor( editorProps );
@@ -121,7 +121,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	// Grouping in a row is used for presentation purposes, and you may remove it in actual integration.
 	// However, we recommend ordering the roots, so that rows are put in a correct places when undo/redo is used.
 	const groupedElements = Object.entries(
-		elements
+		editableElements
 			.sort( ( a, b ) => ( attributes[ a.props.id ].order as number ) - ( attributes[ b.props.id ].order as number ) )
 			.reduce( ( acc: Record<string, Array<JSX.Element>>, element ) => {
 				const row = attributes[ element.props.id ].row as string;
