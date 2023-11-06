@@ -11,10 +11,11 @@ import type { DocumentChangeEvent, Writer } from '@ckeditor/ckeditor5-engine';
 import { ContextWatchdog, EditorWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 
-import { ContextWatchdogContext } from './ckeditorcontext';
 import type { AddRootEvent, DetachRootEvent } from '@ckeditor/ckeditor5-editor-multi-root/src/multirooteditor';
 import type MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 import type EventInfo from '@ckeditor/ckeditor5-utils/src/eventinfo';
+
+import { ContextWatchdogContext } from './ckeditorcontext';
 import { EditorWatchdogAdapter } from './ckeditor';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';

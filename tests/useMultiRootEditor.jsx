@@ -9,8 +9,10 @@ import React from 'react';
 import { renderHook } from '@testing-library/react-hooks/dom';
 
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
+import { ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
 
 import useMultiRootEditor from '../src/useMultiRootEditor.tsx';
+import { ContextWatchdogContext } from '../src/ckeditorcontext';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
 
 describe( 'useMultiRootEditor', () => {
@@ -120,6 +122,20 @@ describe( 'useMultiRootEditor', () => {
 				...editorProps,
 				disableWatchdog: true
 			} ) );
+
+			await waitForNextUpdate();
+
+			expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+		} );
+
+		it( 'should initialize the MultiRootEditor instance with context', async () => {
+			const contextWatchdog = new ContextWatchdog( MultiRootEditor.Context );
+			contextWatchdog.create();
+
+			const useContextSpy = sinon.stub( React, 'useContext' );
+			useContextSpy.withArgs( ContextWatchdogContext ).returns( contextWatchdog );
+
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitForNextUpdate();
 
