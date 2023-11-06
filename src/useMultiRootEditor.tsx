@@ -3,29 +3,29 @@
  * For licensing, see LICENSE.md.
  */
 
-import React, { useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
-
-import uid from '@ckeditor/ckeditor5-utils/src/uid';
+import React, { useState, useEffect, useRef, type Dispatch, type SetStateAction, useContext } from 'react';
 
 import type { EditorConfig } from '@ckeditor/ckeditor5-core';
 import type { DocumentChangeEvent, Writer } from '@ckeditor/ckeditor5-engine';
 
 import { ContextWatchdog, EditorWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
-import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 
 import { ContextWatchdogContext } from './ckeditorcontext';
 import type { AddRootEvent, DetachRootEvent } from '@ckeditor/ckeditor5-editor-multi-root/src/multirooteditor';
 import type MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 import type EventInfo from '@ckeditor/ckeditor5-utils/src/eventinfo';
+import { EditorWatchdogAdapter } from './ckeditor';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
 /* eslint-disable @typescript-eslint/no-use-before-define */
 const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns => {
-	let watchdog: EditorWatchdog | null = null;
+	let watchdog: EditorWatchdog | EditorWatchdogAdapter<MultiRootEditor> | null = null;
 
 	let editorDestructionInProgress: Promise<void> | null = null;
+
+	const context = useContext( ContextWatchdogContext );
 
 	// Current editor instance. It may change if the editor is re-initialized by the Watchdog after an error.
 	const [ editor, setEditor ] = useState<MultiRootEditor | null>( null );
@@ -47,7 +47,15 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	const toolbarElement = <div ref={ toolbarRef }></div>;
 
 	useEffect( () => {
-		if ( editor || props.isLayoutReady === false ) {
+		if ( editorDestructionInProgress ) {
+			editorDestructionInProgress.then( () => {
+				_initializeEditor();
+			} );
+
+			return;
+		}
+
+		if ( props.isLayoutReady === false ) {
 			return;
 		}
 
@@ -80,6 +88,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 									// Clear the old value.
 									el.innerHTML = '';
 									el.appendChild( editable );
+
+									// el.replaceWith( editable );
 								}
 							}}
 						></div>
@@ -300,8 +310,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
 	 */
 	const _initializeEditor = async (): Promise<void> => {
-		await editorDestructionInProgress;
-
 		if ( props.disableWatchdog ) {
 			await _createEditor( props.content, _getConfig() );
 
@@ -313,14 +321,11 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			return;
 		}
 
-		watchdog = new EditorWatchdog( props.editor, props.watchdogConfig );
-
-		// 	TODO: handle the context
-		// if ( props.context instanceof ContextWatchdog ) {
-		// 	this.watchdog = new EditorWatchdogAdapter( this.context );
-		// } else {
-		//
-		// }
+		if ( context instanceof ContextWatchdog ) {
+			watchdog = new EditorWatchdogAdapter( context );
+		} else {
+			watchdog = new EditorWatchdog( props.editor, props.watchdogConfig );
+		}
 
 		watchdog.setCreator( ( data, config ) => _createEditor( data as Record<string, string>, config ) );
 
@@ -331,7 +336,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} );
 
 		await watchdog
-			.create( content, _getConfig() )
+			.create( content as any, _getConfig() )
 			.catch( error => {
 				const onError = props.onError || console.error;
 

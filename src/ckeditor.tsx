@@ -580,7 +580,7 @@ type ChangedRoots = Record<string, { changedData?: boolean; changedAttributes?: 
 /**
  * An adapter aligning the context watchdog API to the editor watchdog API for easier usage.
  */
-class EditorWatchdogAdapter<TEditor extends Editor> {
+export class EditorWatchdogAdapter<TEditor extends Editor> {
 	/**
 	 * The context watchdog instance that will be wrapped into editor watchdog API.
 	 */

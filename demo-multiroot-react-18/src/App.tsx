@@ -1,5 +1,8 @@
-import React from 'react';
-import MultiRootEditorDemo from './MultiRootEditorDemo';
+import React, { useState } from 'react';
+import MultiRootEditorDemo from './MultiRootEditorHooksDemo';
+import ContextMultiRootEditorDemo from './ContextMultiRootEditorHooksDemo';
+
+type Demo = 'editor' | 'context';
 
 const multiRootEditorContent = {
 	intro: '<h2>Sample</h2><p>This is an instance of the ' +
@@ -25,11 +28,32 @@ const rootsAttributes = {
 };
 
 export default function App(): JSX.Element {
+	const [ demo, setDemo ] = useState<Demo>( 'editor' );
+
 	return (
 		<>
 			<h1>CKEditor 5 – React Component – development sample</h1>
 
-			<MultiRootEditorDemo content={multiRootEditorContent} rootsAttributes={rootsAttributes} />
+			<div className="buttons" style={ { textAlign: 'center' } }>
+				<button
+					onClick={ () => setDemo( 'editor' ) }
+					disabled={ demo == 'editor' }
+				>
+					Editor demo
+				</button>
+
+				<button
+					onClick={ () => setDemo( 'context' ) }
+					disabled={ demo == 'context' }
+				>
+					Context demo
+				</button>
+			</div>
+			{
+				demo == 'editor' ?
+					<MultiRootEditorDemo content={multiRootEditorContent} rootsAttributes={rootsAttributes} /> :
+					<ContextMultiRootEditorDemo />
+			}
 		</>
 	);
 }
