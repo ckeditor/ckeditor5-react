@@ -47,7 +47,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	const toolbarElement = <div ref={ toolbarRef }></div>;
 
 	useEffect( () => {
-		if ( props.isLayoutReady === false ) {
+		if ( editor || props.isLayoutReady === false ) {
 			return;
 		}
 
@@ -205,15 +205,13 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 						id={ rootName }
 					/>;
 
-					// TODO: add comment
-					if ( content[ rootName ] === undefined ) {
-						setContent( previousContent =>
-							( { ...previousContent, [ rootName ]: editor.getData( { rootName } ) } )
-						);
-						setAttributes( previousAttributes =>
-							( { ...previousAttributes, [ rootName ]: editor.getRootAttributes( rootName ) } )
-						);
-					}
+					setContent( previousContent =>
+						( { ...previousContent, [ rootName ]: editor.getData( { rootName } ) } )
+					);
+
+					setAttributes( previousAttributes =>
+						( { ...previousAttributes, [ rootName ]: editor.getRootAttributes( rootName ) } )
+					);
 
 					setElements( previousElements => [ ...previousElements, reactElement ] );
 				} );
@@ -221,20 +219,17 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				editor.on<DetachRootEvent>( 'detachRoot', ( evt, root ) => {
 					const rootName = root.rootName;
 
-					// TODO: ADD COMMENT
-					if ( !content[ rootName ] ) {
-						setContent( previousContent => {
-							const { [ rootName! ]: _, ...newContent } = previousContent;
+					setContent( previousContent => {
+						const { [ rootName! ]: _, ...newContent } = previousContent;
 
-							return { ...newContent };
-						} );
+						return { ...newContent };
+					} );
 
-						setAttributes( previousAttributes => {
-							const { [ rootName! ]: _, ...newAttributes } = previousAttributes;
+					setAttributes( previousAttributes => {
+						const { [ rootName! ]: _, ...newAttributes } = previousAttributes;
 
-							return { ...newAttributes };
-						} );
-					}
+						return { ...newAttributes };
+					} );
 
 					setElements( previousElements => previousElements.filter( element => element.props.id !== rootName ) );
 
@@ -270,6 +265,11 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 */
 	const _destroyEditor = async (): Promise<void> => {
 		editorDestructionInProgress = new Promise<void>( resolve => {
+			setEditor( null );
+			setContent( {} );
+			setAttributes( {} );
+			setElements( [] );
+
 			// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
 			//
 			// Additionally, we need to find a way to detect if the whole context has been destroyed. As `componentWillUnmount()`

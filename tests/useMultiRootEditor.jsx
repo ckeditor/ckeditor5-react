@@ -14,7 +14,7 @@ import useMultiRootEditor from '../src/useMultiRootEditor.tsx';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
 
 describe( 'useMultiRootEditor', () => {
-	const content = {
+	const rootsContent = {
 		intro: '<h2>Sample</h2><p>This is an instance of the.</p>',
 		content: '<p>It is the custom content</p>'
 	};
@@ -32,23 +32,26 @@ describe( 'useMultiRootEditor', () => {
 
 	const editorProps = {
 		editor: MultiRootEditor,
-		content,
+		content: rootsContent,
 		rootsAttributes,
 		config: {
 			rootsAttributes
 		}
 	};
 
-	let originalConsoleError;
+	let originalConsoleError, originalConsoleWarn;
 
 	beforeEach( () => {
 		originalConsoleError = console.error;
+		originalConsoleWarn = console.warn;
 
 		console.error = sinon.stub();
+		console.warn = sinon.stub();
 	} );
 
 	afterEach( () => {
 		console.error = originalConsoleError;
+		console.warn = originalConsoleWarn;
 
 		sinon.restore();
 	} );
@@ -163,46 +166,196 @@ describe( 'useMultiRootEditor', () => {
 	} );
 
 	describe( 'content and editableElements', () => {
-		it( 'should return the initial state', () => {
+		it( 'should return the initial state', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
+			await waitForNextUpdate();
+
+			const { content, editableElements } = result.current;
+
+			expect( content ).to.deep.equal( rootsContent );
+			expect( editableElements.length ).to.equal( 2 );
 		} );
 
-		it( 'should update the editor attributes when the state has been changed', () => {
+		it( 'should update the editor content when the state has been changed', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
+			await waitForNextUpdate();
+
+			const { editor, setContent } = result.current;
+			const spy = sinon.spy( editor.data, 'set' );
+
+			setContent( { ...rootsContent, 'intro': 'New Content' } );
+
+			await waitForNextUpdate();
+
+			const { content, editableElements } = result.current;
+
+			sinon.assert.calledOnce( spy );
+			expect( content.intro ).to.equal( '<p>New Content</p>' );
+			expect( editableElements.length ).to.equal( 2 );
+			expect( editor.getFullData().intro ).to.equal( '<p>New Content</p>' );
 		} );
 
-		it( 'should remove the editor root when the key has been removed from the state', () => {
+		it( 'should remove the editor root when the key has been removed from the state', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
+			await waitForNextUpdate();
+
+			const { editor, setContent } = result.current;
+			const spy = sinon.spy( editor, 'detachRoot' );
+
+			const newRootsAttributes = { ...rootsContent };
+			delete newRootsAttributes.intro;
+
+			setContent( { ...newRootsAttributes } );
+
+			await waitForNextUpdate();
+
+			const { content, editableElements } = result.current;
+
+			sinon.assert.calledOnce( spy );
+			expect( content.intro ).to.be.undefined;
+			expect( editableElements.length ).to.equal( 1 );
+			expect( editor.getFullData().intro ).to.be.undefined;
 		} );
 
-		it( 'should add the editor root when the key has been added to the state', () => {
+		it( 'should add the editor root when the key has been added to the state', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
+			await waitForNextUpdate();
+
+			const { editor, setContent } = result.current;
+			const spy = sinon.spy( editor, 'addRoot' );
+
+			setContent( { ...rootsContent, 'outro': 'New content' } );
+
+			await waitForNextUpdate();
+
+			const { content, editableElements } = result.current;
+
+			sinon.assert.calledOnce( spy );
+			expect( content.outro ).to.be.equal( '<p>New content</p>' );
+			expect( editableElements.length ).to.equal( 3 );
+			expect( editor.getFullData().outro ).to.be.equal( '<p>New content</p>' );
 		} );
 
-		it( 'should update the state when editor root value has been updated', () => {
+		it( 'should update the state when editor root value has been updated', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
+			await waitForNextUpdate();
+
+			const { editor } = result.current;
+			editor.data.set( { ...rootsContent, 'intro': 'New Content' } );
+
+			const { content, editableElements } = result.current;
+
+			expect( content.intro ).to.equal( '<p>New Content</p>' );
+			expect( editableElements.length ).to.equal( 2 );
+			expect( editor.getFullData().intro ).to.equal( '<p>New Content</p>' );
 		} );
 
-		it( 'should update the state when editor#addRoot is called', () => {
+		it( 'should update the state when editor#addRoot is called', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
+			await waitForNextUpdate();
+
+			const { editor } = result.current;
+			const spy = sinon.spy( editor, 'createEditable' );
+
+			editor.addRoot( 'outro' );
+
+			const { content, editableElements } = result.current;
+
+			sinon.assert.calledOnce( spy );
+			expect( content.outro ).to.equal( '' );
+			expect( editableElements.length ).to.equal( 3 );
+			expect( editor.getFullData().outro ).to.equal( '' );
 		} );
 
-		it( 'should update the state when editor#detachRoot is called', () => {
+		it( 'should update the state when editor#detachRoot is called', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
+			await waitForNextUpdate();
+
+			const { editor } = result.current;
+			const spy = sinon.spy( editor, 'detachEditable' );
+
+			editor.detachRoot( 'intro' );
+
+			const { content, editableElements } = result.current;
+
+			sinon.assert.calledOnce( spy );
+			expect( content.intro ).to.be.undefined;
+			expect( editableElements.length ).to.equal( 1 );
+			expect( editor.getFullData().intro ).to.be.undefined;
 		} );
 	} );
 
 	describe( 'attributes', () => {
-		it( 'should return the initial state', () => {
+		it( 'should return the initial state', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
+			await waitForNextUpdate();
+
+			const { attributes } = result.current;
+
+			expect( attributes ).to.deep.equal( rootsAttributes );
 		} );
 
-		it( 'should update the editor attributes when setAttributes is called', () => {
+		it.skip( 'should update the editor attributes when setAttributes is called', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
+			await waitForNextUpdate();
+
+			const { editor, setAttributes } = result.current;
+
+			setAttributes( { ...rootsAttributes, 'intro': { foo: 'bar' } } );
+
+			await waitForNextUpdate();
+
+			const { attributes } = result.current;
+
+			expect( attributes.intro ).to.deep.equal( { foo: 'bar' } );
+			expect( editor.getRootAttributes( 'intro' ) ).to.deep.equal( { foo: 'bar' } );
 		} );
 
-		it( 'should update the state when editor API is called', () => {
+		it.skip( 'should remove the editor root attribute when the key has been removed from the state', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
+			await waitForNextUpdate();
+
+			const { editor, setAttributes } = result.current;
+
+			const newRootsAttributes = { ...rootsAttributes };
+			delete newRootsAttributes.intro;
+
+			setAttributes( { ...newRootsAttributes } );
+
+			const { attributes } = result.current;
+
+			expect( attributes.intro ).to.be.undefined;
+			expect( editor.getRootAttributes( 'intro' ) ).to.deep.equal( { row: null, order: null } );
+		} );
+
+		it.skip( 'should update the state when editor API is called', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+
+			await waitForNextUpdate();
+
+			const { editor } = result.current;
+
+			await new Promise( res => {
+				editor.model.change( writer => {
+					writer.setAttributes( { foo: 'bar' }, editor.model.document.getRoot( 'intro' ) );
+
+					res();
+				} );
+			} );
+
+			const { attributes } = result.current;
+
+			expect( attributes.intro ).to.deep.equal( { foo: 'bar' } );
 		} );
 	} );
 
