@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef, type Dispatch, type SetStateAction, useContext } from 'react';
 
 import type { EditorConfig } from '@ckeditor/ckeditor5-core';
-import type { DocumentChangeEvent, Writer } from '@ckeditor/ckeditor5-engine';
+import type { DocumentChangeEvent, Writer, RootElement } from '@ckeditor/ckeditor5-engine';
 
 import { ContextWatchdog, EditorWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
@@ -127,6 +127,115 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	};
 
 	/**
+	 * Callback function for handling changed data (content and attributes) in the editor.
+	 */
+	const onChangeData = ( editor: MultiRootEditor, event: EventInfo ): void => {
+		const modelDocument = editor!.model.document;
+
+		const newContent: Record<string, string> = {};
+		const newAttributes: Record<string, Record<string, unknown>> = {};
+
+		modelDocument.differ.getChanges()
+			.forEach( change => {
+				let rootName: string;
+
+				if ( change.type == 'insert' || change.type == 'remove' ) {
+					rootName = change.position.root.rootName!;
+				} else {
+					// Must be `attribute` diff item.
+					rootName = change.range.root.rootName!;
+				}
+
+				newContent[ rootName ] = editor!.getData( { rootName } );
+			} );
+
+		modelDocument.differ.getChangedRoots()
+			.forEach( changedRoot => {
+				// Ignore added and removed roots. They are handled by a different function.
+				// Only register if roots attributes changed.
+				if ( changedRoot.state ) {
+					if ( newContent[ changedRoot.name ] !== undefined ) {
+						delete newContent[ changedRoot.name ];
+					}
+
+					return;
+				}
+
+				const rootName = changedRoot.name;
+
+				newAttributes[ rootName ] = editor!.getRootAttributes( rootName );
+			} );
+
+		if ( Object.keys( newContent ).length ) {
+			setContent( previousContent => ( { ...previousContent, ...newContent } ) );
+
+			shouldUpdateEditor.current = false;
+		}
+
+		if ( Object.keys( newAttributes ).length ) {
+			setAttributes( previousAttributes => ( { ...previousAttributes, ...newAttributes } ) );
+
+			shouldUpdateEditor.current = false;
+		}
+
+		/* istanbul ignore else */
+		if ( props.onChange ) {
+			props.onChange( event, editor! );
+		}
+	};
+
+	/**
+	 * Callback function for handling an added root.
+	 */
+	const onAddRoot = ( editor: MultiRootEditor, evt: EventInfo, root: RootElement ): void => {
+		const editable = editor!.createEditable( root );
+		const rootName = root.rootName;
+
+		const reactElement = <div
+			ref={ el => {
+				if ( el ) {
+					el.appendChild( editable );
+				}
+			} }
+			key={ rootName }
+			id={ rootName }
+		/>;
+
+		setContent( previousContent =>
+			( { ...previousContent, [ rootName ]: editor!.getData( { rootName } ) } )
+		);
+
+		setAttributes( previousAttributes =>
+			( { ...previousAttributes, [ rootName ]: editor!.getRootAttributes( rootName ) } )
+		);
+
+		setElements( previousElements => [ ...previousElements, reactElement ] );
+	};
+
+	/**
+	 * Callback function for handling a detached root.
+	 */
+	const onDetachRoot = ( editor: MultiRootEditor, evt: EventInfo, root: RootElement ): void => {
+		const rootName = root.rootName;
+
+		setContent( previousContent => {
+			const { [ rootName! ]: _, ...newContent } = previousContent;
+
+			return { ...newContent };
+		} );
+
+		setAttributes( previousAttributes => {
+			const { [ rootName! ]: _, ...newAttributes } = previousAttributes;
+
+			return { ...newAttributes };
+		} );
+
+		setElements( previousElements => previousElements.filter( element => element.props.id !== rootName ) );
+
+		editor!.detachEditable( root );
+	};
+
+	/**
 	 * Creates an editor from the element and configuration.
 	 *
 	 * @param initialContent The initial content.
@@ -149,103 +258,11 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				const modelDocument = editor.model.document;
 				const viewDocument = editor.editing.view.document;
 
-				modelDocument.on<DocumentChangeEvent>( 'change:data', event => {
-					const newContent: Record<string, string> = {};
-					const newAttributes: Record<string, Record<string, unknown>> = {};
+				modelDocument.on<DocumentChangeEvent>( 'change:data', evt => onChangeData( editor, evt ) );
 
-					modelDocument.differ.getChanges()
-						.forEach( change => {
-							let rootName: string;
+				editor.on<AddRootEvent>( 'addRoot', ( evt, root ) => onAddRoot( editor, evt, root ) );
 
-							if ( change.type == 'insert' || change.type == 'remove' ) {
-								rootName = change.position.root.rootName!;
-							} else {
-								// Must be `attribute` diff item.
-								rootName = change.range.root.rootName!;
-							}
-
-							newContent[ rootName ] = editor!.getData( { rootName } );
-						} );
-
-					modelDocument.differ.getChangedRoots()
-						.forEach( changedRoot => {
-							// Ignore added and removed roots. They are handled by a different function.
-							// Only register if roots attributes changed.
-							if ( changedRoot.state ) {
-								if ( newContent[ changedRoot.name ] !== undefined ) {
-									delete newContent[ changedRoot.name ];
-								}
-
-								return;
-							}
-
-							const rootName = changedRoot.name;
-
-							newAttributes[ rootName ] = editor!.getRootAttributes( rootName );
-						} );
-
-					if ( Object.keys( newContent ).length ) {
-						setContent( previousContent => ( { ...previousContent, ...newContent } ) );
-
-						shouldUpdateEditor.current = false;
-					}
-
-					if ( Object.keys( newAttributes ).length ) {
-						setAttributes( previousAttributes => ( { ...previousAttributes, ...newAttributes } ) );
-
-						shouldUpdateEditor.current = false;
-					}
-
-					/* istanbul ignore else */
-					if ( props.onChange ) {
-						props.onChange( event, editor );
-					}
-				} );
-
-				editor.on<AddRootEvent>( 'addRoot', ( evt, root ) => {
-					const editable = editor.createEditable( root );
-					const rootName = root.rootName;
-
-					const reactElement = <div
-						ref={ el => {
-							if ( el ) {
-								el.appendChild( editable );
-							}
-						} }
-						key={ rootName }
-						id={ rootName }
-					/>;
-
-					setContent( previousContent =>
-						( { ...previousContent, [ rootName ]: editor.getData( { rootName } ) } )
-					);
-
-					setAttributes( previousAttributes =>
-						( { ...previousAttributes, [ rootName ]: editor.getRootAttributes( rootName ) } )
-					);
-
-					setElements( previousElements => [ ...previousElements, reactElement ] );
-				} );
-
-				editor.on<DetachRootEvent>( 'detachRoot', ( evt, root ) => {
-					const rootName = root.rootName;
-
-					setContent( previousContent => {
-						const { [ rootName! ]: _, ...newContent } = previousContent;
-
-						return { ...newContent };
-					} );
-
-					setAttributes( previousAttributes => {
-						const { [ rootName! ]: _, ...newAttributes } = previousAttributes;
-
-						return { ...newAttributes };
-					} );
-
-					setElements( previousElements => previousElements.filter( element => element.props.id !== rootName ) );
-
-					editor.detachEditable( root );
-				} );
+				editor.on<DetachRootEvent>( 'detachRoot', ( evt, root ) => onDetachRoot( editor, evt, root ) );
 
 				viewDocument.on( 'focus', event => {
 					/* istanbul ignore else */
