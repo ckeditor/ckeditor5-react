@@ -87,9 +87,9 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 								if ( el ) {
 									const editable = editor.ui.view.createEditable( rootName, el );
 
-									editor.editing.view.forceRender();
-
 									editor.ui.addEditable( editable );
+
+									editor.editing.view.forceRender();
 								}
 							}}
 						></div>
@@ -122,7 +122,10 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			);
 		}
 
-		return config;
+		return {
+			...config,
+			rootsAttributes: attributes
+		};
 	};
 
 	/**
@@ -194,9 +197,9 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				if ( el ) {
 					const editable = editor.ui.view.createEditable( rootName, el );
 
-					editor.editing.view.forceRender();
-
 					editor.ui.addEditable( editable );
+
+					editor.editing.view.forceRender();
 				}
 			} }
 			key={ rootName }
@@ -220,6 +223,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	const onDetachRoot = ( editor: MultiRootEditor, evt: EventInfo, root: RootElement ): void => {
 		const rootName = root.rootName;
 
+		setElements( previousElements => previousElements.filter( element => element.props.id !== rootName ) );
+
 		setContent( previousContent => {
 			const { [ rootName! ]: _, ...newContent } = previousContent;
 
@@ -231,8 +236,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 			return { ...newAttributes };
 		} );
-
-		setElements( previousElements => previousElements.filter( element => element.props.id !== rootName ) );
 
 		editor!.detachEditable( root );
 	};
