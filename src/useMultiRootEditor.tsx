@@ -24,7 +24,7 @@ const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckedi
 const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns => {
 	let watchdog: EditorWatchdog | EditorWatchdogAdapter<MultiRootEditor> | null = null;
 
-	let editorDestructionInProgress: Promise<void> | null = null;
+	const editorDestructionInProgress = useRef<Promise<void> | null>( null );
 
 	const context = useContext( ContextWatchdogContext );
 
@@ -48,29 +48,31 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	const toolbarElement = <div ref={ toolbarRef }></div>;
 
 	useEffect( () => {
-		if ( editorDestructionInProgress ) {
-			editorDestructionInProgress.then( () => {
+		const initEditor = async () => {
+			// When the component has been remounted it is crucial to wait for removing the old editor
+			// and cleaning the old state.
+			await editorDestructionInProgress.current;
+
+			if ( props.isLayoutReady !== false ) {
 				_initializeEditor();
-			} );
+			}
+		};
 
-			return;
-		}
-
-		if ( props.isLayoutReady === false ) {
-			return;
-		}
-
-		_initializeEditor();
+		initEditor();
 
 		return () => {
-			_destroyEditor();
+			_destroyEditor().then( () => {
+				editorDestructionInProgress.current = null;
+			} );
 		};
 	}, [ props.isLayoutReady ] );
 
 	useEffect( () => {
 		const container = toolbarRef.current;
 
-		if ( editor ) {
+		// When the component has been remounted, keeping the old state, it is important to avoid
+		// updating the editor, which will be destroyed by the unmount callback.
+		if ( editor && !editorDestructionInProgress.current ) {
 			const editorData = editor.getFullData();
 
 			setContent( { ...editorData } );
@@ -81,16 +83,13 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 						<div
 							id={rootName}
 							key={rootName}
-							ref={el => {
+							ref={ el => {
 								if ( el ) {
-									const root = editor.model.document.getRoot( rootName )!;
-									const editable = editor.createEditable( root );
+									const editable = editor.ui.view.createEditable( rootName, el );
 
-									// Clear the old value.
-									el.innerHTML = '';
-									el.appendChild( editable );
+									editor.editing.view.forceRender();
 
-									// el.replaceWith( editable );
+									editor.ui.addEditable( editable );
 								}
 							}}
 						></div>
@@ -108,7 +107,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				container.removeChild( container.firstChild! );
 			}
 		};
-	}, [ editor ] );
+	}, [ editor && editor.id ] );
 
 	/**
 	 * Returns the editor configuration.
@@ -188,13 +187,16 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 * Callback function for handling an added root.
 	 */
 	const onAddRoot = ( editor: MultiRootEditor, evt: EventInfo, root: RootElement ): void => {
-		const editable = editor!.createEditable( root );
 		const rootName = root.rootName;
 
 		const reactElement = <div
 			ref={ el => {
 				if ( el ) {
-					el.appendChild( editable );
+					const editable = editor.ui.view.createEditable( rootName, el );
+
+					editor.editing.view.forceRender();
+
+					editor.ui.addEditable( editable );
 				}
 			} }
 			key={ rootName }
@@ -292,12 +294,12 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 * Destroys the editor by destroying the watchdog.
 	 */
 	const _destroyEditor = async (): Promise<void> => {
-		editorDestructionInProgress = new Promise<void>( resolve => {
-			setEditor( null );
-			setContent( {} );
-			setAttributes( {} );
-			setElements( [] );
+		setEditor( null );
+		setContent( {} );
+		setAttributes( {} );
+		setElements( [] );
 
+		editorDestructionInProgress.current = new Promise<void>( resolve => {
 			// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
 			//
 			// Additionally, we need to find a way to detect if the whole context has been destroyed. As `componentWillUnmount()`

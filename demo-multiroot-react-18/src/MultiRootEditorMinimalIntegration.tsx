@@ -23,7 +23,13 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	return (
 		<>
 			{ toolbarElement }
-			{ editableElements }
+			{ editableElements.map( ( element, idx ) => {
+				return (
+					<div className="my-editable-parent" key={idx}>
+						{ element }
+					</div>
+				);
+			} ) }
 		</>
 	);
 }

@@ -15,6 +15,11 @@ import useMultiRootEditor from '../src/useMultiRootEditor.tsx';
 import { ContextWatchdogContext } from '../src/ckeditorcontext';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
 
+import { configure, mount } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+
+configure( { adapter: new Adapter() } );
+
 describe( 'useMultiRootEditor', () => {
 	const rootsContent = {
 		intro: '<h2>Sample</h2><p>This is an instance of the.</p>',
@@ -277,13 +282,15 @@ describe( 'useMultiRootEditor', () => {
 			await waitForNextUpdate();
 
 			const { editor } = result.current;
-			const spy = sinon.spy( editor, 'createEditable' );
+			const spy = sinon.spy( editor.ui.view, 'createEditable' );
 
 			editor.addRoot( 'outro' );
 
 			const { content, editableElements } = result.current;
 
-			sinon.assert.calledOnce( spy );
+			mount( <div>{editableElements}</div> );
+
+			expect( spy.callCount ).to.equal( editableElements.length );
 			expect( content.outro ).to.equal( '' );
 			expect( editableElements.length ).to.equal( 3 );
 			expect( editor.getFullData().outro ).to.equal( '' );

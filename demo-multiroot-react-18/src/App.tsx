@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import MultiRootEditorDemo from './MultiRootEditorHooksDemo';
 import ContextMultiRootEditorDemo from './ContextMultiRootEditorHooksDemo';
+import MultiRootEditorMinimalIntegration from './MultiRootEditorMinimalIntegration';
 
-type Demo = 'editor' | 'context';
+type Demo = 'editor' | 'context' | 'minimal';
 
 const multiRootEditorContent = {
 	intro: '<h2>Sample</h2><p>This is an instance of the ' +
@@ -30,6 +31,17 @@ const rootsAttributes = {
 export default function App(): JSX.Element {
 	const [ demo, setDemo ] = useState<Demo>( 'editor' );
 
+	const renderDemo = () => {
+		switch ( demo ) {
+			case 'context':
+				return <ContextMultiRootEditorDemo />;
+			case 'minimal':
+				return <MultiRootEditorMinimalIntegration content={multiRootEditorContent} rootsAttributes={rootsAttributes} />;
+			case 'editor':
+				return <MultiRootEditorDemo content={multiRootEditorContent} rootsAttributes={rootsAttributes} />;
+		}
+	};
+
 	return (
 		<>
 			<h1>CKEditor 5 – React Component – development sample</h1>
@@ -48,12 +60,15 @@ export default function App(): JSX.Element {
 				>
 					Context demo
 				</button>
+
+				<button
+					onClick={ () => setDemo( 'minimal' ) }
+					disabled={ demo == 'minimal' }
+				>
+					Minimal integration demo
+				</button>
 			</div>
-			{
-				demo == 'editor' ?
-					<MultiRootEditorDemo content={multiRootEditorContent} rootsAttributes={rootsAttributes} /> :
-					<ContextMultiRootEditorDemo />
-			}
+			{ renderDemo() }
 		</>
 	);
 }
