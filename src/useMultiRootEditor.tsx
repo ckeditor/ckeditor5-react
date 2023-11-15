@@ -252,7 +252,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	);
 
 	/**
-	 * Creates an editor from the element and configuration.
+	 * Creates an editor using initial elements or data, and configuration.
 	 *
 	 * @param initialContent The initial content.
 	 * @param config CKEditor 5 editor configuration.
