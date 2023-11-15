@@ -3,7 +3,7 @@ import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 
 import { useMultiRootEditor, type MultiRootHookProps, CKEditorContext } from '../../src';
 
-export default function ContextEditorWrapper(): JSX.Element {
+export default function ContextMultiRootEditorDemo(): JSX.Element {
 	return (
 		<>
 			{ /* @ts-expect-error: Caused by linking to parent project and conflicting react types */ }

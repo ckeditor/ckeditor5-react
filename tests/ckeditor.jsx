@@ -158,8 +158,8 @@ describe( '<CKEditor> Component', () => {
 
 			expect( consoleWarnStub.calledOnce ).to.be.true;
 			expect( consoleWarnStub.firstCall.args[ 0 ] ).to.equal(
-				'Editor data should be provided either using `config.initialData` or `data` properties. ' +
-				'The config property is over the data value and the first one will be used when specified both.'
+				'Editor data should be provided either using `config.initialData` or `content` property. ' +
+				'The config value takes precedence over `content` property and will be used when both are specified.'
 			);
 		} );
 
@@ -280,8 +280,9 @@ describe( '<CKEditor> Component', () => {
 
 	describe( 'properties', () => {
 		// See: #83.
-		it( 'does not update anything if component is not ready', async () => {
+		it( 'does not update anything if component is not ready', () => {
 			const editorInstance = new Editor();
+
 			sinon.stub( Editor, 'create' ).resolves( editorInstance );
 
 			wrapper = mount( <CKEditor editor={ Editor }/> );
@@ -333,7 +334,6 @@ describe( '<CKEditor> Component', () => {
 				expect( onChange.calledOnce ).to.equal( true );
 				expect( onChange.firstCall.args[ 0 ] ).to.equal( event );
 				expect( onChange.firstCall.args[ 1 ] ).to.equal( editorInstance );
-				expect( onChange.firstCall.args[ 2 ] ).to.deep.equal( {} );
 			} );
 
 			it( 'executes "onChange" callback if it is available in runtime when the editor\'s data has changed', async () => {
@@ -360,7 +360,6 @@ describe( '<CKEditor> Component', () => {
 				expect( onChange.calledOnce ).to.equal( true );
 				expect( onChange.firstCall.args[ 0 ] ).to.equal( event );
 				expect( onChange.firstCall.args[ 1 ] ).to.equal( editorInstance );
-				expect( onChange.firstCall.args[ 2 ] ).to.deep.equal( {} );
 			} );
 		} );
 
@@ -533,64 +532,6 @@ describe( '<CKEditor> Component', () => {
 				expect( onErrorSpy.firstCall.args[ 0 ] ).to.equal( error );
 				expect( onErrorSpy.firstCall.args[ 1 ].phase ).to.equal( 'runtime' );
 				expect( onErrorSpy.firstCall.args[ 1 ].willEditorRestart ).to.equal( true );
-			} );
-		} );
-
-		describe( '#onRootAdd', () => {
-			beforeEach( () => {
-				sinon.stub( Editor, '_on' );
-			} );
-
-			it( 'executes "onAddRoot" callback if the new root has been created', async () => {
-				const onAddRoot = sinon.spy();
-				const editorInstance = new Editor();
-
-				sinon.stub( Editor, 'create' ).resolves( editorInstance );
-
-				await new Promise( ( res, rej ) => {
-					wrapper = mount( <CKEditor
-						editor={ Editor }
-						onAddRoot={ onAddRoot }
-						onReady={ res }
-						onError={ rej }/> );
-				} );
-
-				const fireChanges = Editor._on.firstCall.args[ 1 ];
-				const event = { name: 'addRoot' };
-				const root = { rootName: 'test', getAttributes: () => [ [ 'attr', 'value' ] ] };
-				fireChanges( event, root );
-
-				expect( onAddRoot.calledOnce ).to.equal( true );
-				expect( onAddRoot.firstCall.args[ 0 ]() ).to.deep.include( { type: 'div', props: { id: 'test' } } );
-				expect( onAddRoot.firstCall.args[ 1 ] ).to.deep.equal( { attr: 'value' } );
-			} );
-		} );
-
-		describe( '#onRootRemove', () => {
-			beforeEach( () => {
-				sinon.stub( Editor, '_on' );
-			} );
-
-			it( 'executes "onRemoveRoot" callback if the root has been removed', async () => {
-				const onRemoveRoot = sinon.spy();
-				const editorInstance = new Editor();
-
-				sinon.stub( Editor, 'create' ).resolves( editorInstance );
-
-				await new Promise( ( res, rej ) => {
-					wrapper = mount( <CKEditor
-						editor={ Editor }
-						onRemoveRoot={ onRemoveRoot }
-						onReady={ res }
-						onError={ rej }/> );
-				} );
-
-				const fireChanges = Editor._on.secondCall.args[ 1 ];
-				const event = { name: 'detachRoot' };
-				const root = { rootName: 'test', getAttributes: () => [ [ 'attr', 'value' ] ] };
-				fireChanges( event, root );
-
-				expect( onRemoveRoot.calledOnce ).to.equal( true );
 			} );
 		} );
 

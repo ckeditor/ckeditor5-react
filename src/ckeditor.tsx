@@ -5,76 +5,22 @@
 
 /* globals window */
 
-import React, { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
+import React from 'react';
 import PropTypes, { type InferProps, type Validator } from 'prop-types';
 
 import uid from '@ckeditor/ckeditor5-utils/src/uid';
-import type EventInfo from '@ckeditor/ckeditor5-utils/src/eventinfo';
 
+import type { EventInfo } from '@ckeditor/ckeditor5-utils';
 import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
-import type { DocumentChangeEvent, RootElement, Writer } from '@ckeditor/ckeditor5-engine';
+import type { DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';
 
 import { EditorWatchdog, ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 
 import { ContextWatchdogContext } from './ckeditorcontext';
-import type { MultiRootEditor } from '@ckeditor/ckeditor5-editor-multi-root';
-import type { AddRootEvent, DetachRootEvent } from '@ckeditor/ckeditor5-editor-multi-root/src/multirooteditor';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
-
-export const useMultiRootEditorElements = (
-	editor: MultiRootEditor | null,
-	initialRootsRefs: Record<string, HTMLDivElement>,
-	initialContent: Record<string, string>
-): [ Array<JSX.Element>, Dispatch<SetStateAction<Array<JSX.Element>>> ] => {
-	const setInitialSourceElement = ( element: HTMLDivElement | null, rootName: string ) => {
-		if ( element ) {
-			initialRootsRefs[ rootName ] = element;
-		}
-	};
-
-	const [ elements, setElements ] = useState<Array<JSX.Element>>(
-		Object.keys( initialContent ).map( rootName => (
-			<div id={rootName} key={rootName}>
-				<div ref={ el => setInitialSourceElement( el, rootName ) }></div>
-			</div>
-		) )
-	);
-
-	useEffect( () => {
-		if ( editor ) {
-			const editorData = editor.getFullData();
-
-			setElements( [
-				...Object.keys( editorData ).map( rootName => {
-					const element = elements.find( el => el.props.id === rootName );
-
-					if ( element ) {
-						return element;
-					}
-
-					return (
-						<div
-							id={rootName}
-							key={rootName}
-							ref={el => {
-								if ( el ) {
-									const root = editor.model.document.getRoot( rootName )!;
-									const editable = editor.createEditable( root );
-									el.appendChild( editable );
-								}
-							}}
-						></div>
-					);
-				} )
-			] );
-		}
-	}, [ editor ] );
-
-	return [ elements, setElements ];
-};
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export default class CKEditor<TEditor extends Editor> extends React.Component<Props<TEditor>, {}> {
@@ -149,7 +95,9 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			return true;
 		}
 
-		this._handleEditorState( nextProps );
+		if ( this._shouldUpdateEditor( nextProps ) ) {
+			this.editor.data.set( nextProps.data! );
+		}
 
 		if ( 'disabled' in nextProps ) {
 			if ( nextProps.disabled ) {
@@ -164,7 +112,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 	/**
 	 * Initialize the editor when the component is mounted.
- 	 */
+	 */
 	public override async componentDidMount(): Promise<void> {
 		await this._initializeEditor();
 	}
@@ -179,7 +127,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 	/**
 	 * Destroy the editor before unmounting the component.
- 	 */
+	 */
 	public override async componentWillUnmount(): Promise<void> {
 		await this._destroyEditor();
 	}
@@ -215,7 +163,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			this.watchdog = new CKEditor._EditorWatchdog( this.props.editor, this.props.watchdogConfig );
 		}
 
-		this.watchdog.setCreator( ( el, config ) => this._createEditor( el, config ) );
+		this.watchdog.setCreator( ( el, config ) => this._createEditor( el as any, config ) );
 
 		this.watchdog.on( 'error', ( _, { error, causesRestart } ) => {
 			const onError = this.props.onError || console.error;
@@ -223,7 +171,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		} );
 
 		await this.watchdog
-			.create( this.props.sourceElements as any || this.domContainer.current!, this._getConfig() )
+			.create( this.domContainer.current!, this._getConfig() )
 			.catch( error => {
 				const onError = this.props.onError || console.error;
 				onError( error, { phase: 'initialization', willEditorRestart: false } );
@@ -236,10 +184,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * @param element The source element.
 	 * @param config CKEditor 5 editor configuration.
 	 */
-	private _createEditor(
-		element: HTMLElement | string | Record<string, string> | Record<string, HTMLElement>,
-		config: EditorConfig
-	): Promise<TEditor> {
+	private _createEditor( element: HTMLElement | string | Record<string, string>, config: EditorConfig ): Promise<TEditor> {
 		return this.props.editor.create( element as HTMLElement, config )
 			.then( editor => {
 				if ( 'disabled' in this.props ) {
@@ -254,75 +199,9 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 				const viewDocument = editor.editing.view.document;
 
 				modelDocument.on<DocumentChangeEvent>( 'change:data', event => {
-					const changedRoots: ChangedRoots = {};
-
-					modelDocument.differ.getChanges()
-						.forEach( change => {
-							let rootName: string;
-
-							if ( change.type == 'insert' || change.type == 'remove' ) {
-								rootName = change.position.root.rootName!;
-							} else {
-								// Must be `attribute` diff item.
-								rootName = change.range.root.rootName!;
-							}
-
-							changedRoots[ rootName ] = { changedData: true };
-						} );
-
-					modelDocument.differ.getChangedRoots()
-						.forEach( changedRoot => {
-							// Ignore added and removed roots. They are handled by a different function.
-							// Only register if roots attributes changed.
-							if ( changedRoot.state ) {
-								if ( changedRoots[ changedRoot.name ] ) {
-									delete changedRoots[ changedRoot.name ];
-								}
-
-								return;
-							}
-
-							const rootName = changedRoot.name;
-
-							changedRoots[ rootName! ] = { ...changedRoots[ rootName! ], changedAttributes: true };
-						} );
-
 					/* istanbul ignore else */
 					if ( this.props.onChange ) {
-						this.props.onChange( event, editor, changedRoots );
-					}
-				} );
-
-				editor.on<AddRootEvent>( 'addRoot', ( evt, root ) => {
-					if ( this.props.onAddRoot ) {
-						const editable = ( editor as unknown as MultiRootEditor ).createEditable( root );
-
-						const reactElement = ( props?: Record<string, unknown> ) => <div
-							ref={ el => {
-								if ( el ) {
-									el.appendChild( editable );
-								}
-							} }
-							key={ root.rootName }
-							id={ root.rootName }
-							{...props}
-						/>;
-
-						const attributes: Record<string, unknown> = {};
-
-						for ( const [ key, value ] of root.getAttributes() ) {
-							attributes[ key ] = value;
-						}
-
-						this.props.onAddRoot( reactElement, attributes );
-					}
-				} );
-
-				editor.on<DetachRootEvent>( 'detachRoot', ( evt, root ) => {
-					if ( this.props.onRemoveRoot ) {
-						this.props.onRemoveRoot( root );
-
-						( editor as any ).detachEditable( root );
+						this.props.onChange( event, editor );
 					}
 				} );
 
@@ -383,121 +262,26 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		} );
 	}
 
-	private _getStateDiff(
-		previousState: Record<string, unknown>,
-		newState: Record<string, unknown>
-	): {
-		addedKeys: Array<string>;
-		removedKeys: Array<string>;
-		modifiedKeys: Array<string>;
-	} {
-		const previousStateKeys = Object.keys( previousState );
-		const newStateKeys = Object.keys( newState );
-
-		return {
-			addedKeys: newStateKeys.filter( key => !previousStateKeys.includes( key ) ),
-			removedKeys: previousStateKeys.filter( key => !newStateKeys.includes( key ) ),
-			modifiedKeys: previousStateKeys.filter( key => (
-				newStateKeys.includes( key ) &&
-				JSON.stringify( previousState[ key ] ) !== JSON.stringify( newState[ key ] )
-			) )
-		};
-	}
-
-	private _handleRoots(
-		nextProps: Props<TEditor>,
-		newRoots: Array<string>,
-		removedRoots: Array<string>,
-		modifiedRoots: Array<string>
-	) {
-		const editor = this.editor as MultiRootEditor;
-		const nextData = nextProps.data as Record<string, string>;
-
-		newRoots.forEach( root => {
-			editor.addRoot( root, {
-				data: nextData[ root ] || '',
-				attributes: nextProps.attributes?.[ root ] || {} as any,
-				isUndoable: true
-			} );
-		} );
-
-		removedRoots.forEach( root => {
-			editor.detachRoot( root, true );
-		} );
-
-		// If any of the roots content has changed, set the editor data.
-		// Unfortunately, we cannot set the editor data just for one root, so we need to overwrite all roots (`nextProps.data` is an
-		// object with data for each root).
-		if ( modifiedRoots.length ) {
-			editor!.data.set( nextProps.data!, { suppressErrorInCollaboration: true } as any );
-		}
-	}
-
-	private _handleRootsAttributes(
-		writer: Writer,
-		nextProps: Props<TEditor>,
-		newRootsAttributes: Array<string>,
-		removedRootsAttributes: Array<string>,
-		modifiedRootsAttributes: Array<string>
-	) {
-		[ ...newRootsAttributes, ...modifiedRootsAttributes ].forEach( root => {
-			writer.setAttributes( nextProps.attributes![ root ] as Record<string, any>, this.editor!.model.document.getRoot( root )! );
-		} );
-
-		removedRootsAttributes.forEach( root => {
-			writer.clearAttributes( this.editor!.model.document.getRoot( root )! );
-		} );
-	}
-
 	/**
-	 * Checks if the editor content or roots attributes should be updated and, if so, changes the editor content and/or attributes
-	 * accordingly to the data in `nextProps`.
+	 * Returns true when the editor should be updated.
 	 *
 	 * @param nextProps React's properties.
 	 */
-	private _handleEditorState( nextProps: Readonly<Props<TEditor>> ): void {
+	private _shouldUpdateEditor( nextProps: Readonly<Props<TEditor>> ): boolean {
 		// Check whether `nextProps.data` is equal to `this.props.data` is required if somebody defined the `#data`
 		// property as a static string and updated a state of component when the editor's content has been changed.
 		// If we avoid checking those properties, the editor's content will back to the initial value because
 		// the state has been changed and React will call this method.
-		if ( this.props.data === nextProps.data && this.props.attributes === nextProps.attributes ) {
-			return;
+		if ( this.props.data === nextProps.data ) {
+			return false;
 		}
-
-		const roots = Object.keys( this.props.data );
 
 		// We should not change data if the editor's content is equal to the `#data` property.
-		if ( roots.length !== undefined && 'getFullData' in this.editor! ) {
-			const editor = this.editor as MultiRootEditor;
-
-			const editorData = editor.getFullData();
-			const editorAttributes = editor.getRootsAttributes();
-			const nextData = nextProps.data as Record<string, string>;
-
-			const {
-				addedKeys: newRoots,
-				removedKeys: removedRoots,
-				modifiedKeys: modifiedRoots
-			} = this._getStateDiff( editorData, nextData || {} );
-			const {
-				addedKeys: newAttributes,
-				removedKeys: removedAttributes,
-				modifiedKeys: modifiedAttributes
-			} = this._getStateDiff( editorAttributes, nextProps.attributes || {} );
-
-			const newRootAttributes = newAttributes.filter( rootAttr =>
-				!newRoots.includes( rootAttr ) && nextData[ rootAttr ] !== undefined );
-			const removedRootAttributes = removedAttributes.filter( rootAttr =>
-				!removedRoots.includes( rootAttr ) && nextData[ rootAttr ] !== undefined );
-			const modifiedRootAttributes = modifiedAttributes.filter( rootAttr => nextData[ rootAttr ] !== undefined );
-
-			editor.model.change( writer => {
-				this._handleRoots( nextProps, newRoots, removedRoots, modifiedRoots );
-				this._handleRootsAttributes( writer, nextProps, newRootAttributes, removedRootAttributes, modifiedRootAttributes );
-			} );
-		} else if ( this.editor!.data.get() !== nextProps.data ) {
-			this.editor!.data.set( nextProps.data! );
+		if ( this.editor!.data.get() === nextProps.data ) {
+			return false;
 		}
+
+		return true;
 	}
 
 	/**
@@ -508,8 +292,8 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 		if ( this.props.data && config.initialData ) {
 			console.warn(
-				'Editor data should be provided either using `config.initialData` or `data` properties. ' +
-				'The config property is over the data value and the first one will be used when specified both.'
+				'Editor data should be provided either using `config.initialData` or `content` property. ' +
+				'The config value takes precedence over `content` property and will be used when both are specified.'
 			);
 		}
 
@@ -525,12 +309,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	// Properties definition.
 	public static propTypes = {
 		editor: PropTypes.func.isRequired as unknown as Validator<{ create( ...args: any ): Promise<any> }>,
-		data: PropTypes.oneOfType( [
-			PropTypes.object,
-			PropTypes.string
-		] ),
-		attributes: PropTypes.object,
-		sourceElements: PropTypes.object,
+		data: PropTypes.string,
 		config: PropTypes.object,
 		disableWatchdog: PropTypes.bool,
 		watchdogConfig: PropTypes.object,
@@ -538,8 +317,6 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		onReady: PropTypes.func,
 		onFocus: PropTypes.func,
 		onBlur: PropTypes.func,
-		onAddRoot: PropTypes.func,
-		onRemoveRoot: PropTypes.func,
 		onError: PropTypes.func,
 		disabled: PropTypes.bool,
 		id: PropTypes.any
@@ -556,26 +333,19 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propTypes> {
 	editor: { create( ...args: any ): Promise<TEditor> };
 	config?: EditorConfig;
-	data: Record<string, string> | string;
-	attributes?: Record<string, unknown>;
-	sourceElements?: Record<string, HTMLDivElement>;
 	watchdogConfig?: WatchdogConfig;
 	disableWatchdog?: boolean;
 	onReady?: ( editor: TEditor ) => void;
 	onError?: ( error: Error, details: ErrorDetails ) => void;
-	onChange?: ( event: EventInfo, editor: TEditor, changedRoots: ChangedRoots ) => void;
+	onChange?: ( event: EventInfo, editor: TEditor ) => void;
 	onFocus?: ( event: EventInfo, editor: TEditor ) => void;
 	onBlur?: ( event: EventInfo, editor: TEditor ) => void;
-	onAddRoot?: ( createElement: () => JSX.Element, attributes: Record<string, unknown> ) => void;
-	onRemoveRoot?: ( root: RootElement ) => void;
 }
 
 interface ErrorDetails {
 	phase: 'initialization' | 'runtime';
 	willEditorRestart?: boolean;
 }
-
-type ChangedRoots = Record<string, { changedData?: boolean; changedAttributes?: boolean }>;
 
 /**
  * An adapter aligning the context watchdog API to the editor watchdog API for easier usage.

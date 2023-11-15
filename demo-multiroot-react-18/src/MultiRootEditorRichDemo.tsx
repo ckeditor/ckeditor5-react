@@ -10,7 +10,7 @@ type EditorDemoProps = {
 	rootsAttributes: Record<string, Record<string, unknown>>;
 };
 
-export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
+export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.Element {
 	const editorProps: MultiRootHookProps = {
 		editor: MultiRootEditor,
 		content: props.content,

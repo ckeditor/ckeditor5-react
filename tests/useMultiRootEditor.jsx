@@ -122,6 +122,21 @@ describe( 'useMultiRootEditor', () => {
 			expect( result.current.editor ).to.be.exist;
 		} );
 
+		it( 'should bind the editor read-only mode to config#disabled flag', async () => {
+			const { result, waitForNextUpdate, rerender } = renderHook( disabled => useMultiRootEditor( {
+				...editorProps,
+				disabled
+			} ), { initialProps: true } );
+
+			await waitForNextUpdate();
+
+			expect( result.current.editor.isReadOnly ).to.be.true;
+
+			rerender( false );
+
+			expect( result.current.editor.isReadOnly ).to.be.false;
+		} );
+
 		it( 'should initialize the MultiRootEditor instance when watchdog is disabled', async () => {
 			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
 				...editorProps,

@@ -68,7 +68,17 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	}, [ props.isLayoutReady ] );
 
 	useEffect( () => {
-		const container = toolbarRef.current;
+		if ( editor ) {
+			if ( props.disabled ) {
+				editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+			} else {
+				editor.disableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+			}
+		}
+	}, [ props.disabled ] );
+
+	useEffect( () => {
+		const toolbarContainer = toolbarRef.current;
 
 		// When the component has been remounted, keeping the old state, it is important to avoid
 		// updating the editor, which will be destroyed by the unmount callback.
@@ -78,33 +88,17 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			setContent( { ...editorData } );
 			setAttributes( { ...editor.getRootsAttributes() } );
 			setElements( [
-				...Object.keys( editorData ).map( rootName => {
-					return (
-						<div
-							id={rootName}
-							key={rootName}
-							ref={ el => {
-								if ( el ) {
-									const editable = editor.ui.view.createEditable( rootName, el );
-
-									editor.ui.addEditable( editable );
-
-									editor.editing.view.forceRender();
-								}
-							}}
-						></div>
-					);
-				} )
+				...Object.keys( editorData ).map( rootName => _createEditableElement( editor, rootName ) )
 			] );
 
-			if ( container ) {
-				container.appendChild( editor.ui.view.toolbar.element! );
+			if ( toolbarContainer ) {
+				toolbarContainer.appendChild( editor.ui.view.toolbar.element! );
 			}
 		}
 
 		return () => {
-			if ( container && container.firstChild ) {
-				container.removeChild( container.firstChild! );
+			if ( toolbarContainer && toolbarContainer.firstChild ) {
+				toolbarContainer.removeChild( toolbarContainer.firstChild! );
 			}
 		};
 	}, [ editor && editor.id ] );
@@ -117,8 +111,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 		if ( props.content && config.initialData ) {
 			console.warn(
-				'Editor data should be provided either using `config.initialData` or `data` properties. ' +
-				'The config property is over the data value and the first one will be used when specified both.'
+				'Editor data should be provided either using `config.initialData` or `content` property. ' +
+				'The config value takes precedence over `content` property and will be used when both are specified.'
 			);
 		}
 
@@ -192,19 +186,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	const onAddRoot = ( editor: MultiRootEditor, evt: EventInfo, root: RootElement ): void => {
 		const rootName = root.rootName;
 
-		const reactElement = <div
-			ref={ el => {
-				if ( el ) {
-					const editable = editor.ui.view.createEditable( rootName, el );
-
-					editor.ui.addEditable( editable );
-
-					editor.editing.view.forceRender();
-				}
-			} }
-			key={ rootName }
-			id={ rootName }
-		/>;
+		const reactElement = _createEditableElement( editor, rootName );
 
 		setContent( previousContent =>
 			( { ...previousContent, [ rootName ]: editor!.getData( { rootName } ) } )
@@ -241,6 +223,25 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	};
 
 	/**
+	 * Creates a React element on which the root editable element is initialized.
+	 */
+	const _createEditableElement = ( editor: MultiRootEditor, rootName: string ): JSX.Element => (
+		<div
+			id={rootName}
+			key={rootName}
+			ref={ el => {
+				if ( el ) {
+					const editable = editor.ui.view.createEditable( rootName, el );
+
+					editor.ui.addEditable( editable );
+
+					editor.editing.view.forceRender();
+				}
+			}}
+		></div>
+	);
+
+	/**
 	 * Creates an editor from the element and configuration.
 	 *
 	 * @param initialContent The initial content.
@@ -252,7 +253,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	): Promise<MultiRootEditor> => {
 		return props.editor.create( initialContent, config )
 			.then( ( editor: MultiRootEditor ) => {
-				if ( 'disabled' in props ) {
+				if ( props.disabled ) {
 					// Switch to the read-only mode if the `[disabled]` attribute is specified.
 					/* istanbul ignore else */
 					if ( props.disabled ) {
@@ -266,7 +267,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				modelDocument.on<DocumentChangeEvent>( 'change:data', evt => onChangeData( editor, evt ) );
 
 				editor.on<AddRootEvent>( 'addRoot', ( evt, root ) => onAddRoot( editor, evt, root ) );
-
 				editor.on<DetachRootEvent>( 'detachRoot', ( evt, root ) => onDetachRoot( editor, evt, root ) );
 
 				viewDocument.on( 'focus', event => {
@@ -393,11 +393,11 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			modifiedKeys: modifiedAttributes
 		} = _getStateDiff( editorAttributes, attributes || {} );
 
-		const newRootAttributes = newAttributes.filter( rootAttr =>
-			!newRoots.includes( rootAttr ) && attributes[ rootAttr ] !== undefined );
-		const removedRootAttributes = removedAttributes.filter( rootAttr =>
-			!removedRoots.includes( rootAttr ) && attributes[ rootAttr ] !== undefined );
-		const modifiedRootAttributes = modifiedAttributes.filter( rootAttr => attributes[ rootAttr ] !== undefined );
+		const newRootAttributes = newAttributes.filter( rootName =>
+			!newRoots.includes( rootName ) && attributes[ rootName ] !== undefined );
+		const removedRootAttributes = removedAttributes.filter( rootName =>
+			!removedRoots.includes( rootName ) && attributes[ rootName ] !== undefined );
+		const modifiedRootAttributes = modifiedAttributes.filter( rootName => attributes[ rootName ] !== undefined );
 
 		editor.model.change( writer => {
 			_handleRoots( newRoots, removedRoots, modifiedRoots );
@@ -482,6 +482,7 @@ interface ErrorDetails {
 
 export type MultiRootHookProps = {
 	isLayoutReady?: boolean;
+	disabled?: boolean;
 	content: Record<string, string>;
 	rootsAttributes?: Record<string, Record<string, unknown>>;
 	editor: typeof MultiRootEditor;

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import MultiRootEditorDemo from './MultiRootEditorHooksDemo';
-import ContextMultiRootEditorDemo from './ContextMultiRootEditorHooksDemo';
-import MultiRootEditorMinimalIntegration from './MultiRootEditorMinimalIntegration';
+import MultiRootEditorDemo from './MultiRootEditorDemo';
+import MultiRootEditorRichDemo from './MultiRootEditorRichDemo';
+import ContextMultiRootEditorDemo from './ContextMultiRootEditorDemo';
 
-type Demo = 'editor' | 'context' | 'minimal';
+type Demo = 'editor' | 'rich' | 'context';
 
 const multiRootEditorContent = {
 	intro: '<h2>Sample</h2><p>This is an instance of the ' +
@@ -35,10 +35,10 @@ export default function App(): JSX.Element {
 		switch ( demo ) {
 			case 'context':
 				return <ContextMultiRootEditorDemo />;
-			case 'minimal':
-				return <MultiRootEditorMinimalIntegration content={multiRootEditorContent} rootsAttributes={rootsAttributes} />;
 			case 'editor':
 				return <MultiRootEditorDemo content={multiRootEditorContent} rootsAttributes={rootsAttributes} />;
+			case 'rich':
+				return <MultiRootEditorRichDemo content={multiRootEditorContent} rootsAttributes={rootsAttributes} />;
 		}
 	};
 
@@ -55,17 +55,17 @@ export default function App(): JSX.Element {
 				</button>
 
 				<button
+					onClick={ () => setDemo( 'rich' ) }
+					disabled={ demo == 'rich' }
+				>
+					Rich integration demo
+				</button>
+
+				<button
 					onClick={ () => setDemo( 'context' ) }
 					disabled={ demo == 'context' }
 				>
 					Context demo
-				</button>
-
-				<button
-					onClick={ () => setDemo( 'minimal' ) }
-					disabled={ demo == 'minimal' }
-				>
-					Minimal integration demo
 				</button>
 			</div>
 			{ renderDemo() }
