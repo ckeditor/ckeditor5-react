@@ -1,7 +1,7 @@
 import React from 'react';
 import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 
-import { useMultiRootEditor, type MultiRootHookProps, CKEditorContext } from '../../src';
+import { useMultiRootEditor, type MultiRootHookProps, CKEditorContext } from '@ckeditor/ckeditor5-react';
 
 export default function ContextMultiRootEditorDemo(): JSX.Element {
 	return (

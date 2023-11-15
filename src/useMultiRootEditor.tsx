@@ -396,7 +396,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		const newRootAttributes = newAttributes.filter( rootName =>
 			!newRoots.includes( rootName ) && attributes[ rootName ] !== undefined );
 		const removedRootAttributes = removedAttributes.filter( rootName =>
-			!removedRoots.includes( rootName ) && attributes[ rootName ] !== undefined );
+			!removedRoots.includes( rootName ) && attributes[ rootName ] === undefined );
 		const modifiedRootAttributes = modifiedAttributes.filter( rootName => attributes[ rootName ] !== undefined );
 
 		editor.model.change( writer => {
@@ -458,6 +458,11 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		modifiedRootsAttributes: Array<string>
 	) => {
 		[ ...newRootsAttributes, ...modifiedRootsAttributes ].forEach( root => {
+			Object.keys( attributes![ root ] ).forEach( attr => {
+				editor!.registerRootAttribute( attr );
+			} );
+
+			writer.clearAttributes( editor!.model.document.getRoot( root )! );
 			writer.setAttributes( attributes![ root ], editor!.model.document.getRoot( root )! );
 		} );
 

@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@ckeditor/ckeditor5-react": "file:..",
-    "@ckeditor/ckeditor5-build-classic": "^38.0.1"
+    "@ckeditor/ckeditor5-build-classic": "^40.1.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",

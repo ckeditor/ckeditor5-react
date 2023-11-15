@@ -341,24 +341,30 @@ describe( 'useMultiRootEditor', () => {
 			expect( attributes ).to.deep.equal( rootsAttributes );
 		} );
 
-		it.skip( 'should update the editor attributes when setAttributes is called', async () => {
+		it( 'should update the editor attributes when setAttributes is called', async () => {
 			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitForNextUpdate();
 
 			const { editor, setAttributes } = result.current;
 
-			setAttributes( { ...rootsAttributes, 'intro': { foo: 'bar' } } );
+			setAttributes( { ...rootsAttributes, 'intro': { foo: 'bar', order: 5 } } );
 
 			await waitForNextUpdate();
 
 			const { attributes } = result.current;
 
-			expect( attributes.intro ).to.deep.equal( { foo: 'bar' } );
-			expect( editor.getRootAttributes( 'intro' ) ).to.deep.equal( { foo: 'bar' } );
+			const expectedAttributes = {
+				foo: 'bar',
+				order: 5,
+				row: null
+			};
+
+			expect( attributes.intro ).to.deep.equal( expectedAttributes );
+			expect( editor.getRootAttributes( 'intro' ) ).to.deep.equal( expectedAttributes );
 		} );
 
-		it.skip( 'should remove the editor root attribute when the key has been removed from the state', async () => {
+		it( 'should remove the editor root attribute when the key has been removed from the state', async () => {
 			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitForNextUpdate();
@@ -370,13 +376,15 @@ describe( 'useMultiRootEditor', () => {
 
 			setAttributes( { ...newRootsAttributes } );
 
+			await waitForNextUpdate();
+
 			const { attributes } = result.current;
 
-			expect( attributes.intro ).to.be.undefined;
+			expect( attributes.intro ).to.deep.equal( { row: null, order: null } );
 			expect( editor.getRootAttributes( 'intro' ) ).to.deep.equal( { row: null, order: null } );
 		} );
 
-		it.skip( 'should update the state when editor API is called', async () => {
+		it( 'should update the state when editor API is called', async () => {
 			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitForNextUpdate();
@@ -385,7 +393,9 @@ describe( 'useMultiRootEditor', () => {
 
 			await new Promise( res => {
 				editor.model.change( writer => {
-					writer.setAttributes( { foo: 'bar' }, editor.model.document.getRoot( 'intro' ) );
+					editor.registerRootAttribute( 'foo' );
+					writer.clearAttributes( editor.model.document.getRoot( 'intro' ) );
+					writer.setAttributes( { foo: 'bar', order: 1 }, editor.model.document.getRoot( 'intro' ) );
 
 					res();
 				} );
@@ -393,7 +403,11 @@ describe( 'useMultiRootEditor', () => {
 
 			const { attributes } = result.current;
 
-			expect( attributes.intro ).to.deep.equal( { foo: 'bar' } );
+			expect( attributes.intro ).to.deep.equal( {
+				order: 1,
+				row: null,
+				foo: 'bar'
+			} );
 		} );
 	} );
 
