@@ -131,16 +131,26 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		const newContent: Record<string, string> = {};
 		const newAttributes: Record<string, Record<string, unknown>> = {};
 
+		console.log( modelDocument.differ.getChanges() );
+
 		modelDocument.differ.getChanges()
 			.forEach( change => {
-				let rootName: string;
+				let root: RootElement;
 
 				if ( change.type == 'insert' || change.type == 'remove' ) {
-					rootName = change.position.root.rootName!;
+					root = change.position.root as RootElement;
 				} else {
 					// Must be `attribute` diff item.
-					rootName = change.range.root.rootName!;
+					root = change.range.root as RootElement;
 				}
+
+				// Getting data from a not attached root will trigger a warning.
+				// There is another callback for handling detached roots.
+				if ( !root.isAttached() ) {
+					return;
+				}
+
+				const { rootName } = root;
 
 				newContent[ rootName ] = editor!.getData( { rootName } );
 			} );
