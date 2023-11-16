@@ -6,7 +6,7 @@
 /* global MultiRootEditor */
 
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks/dom';
+import { renderHook, act } from '@testing-library/react-hooks/dom';
 
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 import { ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
@@ -261,12 +261,13 @@ describe( 'useMultiRootEditor', () => {
 
 			await waitForNextUpdate();
 
-			const { editor, setContent } = result.current;
+			const { editor, setContent, setAttributes } = result.current;
 			const spy = sinon.spy( editor, 'addRoot' );
 
-			setContent( { ...rootsContent, 'outro': 'New content' } );
-
-			await waitForNextUpdate();
+			await act( () => {
+				setContent( { ...rootsContent, 'outro': 'New content' } );
+				setAttributes( { ...rootsAttributes, 'outro': {} } );
+			} );
 
 			const { content, editableElements } = result.current;
 
@@ -299,14 +300,17 @@ describe( 'useMultiRootEditor', () => {
 			const { editor } = result.current;
 			const spy = sinon.spy( editor.ui.view, 'createEditable' );
 
-			editor.addRoot( 'outro' );
+			await act( () => {
+				editor.addRoot( 'outro' );
+			} );
 
-			const { content, editableElements } = result.current;
+			const { content, attributes, editableElements } = result.current;
 
 			mount( <div>{editableElements}</div> );
 
 			expect( spy.callCount ).to.equal( editableElements.length );
 			expect( content.outro ).to.equal( '' );
+			expect( attributes.outro ).to.deep.equal( { order: null, row: null } );
 			expect( editableElements.length ).to.equal( 3 );
 			expect( editor.getFullData().outro ).to.equal( '' );
 		} );
@@ -372,7 +376,7 @@ describe( 'useMultiRootEditor', () => {
 			const { editor, setAttributes } = result.current;
 
 			const newRootsAttributes = { ...rootsAttributes };
-			delete newRootsAttributes.intro;
+			newRootsAttributes.intro = {};
 
 			setAttributes( { ...newRootsAttributes } );
 
