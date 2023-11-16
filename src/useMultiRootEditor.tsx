@@ -183,9 +183,11 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		}
 
 		/* istanbul ignore else */
-		if ( props.onChange ) {
+		if ( props.onChange && !shouldUpdateEditor.current ) {
 			props.onChange( event, editor! );
 		}
+
+		shouldUpdateEditor.current = true;
 	};
 
 	/**
@@ -196,6 +198,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 		const reactElement = _createEditableElement( editor, rootName );
 
+		shouldUpdateEditor.current = false;
+
 		setContent( previousContent =>
 			( { ...previousContent, [ rootName ]: editor!.getData( { rootName } ) } )
 		);
@@ -205,6 +209,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		);
 
 		setElements( previousElements => [ ...previousElements, reactElement ] );
+
+		shouldUpdateEditor.current = true;
 	};
 
 	/**
@@ -212,6 +218,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 */
 	const onDetachRoot = ( editor: MultiRootEditor, evt: EventInfo, root: RootElement ): void => {
 		const rootName = root.rootName;
+
+		shouldUpdateEditor.current = false;
 
 		setElements( previousElements => previousElements.filter( element => element.props.id !== rootName ) );
 
@@ -228,6 +236,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} );
 
 		editor!.detachEditable( root );
+
+		shouldUpdateEditor.current = true;
 	};
 
 	/**
@@ -382,8 +392,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 		// Editor should be only updated when the changes come from the integrator React application.
 		if ( !shouldUpdateEditor.current ) {
-			shouldUpdateEditor.current = true;
-
 			return;
 		}
 
