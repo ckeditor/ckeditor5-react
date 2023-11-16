@@ -85,11 +85,15 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		if ( editor && !editorDestructionInProgress.current ) {
 			const editorData = editor.getFullData();
 
+			shouldUpdateEditor.current = false;
+
 			setContent( { ...editorData } );
 			setAttributes( { ...editor.getRootsAttributes() } );
 			setElements( [
 				...Object.keys( editorData ).map( rootName => _createEditableElement( editor, rootName ) )
 			] );
+
+			shouldUpdateEditor.current = true;
 
 			if ( toolbarContainer ) {
 				toolbarContainer.appendChild( editor.ui.view.toolbar.element! );
