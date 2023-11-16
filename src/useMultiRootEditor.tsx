@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
-import React, { useState, useEffect, useRef, type Dispatch, type SetStateAction, useContext } from 'react';
+import React, { useState, useEffect, useRef, type Dispatch, type SetStateAction, useContext, useCallback } from 'react';
 
 import type { EditorConfig } from '@ckeditor/ckeditor5-core';
 import type { DocumentChangeEvent, Writer, RootElement } from '@ckeditor/ckeditor5-engine';
@@ -85,15 +85,11 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		if ( editor && !editorDestructionInProgress.current ) {
 			const editorData = editor.getFullData();
 
-			shouldUpdateEditor.current = false;
-
 			setContent( { ...editorData } );
 			setAttributes( { ...editor.getRootsAttributes() } );
 			setElements( [
 				...Object.keys( editorData ).map( rootName => _createEditableElement( editor, rootName ) )
 			] );
-
-			shouldUpdateEditor.current = true;
 
 			if ( toolbarContainer ) {
 				toolbarContainer.appendChild( editor.ui.view.toolbar.element! );
@@ -176,22 +172,16 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 		if ( Object.keys( newContent ).length ) {
 			setContent( previousContent => ( { ...previousContent, ...newContent } ) );
-
-			shouldUpdateEditor.current = false;
 		}
 
 		if ( Object.keys( newAttributes ).length ) {
 			setAttributes( previousAttributes => ( { ...previousAttributes, ...newAttributes } ) );
-
-			shouldUpdateEditor.current = false;
 		}
 
 		/* istanbul ignore else */
-		if ( props.onChange && !shouldUpdateEditor.current ) {
+		if ( props.onChange ) {
 			props.onChange( event, editor! );
 		}
-
-		shouldUpdateEditor.current = true;
 	};
 
 	/**
@@ -202,8 +192,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 		const reactElement = _createEditableElement( editor, rootName );
 
-		shouldUpdateEditor.current = false;
-
 		setContent( previousContent =>
 			( { ...previousContent, [ rootName ]: editor!.getData( { rootName } ) } )
 		);
@@ -213,8 +201,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		);
 
 		setElements( previousElements => [ ...previousElements, reactElement ] );
-
-		shouldUpdateEditor.current = true;
 	};
 
 	/**
@@ -222,8 +208,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 */
 	const onDetachRoot = ( editor: MultiRootEditor, evt: EventInfo, root: RootElement ): void => {
 		const rootName = root.rootName;
-
-		shouldUpdateEditor.current = false;
 
 		setElements( previousElements => previousElements.filter( element => element.props.id !== rootName ) );
 
@@ -240,8 +224,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} );
 
 		editor!.detachEditable( root );
-
-		shouldUpdateEditor.current = true;
 	};
 
 	/**
@@ -395,44 +377,44 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		}
 
 		// Editor should be only updated when the changes come from the integrator React application.
-		if ( !shouldUpdateEditor.current ) {
-			return;
-		}
+		if ( shouldUpdateEditor.current ) {
+			shouldUpdateEditor.current = false;
 
-		const contentKeys = Object.keys( content );
-		const attributesKeys = Object.keys( attributes );
+			const contentKeys = Object.keys( content );
+			const attributesKeys = Object.keys( attributes );
 
-		// Check if `content` and `attributes` have the same keys.
-		if ( !contentKeys.every( key => attributesKeys.includes( key ) ) ) {
-			throw new Error( 'Content and attributes must have the same keys (roots).' );
-		}
-
-		const editorData = editor.getFullData();
-		const editorAttributes = editor.getRootsAttributes();
-
-		const {
-			addedKeys: newRoots,
-			removedKeys: removedRoots
-		} = _getStateDiff( editorData, content || {} );
-
-		const hasModifiedContent = contentKeys.some( rootName =>
-			JSON.stringify( editorData[ rootName ] ) !== JSON.stringify( content[ rootName ] ) );
-
-		const rootsWithChangedAttributes = attributesKeys.filter( rootName =>
-			JSON.stringify( editorAttributes[ rootName ] ) !== JSON.stringify( attributes[ rootName ] ) );
-
-		editor.model.change( writer => {
-			_handleNewRoots( newRoots );
-			_handleRemovedRoots( removedRoots );
-
-			if ( hasModifiedContent ) {
-				_updateEditorContent();
+			// Check if `content` and `attributes` have the same keys.
+			if ( !contentKeys.every( key => attributesKeys.includes( key ) ) ) {
+				throw new Error( 'Content and attributes must have the same keys (roots).' );
 			}
 
-			if ( rootsWithChangedAttributes.length ) {
-				_updateEditorAttributes( writer, rootsWithChangedAttributes );
-			}
-		} );
+			const editorData = editor.getFullData();
+			const editorAttributes = editor.getRootsAttributes();
+
+			const {
+				addedKeys: newRoots,
+				removedKeys: removedRoots
+			} = _getStateDiff( editorData, content || {} );
+
+			const hasModifiedContent = contentKeys.some( rootName =>
+				JSON.stringify( editorData[ rootName ] ) !== JSON.stringify( content[ rootName ] ) );
+
+			const rootsWithChangedAttributes = attributesKeys.filter( rootName =>
+				JSON.stringify( editorAttributes[ rootName ] ) !== JSON.stringify( attributes[ rootName ] ) );
+
+			editor.model.change( writer => {
+				_handleNewRoots( newRoots );
+				_handleRemovedRoots( removedRoots );
+
+				if ( hasModifiedContent ) {
+					_updateEditorContent();
+				}
+
+				if ( rootsWithChangedAttributes.length ) {
+					_updateEditorAttributes( writer, rootsWithChangedAttributes );
+				}
+			} );
+		}
 	}, [ content, attributes ] );
 
 	const _getStateDiff = (
@@ -485,10 +467,26 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} );
 	};
 
+	const _externalSetContent: Dispatch<SetStateAction<Record<string, string>>> = useCallback(
+		newContent => {
+			shouldUpdateEditor.current = true;
+			setContent( newContent );
+		},
+		[ setContent ]
+	);
+
+	const _externalSetAttributes: Dispatch<SetStateAction<Record<string, Record<string, unknown>>>> = useCallback(
+		newAttributes => {
+			shouldUpdateEditor.current = true;
+			setAttributes( newAttributes );
+		},
+		[ setAttributes ]
+	);
+
 	return {
 		editor, editableElements: elements, toolbarElement,
-		content, setContent,
-		attributes, setAttributes
+		content, setContent: _externalSetContent,
+		attributes, setAttributes: _externalSetAttributes
 	};
 };
 
