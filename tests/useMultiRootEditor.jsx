@@ -39,7 +39,7 @@ describe( 'useMultiRootEditor', () => {
 
 	const editorProps = {
 		editor: MultiRootEditor,
-		content: rootsContent,
+		data: rootsContent,
 		rootsAttributes,
 		config: {
 			rootsAttributes
@@ -79,7 +79,7 @@ describe( 'useMultiRootEditor', () => {
 
 			await waitForNextUpdate();
 
-			const { editor, content, attributes } = result.current;
+			const { editor, data, attributes } = result.current;
 
 			// Mock the error.
 			sinon.stub( editor, 'focus' ).callsFake( async () => {
@@ -97,11 +97,11 @@ describe( 'useMultiRootEditor', () => {
 
 			await waitForNextUpdate();
 
-			const { editor: newEditor, content: newContent, attributes: newAttributes } = result.current;
+			const { editor: newEditor, data: newData, attributes: newAttributes } = result.current;
 
 			expect( newEditor ).to.be.exist;
 			expect( newEditor.id ).to.not.be.equal( editor.id );
-			expect( newContent ).to.deep.equal( content );
+			expect( newData ).to.deep.equal( data );
 			expect( newAttributes ).to.deep.equal( attributes );
 		} );
 
@@ -201,36 +201,36 @@ describe( 'useMultiRootEditor', () => {
 		} );
 	} );
 
-	describe( 'content and editableElements', () => {
+	describe( 'data and editableElements', () => {
 		it( 'should return the initial state', async () => {
 			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitForNextUpdate();
 
-			const { content, editableElements } = result.current;
+			const { data, editableElements } = result.current;
 
-			expect( content ).to.deep.equal( rootsContent );
+			expect( data ).to.deep.equal( rootsContent );
 			expect( editableElements.length ).to.equal( 2 );
 		} );
 
-		it( 'should update the editor content when the state has been changed', async () => {
+		it( 'should update the editor data when the state has been changed', async () => {
 			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitForNextUpdate();
 
-			const { editor, setContent } = result.current;
+			const { editor, setData } = result.current;
 			const spy = sinon.spy( editor.data, 'set' );
 
-			setContent( { ...rootsContent, 'intro': 'New Content' } );
+			setData( { ...rootsContent, 'intro': 'New data' } );
 
 			await waitForNextUpdate();
 
-			const { content, editableElements } = result.current;
+			const { data, editableElements } = result.current;
 
 			sinon.assert.calledOnce( spy );
-			expect( content.intro ).to.equal( '<p>New Content</p>' );
+			expect( data.intro ).to.equal( '<p>New data</p>' );
 			expect( editableElements.length ).to.equal( 2 );
-			expect( editor.getFullData().intro ).to.equal( '<p>New Content</p>' );
+			expect( editor.getFullData().intro ).to.equal( '<p>New data</p>' );
 		} );
 
 		it( 'should remove the editor root when the key has been removed from the state', async () => {
@@ -238,20 +238,20 @@ describe( 'useMultiRootEditor', () => {
 
 			await waitForNextUpdate();
 
-			const { editor, setContent } = result.current;
+			const { editor, setData } = result.current;
 			const spy = sinon.spy( editor, 'detachRoot' );
 
 			const newRootsAttributes = { ...rootsContent };
 			delete newRootsAttributes.intro;
 
-			setContent( { ...newRootsAttributes } );
+			setData( { ...newRootsAttributes } );
 
 			await waitForNextUpdate();
 
-			const { content, editableElements } = result.current;
+			const { data, editableElements } = result.current;
 
 			sinon.assert.calledOnce( spy );
-			expect( content.intro ).to.be.undefined;
+			expect( data.intro ).to.be.undefined;
 			expect( editableElements.length ).to.equal( 1 );
 			expect( editor.getFullData().intro ).to.be.undefined;
 		} );
@@ -261,20 +261,20 @@ describe( 'useMultiRootEditor', () => {
 
 			await waitForNextUpdate();
 
-			const { editor, setContent, setAttributes } = result.current;
+			const { editor, setData, setAttributes } = result.current;
 			const spy = sinon.spy( editor, 'addRoot' );
 
 			await act( () => {
-				setContent( { ...rootsContent, 'outro': 'New content' } );
+				setData( { ...rootsContent, 'outro': 'New data' } );
 				setAttributes( { ...rootsAttributes, 'outro': {} } );
 			} );
 
-			const { content, editableElements } = result.current;
+			const { data, editableElements } = result.current;
 
 			sinon.assert.calledOnce( spy );
-			expect( content.outro ).to.be.equal( '<p>New content</p>' );
+			expect( data.outro ).to.be.equal( '<p>New data</p>' );
 			expect( editableElements.length ).to.equal( 3 );
-			expect( editor.getFullData().outro ).to.be.equal( '<p>New content</p>' );
+			expect( editor.getFullData().outro ).to.be.equal( '<p>New data</p>' );
 		} );
 
 		it( 'should update the state when editor root value has been updated', async () => {
@@ -283,13 +283,13 @@ describe( 'useMultiRootEditor', () => {
 			await waitForNextUpdate();
 
 			const { editor } = result.current;
-			editor.data.set( { ...rootsContent, 'intro': 'New Content' } );
+			editor.data.set( { ...rootsContent, 'intro': 'New data' } );
 
-			const { content, editableElements } = result.current;
+			const { data, editableElements } = result.current;
 
-			expect( content.intro ).to.equal( '<p>New Content</p>' );
+			expect( data.intro ).to.equal( '<p>New data</p>' );
 			expect( editableElements.length ).to.equal( 2 );
-			expect( editor.getFullData().intro ).to.equal( '<p>New Content</p>' );
+			expect( editor.getFullData().intro ).to.equal( '<p>New data</p>' );
 		} );
 
 		it( 'should update the state when editor#addRoot is called', async () => {
@@ -304,12 +304,12 @@ describe( 'useMultiRootEditor', () => {
 				editor.addRoot( 'outro' );
 			} );
 
-			const { content, attributes, editableElements } = result.current;
+			const { data, attributes, editableElements } = result.current;
 
 			mount( <div>{editableElements}</div> );
 
 			expect( spy.callCount ).to.equal( editableElements.length );
-			expect( content.outro ).to.equal( '' );
+			expect( data.outro ).to.equal( '' );
 			expect( attributes.outro ).to.deep.equal( { order: null, row: null } );
 			expect( editableElements.length ).to.equal( 3 );
 			expect( editor.getFullData().outro ).to.equal( '' );
@@ -325,10 +325,10 @@ describe( 'useMultiRootEditor', () => {
 
 			editor.detachRoot( 'intro' );
 
-			const { content, editableElements } = result.current;
+			const { data, editableElements } = result.current;
 
 			sinon.assert.calledOnce( spy );
-			expect( content.intro ).to.be.undefined;
+			expect( data.intro ).to.be.undefined;
 			expect( editableElements.length ).to.equal( 1 );
 			expect( editor.getFullData().intro ).to.be.undefined;
 		} );
@@ -456,10 +456,10 @@ describe( 'useMultiRootEditor', () => {
 
 			await waitForNextUpdate();
 
-			const { editor, content } = result.current;
+			const { editor, data } = result.current;
 
-			content.intro = 'new Data';
-			editor.setData( { ...content } );
+			data.intro = 'new Data';
+			editor.setData( { ...data } );
 
 			sinon.assert.calledOnce( spy );
 			sinon.assert.calledWith( spy, sinon.match.any, editor );

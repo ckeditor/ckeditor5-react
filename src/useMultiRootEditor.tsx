@@ -31,8 +31,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	// Current editor instance. It may change if the editor is re-initialized by the Watchdog after an error.
 	const [ editor, setEditor ] = useState<MultiRootEditor | null>( null );
 
-	// Current editor content. An object where each key is a root name and the value is the root content.
-	const [ content, setContent ] = useState<Record<string, string>>( props.content );
+	// Current editor data. An object where each key is a root name and the value is the root content.
+	const [ data, setData ] = useState<Record<string, string>>( props.data );
 
 	// Current roots attributes. An object where each key is a root name and the value is an object with root attributes.
 	const [ attributes, setAttributes ] = useState<Record<string, Record<string, unknown>>>( props.rootsAttributes || {} );
@@ -85,7 +85,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		if ( editor && !editorDestructionInProgress.current ) {
 			const editorData = editor.getFullData();
 
-			setContent( { ...editorData } );
+			setData( { ...editorData } );
 			setAttributes( { ...editor.getRootsAttributes() } );
 			setElements( [
 				...Object.keys( editorData ).map( rootName => _createEditableElement( editor, rootName ) )
@@ -109,10 +109,10 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	const _getConfig = (): EditorConfig => {
 		const config = props.config || {};
 
-		if ( props.content && config.initialData ) {
+		if ( props.data && config.initialData ) {
 			console.warn(
-				'Editor data should be provided either using `config.initialData` or `content` property. ' +
-				'The config value takes precedence over `content` property and will be used when both are specified.'
+				'Editor data should be provided either using `config.initialData` or `data` property. ' +
+				'The config value takes precedence over `data` property and will be used when both are specified.'
 			);
 		}
 
@@ -123,12 +123,12 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	};
 
 	/**
-	 * Callback function for handling changed data (content and attributes) in the editor.
+	 * Callback function for handling changed data (data and attributes) in the editor.
 	 */
 	const onChangeData = ( editor: MultiRootEditor, event: EventInfo ): void => {
 		const modelDocument = editor!.model.document;
 
-		const newContent: Record<string, string> = {};
+		const newData: Record<string, string> = {};
 		const newAttributes: Record<string, Record<string, unknown>> = {};
 
 		modelDocument.differ.getChanges()
@@ -150,7 +150,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 				const { rootName } = root;
 
-				newContent[ rootName ] = editor!.getData( { rootName } );
+				newData[ rootName ] = editor!.getData( { rootName } );
 			} );
 
 		modelDocument.differ.getChangedRoots()
@@ -158,8 +158,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				// Ignore added and removed roots. They are handled by a different function.
 				// Only register if roots attributes changed.
 				if ( changedRoot.state ) {
-					if ( newContent[ changedRoot.name ] !== undefined ) {
-						delete newContent[ changedRoot.name ];
+					if ( newData[ changedRoot.name ] !== undefined ) {
+						delete newData[ changedRoot.name ];
 					}
 
 					return;
@@ -170,8 +170,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				newAttributes[ rootName ] = editor!.getRootAttributes( rootName );
 			} );
 
-		if ( Object.keys( newContent ).length ) {
-			setContent( previousContent => ( { ...previousContent, ...newContent } ) );
+		if ( Object.keys( newData ).length ) {
+			setData( previousData => ( { ...previousData, ...newData } ) );
 		}
 
 		if ( Object.keys( newAttributes ).length ) {
@@ -192,8 +192,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 		const reactElement = _createEditableElement( editor, rootName );
 
-		setContent( previousContent =>
-			( { ...previousContent, [ rootName ]: editor!.getData( { rootName } ) } )
+		setData( previousData =>
+			( { ...previousData, [ rootName ]: editor!.getData( { rootName } ) } )
 		);
 
 		setAttributes( previousAttributes =>
@@ -211,10 +211,10 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 		setElements( previousElements => previousElements.filter( element => element.props.id !== rootName ) );
 
-		setContent( previousContent => {
-			const { [ rootName! ]: _, ...newContent } = previousContent;
+		setData( previousData => {
+			const { [ rootName! ]: _, ...newData } = previousData;
 
-			return { ...newContent };
+			return { ...newData };
 		} );
 
 		setAttributes( previousAttributes => {
@@ -248,14 +248,14 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	/**
 	 * Creates an editor using initial elements or data, and configuration.
 	 *
-	 * @param initialContent The initial content.
+	 * @param initialData The initial data.
 	 * @param config CKEditor 5 editor configuration.
 	 */
 	const _createEditor = (
-		initialContent: Record<string, string> | Record<string, HTMLElement>,
+		initialData: Record<string, string> | Record<string, HTMLElement>,
 		config: EditorConfig
 	): Promise<MultiRootEditor> => {
-		return props.editor.create( initialContent, config )
+		return props.editor.create( initialData, config )
 			.then( ( editor: MultiRootEditor ) => {
 				if ( props.disabled ) {
 					// Switch to the read-only mode if the `[disabled]` attribute is specified.
@@ -302,7 +302,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 */
 	const _destroyEditor = async (): Promise<void> => {
 		setEditor( null );
-		setContent( {} );
+		setData( {} );
 		setAttributes( {} );
 		setElements( [] );
 
@@ -338,7 +338,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 */
 	const _initializeEditor = async (): Promise<void> => {
 		if ( props.disableWatchdog ) {
-			await _createEditor( props.content, _getConfig() );
+			await _createEditor( props.data, _getConfig() );
 
 			return;
 		}
@@ -363,7 +363,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} );
 
 		await watchdog
-			.create( content as any, _getConfig() )
+			.create( data as any, _getConfig() )
 			.catch( error => {
 				const onError = props.onError || console.error;
 
@@ -380,12 +380,12 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		if ( shouldUpdateEditor.current ) {
 			shouldUpdateEditor.current = false;
 
-			const contentKeys = Object.keys( content );
+			const dataKeys = Object.keys( data );
 			const attributesKeys = Object.keys( attributes );
 
-			// Check if `content` and `attributes` have the same keys.
-			if ( !contentKeys.every( key => attributesKeys.includes( key ) ) ) {
-				throw new Error( 'Content and attributes must have the same keys (roots).' );
+			// Check if `data` and `attributes` have the same keys.
+			if ( !dataKeys.every( key => attributesKeys.includes( key ) ) ) {
+				throw new Error( 'Data and attributes must have the same keys (roots).' );
 			}
 
 			const editorData = editor.getFullData();
@@ -394,10 +394,10 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			const {
 				addedKeys: newRoots,
 				removedKeys: removedRoots
-			} = _getStateDiff( editorData, content || {} );
+			} = _getStateDiff( editorData, data || {} );
 
-			const hasModifiedContent = contentKeys.some( rootName =>
-				JSON.stringify( editorData[ rootName ] ) !== JSON.stringify( content[ rootName ] ) );
+			const hasModifiedData = dataKeys.some( rootName =>
+				JSON.stringify( editorData[ rootName ] ) !== JSON.stringify( data[ rootName ] ) );
 
 			const rootsWithChangedAttributes = attributesKeys.filter( rootName =>
 				JSON.stringify( editorAttributes[ rootName ] ) !== JSON.stringify( attributes[ rootName ] ) );
@@ -406,8 +406,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				_handleNewRoots( newRoots );
 				_handleRemovedRoots( removedRoots );
 
-				if ( hasModifiedContent ) {
-					_updateEditorContent();
+				if ( hasModifiedData ) {
+					_updateEditorData();
 				}
 
 				if ( rootsWithChangedAttributes.length ) {
@@ -415,7 +415,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				}
 			} );
 		}
-	}, [ content, attributes ] );
+	}, [ data, attributes ] );
 
 	const _getStateDiff = (
 		previousState: Record<string, unknown>,
@@ -436,7 +436,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	const _handleNewRoots = ( roots: Array<string> ) => {
 		roots.forEach( rootName => {
 			editor!.addRoot( rootName, {
-				data: content[ rootName ] || '',
+				data: data[ rootName ] || '',
 				attributes: attributes?.[ rootName ] || {},
 				isUndoable: true
 			} );
@@ -449,11 +449,11 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} );
 	};
 
-	const _updateEditorContent = () => {
+	const _updateEditorData = () => {
 		// If any of the roots content has changed, set the editor data.
 		// Unfortunately, we cannot set the editor data just for one root, so we need to overwrite all roots (`nextProps.data` is an
 		// object with data for each root).
-		editor!.data.set( content, { suppressErrorInCollaboration: true } as any );
+		editor!.data.set( data, { suppressErrorInCollaboration: true } as any );
 	};
 
 	const _updateEditorAttributes = ( writer: Writer, roots: Array<string> ) => {
@@ -467,12 +467,12 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} );
 	};
 
-	const _externalSetContent: Dispatch<SetStateAction<Record<string, string>>> = useCallback(
-		newContent => {
+	const _externalSetData: Dispatch<SetStateAction<Record<string, string>>> = useCallback(
+		newData => {
 			shouldUpdateEditor.current = true;
-			setContent( newContent );
+			setData( newData );
 		},
-		[ setContent ]
+		[ setData ]
 	);
 
 	const _externalSetAttributes: Dispatch<SetStateAction<Record<string, Record<string, unknown>>>> = useCallback(
@@ -485,7 +485,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 	return {
 		editor, editableElements: elements, toolbarElement,
-		content, setContent: _externalSetContent,
+		data, setData: _externalSetData,
 		attributes, setAttributes: _externalSetAttributes
 	};
 };
@@ -500,7 +500,7 @@ interface ErrorDetails {
 export type MultiRootHookProps = {
 	isLayoutReady?: boolean;
 	disabled?: boolean;
-	content: Record<string, string>;
+	data: Record<string, string>;
 	rootsAttributes?: Record<string, Record<string, unknown>>;
 	editor: typeof MultiRootEditor;
 	watchdogConfig?: WatchdogConfig;
@@ -519,8 +519,8 @@ export type MultiRootHookReturns = {
 	editor: MultiRootEditor | null;
 	editableElements: Array<JSX.Element>;
 	toolbarElement: JSX.Element;
-	content: Record<string, string>;
-	setContent: Dispatch<SetStateAction<Record<string, string>>>;
+	data: Record<string, string>;
+	setData: Dispatch<SetStateAction<Record<string, string>>>;
 	attributes: Record<string, Record<string, unknown>>;
 	setAttributes: Dispatch<SetStateAction<Record<string, Record<string, unknown>>>>;
 };

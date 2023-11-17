@@ -30,7 +30,7 @@ const AppUsingHooks = props => {
 describe( 'useMultiRootEditor Hook + MultiRootEditor Build', () => {
 	let wrapper;
 
-	const content = {
+	const data = {
 		intro: '<h2>Sample</h2><p>This is an instance of the.</p>',
 		content: '<p>It is the custom content</p>'
 	};
@@ -48,7 +48,7 @@ describe( 'useMultiRootEditor Hook + MultiRootEditor Build', () => {
 
 	const editorProps = {
 		editor: MultiRootEditor,
-		content,
+		data,
 		rootsAttributes,
 		config: {
 			rootsAttributes

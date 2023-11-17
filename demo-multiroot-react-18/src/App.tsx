@@ -36,9 +36,9 @@ export default function App(): JSX.Element {
 			case 'context':
 				return <ContextMultiRootEditorDemo />;
 			case 'editor':
-				return <MultiRootEditorDemo content={multiRootEditorContent} rootsAttributes={rootsAttributes} />;
+				return <MultiRootEditorDemo data={multiRootEditorContent} rootsAttributes={rootsAttributes} />;
 			case 'rich':
-				return <MultiRootEditorRichDemo content={multiRootEditorContent} rootsAttributes={rootsAttributes} />;
+				return <MultiRootEditorRichDemo data={multiRootEditorContent} rootsAttributes={rootsAttributes} />;
 		}
 	};
 

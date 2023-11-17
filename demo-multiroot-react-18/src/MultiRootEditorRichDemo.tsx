@@ -1,19 +1,19 @@
 import React, { useState, type ChangeEvent } from 'react';
 import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 
-import { useMultiRootEditor, type MultiRootHookProps } from '@ckeditor/ckeditor5-react';
+import { useMultiRootEditor, type MultiRootHookProps } from '../../src';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
 type EditorDemoProps = {
-	content: Record<string, string>;
+	data: Record<string, string>;
 	rootsAttributes: Record<string, Record<string, unknown>>;
 };
 
 export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.Element {
 	const editorProps: MultiRootHookProps = {
 		editor: MultiRootEditor,
-		content: props.content,
+		data: props.data,
 		rootsAttributes: props.rootsAttributes,
 
 		onReady: editor => {
@@ -38,7 +38,7 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 
 	const {
 		editor, editableElements, toolbarElement,
-		content, setContent,
+		data, setData,
 		attributes, setAttributes
 	} = useMultiRootEditor( editorProps );
 
@@ -95,23 +95,23 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 		for ( let i = 1; i <= numberOfRoots; i++ ) {
 			const rootName = `root-${ i }-${ id }`;
 
-			content[ rootName ] = '';
+			data[ rootName ] = '';
 
 			// Remove code related to rows if you don't need to handle multiple roots in one row.
 			attributes[ rootName ] = { ...newRootAttributes, order: i * 10, row: id };
 		}
 
-		setContent( { ...content } );
+		setData( { ...data } );
 		setAttributes( { ...attributes } );
 		// Reset the <input> element to the default value.
 		setNumberOfRoots( 1 );
 	};
 
 	const removeRoot = ( rootName: string ) => {
-		setContent( previousContent => {
-			const { [ rootName! ]: _, ...newContent } = previousContent;
+		setData( previousData => {
+			const { [ rootName! ]: _, ...newData } = previousData;
 
-			return { ...newContent };
+			return { ...newData };
 		} );
 
 		setSelectedRoot( '' );
@@ -140,7 +140,7 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 			<div className="buttons">
 				<button
 					onClick={ toggleReadOnly }
-					disabled={ !editor || !Object.keys( content ).length }
+					disabled={ !editor || !Object.keys( data ).length }
 				>
 					Toggle read-only mode
 				</button>
@@ -166,7 +166,7 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 				}}>
 					<option hidden value="placeholder">Select root to remove</option>
 
-					{ Object.keys( content ).map( rootName => (
+					{ Object.keys( data ).map( rootName => (
 						<option key={ rootName } value={ rootName }>{ rootName }</option>
 					) ) }
 				</select>
