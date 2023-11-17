@@ -397,7 +397,9 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			} = _getStateDiff( editorData, data || {} );
 
 			const hasModifiedData = dataKeys.some( rootName =>
-				JSON.stringify( editorData[ rootName ] ) !== JSON.stringify( data[ rootName ] ) );
+				editorData[ rootName ] !== undefined &&
+				JSON.stringify( editorData[ rootName ] ) !== JSON.stringify( data[ rootName ] )
+			);
 
 			const rootsWithChangedAttributes = attributesKeys.filter( rootName =>
 				JSON.stringify( editorAttributes[ rootName ] ) !== JSON.stringify( attributes[ rootName ] ) );
