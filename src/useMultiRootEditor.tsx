@@ -384,6 +384,10 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			const attributesKeys = Object.keys( attributes );
 
 			// Check if `data` and `attributes` have the same keys.
+			//
+			// It prevents the addition of attributes for non-existing roots.
+			// If the `data` object has a different set of keys, an error will not be thrown
+			// since the attributes will be removed/added during root initialization/destruction
 			if ( !dataKeys.every( key => attributesKeys.includes( key ) ) ) {
 				throw new Error( 'Data and attributes must have the same keys (roots).' );
 			}

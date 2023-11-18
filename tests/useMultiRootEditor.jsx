@@ -241,10 +241,10 @@ describe( 'useMultiRootEditor', () => {
 			const { editor, setData } = result.current;
 			const spy = sinon.spy( editor, 'detachRoot' );
 
-			const newRootsAttributes = { ...rootsContent };
-			delete newRootsAttributes.intro;
+			const newData = { ...rootsContent };
+			delete newData.intro;
 
-			setData( { ...newRootsAttributes } );
+			setData( { ...newData } );
 
 			await waitForNextUpdate();
 
@@ -264,7 +264,7 @@ describe( 'useMultiRootEditor', () => {
 			const { editor, setData, setAttributes } = result.current;
 			const spy = sinon.spy( editor, 'addRoot' );
 
-			await act( () => {
+			act( () => {
 				setData( { ...rootsContent, 'outro': 'New data' } );
 				setAttributes( { ...rootsAttributes, 'outro': {} } );
 			} );
@@ -300,7 +300,7 @@ describe( 'useMultiRootEditor', () => {
 			const { editor } = result.current;
 			const spy = sinon.spy( editor.ui.view, 'createEditable' );
 
-			await act( () => {
+			act( () => {
 				editor.addRoot( 'outro' );
 			} );
 
@@ -331,6 +331,30 @@ describe( 'useMultiRootEditor', () => {
 			expect( data.intro ).to.be.undefined;
 			expect( editableElements.length ).to.equal( 1 );
 			expect( editor.getFullData().intro ).to.be.undefined;
+		} );
+
+		it( 'should not throw error when data keys do not match attributes', async () => {
+			const originalOnError = global.onerror;
+			const stubOnError = sinon.stub();
+
+			global.onerror = stubOnError;
+
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+
+			await waitForNextUpdate();
+
+			const { setData } = result.current;
+
+			const newData = { ...rootsContent };
+			delete newData.intro;
+
+			act( () => {
+				setData( { ...newData } );
+			} );
+
+			expect( stubOnError.callCount ).to.equal( 0 );
+
+			global.onerror = originalOnError;
 		} );
 	} );
 
@@ -412,6 +436,31 @@ describe( 'useMultiRootEditor', () => {
 				row: null,
 				foo: 'bar'
 			} );
+		} );
+
+		it( 'should throw error when attributes keys do not match data', async () => {
+			const originalOnError = global.onerror;
+			const stubOnError = sinon.stub();
+
+			global.onerror = stubOnError;
+
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+
+			await waitForNextUpdate();
+
+			const { setAttributes } = result.current;
+
+			const newRootsAttributes = { ...rootsAttributes };
+			delete newRootsAttributes.intro;
+
+			act( () => {
+				setAttributes( { ...newRootsAttributes } );
+			} );
+
+			sinon.assert.calledOnce( stubOnError );
+			expect( stubOnError.args[ 0 ][ 0 ] ).to.include( 'Data and attributes must have the same keys (roots).' );
+
+			global.onerror = originalOnError;
 		} );
 	} );
 
