@@ -458,7 +458,7 @@ describe( 'useMultiRootEditor', () => {
 			} );
 
 			sinon.assert.calledOnce( stubOnError );
-			expect( stubOnError.args[ 0 ][ 0 ] ).to.include( 'Data and attributes must have the same keys (roots).' );
+			expect( stubOnError.args[ 0 ][ 0 ] ).to.include( '`data` and `attributes` objects must have the same keys (roots).' );
 
 			global.onerror = originalOnError;
 		} );

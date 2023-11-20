@@ -123,7 +123,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	};
 
 	/**
-	 * Callback function for handling changed data (data and attributes) in the editor.
+	 * Callback function for handling changed data and attributes in the editor.
 	 */
 	const onChangeData = ( editor: MultiRootEditor, event: EventInfo ): void => {
 		const modelDocument = editor!.model.document;
@@ -389,7 +389,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			// If the `data` object has a different set of keys, an error will not be thrown
 			// since the attributes will be removed/added during root initialization/destruction.
 			if ( !dataKeys.every( key => attributesKeys.includes( key ) ) ) {
-				throw new Error( 'Data and attributes must have the same keys (roots).' );
+				throw new Error( '`data` and `attributes` objects must have the same keys (roots).' );
 			}
 
 			const editorData = editor.getFullData();
