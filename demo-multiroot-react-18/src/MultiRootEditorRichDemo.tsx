@@ -134,7 +134,15 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 
 	return (
 		<>
-			<h2 className="subtitle">Multi-root Editor Demo</h2>
+			<h2 className="subtitle">Multi-root Editor Demo (rich integration)</h2>
+			<p className="info">
+				This sample demonstrates the more advanced integration of a multi-root editor in React.<br/>
+				There are buttons to add/remove roots in the editor, illustrating how this functionality could be implemented.<br/>
+				Additionally, the &apos;Simulate an error&apos; button is used to trigger an error, causing a restart of the editor
+				by Watchdog. Watchdog can be disabled by passing the `disableWatchdog` flag to the `useMultiRootEditor` hook.<br/>
+				There is also an implementation of the &apos;Toggle read-only&apos; button to demonstrate the functionality of changing
+				the read-only mode for the selected editor root.
+			</p>
 			<p className="info">Component&apos;s events are logged to the console.</p>
 
 			<div className="buttons">

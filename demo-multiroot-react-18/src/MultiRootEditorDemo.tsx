@@ -22,9 +22,14 @@ export default function MultiRootEditorDemo( props: EditorDemoProps ): JSX.Eleme
 
 	return (
 		<>
-			{ toolbarElement }
+			<h2 className="subtitle">Multi-root Editor Demo</h2>
+			<p className="info">This sample demonstrates the starting point of integration with a multi-root editor in React.</p>
 
-			{ editableElements }
+			<div>
+				{ toolbarElement }
+
+				{ editableElements }
+			</div>
 		</>
 	);
 }

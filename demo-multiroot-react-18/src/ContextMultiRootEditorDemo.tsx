@@ -34,7 +34,7 @@ function ContextEditorDemo(): JSX.Element {
 		editor: editor1, editableElements: editableElements1, toolbarElement: toolbarElement1
 	} = useMultiRootEditor( {
 		...editorProps,
-		content: {
+		data: {
 			intro: '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
 			content: '<p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>'
 		},
@@ -51,7 +51,7 @@ function ContextEditorDemo(): JSX.Element {
 		editor: editor2, editableElements: editableElements2, toolbarElement: toolbarElement2
 	} = useMultiRootEditor( {
 		...editorProps,
-		content: {
+		data: {
 			notes: '<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>'
 		},
 
@@ -79,6 +79,9 @@ function ContextEditorDemo(): JSX.Element {
 	return (
 		<>
 			<h2 className="subtitle">Context Multi-root Editor Demo</h2>
+			<p className="info">
+				This sample demonstrates integration with CKEditorContext, ensuring the availability of multiple instances of the Editor.
+			</p>
 			<p className="info">Component&apos;s events are logged to the console.</p>
 
 			<div>

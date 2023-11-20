@@ -44,7 +44,7 @@ export default function App(): JSX.Element {
 
 	return (
 		<>
-			<h1>CKEditor 5 – React Component – development sample</h1>
+			<h1>CKEditor 5 – useMultiRootEditor – development sample</h1>
 
 			<div className="buttons" style={ { textAlign: 'center' } }>
 				<button
