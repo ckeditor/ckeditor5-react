@@ -135,13 +135,20 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 	return (
 		<>
 			<h2 className="subtitle">Multi-root Editor Demo (rich integration)</h2>
+			<p className="info">This sample demonstrates a more advanced integration of the multi-root editor in React.</p>
 			<p className="info">
-				This sample demonstrates a more advanced integration of the multi-root editor in React.<br/>
-				Multiple extra features were implemented to illustrate how you can customize your application and use the provided API.<br/>
-				They are optional, and you do not need to include them in your application. However, they can be a good starting point for your own custom features.<br/>
-				The "Simulate an error" button makes the editor throw an error to show you how it is restarted by the `Watchdog` mechanism. Note, that this mechanism is available by default and you don't need to write additional code to use it. It can be disabled by passing the `disableWatchdog` flag to the `useMultiRootEditor` hook.
+				Multiple extra features are implemented to illustrate how you can customize your application and use the provided API.<br />
+				They are optional, and you do not need to include them in your application.<br />
+				However, they can be a good starting point for your own custom features.
+			</p>
+			<p className="info">
+				The &apos;Simulate an error&apos; button makes the editor throw an error to show you how it is restarted by
+				the <code>Watchdog</code> mechanism.<br />
+				Note, that <code>Watchdog</code> is enabled by default.<br />
+				It can be disabled by passing the `disableWatchdog` flag to the `useMultiRootEditor` hook.
 			</p>
 			<p className="info">Component&apos;s events are logged to the console.</p>
+			<hr /><br />
 
 			<div className="buttons">
 				<button

@@ -80,9 +80,10 @@ function ContextEditorDemo(): JSX.Element {
 		<>
 			<h2 className="subtitle">Context Multi-root Editor Demo</h2>
 			<p className="info">
-				This sample demonstrates integration with CKEditorContext.
+				This sample demonstrates integration with CKEditorContext.<br />
 			</p>
 			<p className="info">Component&apos;s events are logged to the console.</p>
+			<hr /><br />
 
 			<div>
 				<div className="buttons">

@@ -23,7 +23,11 @@ export default function MultiRootEditorDemo( props: EditorDemoProps ): JSX.Eleme
 	return (
 		<>
 			<h2 className="subtitle">Multi-root Editor Demo</h2>
-			<p className="info">This sample demonstrates the minimal React application that uses multi-root editor integration. You may use it as a starting point for your application.</p>
+			<p className="info">
+				This sample demonstrates the minimal React application that uses multi-root editor integration.<br />
+				You may use it as a starting point for your application.
+			</p>
+			<hr /><br />
 
 			<div>
 				{ toolbarElement }
