@@ -158,8 +158,8 @@ describe( '<CKEditor> Component', () => {
 
 			expect( consoleWarnStub.calledOnce ).to.be.true;
 			expect( consoleWarnStub.firstCall.args[ 0 ] ).to.equal(
-				'Editor data should be provided either using `config.initialData` or `data` properties. ' +
-				'The config property is over the data value and the first one will be used when specified both.'
+				'Editor data should be provided either using `config.initialData` or `content` property. ' +
+				'The config value takes precedence over `content` property and will be used when both are specified.'
 			);
 		} );
 
@@ -280,7 +280,7 @@ describe( '<CKEditor> Component', () => {
 
 	describe( 'properties', () => {
 		// See: #83.
-		it( 'does not update anything if component is not ready', () => {
+		it( 'does not update anything if component is not ready', async () => {
 			const editorInstance = new Editor();
 
 			sinon.stub( Editor, 'create' ).resolves( editorInstance );

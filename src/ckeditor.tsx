@@ -112,7 +112,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 	/**
 	 * Initialize the editor when the component is mounted.
- 	 */
+	 */
 	public override async componentDidMount(): Promise<void> {
 		await this._initializeEditor();
 	}
@@ -127,7 +127,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 	/**
 	 * Destroy the editor before unmounting the component.
- 	 */
+	 */
 	public override async componentWillUnmount(): Promise<void> {
 		await this._destroyEditor();
 	}
@@ -163,7 +163,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			this.watchdog = new CKEditor._EditorWatchdog( this.props.editor, this.props.watchdogConfig );
 		}
 
-		this.watchdog.setCreator( ( el, config ) => this._createEditor( el, config ) );
+		this.watchdog.setCreator( ( el, config ) => this._createEditor( el as any, config ) );
 
 		this.watchdog.on( 'error', ( _, { error, causesRestart } ) => {
 			const onError = this.props.onError || console.error;
@@ -292,8 +292,8 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 		if ( this.props.data && config.initialData ) {
 			console.warn(
-				'Editor data should be provided either using `config.initialData` or `data` properties. ' +
-				'The config property is over the data value and the first one will be used when specified both.'
+				'Editor data should be provided either using `config.initialData` or `content` property. ' +
+				'The config value takes precedence over `content` property and will be used when both are specified.'
 			);
 		}
 
@@ -350,7 +350,7 @@ interface ErrorDetails {
 /**
  * An adapter aligning the context watchdog API to the editor watchdog API for easier usage.
  */
-class EditorWatchdogAdapter<TEditor extends Editor> {
+export class EditorWatchdogAdapter<TEditor extends Editor> {
 	/**
 	 * The context watchdog instance that will be wrapped into editor watchdog API.
 	 */

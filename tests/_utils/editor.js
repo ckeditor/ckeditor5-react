@@ -3,6 +3,8 @@
  * For licensing, see LICENSE.md.
  */
 
+/* globals document */
+
 /**
  * Mock of class that representing a basic, generic editor.
  *
@@ -16,6 +18,7 @@ export default class Editor {
 	initializeProperties() {
 		this.model = Editor._model;
 		this.editing = Editor._editing;
+		this.on = Editor._on;
 		this.data = {
 			get() {
 				return '';
@@ -24,6 +27,13 @@ export default class Editor {
 
 			}
 		};
+		this.createEditable = () => document.createElement( 'div' );
+		this.ui = {
+			getEditableElement() {
+				return document.createElement( 'div' );
+			}
+		};
+		this.plugins = new Set();
 		this._readOnlyLocks = new Set();
 	}
 
@@ -41,6 +51,10 @@ export default class Editor {
 
 	disableReadOnlyMode( lockId ) {
 		this._readOnlyLocks.delete( lockId );
+	}
+
+	detachEditable() {
+		return Promise.resolve();
 	}
 
 	destroy() {
@@ -62,8 +76,11 @@ export default class Editor {
 }
 
 // In order to tests events, we need to somehow mock those properties.
+Editor._on = () => {};
+
 Editor._model = {
-	document: createDocument()
+	document: createDocument(),
+	markers: []
 };
 
 Editor._editing = {
@@ -78,6 +95,27 @@ function createDocument() {
 		off() {},
 		getRootNames() {
 			return [ 'main' ];
+		},
+		differ: {
+			getChanges() {
+				return [];
+			},
+			getChangedRoots() {
+				return [];
+			}
+		},
+		roots: {
+			filter() {
+				return [ {
+					getAttributes: () => {
+						return {};
+					},
+					getChildren: () => {
+						return [];
+					},
+					_isLoaded: false
+				} ];
+			}
 		}
 	};
 }
