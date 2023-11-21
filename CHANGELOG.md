@@ -1,6 +1,17 @@
 Changelog
 =========
 
+## [6.2.0](https://github.com/ckeditor/ckeditor5-react/compare/v6.1.0...v6.2.0) (2023-11-21)
+
+### Features
+
+* Introduced the integration with multi-root editor by providing `useMultiRootEditor` hook. See the new samples to learn more. Closes [#257](https://github.com/ckeditor/ckeditor5-react/issues/257). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/a5878063ad6a59fbbfa2848b2b5b4532c0c66bb8))
+
+### Other changes
+
+* Updated the required version of Node.js to 18 when developing the repository. See [ckeditor/ckeditor5#14924](https://github.com/ckeditor/ckeditor5/issues/14924). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/9998e47ac1c20d4a41df93d5343c6f1cd193638b))
+
+
 ## [6.1.0](https://github.com/ckeditor/ckeditor5-react/compare/v6.0.0...v6.1.0) (2023-06-27)
 
 ### Features
