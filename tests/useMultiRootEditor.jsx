@@ -171,6 +171,21 @@ describe( 'useMultiRootEditor', () => {
 			expect( toolbarElement.type ).to.be.equal( 'div' );
 		} );
 
+		it( 'should have correct html attributes after initializing editor', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+
+			const { toolbarElement } = result.current;
+
+			expect( toolbarElement.props.dangerouslySetInnerHTML.__html ).to.be.equal( '' );
+
+			await waitForNextUpdate();
+
+			const { toolbarElement: initializedToolbarElement, editor } = result.current;
+			const editorToolbar = editor.ui.view.toolbar.element.outerHTML;
+
+			expect( initializedToolbarElement.props.dangerouslySetInnerHTML.__html ).to.be.equal( editorToolbar );
+		} );
+
 		it( 'should be reinitialized after crashing when watchdog is enabled', async () => {
 			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 

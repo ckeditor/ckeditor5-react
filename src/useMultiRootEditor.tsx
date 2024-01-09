@@ -42,10 +42,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 	const shouldUpdateEditor = useRef<boolean>( true );
 
-	// The reference for the toolbar element.
-	const toolbarRef = useRef<HTMLDivElement>( null );
-
-	const toolbarElement = <div ref={ toolbarRef }></div>;
+	const toolbarElement = <div dangerouslySetInnerHTML={{ __html: editor ? editor.ui.view.toolbar.element!.outerHTML : '' }}></div>;
 
 	useEffect( () => {
 		const initEditor = async () => {
@@ -54,7 +51,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			await editorDestructionInProgress.current;
 
 			if ( props.isLayoutReady !== false ) {
-				_initializeEditor();
+				await _initializeEditor();
 			}
 		};
 
@@ -78,8 +75,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	}, [ props.disabled ] );
 
 	useEffect( () => {
-		const toolbarContainer = toolbarRef.current;
-
 		// When the component has been remounted, keeping the old state, it is important to avoid
 		// updating the editor, which will be destroyed by the unmount callback.
 		if ( editor && !editorDestructionInProgress.current ) {
@@ -90,17 +85,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			setElements( [
 				...Object.keys( editorData ).map( rootName => _createEditableElement( editor, rootName ) )
 			] );
-
-			if ( toolbarContainer ) {
-				toolbarContainer.appendChild( editor.ui.view.toolbar.element! );
-			}
 		}
-
-		return () => {
-			if ( toolbarContainer && toolbarContainer.firstChild ) {
-				toolbarContainer.removeChild( toolbarContainer.firstChild! );
-			}
-		};
 	}, [ editor && editor.id ] );
 
 	/**
