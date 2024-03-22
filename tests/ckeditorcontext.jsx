@@ -53,6 +53,16 @@ describe( '<CKEditorContext> Component', () => {
 			expect( component.contextWatchdog._crashNumberLimit ).to.equal( 678 );
 		} );
 
+		it( 'should not create a context watchdog if disableWatchdog flag is passed to config', async () => {
+			await new Promise( res => {
+				wrapper = mount( <CKEditorContext context={ ContextMock } onReady={ res } disableWatchdog={true}/> );
+			} );
+
+			const component = wrapper.instance();
+
+			expect( component.contextWatchdog ).to.be.null;
+		} );
+
 		it( 'should not create anything if the layout is not ready', async () => {
 			wrapper = mount( <CKEditorContext context={ ContextMock } isLayoutReady={ false }/> );
 

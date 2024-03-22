@@ -67,6 +67,9 @@ export default class CKEditorContext<TContext extends Context = Context> extends
 	}
 
 	private async _initializeContextWatchdog( config?: ContextConfig ): Promise<void> {
+		if ( this.props.disableWatchdog ) {
+			return;
+		}
 		this.contextWatchdog = new ContextWatchdog( this.props.context!, this.props.watchdogConfig );
 
 		this.contextWatchdog.on( 'error', ( _, errorEvent ) => {
@@ -107,6 +110,7 @@ export default class CKEditorContext<TContext extends Context = Context> extends
 		id: PropTypes.string,
 		isLayoutReady: PropTypes.bool,
 		context: PropTypes.func as unknown as Validator<{ create( ...args: any ): Promise<any> } | undefined>,
+		disableWatchdog: PropTypes.bool,
 		watchdogConfig: PropTypes.object,
 		config: PropTypes.object,
 		onReady: PropTypes.func,
@@ -116,6 +120,7 @@ export default class CKEditorContext<TContext extends Context = Context> extends
 
 interface Props<TContext extends Context> extends InferProps<typeof CKEditorContext.propTypes> {
 	context?: { create( ...args: any ): Promise<TContext> };
+	disableWatchdog?: boolean;
 	watchdogConfig?: WatchdogConfig;
 	config?: ContextConfig;
 	onReady?: ( context: Context ) => void; // TODO this should accept TContext (after ContextWatchdog release).
