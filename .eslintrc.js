@@ -28,6 +28,7 @@ module.exports = {
 		'react/prop-types': 'off',
 		'no-console': 'off',
 		'no-trailing-spaces': 'error',
+		'ckeditor5-rules/allow-imports-only-from-main-package-entry-point': 'off',
 		'ckeditor5-rules/license-header': [ 'error', { headerLines: [
 			'/**',
 			' * @license Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.',
