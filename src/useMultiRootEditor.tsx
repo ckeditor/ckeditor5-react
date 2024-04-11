@@ -406,7 +406,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			JSON.stringify( editorData[ rootName ] ) !== JSON.stringify( data[ rootName ] )
 		);
 
-		editor!.model.enqueueChange( () => {
+		editor!.model.change( () => {
 			_handleNewRoots( newRoots );
 			_handleRemovedRoots( removedRoots );
 
@@ -437,7 +437,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			JSON.stringify( editorAttributes[ rootName ] ) !== JSON.stringify( attributes[ rootName ] ) );
 
 		if ( rootsWithChangedAttributes.length ) {
-			editor!.model.enqueueChange( writer => {
+			editor!.model.change( writer => {
 				rootsWithChangedAttributes.forEach( rootName => {
 					Object.keys( attributes![ rootName ] ).forEach( attr => {
 						editor!.registerRootAttribute( attr );
