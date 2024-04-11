@@ -40,7 +40,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	// Contains the JSX elements for each editor root.
 	const [ elements, setElements ] = useState<Array<JSX.Element>>( [] );
 
-	const toolbarElement = <div dangerouslySetInnerHTML={{ __html: editor ? editor.ui.view.toolbar.element!.outerHTML : '' }}></div>;
+	const [ toolbarElement, setToolbarElement ] = useState<JSX.Element>( <></> );
 
 	useEffect( () => {
 		const initEditor = async () => {
@@ -83,6 +83,13 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			setElements( [
 				...Object.keys( editorData ).map( rootName => _createEditableElement( editor, rootName ) )
 			] );
+			setToolbarElement(
+				<div ref={ el => {
+					if ( el ) {
+						el.appendChild( editor.ui.view.toolbar.element! );
+					}
+				} }></div>
+			);
 		}
 	}, [ editor && editor.id ] );
 
@@ -294,6 +301,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		setData( {} );
 		setAttributes( {} );
 		setElements( [] );
+		setToolbarElement( <></> );
 
 		editorDestructionInProgress.current = new Promise<void>( resolve => {
 			// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
