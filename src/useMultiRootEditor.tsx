@@ -40,8 +40,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	// Contains the JSX elements for each editor root.
 	const [ elements, setElements ] = useState<Array<JSX.Element>>( [] );
 
-	const shouldUpdateEditor = useRef<boolean>( true );
-
 	const toolbarElement = <div dangerouslySetInnerHTML={{ __html: editor ? editor.ui.view.toolbar.element!.outerHTML : '' }}></div>;
 
 	useEffect( () => {
@@ -113,54 +111,56 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	const onChangeData = ( editor: MultiRootEditor, event: EventInfo ): void => {
 		const modelDocument = editor!.model.document;
 
-		const newData: Record<string, string> = {};
-		const newAttributes: Record<string, Record<string, unknown>> = {};
+		if ( !props.disableTwoWayDataBinding ) {
+			const newData: Record<string, string> = {};
+			const newAttributes: Record<string, Record<string, unknown>> = {};
 
-		modelDocument.differ.getChanges()
-			.forEach( change => {
-				let root: RootElement;
+			modelDocument.differ.getChanges()
+				.forEach( change => {
+					let root: RootElement;
 
-				if ( change.type == 'insert' || change.type == 'remove' ) {
-					root = change.position.root as RootElement;
-				} else {
-					// Must be `attribute` diff item.
-					root = change.range.root as RootElement;
-				}
-
-				// Getting data from a not attached root will trigger a warning.
-				// There is another callback for handling detached roots.
-				if ( !root.isAttached() ) {
-					return;
-				}
-
-				const { rootName } = root;
-
-				newData[ rootName ] = editor!.getData( { rootName } );
-			} );
-
-		modelDocument.differ.getChangedRoots()
-			.forEach( changedRoot => {
-				// Ignore added and removed roots. They are handled by a different function.
-				// Only register if roots attributes changed.
-				if ( changedRoot.state ) {
-					if ( newData[ changedRoot.name ] !== undefined ) {
-						delete newData[ changedRoot.name ];
+					if ( change.type == 'insert' || change.type == 'remove' ) {
+						root = change.position.root as RootElement;
+					} else {
+						// Must be `attribute` diff item.
+						root = change.range.root as RootElement;
 					}
 
-					return;
-				}
+					// Getting data from a not attached root will trigger a warning.
+					// There is another callback for handling detached roots.
+					if ( !root.isAttached() ) {
+						return;
+					}
 
-				const rootName = changedRoot.name;
+					const { rootName } = root;
 
-				newAttributes[ rootName ] = editor!.getRootAttributes( rootName );
-			} );
+					newData[ rootName ] = editor!.getData( { rootName } );
+				} );
 
-		if ( Object.keys( newData ).length ) {
-			setData( previousData => ( { ...previousData, ...newData } ) );
-		}
+			modelDocument.differ.getChangedRoots()
+				.forEach( changedRoot => {
+					// Ignore added and removed roots. They are handled by a different function.
+					// Only register if roots attributes changed.
+					if ( changedRoot.state ) {
+						if ( newData[ changedRoot.name ] !== undefined ) {
+							delete newData[ changedRoot.name ];
+						}
 
-		if ( Object.keys( newAttributes ).length ) {
-			setAttributes( previousAttributes => ( { ...previousAttributes, ...newAttributes } ) );
+						return;
+					}
+
+					const rootName = changedRoot.name;
+
+					newAttributes[ rootName ] = editor!.getRootAttributes( rootName );
+				} );
+
+			if ( Object.keys( newData ).length ) {
+				setData( previousData => ( { ...previousData, ...newData } ) );
+			}
+
+			if ( Object.keys( newAttributes ).length ) {
+				setAttributes( previousAttributes => ( { ...previousAttributes, ...newAttributes } ) );
+			}
 		}
 
 		/* istanbul ignore else */
@@ -177,13 +177,15 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 		const reactElement = _createEditableElement( editor, rootName );
 
-		setData( previousData =>
-			( { ...previousData, [ rootName ]: editor!.getData( { rootName } ) } )
-		);
+		if ( !props.disableTwoWayDataBinding ) {
+			setData( previousData =>
+				( { ...previousData, [ rootName ]: editor!.getData( { rootName } ) } )
+			);
 
-		setAttributes( previousAttributes =>
-			( { ...previousAttributes, [ rootName ]: editor!.getRootAttributes( rootName ) } )
-		);
+			setAttributes( previousAttributes =>
+				( { ...previousAttributes, [ rootName ]: editor!.getRootAttributes( rootName ) } )
+			);
+		}
 
 		setElements( previousElements => [ ...previousElements, reactElement ] );
 	};
@@ -196,17 +198,19 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 		setElements( previousElements => previousElements.filter( element => element.props.id !== rootName ) );
 
-		setData( previousData => {
-			const { [ rootName! ]: _, ...newData } = previousData;
+		if ( !props.disableTwoWayDataBinding ) {
+			setData( previousData => {
+				const { [ rootName! ]: _, ...newData } = previousData;
 
-			return { ...newData };
-		} );
+				return { ...newData };
+			} );
 
-		setAttributes( previousAttributes => {
-			const { [ rootName! ]: _, ...newAttributes } = previousAttributes;
+			setAttributes( previousAttributes => {
+				const { [ rootName! ]: _, ...newAttributes } = previousAttributes;
 
-			return { ...newAttributes };
-		} );
+				return { ...newAttributes };
+			} );
+		}
 
 		editor!.detachEditable( root );
 	};
@@ -356,58 +360,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			} );
 	};
 
-	useEffect( () => {
-		if ( !editor ) {
-			return;
-		}
-
-		// Editor should be only updated when the changes come from the integrator React application.
-		if ( shouldUpdateEditor.current ) {
-			shouldUpdateEditor.current = false;
-
-			const dataKeys = Object.keys( data );
-			const attributesKeys = Object.keys( attributes );
-
-			// Check if `data` and `attributes` have the same keys.
-			//
-			// It prevents the addition of attributes for non-existing roots.
-			// If the `data` object has a different set of keys, an error will not be thrown
-			// since the attributes will be removed/added during root initialization/destruction.
-			if ( !dataKeys.every( key => attributesKeys.includes( key ) ) ) {
-				throw new Error( '`data` and `attributes` objects must have the same keys (roots).' );
-			}
-
-			const editorData = editor.getFullData();
-			const editorAttributes = editor.getRootsAttributes();
-
-			const {
-				addedKeys: newRoots,
-				removedKeys: removedRoots
-			} = _getStateDiff( editorData, data || {} );
-
-			const hasModifiedData = dataKeys.some( rootName =>
-				editorData[ rootName ] !== undefined &&
-				JSON.stringify( editorData[ rootName ] ) !== JSON.stringify( data[ rootName ] )
-			);
-
-			const rootsWithChangedAttributes = attributesKeys.filter( rootName =>
-				JSON.stringify( editorAttributes[ rootName ] ) !== JSON.stringify( attributes[ rootName ] ) );
-
-			editor.model.change( writer => {
-				_handleNewRoots( newRoots );
-				_handleRemovedRoots( removedRoots );
-
-				if ( hasModifiedData ) {
-					_updateEditorData();
-				}
-
-				if ( rootsWithChangedAttributes.length ) {
-					_updateEditorAttributes( writer, rootsWithChangedAttributes );
-				}
-			} );
-		}
-	}, [ data, attributes ] );
-
 	const _getStateDiff = (
 		previousState: Record<string, unknown>,
 		newState: Record<string, unknown>
@@ -440,38 +392,90 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} );
 	};
 
-	const _updateEditorData = () => {
-		// If any of the roots content has changed, set the editor data.
-		// Unfortunately, we cannot set the editor data just for one root, so we need to overwrite all roots (`nextProps.data` is an
-		// object with data for each root).
-		editor!.data.set( data, { suppressErrorInCollaboration: true } as any );
-	};
+	const _updateEditorData = ( newData: Record<string, string> ) => {
+		const dataKeys = Object.keys( newData );
+		const editorData = editor!.getFullData();
 
-	const _updateEditorAttributes = ( writer: Writer, roots: Array<string> ) => {
-		roots.forEach( rootName => {
-			Object.keys( attributes![ rootName ] ).forEach( attr => {
-				editor!.registerRootAttribute( attr );
-			} );
+		const {
+			addedKeys: newRoots,
+			removedKeys: removedRoots
+		} = _getStateDiff( editorData, newData || {} );
 
-			writer.clearAttributes( editor!.model.document.getRoot( rootName )! );
-			writer.setAttributes( attributes![ rootName ], editor!.model.document.getRoot( rootName )! );
+		const hasModifiedData = dataKeys.some( rootName =>
+			editorData[ rootName ] !== undefined &&
+			JSON.stringify( editorData[ rootName ] ) !== JSON.stringify( data[ rootName ] )
+		);
+
+		editor!.model.enqueueChange( () => {
+			_handleNewRoots( newRoots );
+			_handleRemovedRoots( removedRoots );
+
+			if ( hasModifiedData ) {
+				// If any of the roots content has changed, set the editor data.
+				// Unfortunately, we cannot set the editor data just for one root, so we need to overwrite all roots
+				// (`nextProps.data` is an object with data for each root).
+				editor!.data.set( data, { suppressErrorInCollaboration: true } as any );
+			}
 		} );
 	};
 
+	const _updateEditorAttributes = ( newAttributes: Record<string, unknown> ) => {
+		const dataKeys = Object.keys( data );
+		const attributesKeys = Object.keys( newAttributes );
+
+		// Check if `data` and `attributes` have the same keys.
+		//
+		// It prevents the addition of attributes for non-existing roots.
+		// If the `data` object has a different set of keys, an error will not be thrown
+		// since the attributes will be removed/added during root initialization/destruction.
+		if ( !dataKeys.every( key => attributesKeys.includes( key ) ) ) {
+			throw new Error( '`data` and `attributes` objects must have the same keys (roots).' );
+		}
+
+		const editorAttributes = editor!.getRootsAttributes();
+		const rootsWithChangedAttributes = attributesKeys.filter( rootName =>
+			JSON.stringify( editorAttributes[ rootName ] ) !== JSON.stringify( attributes[ rootName ] ) );
+
+		if ( rootsWithChangedAttributes.length ) {
+			editor!.model.enqueueChange( writer => {
+				rootsWithChangedAttributes.forEach( rootName => {
+					Object.keys( attributes![ rootName ] ).forEach( attr => {
+						editor!.registerRootAttribute( attr );
+					} );
+
+					writer.clearAttributes( editor!.model.document.getRoot( rootName )! );
+					writer.setAttributes( attributes![ rootName ], editor!.model.document.getRoot( rootName )! );
+				} );
+			} );
+		}
+	};
+
 	const _externalSetData: Dispatch<SetStateAction<Record<string, string>>> = useCallback(
-		newData => {
-			shouldUpdateEditor.current = true;
-			setData( newData );
+		dataOrCallback => {
+			setData( ( prevData => {
+				const newData = typeof dataOrCallback === 'function' ? dataOrCallback( prevData ) : dataOrCallback;
+
+				_updateEditorData( newData );
+
+				return newData;
+			} ) );
 		},
-		[ setData ]
+		[ editor, data, setData ]
 	);
 
 	const _externalSetAttributes: Dispatch<SetStateAction<Record<string, Record<string, unknown>>>> = useCallback(
-		newAttributes => {
-			shouldUpdateEditor.current = true;
-			setAttributes( newAttributes );
+		attributesOrCallback => {
+			setAttributes( ( prevAttributes => {
+				const newAttributes = typeof attributesOrCallback === 'function' ?
+					attributesOrCallback( prevAttributes ) :
+					attributesOrCallback;
+
+				_updateEditorAttributes( newAttributes );
+
+				return newAttributes;
+			} ) );
 		},
-		[ setAttributes ]
+		[ editor, attributes, setAttributes ]
 	);
 
 	return {
@@ -496,6 +500,7 @@ export type MultiRootHookProps = {
 	editor: typeof MultiRootEditor;
 	watchdogConfig?: WatchdogConfig;
 	disableWatchdog?: boolean;
+	disableTwoWayDataBinding?: boolean;
 
 	onReady?: ( editor: MultiRootEditor ) => void;
 	onError?: ( error: Error, details: ErrorDetails ) => void;
