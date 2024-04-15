@@ -40,6 +40,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	// Contains the JSX elements for each editor root.
 	const [ elements, setElements ] = useState<Array<JSX.Element>>( [] );
 
+	const shouldUpdateEditor = useRef<boolean>( true );
+
 	const [ toolbarElement, setToolbarElement ] = useState<JSX.Element>( <></> );
 
 	useEffect( () => {
@@ -368,6 +370,58 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			} );
 	};
 
+	useEffect( () => {
+		if ( !editor ) {
+			return;
+		}
+
+		// Editor should be only updated when the changes come from the integrator React application.
+		if ( shouldUpdateEditor.current ) {
+			shouldUpdateEditor.current = false;
+
+			const dataKeys = Object.keys( data );
+			const attributesKeys = Object.keys( attributes );
+
+			// Check if `data` and `attributes` have the same keys.
+			//
+			// It prevents the addition of attributes for non-existing roots.
+			// If the `data` object has a different set of keys, an error will not be thrown
+			// since the attributes will be removed/added during root initialization/destruction.
+			if ( !dataKeys.every( key => attributesKeys.includes( key ) ) ) {
+				throw new Error( '`data` and `attributes` objects must have the same keys (roots).' );
+			}
+
+			const editorData = editor.getFullData();
+			const editorAttributes = editor.getRootsAttributes();
+
+			const {
+				addedKeys: newRoots,
+				removedKeys: removedRoots
+			} = _getStateDiff( editorData, data || {} );
+
+			const hasModifiedData = dataKeys.some( rootName =>
+				editorData[ rootName ] !== undefined &&
+				JSON.stringify( editorData[ rootName ] ) !== JSON.stringify( data[ rootName ] )
+			);
+
+			const rootsWithChangedAttributes = attributesKeys.filter( rootName =>
+				JSON.stringify( editorAttributes[ rootName ] ) !== JSON.stringify( attributes[ rootName ] ) );
+
+			editor.model.change( writer => {
+				_handleNewRoots( newRoots );
+				_handleRemovedRoots( removedRoots );
+
+				if ( hasModifiedData ) {
+					_updateEditorData();
+				}
+
+				if ( rootsWithChangedAttributes.length ) {
+					_updateEditorAttributes( writer, rootsWithChangedAttributes );
+				}
+			} );
+		}
+	}, [ data, attributes ] );
+
 	const _getStateDiff = (
 		previousState: Record<string, unknown>,
 		newState: Record<string, unknown>
@@ -400,90 +454,38 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} );
 	};
 
-	const _updateEditorData = ( newData: Record<string, string> ) => {
-		const dataKeys = Object.keys( newData );
-		const editorData = editor!.getFullData();
+	const _updateEditorData = () => {
+		// If any of the roots content has changed, set the editor data.
+		// Unfortunately, we cannot set the editor data just for one root, so we need to overwrite all roots (`nextProps.data` is an
+		// object with data for each root).
+		editor!.data.set( data, { suppressErrorInCollaboration: true } as any );
+	};
 
-		const {
-			addedKeys: newRoots,
-			removedKeys: removedRoots
-		} = _getStateDiff( editorData, newData || {} );
+	const _updateEditorAttributes = ( writer: Writer, roots: Array<string> ) => {
+		roots.forEach( rootName => {
+			Object.keys( attributes![ rootName ] ).forEach( attr => {
+				editor!.registerRootAttribute( attr );
+			} );
 
-		const hasModifiedData = dataKeys.some( rootName =>
-			editorData[ rootName ] !== undefined &&
-			JSON.stringify( editorData[ rootName ] ) !== JSON.stringify( data[ rootName ] )
-		);
-
-		editor!.model.change( () => {
-			_handleNewRoots( newRoots );
-			_handleRemovedRoots( removedRoots );
-
-			if ( hasModifiedData ) {
-				// If any of the roots content has changed, set the editor data.
-				// Unfortunately, we cannot set the editor data just for one root, so we need to overwrite all roots
-				// (`nextProps.data` is an object with data for each root).
-				editor!.data.set( data, { suppressErrorInCollaboration: true } as any );
-			}
+			writer.clearAttributes( editor!.model.document.getRoot( rootName )! );
+			writer.setAttributes( attributes![ rootName ], editor!.model.document.getRoot( rootName )! );
 		} );
 	};
 
-	const _updateEditorAttributes = ( newAttributes: Record<string, unknown> ) => {
-		const dataKeys = Object.keys( data );
-		const attributesKeys = Object.keys( newAttributes );
-
-		// Check if `data` and `attributes` have the same keys.
-		//
-		// It prevents the addition of attributes for non-existing roots.
-		// If the `data` object has a different set of keys, an error will not be thrown
-		// since the attributes will be removed/added during root initialization/destruction.
-		if ( !dataKeys.every( key => attributesKeys.includes( key ) ) ) {
-			throw new Error( '`data` and `attributes` objects must have the same keys (roots).' );
-		}
-
-		const editorAttributes = editor!.getRootsAttributes();
-		const rootsWithChangedAttributes = attributesKeys.filter( rootName =>
-			JSON.stringify( editorAttributes[ rootName ] ) !== JSON.stringify( attributes[ rootName ] ) );
-
-		if ( rootsWithChangedAttributes.length ) {
-			editor!.model.change( writer => {
-				rootsWithChangedAttributes.forEach( rootName => {
-					Object.keys( attributes![ rootName ] ).forEach( attr => {
-						editor!.registerRootAttribute( attr );
-					} );
-
-					writer.clearAttributes( editor!.model.document.getRoot( rootName )! );
-					writer.setAttributes( attributes![ rootName ], editor!.model.document.getRoot( rootName )! );
-				} );
-			} );
-		}
-	};
-
 	const _externalSetData: Dispatch<SetStateAction<Record<string, string>>> = useCallback(
-		dataOrCallback => {
-			setData( ( prevData => {
-				const newData = typeof dataOrCallback === 'function' ? dataOrCallback( prevData ) : dataOrCallback;
-
-				_updateEditorData( newData );
-
-				return newData;
-			} ) );
+		newData => {
+			shouldUpdateEditor.current = true;
+			setData( newData );
 		},
-		[ editor, data, setData ]
+		[ setData ]
 	);
 
 	const _externalSetAttributes: Dispatch<SetStateAction<Record<string, Record<string, unknown>>>> = useCallback(
-		attributesOrCallback => {
-			setAttributes( ( prevAttributes => {
-				const newAttributes = typeof attributesOrCallback === 'function' ?
-					attributesOrCallback( prevAttributes ) :
-					attributesOrCallback;
-
-				_updateEditorAttributes( newAttributes );
-
-				return newAttributes;
-			} ) );
+		newAttributes => {
+			shouldUpdateEditor.current = true;
+			setAttributes( newAttributes );
 		},
-		[ editor, attributes, setAttributes ]
+		[ setAttributes ]
 	);
 
 	return {
