@@ -24,8 +24,6 @@ const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckedi
 const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns => {
 	let watchdog: EditorWatchdog | EditorWatchdogAdapter<MultiRootEditor> | null = null;
 
-	const editorDestructionInProgress = useRef<Promise<void> | null>( null );
-
 	const context = useContext( ContextWatchdogContext );
 
 	// Current editor instance. It may change if the editor is re-initialized by the Watchdog after an error.
@@ -42,25 +40,21 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 	const shouldUpdateEditor = useRef<boolean>( true );
 
-	const [ toolbarElement, setToolbarElement ] = useState<JSX.Element>( <></> );
-
 	useEffect( () => {
 		const initEditor = async () => {
 			// When the component has been remounted it is crucial to wait for removing the old editor
 			// and cleaning the old state.
-			await editorDestructionInProgress.current;
-
 			if ( props.isLayoutReady !== false ) {
 				await _initializeEditor();
 			}
 		};
 
-		initEditor();
+		if ( !editor ) {
+			initEditor();
+		}
 
 		return () => {
-			_destroyEditor().then( () => {
-				editorDestructionInProgress.current = null;
-			} );
+			_destroyEditor();
 		};
 	}, [ props.isLayoutReady ] );
 
@@ -77,7 +71,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	useEffect( () => {
 		// When the component has been remounted, keeping the old state, it is important to avoid
 		// updating the editor, which will be destroyed by the unmount callback.
-		if ( editor && !editorDestructionInProgress.current ) {
+		if ( editor ) {
 			const editorData = editor.getFullData();
 
 			setData( { ...editorData } );
@@ -85,13 +79,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			setElements( [
 				...Object.keys( editorData ).map( rootName => _createEditableElement( editor, rootName ) )
 			] );
-			setToolbarElement(
-				<div ref={ el => {
-					if ( el ) {
-						el.appendChild( editor.ui.view.toolbar.element! );
-					}
-				} }></div>
-			);
 		}
 	}, [ editor && editor.id ] );
 
@@ -303,9 +290,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		setData( {} );
 		setAttributes( {} );
 		setElements( [] );
-		setToolbarElement( <></> );
 
-		editorDestructionInProgress.current = new Promise<void>( resolve => {
+		return new Promise<void>( resolve => {
 			// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
 			//
 			// Additionally, we need to find a way to detect if the whole context has been destroyed. As `componentWillUnmount()`
@@ -489,10 +475,30 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	);
 
 	return {
-		editor, editableElements: elements, toolbarElement,
+		editor, editableElements: elements, toolbarElement: <EditorToolbarWrapper editor={editor} />,
 		data, setData: _externalSetData,
 		attributes, setAttributes: _externalSetAttributes
 	};
+};
+
+const EditorToolbarWrapper = ( { editor }: any ) => {
+	const toolbarRef = useRef<HTMLDivElement>( null );
+
+	useEffect( () => {
+		const toolbarContainer = toolbarRef.current;
+
+		if ( toolbarContainer && editor ) {
+			toolbarContainer.appendChild( editor.ui.view.toolbar.element! );
+		}
+
+		return () => {
+			if ( toolbarContainer && toolbarContainer.firstChild ) {
+				toolbarContainer.removeChild( toolbarContainer.firstChild! );
+			}
+		};
+	}, [ editor ] );
+
+	return <div ref={toolbarRef}></div>;
 };
 
 export default useMultiRootEditor;
