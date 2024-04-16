@@ -164,18 +164,15 @@ describe( 'useMultiRootEditor', () => {
 	} );
 
 	describe( 'toolbarElement', () => {
-		it( 'should be instance of JSX element', async () => {
+		it( 'should be a component containing toolbar element', async () => {
 			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
-
-			const { toolbarElement: notInitializedToolbarElement } = result.current;
-
-			expect( notInitializedToolbarElement.type ).to.be.equal( React.Fragment );
 
 			await waitForNextUpdate();
 
-			const { toolbarElement: initializedToolbarElement } = result.current;
+			const { toolbarElement } = result.current;
+			const wrapper = mount( toolbarElement );
 
-			expect( initializedToolbarElement.type ).to.be.equal( 'div' );
+			expect( wrapper.render().find( '.ck-toolbar' ) ).to.be.exist;
 		} );
 
 		it( 'should be reinitialized after crashing when watchdog is enabled', async () => {
