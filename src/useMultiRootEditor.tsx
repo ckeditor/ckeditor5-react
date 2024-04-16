@@ -22,7 +22,9 @@ const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckedi
 
 /* eslint-disable @typescript-eslint/no-use-before-define */
 const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns => {
-	let watchdog: EditorWatchdog | EditorWatchdogAdapter<MultiRootEditor> | null = null;
+	const watchdog = useRef<EditorWatchdog | EditorWatchdogAdapter<MultiRootEditor> | null>( null );
+
+	const editorDestructionInProgress = useRef<Promise<void> | null>( null );
 
 	const context = useContext( ContextWatchdogContext );
 
@@ -44,17 +46,19 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		const initEditor = async () => {
 			// When the component has been remounted it is crucial to wait for removing the old editor
 			// and cleaning the old state.
+			await editorDestructionInProgress.current;
+
 			if ( props.isLayoutReady !== false ) {
 				await _initializeEditor();
 			}
 		};
 
-		if ( !editor ) {
-			initEditor();
-		}
+		initEditor();
 
 		return () => {
-			_destroyEditor();
+			_destroyEditor().then( () => {
+				editorDestructionInProgress.current = null;
+			} );
 		};
 	}, [ props.isLayoutReady ] );
 
@@ -71,7 +75,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	useEffect( () => {
 		// When the component has been remounted, keeping the old state, it is important to avoid
 		// updating the editor, which will be destroyed by the unmount callback.
-		if ( editor ) {
+		if ( editor && !editorDestructionInProgress.current ) {
 			const editorData = editor.getFullData();
 
 			setData( { ...editorData } );
@@ -291,7 +295,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		setAttributes( {} );
 		setElements( [] );
 
-		return new Promise<void>( resolve => {
+		editorDestructionInProgress.current = new Promise<void>( resolve => {
 			// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
 			//
 			// Additionally, we need to find a way to detect if the whole context has been destroyed. As `componentWillUnmount()`
@@ -300,9 +304,9 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			// the `ContextWatchdog#state` would have a correct value. See `EditorWatchdogAdapter#destroy()` for more information.
 			/* istanbul ignore next */
 			setTimeout( async () => {
-				if ( watchdog ) {
-					await watchdog.destroy();
-					watchdog = null;
+				if ( watchdog.current ) {
+					await watchdog.current.destroy();
+					watchdog.current = null;
 
 					return resolve();
 				}
@@ -329,25 +333,27 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		}
 
 		/* istanbul ignore next */
-		if ( watchdog ) {
+		if ( watchdog.current ) {
 			return;
 		}
 
 		if ( context instanceof ContextWatchdog ) {
-			watchdog = new EditorWatchdogAdapter( context );
+			watchdog.current = new EditorWatchdogAdapter( context );
 		} else {
-			watchdog = new EditorWatchdog( props.editor, props.watchdogConfig );
+			watchdog.current = new EditorWatchdog( props.editor, props.watchdogConfig );
 		}
 
-		watchdog.setCreator( ( data, config ) => _createEditor( data as Record<string, string>, config ) );
+		const watchdogInstance = watchdog.current;
 
-		watchdog.on( 'error', ( _, { error, causesRestart } ) => {
+		watchdogInstance.setCreator( ( data, config ) => _createEditor( data as Record<string, string>, config ) );
+
+		watchdogInstance.on( 'error', ( _, { error, causesRestart } ) => {
 			const onError = props.onError || console.error;
 
 			onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
 		} );
 
-		await watchdog
+		await watchdogInstance
 			.create( data as any, _getConfig() )
 			.catch( error => {
 				const onError = props.onError || console.error;
