@@ -493,16 +493,22 @@ const EditorToolbarWrapper = ( { editor }: any ) => {
 	useEffect( () => {
 		const toolbarContainer = toolbarRef.current;
 
-		if ( toolbarContainer && editor ) {
-			toolbarContainer.appendChild( editor.ui.view.toolbar.element! );
+		if ( !editor || !toolbarContainer ) {
+			return undefined;
+		}
+
+		const element = editor.ui.view.toolbar.element!;
+
+		if ( toolbarContainer ) {
+			toolbarContainer.appendChild( element! );
 		}
 
 		return () => {
-			if ( toolbarContainer && toolbarContainer.firstChild ) {
-				toolbarContainer.removeChild( toolbarContainer.firstChild! );
+			if ( toolbarContainer ) {
+				toolbarContainer.removeChild( element! );
 			}
 		};
-	}, [ editor ] );
+	}, [ editor && editor.id ] );
 
 	return <div ref={toolbarRef}></div>;
 };
