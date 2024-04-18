@@ -164,26 +164,15 @@ describe( 'useMultiRootEditor', () => {
 	} );
 
 	describe( 'toolbarElement', () => {
-		it( 'should be instance of React element', async () => {
-			const { result: { current: { toolbarElement } } } = renderHook( () => useMultiRootEditor( editorProps ) );
-
-			expect( React.isValidElement( toolbarElement ) ).to.be.true;
-			expect( toolbarElement.type ).to.be.equal( 'div' );
-		} );
-
-		it( 'should have correct html attributes after initializing editor', async () => {
+		it( 'should be a component containing toolbar element', async () => {
 			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
-
-			const { toolbarElement } = result.current;
-
-			expect( toolbarElement.props.dangerouslySetInnerHTML.__html ).to.be.equal( '' );
 
 			await waitForNextUpdate();
 
-			const { toolbarElement: initializedToolbarElement, editor } = result.current;
-			const editorToolbar = editor.ui.view.toolbar.element.outerHTML;
+			const { toolbarElement } = result.current;
+			const wrapper = mount( toolbarElement );
 
-			expect( initializedToolbarElement.props.dangerouslySetInnerHTML.__html ).to.be.equal( editorToolbar );
+			expect( wrapper.render().find( '.ck-toolbar' ) ).to.be.exist;
 		} );
 
 		it( 'should be reinitialized after crashing when watchdog is enabled', async () => {
@@ -558,6 +547,123 @@ describe( 'useMultiRootEditor', () => {
 			const { editor } = result.current;
 
 			editor.editing.view.document.fire( 'blur', { target: {} } );
+
+			sinon.assert.calledOnce( spy );
+			sinon.assert.calledWith( spy, sinon.match.any, editor );
+		} );
+	} );
+
+	describe( 'disableTwoWayDataBinding set to `true`', () => {
+		it( 'should not update the `data` state when editor root value has been updated', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableTwoWayDataBinding: true
+			} ) );
+
+			await waitForNextUpdate();
+
+			const { editor } = result.current;
+			const getDataSpy = sinon.spy( editor, 'getData' );
+			editor.data.set( { ...rootsContent, 'intro': 'New data' } );
+
+			const { data, editableElements } = result.current;
+
+			expect( data.intro ).to.equal( rootsContent.intro );
+			expect( editableElements.length ).to.equal( 2 );
+			expect( editor.getFullData().intro ).to.equal( '<p>New data</p>' );
+			sinon.assert.notCalled( getDataSpy );
+		} );
+
+		it( 'should not update the `data` state when editor#addRoot is called', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableTwoWayDataBinding: true
+			} ) );
+
+			await waitForNextUpdate();
+
+			const { editor } = result.current;
+			const spy = sinon.spy( editor.ui.view, 'createEditable' );
+
+			act( () => {
+				editor.addRoot( 'outro' );
+			} );
+
+			const { data, attributes, editableElements } = result.current;
+
+			mount( <div>{editableElements}</div> );
+
+			expect( spy.callCount ).to.equal( editableElements.length );
+			expect( data.outro ).to.be.undefined;
+			expect( attributes.outro ).to.be.undefined;
+			expect( editableElements.length ).to.equal( 3 );
+			expect( editor.getFullData().outro ).to.equal( '' );
+		} );
+
+		it( 'should not update the `data` state when editor#detachRoot is called', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableTwoWayDataBinding: true
+			} ) );
+
+			await waitForNextUpdate();
+
+			const { editor } = result.current;
+			const spy = sinon.spy( editor, 'detachEditable' );
+
+			editor.detachRoot( 'intro' );
+
+			const { data, editableElements } = result.current;
+
+			sinon.assert.calledOnce( spy );
+			expect( data.intro ).to.be.equal( rootsContent.intro );
+			expect( editableElements.length ).to.equal( 1 );
+			expect( editor.getFullData().intro ).to.be.undefined;
+		} );
+
+		it( 'should not update the `attributes` state when editor API is called', async () => {
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableTwoWayDataBinding: true
+			} ) );
+
+			await waitForNextUpdate();
+
+			const { editor } = result.current;
+
+			await new Promise( res => {
+				editor.model.change( writer => {
+					editor.registerRootAttribute( 'foo' );
+					writer.clearAttributes( editor.model.document.getRoot( 'intro' ) );
+					writer.setAttributes( { foo: 'bar', order: 1 }, editor.model.document.getRoot( 'intro' ) );
+
+					res();
+				} );
+			} );
+
+			const { attributes } = result.current;
+
+			expect( editor.getRootAttributes( 'intro' ) ).to.deep.equal( {
+				order: 1,
+				row: null,
+				foo: 'bar'
+			} );
+			expect( attributes.intro ).to.be.deep.equal( rootsAttributes.intro );
+		} );
+
+		it( 'should call `onChange` callback when editor API is called', async () => {
+			const spy = sinon.spy();
+			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				onChange: spy
+			} ) );
+
+			await waitForNextUpdate();
+
+			const { editor, data } = result.current;
+
+			data.intro = 'new Data';
+			editor.setData( { ...data } );
 
 			sinon.assert.calledOnce( spy );
 			sinon.assert.calledWith( spy, sinon.match.any, editor );

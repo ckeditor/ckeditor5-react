@@ -22,7 +22,7 @@ const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckedi
 
 /* eslint-disable @typescript-eslint/no-use-before-define */
 const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns => {
-	let watchdog: EditorWatchdog | EditorWatchdogAdapter<MultiRootEditor> | null = null;
+	const watchdog = useRef<EditorWatchdog | EditorWatchdogAdapter<MultiRootEditor> | null>( null );
 
 	const editorDestructionInProgress = useRef<Promise<void> | null>( null );
 
@@ -41,8 +41,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	const [ elements, setElements ] = useState<Array<JSX.Element>>( [] );
 
 	const shouldUpdateEditor = useRef<boolean>( true );
-
-	const toolbarElement = <div dangerouslySetInnerHTML={{ __html: editor ? editor.ui.view.toolbar.element!.outerHTML : '' }}></div>;
 
 	useEffect( () => {
 		const initEditor = async () => {
@@ -113,54 +111,56 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	const onChangeData = ( editor: MultiRootEditor, event: EventInfo ): void => {
 		const modelDocument = editor!.model.document;
 
-		const newData: Record<string, string> = {};
-		const newAttributes: Record<string, Record<string, unknown>> = {};
+		if ( !props.disableTwoWayDataBinding ) {
+			const newData: Record<string, string> = {};
+			const newAttributes: Record<string, Record<string, unknown>> = {};
 
-		modelDocument.differ.getChanges()
-			.forEach( change => {
-				let root: RootElement;
+			modelDocument.differ.getChanges()
+				.forEach( change => {
+					let root: RootElement;
 
-				if ( change.type == 'insert' || change.type == 'remove' ) {
-					root = change.position.root as RootElement;
-				} else {
-					// Must be `attribute` diff item.
-					root = change.range.root as RootElement;
-				}
-
-				// Getting data from a not attached root will trigger a warning.
-				// There is another callback for handling detached roots.
-				if ( !root.isAttached() ) {
-					return;
-				}
-
-				const { rootName } = root;
-
-				newData[ rootName ] = editor!.getData( { rootName } );
-			} );
-
-		modelDocument.differ.getChangedRoots()
-			.forEach( changedRoot => {
-				// Ignore added and removed roots. They are handled by a different function.
-				// Only register if roots attributes changed.
-				if ( changedRoot.state ) {
-					if ( newData[ changedRoot.name ] !== undefined ) {
-						delete newData[ changedRoot.name ];
+					if ( change.type == 'insert' || change.type == 'remove' ) {
+						root = change.position.root as RootElement;
+					} else {
+						// Must be `attribute` diff item.
+						root = change.range.root as RootElement;
 					}
 
-					return;
-				}
+					// Getting data from a not attached root will trigger a warning.
+					// There is another callback for handling detached roots.
+					if ( !root.isAttached() ) {
+						return;
+					}
 
-				const rootName = changedRoot.name;
+					const { rootName } = root;
 
-				newAttributes[ rootName ] = editor!.getRootAttributes( rootName );
-			} );
+					newData[ rootName ] = editor!.getData( { rootName } );
+				} );
 
-		if ( Object.keys( newData ).length ) {
-			setData( previousData => ( { ...previousData, ...newData } ) );
-		}
+			modelDocument.differ.getChangedRoots()
+				.forEach( changedRoot => {
+					// Ignore added and removed roots. They are handled by a different function.
+					// Only register if roots attributes changed.
+					if ( changedRoot.state ) {
+						if ( newData[ changedRoot.name ] !== undefined ) {
+							delete newData[ changedRoot.name ];
+						}
 
-		if ( Object.keys( newAttributes ).length ) {
-			setAttributes( previousAttributes => ( { ...previousAttributes, ...newAttributes } ) );
+						return;
+					}
+
+					const rootName = changedRoot.name;
+
+					newAttributes[ rootName ] = editor!.getRootAttributes( rootName );
+				} );
+
+			if ( Object.keys( newData ).length ) {
+				setData( previousData => ( { ...previousData, ...newData } ) );
+			}
+
+			if ( Object.keys( newAttributes ).length ) {
+				setAttributes( previousAttributes => ( { ...previousAttributes, ...newAttributes } ) );
+			}
 		}
 
 		/* istanbul ignore else */
@@ -177,13 +177,15 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 		const reactElement = _createEditableElement( editor, rootName );
 
-		setData( previousData =>
-			( { ...previousData, [ rootName ]: editor!.getData( { rootName } ) } )
-		);
+		if ( !props.disableTwoWayDataBinding ) {
+			setData( previousData =>
+				( { ...previousData, [ rootName ]: editor!.getData( { rootName } ) } )
+			);
 
-		setAttributes( previousAttributes =>
-			( { ...previousAttributes, [ rootName ]: editor!.getRootAttributes( rootName ) } )
-		);
+			setAttributes( previousAttributes =>
+				( { ...previousAttributes, [ rootName ]: editor!.getRootAttributes( rootName ) } )
+			);
+		}
 
 		setElements( previousElements => [ ...previousElements, reactElement ] );
 	};
@@ -196,17 +198,19 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 		setElements( previousElements => previousElements.filter( element => element.props.id !== rootName ) );
 
-		setData( previousData => {
-			const { [ rootName! ]: _, ...newData } = previousData;
+		if ( !props.disableTwoWayDataBinding ) {
+			setData( previousData => {
+				const { [ rootName! ]: _, ...newData } = previousData;
 
-			return { ...newData };
-		} );
+				return { ...newData };
+			} );
 
-		setAttributes( previousAttributes => {
-			const { [ rootName! ]: _, ...newAttributes } = previousAttributes;
+			setAttributes( previousAttributes => {
+				const { [ rootName! ]: _, ...newAttributes } = previousAttributes;
 
-			return { ...newAttributes };
-		} );
+				return { ...newAttributes };
+			} );
+		}
 
 		editor!.detachEditable( root );
 	};
@@ -300,9 +304,9 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			// the `ContextWatchdog#state` would have a correct value. See `EditorWatchdogAdapter#destroy()` for more information.
 			/* istanbul ignore next */
 			setTimeout( async () => {
-				if ( watchdog ) {
-					await watchdog.destroy();
-					watchdog = null;
+				if ( watchdog.current ) {
+					await watchdog.current.destroy();
+					watchdog.current = null;
 
 					return resolve();
 				}
@@ -329,25 +333,27 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		}
 
 		/* istanbul ignore next */
-		if ( watchdog ) {
+		if ( watchdog.current ) {
 			return;
 		}
 
 		if ( context instanceof ContextWatchdog ) {
-			watchdog = new EditorWatchdogAdapter( context );
+			watchdog.current = new EditorWatchdogAdapter( context );
 		} else {
-			watchdog = new EditorWatchdog( props.editor, props.watchdogConfig );
+			watchdog.current = new EditorWatchdog( props.editor, props.watchdogConfig );
 		}
 
-		watchdog.setCreator( ( data, config ) => _createEditor( data as Record<string, string>, config ) );
+		const watchdogInstance = watchdog.current;
 
-		watchdog.on( 'error', ( _, { error, causesRestart } ) => {
+		watchdogInstance.setCreator( ( data, config ) => _createEditor( data as Record<string, string>, config ) );
+
+		watchdogInstance.on( 'error', ( _, { error, causesRestart } ) => {
 			const onError = props.onError || console.error;
 
 			onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
 		} );
 
-		await watchdog
+		await watchdogInstance
 			.create( data as any, _getConfig() )
 			.catch( error => {
 				const onError = props.onError || console.error;
@@ -475,10 +481,36 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	);
 
 	return {
-		editor, editableElements: elements, toolbarElement,
+		editor, editableElements: elements, toolbarElement: <EditorToolbarWrapper editor={editor} />,
 		data, setData: _externalSetData,
 		attributes, setAttributes: _externalSetAttributes
 	};
+};
+
+const EditorToolbarWrapper = ( { editor }: any ) => {
+	const toolbarRef = useRef<HTMLDivElement>( null );
+
+	useEffect( () => {
+		const toolbarContainer = toolbarRef.current;
+
+		if ( !editor || !toolbarContainer ) {
+			return undefined;
+		}
+
+		const element = editor.ui.view.toolbar.element!;
+
+		if ( toolbarContainer ) {
+			toolbarContainer.appendChild( element! );
+		}
+
+		return () => {
+			if ( toolbarContainer ) {
+				toolbarContainer.removeChild( element! );
+			}
+		};
+	}, [ editor && editor.id ] );
+
+	return <div ref={toolbarRef}></div>;
 };
 
 export default useMultiRootEditor;
@@ -496,6 +528,7 @@ export type MultiRootHookProps = {
 	editor: typeof MultiRootEditor;
 	watchdogConfig?: WatchdogConfig;
 	disableWatchdog?: boolean;
+	disableTwoWayDataBinding?: boolean;
 
 	onReady?: ( editor: MultiRootEditor ) => void;
 	onError?: ( error: Error, details: ErrorDetails ) => void;
