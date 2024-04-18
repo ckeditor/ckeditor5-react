@@ -11,20 +11,20 @@ const path = require( 'path' );
 const webpack = require( 'webpack' );
 const { bundler } = require( '@ckeditor/ckeditor5-dev-utils' );
 const TerserPlugin = require( 'terser-webpack-plugin' );
+const { dependencies, peerDependencies } = require( './package.json' );
+
+const externals = Object.keys( { ...dependencies, ...peerDependencies } ).reduce( ( acc, currentValue ) => {
+	acc[ currentValue ] = currentValue;
+
+	return acc;
+}, {} );
 
 module.exports = {
 	context: __dirname,
 
 	devtool: 'source-map',
 	performance: { hints: false },
-	externals: {
-		react: {
-			root: 'React',
-			commonjs2: 'react',
-			commonjs: 'react',
-			amd: 'react'
-		}
-	},
+	externals,
 
 	entry: path.join( __dirname, 'src', 'index.ts' ),
 
