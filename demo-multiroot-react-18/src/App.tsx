@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { StrictMode, useState } from 'react';
 import MultiRootEditorDemo from './MultiRootEditorDemo';
 import MultiRootEditorRichDemo from './MultiRootEditorRichDemo';
 import ContextMultiRootEditorDemo from './ContextMultiRootEditorDemo';
@@ -43,7 +43,7 @@ export default function App(): JSX.Element {
 	};
 
 	return (
-		<>
+		<StrictMode>
 			<h1>CKEditor 5 – useMultiRootEditor – development sample</h1>
 
 			<div className="buttons" style={ { textAlign: 'center' } }>
@@ -69,6 +69,6 @@ export default function App(): JSX.Element {
 				</button>
 			</div>
 			{ renderDemo() }
-		</>
+		</StrictMode>
 	);
 }

@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global window, HTMLDivElement */
+/* global window, HTMLDivElement, document */
 
 import React from 'react';
 import { configure, mount } from 'enzyme';
@@ -12,6 +12,9 @@ import Editor from './_utils/editor';
 import CKEditor from '../src/ckeditor.tsx';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
+import { waitFor } from './_utils/waitFor.js';
+import { createDefer } from './_utils/defer.js';
+import { timeout } from './_utils/timeout.js';
 
 configure( { adapter: new Adapter() } );
 
@@ -21,6 +24,7 @@ describe( '<CKEditor> Component', () => {
 	beforeEach( () => {
 		CKEDITOR_VERSION = window.CKEDITOR_VERSION;
 
+		wrapper = null;
 		window.CKEDITOR_VERSION = '37.0.0';
 		sinon.stub( Editor._model.document, 'on' );
 		sinon.stub( Editor._editing.view.document, 'on' );
@@ -772,9 +776,9 @@ describe( '<CKEditor> Component', () => {
 			wrapper = null;
 
 			// Wait a cycle.
-			await new Promise( res => setTimeout( res ) );
-
-			expect( component.editor ).is.null;
+			await waitFor( () => {
+				expect( component.editor ).is.null;
+			} );
 		} );
 	} );
 
@@ -789,6 +793,8 @@ describe( '<CKEditor> Component', () => {
 
 			const firstEditor = wrapper.instance().editor;
 
+			expect( firstEditor ).to.be.instanceOf( Editor );
+
 			await turnOffDefaultErrorCatching( () => {
 				return new Promise( res => {
 					wrapper.setProps( { onReady: res } );
@@ -799,12 +805,217 @@ describe( '<CKEditor> Component', () => {
 				} );
 			} );
 
-			const secondEditor = wrapper.instance().editor;
+			await waitFor( () => {
+				const { editor } = wrapper.instance();
 
-			expect( firstEditor ).to.be.instanceOf( Editor );
-			expect( secondEditor ).to.be.instanceOf( Editor );
-
-			expect( firstEditor ).to.not.equal( secondEditor );
+				expect( editor ).to.be.instanceOf( Editor );
+				expect( firstEditor ).to.not.equal( editor );
+			} );
 		} );
+	} );
+
+	describe( 'semaphores', () => {
+		let element;
+
+		beforeEach( () => {
+			element = document.createElement( 'div' );
+
+			document.body.appendChild( element );
+		} );
+
+		afterEach( () => {
+			element.remove();
+		} );
+
+		const testSemaphoreForWatchdog = enableWatchdog => {
+			it( 'should assign properly `data` property to editor even if it is still mounting', async () => {
+				const deferInitialization = createDefer();
+
+				class SlowEditor extends Editor {
+					constructor( element, config ) {
+						super( element, config );
+
+						let value = config.initialData || '';
+
+						this.data = {
+							get() {
+								return value;
+							},
+
+							set( newValue ) {
+								value = newValue;
+							}
+						};
+					}
+
+					static async create( ...args ) {
+						await deferInitialization.promise;
+
+						return new SlowEditor( ...args );
+					}
+				}
+
+				let editor = null;
+				const component = mount(
+					<CKEditor
+						disableWatchdog
+						editor={ SlowEditor }
+						config={ {
+							initialData: '1',
+							key: 1,
+							abc: 123
+						} }
+						onReady={ resolvedEditor => {
+							editor = resolvedEditor;
+						} }
+					/>,
+					{
+						attachTo: element
+					}
+				);
+
+				await timeout( 100 );
+
+				component.setProps( {
+					data: 'Hello World'
+				} );
+
+				deferInitialization.resolve();
+
+				await waitFor( () => {
+					expect( editor ).not.to.be.null;
+					expect( editor.data.get() ).to.be.equal( 'Hello World' );
+				} );
+			} );
+
+			it( 'should set data in sync mode when editor is already mounted', async () => {
+				class SlowEditor extends Editor {
+					constructor( element, config ) {
+						super( element, config );
+
+						let value = config.initialData || '';
+
+						this.data = {
+							get() {
+								return value;
+							},
+
+							set( newValue ) {
+								value = newValue;
+							}
+						};
+					}
+
+					static async create( ...args ) {
+						return new SlowEditor( ...args );
+					}
+				}
+
+				const { component, editor } = await new Promise( resolve => {
+					const _component = mount(
+						<CKEditor
+							disableWatchdog
+							editor={ SlowEditor }
+							config={ {
+								initialData: '1',
+								key: 1,
+								abc: 123
+							} }
+							onReady={ resolvedEditor => {
+								resolve( {
+									component: _component,
+									editor: resolvedEditor
+								} );
+							} }
+						/>,
+						{
+							attachTo: element
+						}
+					);
+				} );
+
+				component.setProps( {
+					data: 'Hello World'
+				} );
+
+				expect( editor.data.get() ).to.be.equal( 'Hello World' );
+			} );
+
+			it( 'should buffer many rerenders while creating editor', async () => {
+				const initializerLog = [];
+
+				class SlowEditor extends Editor {
+					static async create( ...args ) {
+						await timeout( 300 );
+
+						return new SlowEditor( ...args );
+					}
+				}
+
+				const component = mount(
+					<CKEditor
+						disableWatchdog={!enableWatchdog}
+						editor={ SlowEditor }
+						config={ {
+							initialData: '1',
+							key: 1,
+							abc: 123
+						} }
+						onReady={ instance => {
+							initializerLog.push( {
+								status: 'ready',
+								id: instance.config.key
+							} );
+						} }
+						onAfterDestroy={ instance => {
+							initializerLog.push( {
+								status: 'destroy',
+								id: instance.config.key
+							} );
+						} }
+					/>,
+					{
+						attachTo: element
+					}
+				);
+
+				component.setProps( {
+					id: 111,
+					config: {
+						key: 2
+					}
+				} );
+
+				await timeout( 50 );
+
+				component.setProps( {
+					id: 112,
+					config: {
+						key: 3
+					}
+				} );
+
+				await timeout( 50 );
+
+				component.setProps( {
+					id: 113,
+					config: {
+						key: 4
+					}
+				} );
+
+				await waitFor( () => {
+					expect( initializerLog ).to.deep.equal( [
+						{ status: 'ready', id: 2 },
+						{ status: 'destroy', id: 2 },
+						{ status: 'ready', id: 4 }
+					] );
+				} );
+			} );
+		};
+
+		for ( const enableWatchdog of [ true, false ] ) {
+			describe( `watchdog=${ enableWatchdog }`, () => testSemaphoreForWatchdog( enableWatchdog ) );
+		}
 	} );
 } );

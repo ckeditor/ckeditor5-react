@@ -11,7 +11,10 @@
  * @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
  */
 export default class Editor {
-	constructor() {
+	constructor( element, config ) {
+		this.element = element;
+		this.config = config;
+
 		this.initializeProperties();
 	}
 
@@ -70,8 +73,8 @@ export default class Editor {
 		return this.data.get.call( this, ...args );
 	}
 
-	static create() {
-		return Promise.resolve( new this() );
+	static create( element, config ) {
+		return Promise.resolve( new this( element, config ) );
 	}
 }
 
