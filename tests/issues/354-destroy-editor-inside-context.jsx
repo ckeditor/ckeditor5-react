@@ -10,6 +10,7 @@ import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import CKEditor from '../../src/ckeditor.tsx';
 import CKEditorContext from '../../src/ckeditorcontext.tsx';
+import { waitFor } from '../_utils/waitFor.js';
 
 const { Context } = window.CKEditor5.core;
 
@@ -75,15 +76,9 @@ describe( 'issue #354: unable to destroy the editor within a context', () => {
 	it( 'should destroy the editor within a context', async () => {
 		wrapper.find( App ).setState( { renderEditor: false } );
 
-		await wait( 0 );
-
-		expect( wrapper.find( CKEditor ).exists() ).to.equal( false );
-		expect( wrapper.find( App ).getDOMNode().querySelector( '.ck-editor' ) ).to.equal( null );
+		await waitFor( () => {
+			expect( wrapper.find( CKEditor ).exists() ).to.equal( false );
+			expect( wrapper.find( App ).getDOMNode().querySelector( '.ck-editor' ) ).to.equal( null );
+		}, 100 );
 	} );
 } );
-
-function wait( ms ) {
-	return new Promise( resolve => {
-		setTimeout( resolve, ms );
-	} );
-}

@@ -12,6 +12,7 @@ import Editor from './_utils/editor';
 import CKEditor from '../src/ckeditor.tsx';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
+import { waitFor } from './_utils/waitFor.js';
 
 configure( { adapter: new Adapter() } );
 
@@ -772,9 +773,9 @@ describe( '<CKEditor> Component', () => {
 			wrapper = null;
 
 			// Wait a cycle.
-			await new Promise( res => setTimeout( res ) );
-
-			expect( component.editor ).is.null;
+			await waitFor( () => {
+				expect( component.editor ).is.null;
+			} );
 		} );
 	} );
 

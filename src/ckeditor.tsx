@@ -26,11 +26,6 @@ const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckedi
 // eslint-disable-next-line @typescript-eslint/ban-types
 export default class CKEditor<TEditor extends Editor> extends React.Component<Props<TEditor>> {
 	/**
-	 * Contains a promise that resolves when the editor destruction is finished.
-	 */
-	private editorDestructionInProgress: Promise<void> | null = null;
-
-	/**
 	 * After mounting the editor, the variable will contain a reference to the created editor.
 	 * @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
 	 */
@@ -195,6 +190,11 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	private async _initializeEditor(): Promise<unknown> {
 		if ( this.props.disableWatchdog ) {
 			this.instance = await this._createEditor( this.domContainer.current!, this._getConfig() );
+
+			if ( this.props.onReady ) {
+				this.props.onReady( this.instance as TEditor );
+			}
+
 			return;
 		}
 
@@ -218,6 +218,11 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 		await this.watchdog
 			.create( this.domContainer.current!, this._getConfig() )
+			.then( () => {
+				if ( this.props.onReady ) {
+					this.props.onReady( this.watchdog!.editor as TEditor );
+				}
+			} )
 			.catch( error => {
 				const onError = this.props.onError || console.error;
 				onError( error, { phase: 'initialization', willEditorRestart: false } );
@@ -265,9 +270,9 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 					}
 				} );
 
-				if ( this.props.onReady ) {
-					this.props.onReady( editor );
-				}
+				editor.on( 'destroy', () => {
+					this._unlockLifeCycleSemaphore();
+				} );
 
 				return editor;
 			} );
