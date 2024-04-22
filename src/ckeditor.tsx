@@ -19,11 +19,12 @@ import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 
 import { ContextWatchdogContext } from './ckeditorcontext';
+import { LifeCycleEditorElementSemaphore, type LifeCycleSemaphoreUnlock } from './utils/LifeCycleEditorElementSemaphore';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export default class CKEditor<TEditor extends Editor> extends React.Component<Props<TEditor>, {}> {
+export default class CKEditor<TEditor extends Editor> extends React.Component<Props<TEditor>> {
 	/**
 	 * Contains a promise that resolves when the editor destruction is finished.
 	 */
@@ -40,6 +41,11 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * It holds the instance of the editor under `this.watchdog.editor` if `props.disableWatchdog` is set to false.
 	 */
 	private watchdog: EditorWatchdog<TEditor> | EditorWatchdogAdapter<TEditor> | null = null;
+
+	/**
+	 * Unlocks element in editor semaphore after destroy editor instance.
+	 */
+	private editorSemaphoreUnlock: LifeCycleSemaphoreUnlock | null = null;
 
 	/**
 	 * Holds the instance of the editor if `props.disableWatchdog` is set to true.
@@ -81,7 +87,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * The CKEditor component should not be updated by React itself.
 	 * However, if the component identifier changes, the whole structure should be created once again.
 	 */
-	public override shouldComponentUpdate( nextProps: Readonly<Props<TEditor>> ): boolean {
+	public override shouldComponentUpdate( nextProps: Readonly<Props<TEditor>>, nextState: any ): boolean {
 		if ( !this.editor ) {
 			return false;
 		}
@@ -113,23 +119,65 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	/**
 	 * Initialize the editor when the component is mounted.
 	 */
-	public override async componentDidMount(): Promise<void> {
-		await this._initializeEditor();
+	public override componentDidMount(): void {
+		this._initLifeCycleSemaphore();
 	}
 
 	/**
 	 * Re-render the entire component once again. The old editor will be destroyed and the new one will be created.
 	 */
-	public override async componentDidUpdate(): Promise<void> {
-		await this._destroyEditor();
-		await this._initializeEditor();
+	public override componentDidUpdate(): void {
+		this._initLifeCycleSemaphore();
 	}
 
 	/**
 	 * Destroy the editor before unmounting the component.
 	 */
-	public override async componentWillUnmount(): Promise<void> {
-		await this._destroyEditor();
+	public override componentWillUnmount(): void {
+		this._unlockLifeCycleSemaphore();
+	}
+
+	/**
+	 * Async destroy attached editor and unlock element semaphore.
+	 */
+	private _unlockLifeCycleSemaphore() {
+		if ( this.editorSemaphoreUnlock ) {
+			this.editorSemaphoreUnlock();
+			this.editorSemaphoreUnlock = null;
+		}
+	}
+
+	/**
+	 * Unlocks previous editor semaphore and creates new one..
+	 */
+	private _initLifeCycleSemaphore() {
+		this._unlockLifeCycleSemaphore();
+		this.editorSemaphoreUnlock = LifeCycleEditorElementSemaphore.ofLock( this.domContainer.current!, {
+			mount: async () => {
+				await this._initializeEditor();
+			},
+			unmount: async element => {
+				const destroyedInstance = this.instance;
+				const { onAfterDestroy } = this.props;
+
+				await this._destroyEditor();
+
+				/**
+				 * Make sure that nothing left in actual editor element. There can be custom integrations that
+				 * appends something to container. Let's reset element every update cycle before mounting another
+				 * editor instance.
+				 */
+				element.innerHTML = '';
+
+				/**
+				 * Broadcast information about destroying current instance. It is useful for removing duplicated
+				 * toolbars in decoupled editor mode.
+				 */
+				if ( onAfterDestroy && destroyedInstance ) {
+					onAfterDestroy( destroyedInstance as TEditor );
+				}
+			}
+		} );
 	}
 
 	/**
@@ -219,14 +267,9 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 					}
 				} );
 
-				// The `onReady` callback should be fired once the `editor` property
-				// can be reached from the `<CKEditor>` component.
-				// Ideally this part should be moved to the watchdog item creator listeners.
-				setTimeout( () => {
-					if ( this.props.onReady ) {
-						this.props.onReady( editor );
-					}
-				} );
+				if ( this.props.onReady ) {
+					this.props.onReady( editor );
+				}
 
 				return editor;
 			} );
@@ -336,6 +379,7 @@ interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propT
 	watchdogConfig?: WatchdogConfig;
 	disableWatchdog?: boolean;
 	onReady?: ( editor: TEditor ) => void;
+	onAfterDestroy?: ( Editor: TEditor ) => void;
 	onError?: ( error: Error, details: ErrorDetails ) => void;
 	onChange?: ( event: EventInfo, editor: TEditor ) => void;
 	onFocus?: ( event: EventInfo, editor: TEditor ) => void;
