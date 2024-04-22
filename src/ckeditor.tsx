@@ -55,11 +55,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	private get _semaphoreValue(): EditorMountResult<TEditor> | null {
 		const { editorSemaphore } = this;
 
-		if ( !editorSemaphore ) {
-			return null;
-		}
-
-		return editorSemaphore.value;
+		return editorSemaphore ? editorSemaphore.value : null;
 	}
 
 	/**
