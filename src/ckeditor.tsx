@@ -193,8 +193,6 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
 	 */
 	private async _initializeEditor(): Promise<unknown> {
-		await this.editorDestructionInProgress;
-
 		if ( this.props.disableWatchdog ) {
 			this.instance = await this._createEditor( this.domContainer.current!, this._getConfig() );
 			return;
@@ -279,7 +277,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Destroys the editor by destroying the watchdog.
 	 */
 	private async _destroyEditor(): Promise<void> {
-		this.editorDestructionInProgress = new Promise<void>( resolve => {
+		return new Promise<void>( resolve => {
 			// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
 			//
 			// Additionally, we need to find a way to detect if the whole context has been destroyed. As `componentWillUnmount()`
