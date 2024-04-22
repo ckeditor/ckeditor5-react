@@ -209,7 +209,25 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			this.watchdog = new CKEditor._EditorWatchdog( this.props.editor, this.props.watchdogConfig );
 		}
 
-		this.watchdog.setCreator( ( el, config ) => this._createEditor( el as any, config ) );
+		const totalRestartsRef = {
+			current: 0
+		};
+
+		this.watchdog.setCreator( async ( el, config ) => {
+			const editor = await this._createEditor( el as any, config );
+
+			if ( totalRestartsRef.current > 0 ) {
+				setTimeout( () => {
+					if ( this.props.onReady ) {
+						this.props.onReady( this.watchdog!.editor as TEditor );
+					}
+				} );
+			}
+
+			totalRestartsRef.current++;
+
+			return editor;
+		} );
 
 		this.watchdog.on( 'error', ( _, { error, causesRestart } ) => {
 			const onError = this.props.onError || console.error;
