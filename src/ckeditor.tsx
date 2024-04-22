@@ -87,7 +87,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * The CKEditor component should not be updated by React itself.
 	 * However, if the component identifier changes, the whole structure should be created once again.
 	 */
-	public override shouldComponentUpdate( nextProps: Readonly<Props<TEditor>>, nextState: any ): boolean {
+	public override shouldComponentUpdate( nextProps: Readonly<Props<TEditor>> ): boolean {
 		if ( !this.editor ) {
 			return false;
 		}
