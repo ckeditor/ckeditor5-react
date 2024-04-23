@@ -22,9 +22,11 @@ import { once } from './once';
  *	  This semaphore, by utilizing a static semaphores promises map, retains information about whether the element is used by a previous
  *	  instance of the editor and resumes execution when it is freed.
  *
- *	* The initialization of the editor is skipped when numerous rerenders occur within a short time-frame. An example of this
- *	  could be a situation with 4 rerenders occurring within a 10ms period. This semaphore will likely batch these calls, and
- *	  instead of initializing 4 editors, only 2 will be initialized (the first and the last one).
+ *	* The process involves starting up many editors that are no longer needed and are immediately removed in the following rerenders.
+ *	  This can cause the editor’s initialization performance to slow down. The initialization of the editor is skipped when numerous
+ *	  rerenders occur within a short time-frame while using this semaphore. An example of this could be a situation with 4 rerenders
+ *	  occurring within a 10ms period. This semaphore will likely batch these calls, and instead of initializing 4 editors, only 2 will be
+ *	  initialized (the first and the last one).
  */
 export class LifeCycleEditorElementSemaphore<R> {
 	/**
