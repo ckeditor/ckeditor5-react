@@ -8,6 +8,10 @@ export type Defer<E> = {
 	resolve: ( value: E ) => void;
 };
 
+/**
+ * This function generates a promise that can be resolved by invoking the returned `resolve` method.
+ * It proves to be beneficial in the creation of various types of locks and semaphores.
+ */
 export function createDefer<E = void>(): Defer<E> {
 	const deferred: Defer<E> = {
 		resolve: ( ) => {},
