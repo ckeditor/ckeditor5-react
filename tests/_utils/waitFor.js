@@ -3,22 +3,25 @@
  * For licensing, see LICENSE.md.
  */
 
-export async function waitFor( callback, timeOut = 1000 ) {
-	const startTime = Date.now();
+export async function waitFor( callback, { timeOut = 1000, retry = 50 } = {} ) {
+	return new Promise( ( resolve, reject ) => {
+		const startTime = Date.now();
 
-	const tick = () => {
-		setTimeout( () => {
-			try {
-				return callback();
-			} catch ( err ) {
-				if ( Date.now() - startTime > timeOut ) {
-					throw err;
-				} else {
-					tick();
+		const tick = () => {
+			setTimeout( async () => {
+				try {
+					await callback();
+					resolve();
+				} catch ( err ) {
+					if ( Date.now() - startTime > timeOut ) {
+						reject( err );
+					} else {
+						tick();
+					}
 				}
-			}
-		}, 10 );
-	};
+			}, retry );
+		};
 
-	tick();
+		tick();
+	} );
 }

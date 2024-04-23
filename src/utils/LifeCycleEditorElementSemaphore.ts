@@ -142,6 +142,7 @@ export class LifeCycleEditorElementSemaphore<R> {
 		// This is a lock that will be resolved after the `release` method is called. Due to this lock,
 		// the promise will never be resolved until the editor is destroyed.
 		const releaseLock = createDefer();
+		this._releaseLock = releaseLock;
 
 		// This is the initialization of the editor that occurs after the previous editor has been detached from the specified element.
 		//
@@ -171,14 +172,12 @@ export class LifeCycleEditorElementSemaphore<R> {
 						} );
 					}
 				}
-				return mountResult;
 			} )
 
 			// It will be released after destroying of editor by the {@link #_release method}.
 			.then( () => releaseLock.promise );
 
 		_semaphores.set( _element, newElementSemaphore );
-		this._releaseLock = releaseLock;
 	}
 
 	/**
@@ -196,11 +195,10 @@ export class LifeCycleEditorElementSemaphore<R> {
 	 * it will cause problems when we’re trying to set up the {@link LifeCycleEditorElementSemaphore#_semaphores} map entries.
 	 */
 	public readonly release = once( () => {
-		const { _semaphores } = LifeCycleEditorElementSemaphore;
 		const { _releaseLock, _state, _element, _lifecycle } = this;
 
 		if ( _state.mountingInProgress ) {
-			const deletePromise = _state.mountingInProgress
+			_state.mountingInProgress
 				.then( mountResult => _lifecycle.unmount( {
 					element: _element,
 					mountResult
@@ -208,13 +206,7 @@ export class LifeCycleEditorElementSemaphore<R> {
 				.then( _releaseLock!.resolve )
 				.then( () => {
 					this._value = null;
-
-					if ( _semaphores.get( _element ) === deletePromise ) {
-						_semaphores.delete( _element );
-					}
 				} );
-
-			_semaphores.set( _element, deletePromise );
 		} else {
 			_state.destroyedBeforeInitialization = true;
 			_releaseLock!.resolve();

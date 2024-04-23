@@ -79,6 +79,6 @@ describe( 'issue #354: unable to destroy the editor within a context', () => {
 		await waitFor( () => {
 			expect( wrapper.find( CKEditor ).exists() ).to.equal( false );
 			expect( wrapper.find( App ).getDOMNode().querySelector( '.ck-editor' ) ).to.equal( null );
-		}, 100 );
+		} );
 	} );
 } );

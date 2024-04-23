@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global window, HTMLDivElement */
+/* global window, HTMLDivElement, document */
 
 import React from 'react';
 import { configure, mount } from 'enzyme';
@@ -13,6 +13,7 @@ import CKEditor from '../src/ckeditor.tsx';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
 import { waitFor } from './_utils/waitFor.js';
+import { createDefer } from './_utils/defer.js';
 
 configure( { adapter: new Adapter() } );
 
@@ -807,5 +808,68 @@ describe( '<CKEditor> Component', () => {
 
 			expect( firstEditor ).to.not.equal( secondEditor );
 		} );
+	} );
+
+	describe( 'semaphores', () => {
+		let element;
+
+		beforeEach( () => {
+			element = document.createElement( 'div' );
+		} );
+
+		for ( const watchdogEnabled of [ true, false ] ) {
+			describe( `watchdog = \`${ watchdogEnabled }\``, () => {
+				it(
+					'should ensure that prev editor is destroyed before starting to init a new one after quickly unmounting and mounting',
+					async () => {
+						const delayEditor1Initialization = createDefer();
+
+						class Editor1 extends Editor {
+							static async create( ...args ) {
+								await delayEditor1Initialization.promise;
+								return new Editor1( ...args );
+							}
+						}
+
+						class Editor2 extends Editor {}
+
+						wrapper = mount(
+							<CKEditor
+								disableWatchdog={!watchdogEnabled}
+								editor={ Editor1 }
+								config={ { initialData: '<p>foo</p>' } }
+							/>,
+							{
+								attachTo: element
+							}
+						);
+
+						const editor2InitializeSpy = sinon.spy( Editor2, 'create' );
+						const editor2Ready = createDefer();
+
+						mount(
+							<CKEditor
+								disableWatchdog={!watchdogEnabled}
+								editor={ Editor1 }
+								config={ { initialData: '<p>foo</p>' } }
+								onReady={ () => {
+									editor2Ready.resolve();
+								} }
+							/>,
+							{
+								attachTo: element
+							}
+						);
+
+						expect( editor2InitializeSpy.called ).to.be.false;
+
+						delayEditor1Initialization.resolve();
+						await editor2Ready.promise;
+						await waitFor( () => {
+							expect( editor2InitializeSpy.calledOnce ).to.be.true;
+						} );
+					} );
+			} );
+		}
 	} );
 } );
