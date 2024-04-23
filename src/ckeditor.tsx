@@ -86,10 +86,6 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * However, if the component identifier changes, the whole structure should be created once again.
 	 */
 	public override shouldComponentUpdate( nextProps: Readonly<Props<TEditor>> ): boolean {
-		if ( !this.editor ) {
-			return false;
-		}
-
 		// Only when the component identifier changes the whole structure should be re-created once again.
 		if ( nextProps.id !== this.props.id ) {
 			return true;
@@ -99,15 +95,17 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			return true;
 		}
 
-		if ( this._shouldUpdateEditor( nextProps ) ) {
-			this.editor.data.set( nextProps.data! );
-		}
+		if ( this.editor ) {
+			if ( this._shouldUpdateEditor( nextProps ) ) {
+				this.editor.data.set( nextProps.data! );
+			}
 
-		if ( 'disabled' in nextProps ) {
-			if ( nextProps.disabled ) {
-				this.editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
-			} else {
-				this.editor.disableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+			if ( 'disabled' in nextProps ) {
+				if ( nextProps.disabled ) {
+					this.editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+				} else {
+					this.editor.disableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+				}
 			}
 		}
 

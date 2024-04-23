@@ -14,7 +14,7 @@ export type Defer<E> = {
  */
 export function createDefer<E = void>(): Defer<E> {
 	const deferred: Defer<E> = {
-		resolve: ( ) => {},
+		resolve: null as any,
 		promise: null as any
 	};
 

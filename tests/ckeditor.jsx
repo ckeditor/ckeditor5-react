@@ -14,6 +14,7 @@ import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
 import { waitFor } from './_utils/waitFor.js';
 import { createDefer } from './_utils/defer.js';
+import { timeout } from './_utils/timeout.js';
 
 configure( { adapter: new Adapter() } );
 
@@ -23,6 +24,7 @@ describe( '<CKEditor> Component', () => {
 	beforeEach( () => {
 		CKEDITOR_VERSION = window.CKEDITOR_VERSION;
 
+		wrapper = null;
 		window.CKEDITOR_VERSION = '37.0.0';
 		sinon.stub( Editor._model.document, 'on' );
 		sinon.stub( Editor._editing.view.document, 'on' );
@@ -815,61 +817,89 @@ describe( '<CKEditor> Component', () => {
 
 		beforeEach( () => {
 			element = document.createElement( 'div' );
+
+			document.body.appendChild( element );
 		} );
 
-		for ( const watchdogEnabled of [ true, false ] ) {
-			describe( `watchdog = \`${ watchdogEnabled }\``, () => {
-				it(
-					'should ensure that prev editor is destroyed before starting to init a new one after quickly unmounting and mounting',
-					async () => {
-						const delayEditor1Initialization = createDefer();
+		afterEach( () => {
+			element.remove();
+		} );
 
-						class Editor1 extends Editor {
-							static async create( ...args ) {
-								await delayEditor1Initialization.promise;
-								return new Editor1( ...args );
-							}
-						}
+		it(
+			'should buffer many rerenders with props that recreate editor and initialize only the last one',
+			async function() {
+				this.timeout( 8000 );
 
-						class Editor2 extends Editor {}
+				const initializerLog = [];
 
-						wrapper = mount(
-							<CKEditor
-								disableWatchdog={!watchdogEnabled}
-								editor={ Editor1 }
-								config={ { initialData: '<p>foo</p>' } }
-							/>,
-							{
-								attachTo: element
-							}
-						);
+				class SlowEditor extends Editor {
+					static async create( ...args ) {
+						await timeout( 300 );
 
-						const editor2InitializeSpy = sinon.spy( Editor2, 'create' );
-						const editor2Ready = createDefer();
+						return new SlowEditor( ...args );
+					}
+				}
 
-						mount(
-							<CKEditor
-								disableWatchdog={!watchdogEnabled}
-								editor={ Editor1 }
-								config={ { initialData: '<p>foo</p>' } }
-								onReady={ () => {
-									editor2Ready.resolve();
-								} }
-							/>,
-							{
-								attachTo: element
-							}
-						);
+				const component = mount(
+					<CKEditor
+						disableWatchdog={true}
+						editor={ SlowEditor }
+						config={ {
+							initialData: '1',
+							key: 1,
+							abc: 123
+						} }
+						onReady={ instance => {
+							initializerLog.push( {
+								status: 'ready',
+								id: instance.config.key
+							} );
+						} }
+						onAfterDestroy={ instance => {
+							initializerLog.push( {
+								status: 'destroy',
+								id: instance.config.key
+							} );
+						} }
+					/>,
+					{
+						attachTo: element
+					}
+				);
 
-						expect( editor2InitializeSpy.called ).to.be.false;
+				component.setProps( {
+					id: 111,
+					config: {
+						key: 2
+					}
+				} );
 
-						delayEditor1Initialization.resolve();
-						await editor2Ready.promise;
-						await waitFor( () => {
-							expect( editor2InitializeSpy.calledOnce ).to.be.true;
-						} );
-					} );
-			} );
-		}
+				await timeout( 50 );
+
+				component.setProps( {
+					id: 112,
+					config: {
+						key: 3
+					}
+				} );
+
+				await timeout( 50 );
+
+				component.setProps( {
+					id: 113,
+					config: {
+						key: 4
+					}
+				} );
+
+				await waitFor( () => {
+					expect( initializerLog ).to.deep.equal( [
+						{ status: 'ready', id: 2 },
+						{ status: 'destroy', id: 2 },
+						{ status: 'ready', id: 4 }
+					] );
+				}, { retry: 100, timeout: 7000} );
+			}
+		);
 	} );
 } );
