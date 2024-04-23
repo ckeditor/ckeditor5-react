@@ -122,6 +122,11 @@ export class LifeCycleEditorElementSemaphore<R> {
 	 *
 	 * After the successful initialization of the editor and the assignment of the {@link #_value} member,
 	 * the `onReady` lifecycle method is called.
+	 *
+	 * *Important note:*
+	 *
+	 * It’s really important to keep this method *sync*. If we make this method *async*, it won’t work well because
+	 * it will cause problems when we’re trying to set up the {@link LifeCycleEditorElementSemaphore#_semaphores} map entries.
 	 */
 	private _lock(): void {
 		const { _semaphores } = LifeCycleEditorElementSemaphore;
@@ -182,6 +187,11 @@ export class LifeCycleEditorElementSemaphore<R> {
 	 *
 	 * 	* If editor is being destroyed before initialization then it does nothing but sets `destroyedBeforeInitialization` flag that
 	 * 	  will be later checked by {@link #_lock} method in initialization. The {@link #_lifecycle} unmount method is not called.
+	 *
+	 * *Important note:*
+	 *
+	 * It’s really important to keep this method *sync*. If we make this method *async*, it won’t work well because
+	 * it will cause problems when we’re trying to set up the {@link LifeCycleEditorElementSemaphore#_semaphores} map entries.
 	 */
 	public readonly release = once( () => {
 		const { _semaphores } = LifeCycleEditorElementSemaphore;
