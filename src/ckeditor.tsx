@@ -26,6 +26,11 @@ const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckedi
 // eslint-disable-next-line @typescript-eslint/ban-types
 export default class CKEditor<TEditor extends Editor> extends React.Component<Props<TEditor>> {
 	/**
+	 * Flag that indicates that the component has been unmounted.
+	 */
+	private _unmounted: boolean = false;
+
+	/**
 	 * After mounting the editor, the variable will contain a reference to the created editor.
 	 * @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
 	 */
@@ -127,6 +132,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Destroy the editor before unmounting the component.
 	 */
 	public override componentWillUnmount(): void {
+		this._unmounted = true;
 		this._unlockLifeCycleSemaphore();
 	}
 
@@ -150,7 +156,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			afterMount: ( { mountResult } ) => {
 				const { onReady } = this.props;
 
-				if ( onReady ) {
+				if ( onReady && !this._unmounted ) {
 					onReady( mountResult.instance );
 				}
 			},
