@@ -69,7 +69,7 @@ export class LifeCycleEditorElementSemaphore<R> {
 	 *
 	 * 	* Once the editor is destroyed (and it was previously mounted), the promise is resolved.
 	 */
-	private _defer: Defer<void> | null = null;
+	private _releaseLock: Defer<void> | null = null;
 
 	/**
 	 * This is the result of the {@link #_lifecycle:mount} function. This value should be reset to `null`
@@ -100,7 +100,7 @@ export class LifeCycleEditorElementSemaphore<R> {
 	constructor( element: HTMLElement, lifecycle: LifeCycleAsyncOperators<R> ) {
 		this._element = element;
 		this._lifecycle = lifecycle;
-		this.lock();
+		this._lock();
 	}
 
 	/**
@@ -111,21 +111,44 @@ export class LifeCycleEditorElementSemaphore<R> {
 	}
 
 	/**
-	 * Locks semaphore on passed semaphore element. If element is locked then it is impossible
-	 * to assign another editor instance without releasing previous one.
+	 * This method is used to inform other components that the {@link #_element} will be used by the editor,
+	 * which is initialized by the {@link #_lifecycle} methods.
+	 *
+	 * 	* If an editor is already present on the provided element, the initialization of the current one
+	 * 	  will be postponed until the previous one is destroyed.
+	 *
+	 * 	* If the element is empty and does not have an editor attached to it, the currently locked editor will
+	 * 	  be mounted immediately.
+	 *
+	 * After the successful initialization of the editor and the assignment of the {@link #_value} member,
+	 * the `onReady` lifecycle method is called.
 	 */
-	private lock(): void {
+	private _lock(): void {
 		const { _semaphores } = LifeCycleEditorElementSemaphore;
 		const { _state, _element, _lifecycle } = this;
 
-		const defer = createDefer();
+		// This promise signifies that the previous editor is still attached to the current element.
+		// Upon successful resolution, it will indicate that it is safe to assume that the element has
+		// no assigned editor instance and can be reinitialized.
 		const prevElementSemaphore = _semaphores.get( _element ) || Promise.resolve( null );
+
+		// This is a lock that will be resolved after the `release` method is called. Due to this lock,
+		// the promise will never be resolved until the editor is destroyed.
+		const releaseLock = createDefer();
+
+		// This is the initialization of the editor that occurs after the previous editor has been detached from the specified element.
+		//
+		// If the `release` method was called before the initialization of the current editor instance, then it will be skipped.
+		// This situation occurs quite frequently when we have three or more rerenders in a row, and it doesn't make sense to initialize
+		// the second editor because it will be overridden anyway by the third one.
 		const newElementSemaphore = prevElementSemaphore
 			.then( () => {
 				if ( _state.destroyedBeforeInitialization ) {
 					return Promise.resolve( undefined );
 				}
 
+				// This variable will be used later in the `release` method to determine
+				// whether the editor is being destroyed prior to initialization.
 				_state.mountingInProgress = _lifecycle.mount();
 				return _state.mountingInProgress;
 			} )
@@ -142,15 +165,15 @@ export class LifeCycleEditorElementSemaphore<R> {
 				}
 				return mountResult;
 			} )
-			.then( () => defer.promise );
+			.then( () => releaseLock.promise );
 
 		_semaphores.set( _element, newElementSemaphore );
-		this._defer = defer;
+		this._releaseLock = releaseLock;
 	}
 
 	public readonly release = once( () => {
 		const { _semaphores } = LifeCycleEditorElementSemaphore;
-		const { _defer, _state, _element, _lifecycle } = this;
+		const { _releaseLock, _state, _element, _lifecycle } = this;
 
 		if ( _state.mountingInProgress ) {
 			const deletePromise = _state.mountingInProgress
@@ -158,7 +181,7 @@ export class LifeCycleEditorElementSemaphore<R> {
 					element: _element,
 					mountResult
 				} ) )
-				.then( _defer!.resolve )
+				.then( _releaseLock!.resolve )
 				.then( () => {
 					this._value = null;
 
@@ -170,7 +193,7 @@ export class LifeCycleEditorElementSemaphore<R> {
 			_semaphores.set( _element, deletePromise );
 		} else {
 			_state.destroyedBeforeInitialization = true;
-			_defer!.resolve();
+			_releaseLock!.resolve();
 		}
 	} );
 }
