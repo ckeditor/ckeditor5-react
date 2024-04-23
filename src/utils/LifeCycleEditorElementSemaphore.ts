@@ -156,6 +156,7 @@ export class LifeCycleEditorElementSemaphore<R> {
 				if ( mountResult ) {
 					this._value = mountResult;
 
+					// Everything is fine, all ready callback might be fired here.
 					if ( _lifecycle.afterMount ) {
 						await _lifecycle.afterMount( {
 							element: _element,
@@ -165,12 +166,23 @@ export class LifeCycleEditorElementSemaphore<R> {
 				}
 				return mountResult;
 			} )
+
+			// It will be released after destroying of editor by the {@link #_release method}.
 			.then( () => releaseLock.promise );
 
 		_semaphores.set( _element, newElementSemaphore );
 		this._releaseLock = releaseLock;
 	}
 
+	/**
+	 * Inverse of {@link #_lock} method that tries to destroy attached editor.
+	 *
+	 * 	* If editor is being already attached to element (or is in attaching process) then after fully initialization of editor
+	 * 	  destroy is performed and semaphore is released. The {@link #_lifecycle} unmount method is called.
+	 *
+	 * 	* If editor is being destroyed before initialization then it does nothing but sets `destroyedBeforeInitialization` flag that
+	 * 	  will be later checked by {@link #_lock} method in initialization. The {@link #_lifecycle} unmount method is not called.
+	 */
 	public readonly release = once( () => {
 		const { _semaphores } = LifeCycleEditorElementSemaphore;
 		const { _releaseLock, _state, _element, _lifecycle } = this;
