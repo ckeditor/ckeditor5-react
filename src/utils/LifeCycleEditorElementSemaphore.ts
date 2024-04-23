@@ -6,6 +6,26 @@
 import { createDefer, type Defer } from './defer';
 import { once } from './once';
 
+/**
+ * This class is utilized to pause the initialization of an editor when another instance is already present on a specified element.
+ * It is engineered to address the following issues:
+ *
+ *	* Rapid changes in component properties often lead to the re-initialization of the editor, which can trigger
+ *	  the `editor-source-element-already-used` exception. This occurs because the editor is still in the process of initializing
+ *	  when the component decides to destroy it. This semaphore waits for the editor to fully initialize before destroying it, thereby
+ *	  allowing a new instance of the editor to be attached to the specified element.
+ *
+ *	* Rapid mounting and unmounting in strict mode frequently results in the `editor-source-element-already-used` exception
+ *	  being thrown by the editor. This is due to React reusing the underlying DOM element during the mounting and unmounting of components
+ *	  (especially if the same component is being mounted and unmounted). Consequently, a race condition arises. The first render begins to
+ *	  attach the editor (in async mode), and shortly thereafter, it is destroyed and a new instance of the component is initialized.
+ *	  This semaphore, by utilizing a static semaphores promises map, retains information about whether the element is used by a previous
+ *	  instance of the editor and resumes execution when it is freed.
+ *
+ *	* The initialization of the editor is skipped when numerous rerenders occur within a short time-frame. An example of this
+ *	  could be a situation with 4 rerenders occurring within a 10ms period. This semaphore will likely batch these calls, and
+ *	  instead of initializing 4 editors, only 2 will be initialized (the first and the last one).
+ */
 export class LifeCycleEditorElementSemaphore<R> {
 	/**
 	 * This is a map of elements associated with promises. It informs the semaphore that the underlying HTML element, used as a key,
