@@ -218,7 +218,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 					editorSemaphore &&
 					editorSemaphore.value &&
 					editorSemaphore.value.instance ) {
-				onAfterDestroy( this.editorSemaphore!.value!.instance );
+				onAfterDestroy( editorSemaphore.value.instance );
 			}
 
 			const instance = await this._createEditor( el as any, config );
