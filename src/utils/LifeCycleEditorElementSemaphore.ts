@@ -50,7 +50,7 @@ export class LifeCycleEditorElementSemaphore<R> {
 	 *
 	 * 	* Result of {@link LifeCycleAsyncOperators#mount} method is passed to {@link LifeCycleAsyncOperators#unmount} as an argument.
 	 */
-	public readonly _lifecycle: LifeCycleAsyncOperators<R>;
+	private readonly _lifecycle: LifeCycleAsyncOperators<R>;
 
 	/**
 	 * This is the element instance that the editor uses for mounting. This element should contain the `ckeditorInstance` member

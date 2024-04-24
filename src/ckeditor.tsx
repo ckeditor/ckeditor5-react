@@ -210,16 +210,25 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		};
 
 		watchdog.setCreator( async ( el, config ) => {
+			const { editorSemaphore } = this;
+			const { onAfterDestroy } = this.props;
+
+			if ( totalRestartsRef.current > 0 &&
+					onAfterDestroy &&
+					editorSemaphore &&
+					editorSemaphore.value &&
+					editorSemaphore.value.instance ) {
+				onAfterDestroy( this.editorSemaphore!.value!.instance );
+			}
+
 			const instance = await this._createEditor( el as any, config );
 
 			if ( totalRestartsRef.current > 0 ) {
-				this.editorSemaphore!.unsafeSetValue( {
+				editorSemaphore!.unsafeSetValue( {
 					instance,
 					watchdog
 				} );
-			}
 
-			if ( totalRestartsRef.current > 0 ) {
 				setTimeout( () => {
 					if ( this.props.onReady ) {
 						this.props.onReady( watchdog!.editor as TEditor );
