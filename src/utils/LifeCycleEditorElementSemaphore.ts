@@ -50,7 +50,7 @@ export class LifeCycleEditorElementSemaphore<R> {
 	 *
 	 * 	* Result of {@link LifeCycleAsyncOperators#mount} method is passed to {@link LifeCycleAsyncOperators#unmount} as an argument.
 	 */
-	private readonly _lifecycle: LifeCycleAsyncOperators<R>;
+	public readonly _lifecycle: LifeCycleAsyncOperators<R>;
 
 	/**
 	 * This is the element instance that the editor uses for mounting. This element should contain the `ckeditorInstance` member
@@ -113,6 +113,15 @@ export class LifeCycleEditorElementSemaphore<R> {
 	}
 
 	/**
+	 * Occasionally, the Watchdog restarts the editor instance, resulting in a new instance being assigned to the semaphore.
+	 * In terms of race conditions, it's generally safer to simply override the semaphore value rather than recreating it
+	 * with a different one.
+	 */
+	public unsafeSetValue( value: R ): void {
+		this._value = value;
+	}
+
+	/**
 	 * This method is used to inform other components that the {@link #_element} will be used by the editor,
 	 * which is initialized by the {@link #_lifecycle} methods.
 	 *
@@ -157,25 +166,35 @@ export class LifeCycleEditorElementSemaphore<R> {
 
 				// This variable will be used later in the `release` method to determine
 				// whether the editor is being destroyed prior to initialization.
-				_state.mountingInProgress = _lifecycle.mount();
+				_state.mountingInProgress = _lifecycle.mount().then( mountResult => {
+					if ( mountResult ) {
+						this._value = mountResult;
+					}
+
+					return mountResult;
+				} );
+
 				return _state.mountingInProgress;
 			} )
 			.then( async mountResult => {
-				if ( mountResult ) {
-					this._value = mountResult;
-
-					// Everything is fine, all ready callback might be fired here.
-					if ( _lifecycle.afterMount ) {
-						await _lifecycle.afterMount( {
-							element: _element,
-							mountResult
-						} );
-					}
+				// Everything is fine, all ready callback might be fired here.
+				if ( mountResult && _lifecycle.afterMount ) {
+					await _lifecycle.afterMount( {
+						element: _element,
+						mountResult
+					} );
 				}
 			} )
 
 			// It will be released after destroying of editor by the {@link #_release method}.
-			.then( () => releaseLock.promise );
+			.then( () => releaseLock.promise )
+
+			// Remove semaphore from map if released.
+			.then( () => {
+				if ( _semaphores.get( _element ) === newElementSemaphore ) {
+					_semaphores.delete( _element );
+				}
+			} );
 
 		_semaphores.set( _element, newElementSemaphore );
 	}
@@ -199,9 +218,11 @@ export class LifeCycleEditorElementSemaphore<R> {
 
 		if ( _state.mountingInProgress ) {
 			_state.mountingInProgress
-				.then( mountResult => _lifecycle.unmount( {
+				.then( () => _lifecycle.unmount( {
 					element: _element,
-					mountResult
+
+					// Mount result might be overridden by watchdog during restart so use instance variable.
+					mountResult: this.value!
 				} ) )
 				.then( _releaseLock!.resolve )
 				.then( () => {

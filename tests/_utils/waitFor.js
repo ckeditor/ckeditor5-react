@@ -10,8 +10,7 @@ export async function waitFor( callback, { timeOut = 1000, retry = 50 } = {} ) {
 		const tick = () => {
 			setTimeout( async () => {
 				try {
-					await callback();
-					resolve();
+					resolve( await callback() );
 				} catch ( err ) {
 					if ( Date.now() - startTime > timeOut ) {
 						reject( err );

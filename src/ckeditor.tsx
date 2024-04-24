@@ -80,7 +80,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * The CKEditor component should not be updated by React itself.
 	 * However, if the component identifier changes, the whole structure should be created once again.
 	 */
-	public override shouldComponentUpdate( nextProps: Readonly<Props<TEditor>> ): boolean {
+	public override shouldComponentUpdate( nextProps: Readonly<Props<TEditor>>, nextState: any ): boolean {
 		// Only when the component identifier changes the whole structure should be re-created once again.
 		if ( nextProps.id !== this.props.id ) {
 			return true;
@@ -210,7 +210,14 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		};
 
 		watchdog.setCreator( async ( el, config ) => {
-			const editor = await this._createEditor( el as any, config );
+			const instance = await this._createEditor( el as any, config );
+
+			if ( totalRestartsRef.current > 0 ) {
+				this.editorSemaphore!.unsafeSetValue( {
+					instance,
+					watchdog
+				} );
+			}
 
 			if ( totalRestartsRef.current > 0 ) {
 				setTimeout( () => {
@@ -221,8 +228,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			}
 
 			totalRestartsRef.current++;
-
-			return editor;
+			return instance;
 		} );
 
 		watchdog.on( 'error', ( _, { error, causesRestart } ) => {
@@ -239,9 +245,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 		return {
 			watchdog,
-			get instance() {
-				return watchdog!.editor! as TEditor;
-			}
+			instance: watchdog!.editor
 		};
 	}
 
@@ -284,10 +288,6 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 					if ( this.props.onBlur ) {
 						this.props.onBlur( event, editor );
 					}
-				} );
-
-				editor.on( 'destroy', () => {
-					this._unlockLifeCycleSemaphore();
 				} );
 
 				return editor;

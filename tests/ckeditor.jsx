@@ -793,6 +793,8 @@ describe( '<CKEditor> Component', () => {
 
 			const firstEditor = wrapper.instance().editor;
 
+			expect( firstEditor ).to.be.instanceOf( Editor );
+
 			await turnOffDefaultErrorCatching( () => {
 				return new Promise( res => {
 					wrapper.setProps( { onReady: res } );
@@ -803,12 +805,12 @@ describe( '<CKEditor> Component', () => {
 				} );
 			} );
 
-			const secondEditor = wrapper.instance().editor;
+			await waitFor( () => {
+				const { editor } = wrapper.instance();
 
-			expect( firstEditor ).to.be.instanceOf( Editor );
-			expect( secondEditor ).to.be.instanceOf( Editor );
-
-			expect( firstEditor ).to.not.equal( secondEditor );
+				expect( editor ).to.be.instanceOf( Editor );
+				expect( firstEditor ).to.not.equal( editor );
+			} );
 		} );
 	} );
 
@@ -825,78 +827,154 @@ describe( '<CKEditor> Component', () => {
 			element.remove();
 		} );
 
-		it( 'should buffer many rerenders with props that recreate editor and initialize only the last one', async function() {
-			this.timeout( 8000 );
+		it(
+			'should buffer many rerenders with props that recreate editor and initialize only the last one (watchdog=false)',
+			async () => {
+				const initializerLog = [];
 
-			const initializerLog = [];
+				class SlowEditor extends Editor {
+					static async create( ...args ) {
+						await timeout( 300 );
 
-			class SlowEditor extends Editor {
-				static async create( ...args ) {
-					await timeout( 300 );
-
-					return new SlowEditor( ...args );
+						return new SlowEditor( ...args );
+					}
 				}
+
+				const component = mount(
+					<CKEditor
+						disableWatchdog={true}
+						editor={ SlowEditor }
+						config={ {
+							initialData: '1',
+							key: 1,
+							abc: 123
+						} }
+						onReady={ instance => {
+							initializerLog.push( {
+								status: 'ready',
+								id: instance.config.key
+							} );
+						} }
+						onAfterDestroy={ instance => {
+							initializerLog.push( {
+								status: 'destroy',
+								id: instance.config.key
+							} );
+						} }
+					/>,
+					{
+						attachTo: element
+					}
+				);
+
+				component.setProps( {
+					id: 111,
+					config: {
+						key: 2
+					}
+				} );
+
+				await timeout( 50 );
+
+				component.setProps( {
+					id: 112,
+					config: {
+						key: 3
+					}
+				} );
+
+				await timeout( 50 );
+
+				component.setProps( {
+					id: 113,
+					config: {
+						key: 4
+					}
+				} );
+
+				await waitFor( () => {
+					expect( initializerLog ).to.deep.equal( [
+						{ status: 'ready', id: 2 },
+						{ status: 'destroy', id: 2 },
+						{ status: 'ready', id: 4 }
+					] );
+				} );
 			}
+		);
 
-			const component = mount(
-				<CKEditor
-					disableWatchdog={true}
-					editor={ SlowEditor }
-					config={ {
-						initialData: '1',
-						key: 1,
-						abc: 123
-					} }
-					onReady={ instance => {
-						initializerLog.push( {
-							status: 'ready',
-							id: instance.config.key
-						} );
-					} }
-					onAfterDestroy={ instance => {
-						initializerLog.push( {
-							status: 'destroy',
-							id: instance.config.key
-						} );
-					} }
-				/>,
-				{
-					attachTo: element
+		it(
+			'should buffer many rerenders with props that recreate editor and initialize only the last one (watchdog=true)',
+			async () => {
+				const initializerLog = [];
+
+				class SlowEditor extends Editor {
+					static async create( ...args ) {
+						await timeout( 300 );
+
+						return new SlowEditor( ...args );
+					}
 				}
-			);
 
-			component.setProps( {
-				id: 111,
-				config: {
-					key: 2
-				}
-			} );
+				const component = mount(
+					<CKEditor
+						disableWatchdog={false}
+						editor={ SlowEditor }
+						config={ {
+							initialData: '1',
+							key: 1,
+							abc: 123
+						} }
+						onReady={ instance => {
+							initializerLog.push( {
+								status: 'ready',
+								id: instance.config.key
+							} );
+						} }
+						onAfterDestroy={ instance => {
+							initializerLog.push( {
+								status: 'destroy',
+								id: instance.config.key
+							} );
+						} }
+					/>,
+					{
+						attachTo: element
+					}
+				);
 
-			await timeout( 50 );
+				component.setProps( {
+					id: 111,
+					config: {
+						key: 2
+					}
+				} );
 
-			component.setProps( {
-				id: 112,
-				config: {
-					key: 3
-				}
-			} );
+				await timeout( 50 );
 
-			await timeout( 50 );
+				component.setProps( {
+					id: 112,
+					config: {
+						key: 3
+					}
+				} );
 
-			component.setProps( {
-				id: 113,
-				config: {
-					key: 4
-				}
-			} );
+				await timeout( 50 );
 
-			await waitFor( () => {
-				expect( initializerLog ).to.deep.equal( [
-					{ status: 'ready', id: 2 },
-					{ status: 'destroy', id: 2 },
-					{ status: 'ready', id: 4 }
-				] );
-			}, { retry: 100, timeout: 7000 } );
-		} );
+				component.setProps( {
+					id: 113,
+					config: {
+						key: 4
+					}
+				} );
+
+				await waitFor( () => {
+					expect( initializerLog ).to.deep.equal( [
+						{ status: 'ready', id: 2 },
+						{ status: 'destroy', id: 2 },
+						{ status: 'ready', id: 4 }
+					] );
+				} );
+			}
+		);
 	} );
 } );
