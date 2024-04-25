@@ -3,8 +3,8 @@
  * For licensing, see LICENSE.md.
  */
 
-import { createDefer, type Defer } from './defer';
-import { once } from './once';
+import { createDefer, type Defer } from '../utils/defer';
+import { once } from '../utils/once';
 
 /**
  * This class is utilized to pause the initialization of an editor when another instance is already present on a specified element.

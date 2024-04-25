@@ -19,7 +19,7 @@ import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 
 import { ContextWatchdogContext } from './ckeditorcontext';
-import { LifeCycleEditorElementSemaphore } from './utils/LifeCycleEditorElementSemaphore';
+import { LifeCycleEditorElementSemaphore } from './lifecycle/LifeCycleEditorElementSemaphore';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
