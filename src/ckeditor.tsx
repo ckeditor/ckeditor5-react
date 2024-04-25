@@ -18,6 +18,8 @@ import { EditorWatchdog, ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 
+import type { EditorSemaphoreMountResult } from './lifecycle/useEditorLifecycle';
+
 import { ContextWatchdogContext } from './ckeditorcontext';
 import { LifeCycleEditorElementSemaphore } from './lifecycle/LifeCycleEditorElementSemaphore';
 
@@ -34,7 +36,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	/**
 	 * Unlocks element in editor semaphore after destroy editor instance.
 	 */
-	private editorSemaphore: LifeCycleEditorElementSemaphore<EditorMountResult<TEditor>> | null = null;
+	private editorSemaphore: LifeCycleEditorElementSemaphore<EditorSemaphoreMountResult<TEditor>> | null = null;
 
 	constructor( props: Props<TEditor> ) {
 		super( props );
@@ -52,7 +54,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		}
 	}
 
-	private get _semaphoreValue(): EditorMountResult<TEditor> | null {
+	private get _semaphoreValue(): EditorSemaphoreMountResult<TEditor> | null {
 		const { editorSemaphore } = this;
 
 		return editorSemaphore ? editorSemaphore.value : null;
@@ -193,7 +195,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	/**
 	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
 	 */
-	private async _initializeEditor(): Promise<EditorMountResult<TEditor>> {
+	private async _initializeEditor(): Promise<EditorSemaphoreMountResult<TEditor>> {
 		if ( this.props.disableWatchdog ) {
 			const instance = await this._createEditor( this.domContainer.current!, this._getConfig() );
 
@@ -312,7 +314,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	/**
 	 * Destroys the editor by destroying the watchdog.
 	 */
-	private async _destroyEditor( initializeResult: EditorMountResult<Editor> ): Promise<void> {
+	private async _destroyEditor( initializeResult: EditorSemaphoreMountResult<Editor> ): Promise<void> {
 		const { watchdog, instance } = initializeResult;
 
 		return new Promise<void>( resolve => {
@@ -425,20 +427,6 @@ interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propT
 interface ErrorDetails {
 	phase: 'initialization' | 'runtime';
 	willEditorRestart?: boolean;
-}
-
-interface EditorMountResult<TEditor extends Editor> {
-
-	/**
-	 * Holds the instance of the editor if `props.disableWatchdog` is set to true.
-	 */
-	instance: TEditor;
-
-	/**
-	 * An instance of EditorWatchdog or an instance of EditorWatchdog-like adapter for ContextWatchdog.
-	 * It holds the instance of the editor under `this.watchdog.editor` if `props.disableWatchdog` is set to false.
-	 */
-	watchdog: EditorWatchdog<TEditor> | EditorWatchdogAdapter<TEditor> | null;
 }
 
 /**

@@ -22,6 +22,8 @@ const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckedi
 
 /* eslint-disable @typescript-eslint/no-use-before-define */
 const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns => {
+	console.info( props );
+
 	const watchdog = useRef<EditorWatchdog | EditorWatchdogAdapter<MultiRootEditor> | null>( null );
 
 	const editorDestructionInProgress = useRef<Promise<void> | null>( null );
