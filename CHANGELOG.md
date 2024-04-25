@@ -3,13 +3,14 @@ Changelog
 
 ## [6.3.0](https://github.com/ckeditor/ckeditor5-react/compare/v6.2.0...v6.3.0) (2024-04-25)
 
+### Features
+
+* Introduced the `disableTwoWayDataBinding` flag which disabled the two-way binding between the multi-editor and React state. Please read a [new guide explainig the `useMultiRootEditor()` hook](https://ckeditor.com/docs/ckeditor5/latest/installation/integrations/react/react-multiroot.html). Closes [#457](https://github.com/ckeditor/ckeditor5-react/issues/457). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/fbb9c918fe6c982d5f91bae2da740a46c0a21cda))
+
 ### Bug fixes
 
 * The toolbar element will be rendered correctly after changing the reference (in the rerendering process). Closes [#434](https://github.com/ckeditor/ckeditor5-react/issues/434). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/2e44b7294ed0f0910b71766c405d669bba639417))
-
-### Other changes
-
-* Introduced the `disableTwoWayDataBinding` flag which disabled the two-way binding between the editor and React state. Closes [#457](https://github.com/ckeditor/ckeditor5-react/issues/457). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/fbb9c918fe6c982d5f91bae2da740a46c0a21cda))
+* Sources of peer dependencies of the `@ckeditor/ckeditor5-react` package are no longer built-in when preparing the `dist/` directory. See [#470](https://github.com/ckeditor/ckeditor5-react/pull/470). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/3942e7ba3e9becba87ba5fb5c7bbee83972b5ee0))
 
 
 ## [6.2.0](https://github.com/ckeditor/ckeditor5-react/compare/v6.1.0...v6.2.0) (2023-11-21)
