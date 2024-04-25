@@ -285,9 +285,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				if ( props.disabled ) {
 					// Switch to the read-only mode if the `[disabled]` attribute is specified.
 					/* istanbul ignore else */
-					if ( props.disabled ) {
-						editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
-					}
+					editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
 				}
 
 				const modelDocument = editor.model.document;
