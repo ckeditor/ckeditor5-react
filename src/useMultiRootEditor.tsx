@@ -32,7 +32,7 @@ const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckedi
 const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns => {
 	type MountResult = EditorSemaphoreMountResult<MultiRootEditor>;
 
-	const semaphoreElementRef = useRef<HTMLDivElement>( null );
+	const semaphoreElementRef = useRef<HTMLElement>( props.semaphoreElement || null );
 	const semaphore = useLifeCycleSemaphoreSyncRef<MountResult>();
 
 	const editorRefs: LifeCycleSemaphoreRefs<MultiRootEditor> = {
@@ -56,7 +56,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	useEffect( () => {
 		const semaphoreElement = semaphoreElementRef.current;
 
-		if ( !semaphoreElement ) {
+		if ( !semaphoreElement || props.isLayoutReady === false ) {
 			return;
 		}
 
@@ -309,10 +309,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 						props.onBlur( event, editor );
 					}
 				} );
-
-				if ( props.onReady ) {
-					props.onReady( editor );
-				}
 
 				return editor;
 			} );
@@ -601,6 +597,8 @@ interface ErrorDetails {
 }
 
 export type MultiRootHookProps = {
+	semaphoreElement?: HTMLElement;
+
 	isLayoutReady?: boolean;
 	disabled?: boolean;
 	data: Record<string, string>;
