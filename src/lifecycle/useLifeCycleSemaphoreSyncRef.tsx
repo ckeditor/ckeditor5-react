@@ -7,17 +7,19 @@ import { useRef, useState, type RefObject } from 'react';
 import type { LifeCycleElementSemaphore } from './LifeCycleElementSemaphore';
 
 /**
- * In `useState` approach setting new instance of semaphore based on previous one must happen inside
- * `setState` callback. Like in this example:
+ * When using the `useState` approach, a new instance of the semaphore must be set based on the previous
+ * one within the `setState` callback, as shown in this example:
  *
  * 		setState( prevSemaphore => ... )
  *
- *	The problem is that we are not 100% sure if react batched up and canceled some `setState` calls.
- *	It means that setting 3 times state with semaphore might result in canceling collapsing 3 calls into one.
- *	In theory it is not a big deal but in practice it leads to lot small things that may generate
- *	race conditions because semaphores handle batching on their own. Solution with refs is also safer in terms of
- *	object reference preservation. In other words `semaphoreRef.current` is guaranteed to be pointed to always the
- *	newest instance of semaphore.
+ * The issue arises from the uncertainty of whether React has batched and cancelled some `setState` calls.
+ * This means that setting the state with a semaphore three times might result in the collapsing of these three calls into a single one.
+ *
+ * Although this may not seem like a significant issue in theory, it can lead to a multitude of minor issues in practice that may
+ * generate race conditions. This is because semaphores handle batching independently.
+ *
+ * A solution involving refs is safer in terms of preserving object references. In other words, `semaphoreRef.current` is guaranteed to
+ * always point to the most recent instance of the semaphore.
  */
 export const useLifeCycleSemaphoreSyncRef = <R extends object>(): LifeCycleSemaphoreSyncRefResult<R> => {
 	const semaphoreRef = useRef<LifeCycleElementSemaphore<R> | null>( null );
