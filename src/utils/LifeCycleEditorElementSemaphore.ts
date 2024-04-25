@@ -82,6 +82,14 @@ export class LifeCycleEditorElementSemaphore<R> {
 	private _value: R | null = null;
 
 	/**
+	 * This is a list of callbacks that are triggered if the semaphore {@link #_lifecycle:mount} method executes successfully.
+	 * It is utilized in scenarios where we need to assign certain properties to an editor that is currently in the process of mounting.
+	 * An instance of such usage could be two-way binding. We aim to prevent the loss of all `setData` calls if the editor has not
+	 * yet been mounted, therefore these calls will be executed immediately following the completion of the mounting process.
+	 */
+	private _afterMountCallbacks: Array<LifeCycleAfterMountCallback<R>> = [];
+
+	/**
 	 * This represents the actual mounting state of the semaphore. It is primarily used by the {@link #release} method to
 	 * determine whether the initialization of the editor should be skipped or, if the editor is already initialized, the editor
 	 * should be destroyed.
@@ -119,6 +127,27 @@ export class LifeCycleEditorElementSemaphore<R> {
 	 */
 	public unsafeSetValue( value: R ): void {
 		this._value = value;
+
+		this._afterMountCallbacks.forEach( callback => callback( value ) );
+		this._afterMountCallbacks = [];
+	}
+
+	/**
+	 * This registers a callback that will be triggered after the editor has been successfully mounted.
+	 *
+	 * 	* If the editor is already mounted, the callback will be executed immediately.
+	 *	* If the editor is in the process of mounting, the callback will be executed upon successful mounting.
+	* 	* If the editor is never mounted, the passed callback will not be executed.
+	* 	* If an exception is thrown within the callback, it will be re-thrown in the semaphore.
+	*/
+	public runAfterMount( callback: LifeCycleAfterMountCallback<R> ): void {
+		const { _value, _afterMountCallbacks } = this;
+
+		if ( _value ) {
+			callback( _value );
+		} else {
+			_afterMountCallbacks.push( callback );
+		}
 	}
 
 	/**
@@ -168,7 +197,7 @@ export class LifeCycleEditorElementSemaphore<R> {
 				// whether the editor is being destroyed prior to initialization.
 				_state.mountingInProgress = _lifecycle.mount().then( mountResult => {
 					if ( mountResult ) {
-						this._value = mountResult;
+						this.unsafeSetValue( mountResult );
 					}
 
 					return mountResult;
@@ -188,6 +217,11 @@ export class LifeCycleEditorElementSemaphore<R> {
 
 			// It will be released after destroying of editor by the {@link #_release method}.
 			.then( () => releaseLock.promise )
+
+			// Prevent hanging of semaphore during mount, just assume that everything is fine
+			.catch( error => {
+				console.error( 'Semaphore mounting error:', error );
+			} )
 
 			// Remove semaphore from map if released.
 			.then( () => {
@@ -224,6 +258,12 @@ export class LifeCycleEditorElementSemaphore<R> {
 					// Mount result might be overridden by watchdog during restart so use instance variable.
 					mountResult: this.value!
 				} ) )
+
+				// Prevent hanging of semaphore during unmount, just assume that everything is fine
+				.catch( error => {
+					console.error( 'Semaphore unmounting error:', error );
+				} )
+
 				.then( _releaseLock!.resolve )
 				.then( () => {
 					this._value = null;
@@ -234,6 +274,8 @@ export class LifeCycleEditorElementSemaphore<R> {
 		}
 	} );
 }
+
+type LifeCycleAfterMountCallback<R> = ( mountResult: R ) => void;
 
 type LifeCycleState<R> = {
 	destroyedBeforeInitialization: boolean;

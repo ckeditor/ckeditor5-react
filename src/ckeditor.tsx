@@ -80,27 +80,33 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * The CKEditor component should not be updated by React itself.
 	 * However, if the component identifier changes, the whole structure should be created once again.
 	 */
-	public override shouldComponentUpdate( nextProps: Readonly<Props<TEditor>>, nextState: any ): boolean {
+	public override shouldComponentUpdate( nextProps: Readonly<Props<TEditor>> ): boolean {
+		const { props, editorSemaphore } = this;
+
 		// Only when the component identifier changes the whole structure should be re-created once again.
-		if ( nextProps.id !== this.props.id ) {
+		if ( nextProps.id !== props.id ) {
 			return true;
 		}
 
-		if ( nextProps.disableWatchdog !== this.props.disableWatchdog ) {
+		if ( nextProps.disableWatchdog !== props.disableWatchdog ) {
 			return true;
 		}
 
-		if ( this.editor ) {
-			if ( this._shouldUpdateEditor( nextProps ) ) {
-				this.editor.data.set( nextProps.data! );
-			}
+		if ( editorSemaphore ) {
+			editorSemaphore.runAfterMount( ( { instance } ) => {
+				if ( this._shouldUpdateEditorData( props, nextProps, instance ) ) {
+					instance.data.set( nextProps.data! );
+				}
+			} );
 
 			if ( 'disabled' in nextProps ) {
-				if ( nextProps.disabled ) {
-					this.editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
-				} else {
-					this.editor.disableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
-				}
+				editorSemaphore.runAfterMount( ( { instance } ) => {
+					if ( nextProps.disabled ) {
+						instance.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+					} else {
+						instance.disableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+					}
+				} );
 			}
 		}
 
@@ -336,19 +342,21 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	/**
 	 * Returns true when the editor should be updated.
 	 *
+	 * @param prevProps Previous react's properties.
 	 * @param nextProps React's properties.
+	 * @param editor Current editor instance.
 	 */
-	private _shouldUpdateEditor( nextProps: Readonly<Props<TEditor>> ): boolean {
+	private _shouldUpdateEditorData( prevProps: Readonly<Props<TEditor>>, nextProps: Readonly<Props<TEditor>>, editor: TEditor ): boolean {
 		// Check whether `nextProps.data` is equal to `this.props.data` is required if somebody defined the `#data`
 		// property as a static string and updated a state of component when the editor's content has been changed.
 		// If we avoid checking those properties, the editor's content will back to the initial value because
 		// the state has been changed and React will call this method.
-		if ( this.props.data === nextProps.data ) {
+		if ( prevProps.data === nextProps.data ) {
 			return false;
 		}
 
 		// We should not change data if the editor's content is equal to the `#data` property.
-		if ( this.editor!.data.get() === nextProps.data ) {
+		if ( editor.data.get() === nextProps.data ) {
 			return false;
 		}
 
