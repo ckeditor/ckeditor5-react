@@ -97,34 +97,28 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	}, [ props.isLayoutReady ] );
 
 	useEffect( () => {
-		const editor = editorRefs.instance.current;
+		if ( semaphore.current ) {
+			semaphore.current.runAfterMount( ( { instance } ) => {
+				const editorData = instance.getFullData();
 
-		// When the component has been remounted, keeping the old state, it is important to avoid
-		// updating the editor, which will be destroyed by the unmount callback.
-		if ( editor ) {
-			const editorData = editor.getFullData();
-
-			setData( { ...editorData } );
-			setAttributes( { ...editor.getRootsAttributes() } );
-			setElements( [
-				...Object.keys( editorData ).map( rootName => _createEditableElement( editor, rootName ) )
-			] );
-		} else {
-			setData( {} );
-			setAttributes( {} );
-			setElements( [] );
+				setData( { ...editorData } );
+				setAttributes( { ...instance.getRootsAttributes() } );
+				setElements( [
+					...Object.keys( editorData ).map( rootName => _createEditableElement( instance, rootName ) )
+				] );
+			} );
 		}
 	}, [ semaphore.revision ] );
 
 	useEffect( () => {
-		const editor = editorRefs.instance.current;
-
-		if ( editor ) {
-			if ( props.disabled ) {
-				editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
-			} else {
-				editor.disableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
-			}
+		if ( semaphore.current ) {
+			semaphore.current.runAfterMount( ( { instance } ) => {
+				if ( props.disabled ) {
+					instance.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+				} else {
+					instance.disableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+				}
+			} );
 		}
 	}, [ props.disabled ] );
 
@@ -263,7 +257,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	const _createEditableElement = ( editor: MultiRootEditor, rootName: string ): JSX.Element => (
 		<div
 			id={rootName}
-			key={rootName}
+			key={`${ semaphore.revision }-${ rootName }`}
 			ref={ el => {
 				if ( el ) {
 					const editable = editor.ui.view.createEditable( rootName, el );
@@ -477,7 +471,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				}
 			} );
 		}
-	}, [ semaphore.revision, data, attributes ] );
+	}, [ data, attributes ] );
 
 	const _getStateDiff = (
 		previousState: Record<string, unknown>,
