@@ -23,6 +23,10 @@ export const useLifeCycleSemaphoreSyncRef = <R extends object>(): LifeCycleSemap
 	const semaphoreRef = useRef<LifeCycleElementSemaphore<R> | null>( null );
 	const [ revision, setRevision ] = useState( () => Date.now() );
 
+	const refresh = () => {
+		setRevision( Date.now() );
+	};
+
 	const release = ( rerender: boolean = true ) => {
 		if ( semaphoreRef.current ) {
 			semaphoreRef.current.release();
@@ -34,10 +38,15 @@ export const useLifeCycleSemaphoreSyncRef = <R extends object>(): LifeCycleSemap
 		}
 	};
 
+	const unsafeSetValue = ( value: R ) => {
+		semaphoreRef.current?.unsafeSetValue( value );
+		refresh();
+	};
+
 	const replace = ( newSemaphore: () => LifeCycleElementSemaphore<R> ) => {
 		release( false );
 		semaphoreRef.current = newSemaphore();
-		setRevision( Date.now() );
+		refresh();
 	};
 
 	const createAttributeRef = <K extends keyof R>( key: K ): RefObject<R[ K ]> => ( {
@@ -53,6 +62,7 @@ export const useLifeCycleSemaphoreSyncRef = <R extends object>(): LifeCycleSemap
 	return {
 		createAttributeRef,
 		revision,
+		unsafeSetValue,
 		release,
 		replace,
 		get current() {
@@ -63,6 +73,7 @@ export const useLifeCycleSemaphoreSyncRef = <R extends object>(): LifeCycleSemap
 
 type LifeCycleSemaphoreSyncRefResult<R> = RefObject<LifeCycleElementSemaphore<R>> & {
 	revision: number;
+	unsafeSetValue: ( value: R ) => void;
 	release: ( rerender?: boolean ) => void;
 	replace: ( newSemaphore: () => LifeCycleElementSemaphore<R> ) => void;
 	createAttributeRef: <K extends keyof R>( key: K ) => RefObject<R[ K ]>;

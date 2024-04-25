@@ -385,7 +385,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			const instance = await _createEditor( data as any, config );
 
 			if ( totalRestartsRef.current > 0 ) {
-				semaphore.current!.unsafeSetValue( {
+				semaphore.unsafeSetValue( {
 					instance,
 					watchdog
 				} );
