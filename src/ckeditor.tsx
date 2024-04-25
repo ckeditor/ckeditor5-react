@@ -18,10 +18,10 @@ import { EditorWatchdog, ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 
-import type { EditorSemaphoreMountResult } from './lifecycle/useEditorLifecycle';
-
 import { ContextWatchdogContext } from './ckeditorcontext';
-import { LifeCycleEditorElementSemaphore } from './lifecycle/LifeCycleEditorElementSemaphore';
+
+import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
+import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -36,7 +36,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	/**
 	 * Unlocks element in editor semaphore after destroy editor instance.
 	 */
-	private editorSemaphore: LifeCycleEditorElementSemaphore<EditorSemaphoreMountResult<TEditor>> | null = null;
+	private editorSemaphore: LifeCycleElementSemaphore<EditorSemaphoreMountResult<TEditor>> | null = null;
 
 	constructor( props: Props<TEditor> ) {
 		super( props );
@@ -151,7 +151,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 */
 	private _initLifeCycleSemaphore() {
 		this._unlockLifeCycleSemaphore();
-		this.editorSemaphore = new LifeCycleEditorElementSemaphore( this.domContainer.current!, {
+		this.editorSemaphore = new LifeCycleElementSemaphore( this.domContainer.current!, {
 			mount: async () => this._initializeEditor(),
 			afterMount: ( { mountResult } ) => {
 				const { onReady } = this.props;
@@ -417,7 +417,7 @@ interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propT
 	watchdogConfig?: WatchdogConfig;
 	disableWatchdog?: boolean;
 	onReady?: ( editor: TEditor ) => void;
-	onAfterDestroy?: ( Editor: TEditor ) => void;
+	onAfterDestroy?: ( editor: TEditor ) => void;
 	onError?: ( error: Error, details: ErrorDetails ) => void;
 	onChange?: ( event: EventInfo, editor: TEditor ) => void;
 	onFocus?: ( event: EventInfo, editor: TEditor ) => void;

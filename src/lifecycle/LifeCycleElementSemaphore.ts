@@ -28,7 +28,7 @@ import { once } from '../utils/once';
  *	  occurring within a 10ms period. This semaphore will likely batch these calls, and instead of initializing 4 editors, only 2 will be
  *	  initialized (the first and the last one).
  */
-export class LifeCycleEditorElementSemaphore<R> {
+export class LifeCycleElementSemaphore<R> {
 	/**
 	 * This is a map of elements associated with promises. It informs the semaphore that the underlying HTML element, used as a key,
 	 * is currently in use by another editor. Each element is assigned a promise, which allows for the easy chaining of new
@@ -169,7 +169,7 @@ export class LifeCycleEditorElementSemaphore<R> {
 	 * it will cause problems when we’re trying to set up the {@link LifeCycleEditorElementSemaphore#_semaphores} map entries.
 	 */
 	private _lock(): void {
-		const { _semaphores } = LifeCycleEditorElementSemaphore;
+		const { _semaphores } = LifeCycleElementSemaphore;
 		const { _state, _element, _lifecycle } = this;
 
 		// This promise signifies that the previous editor is still attached to the current element.
