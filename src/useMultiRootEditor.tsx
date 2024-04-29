@@ -431,14 +431,12 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		/>
 	);
 
-	useInstantEditorEffect( semaphore.current, () => {
-		semaphore.runAfterMount( ( { instance } ) => {
-			if ( props.disabled ) {
-				instance.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
-			} else {
-				instance.disableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
-			}
-		} );
+	useInstantEditorEffect( semaphore.current, ( { instance } ) => {
+		if ( props.disabled ) {
+			instance.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+		} else {
+			instance.disableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+		}
 	}, [ props.disabled ] );
 
 	useInstantEditorEffect( semaphore.current, ( { instance } ) => {
