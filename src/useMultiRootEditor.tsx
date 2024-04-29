@@ -31,7 +31,7 @@ import { overwriteObject } from './utils/overwriteObject';
 import { useRefSafeCallback } from './hooks/useRefSafeCallback';
 import { uniq } from './utils/uniq';
 import { overwriteArray } from './utils/overwriteArray';
-import { useInstantEffect } from './hooks/useInstantEffect';
+import { useEditorEffect } from './hooks/useEditorEffect';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -102,16 +102,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			semaphore.release( false );
 		};
 	}, [ props.id, props.isLayoutReady ] );
-
-	useEffect( () => {
-		semaphore.runAfterMount( ( { instance } ) => {
-			if ( props.disabled ) {
-				instance.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
-			} else {
-				instance.disableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
-			}
-		} );
-	}, [ props.disabled ] );
 
 	/**
 	 * Returns the editor configuration.
@@ -441,93 +431,101 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		/>
 	);
 
-	useInstantEffect( () => {
+	useEditorEffect( semaphore.current, () => {
 		semaphore.runAfterMount( ( { instance } ) => {
-			// Editor should be only updated when the changes come from the integrator React application.
-			if ( shouldUpdateEditor.current ) {
-				shouldUpdateEditor.current = false;
-
-				const dataKeys = Object.keys( data );
-				const attributesKeys = Object.keys( attributes );
-
-				// Check if `data` and `attributes` have the same keys.
-				//
-				// It prevents the addition of attributes for non-existing roots.
-				// If the `data` object has a different set of keys, an error will not be thrown
-				// since the attributes will be removed/added during root initialization/destruction.
-				if ( !dataKeys.every( key => attributesKeys.includes( key ) ) ) {
-					console.error( '`data` and `attributes` objects must have the same keys (roots).' );
-					throw new Error( '`data` and `attributes` objects must have the same keys (roots).' );
-				}
-
-				const editorData = instance.getFullData();
-				const editorAttributes = instance.getRootsAttributes();
-
-				const {
-					addedKeys: newRoots,
-					removedKeys: removedRoots
-				} = _getStateDiff( editorData, data || {} );
-
-				const hasModifiedData = dataKeys.some( rootName =>
-					editorData[ rootName ] !== undefined &&
-					JSON.stringify( editorData[ rootName ] ) !== JSON.stringify( data[ rootName ] )
-				);
-
-				const rootsWithChangedAttributes = attributesKeys.filter( rootName =>
-					JSON.stringify( editorAttributes[ rootName ] ) !== JSON.stringify( attributes[ rootName ] ) );
-
-				const _handleNewRoots = ( roots: Array<string> ) => {
-					roots.forEach( rootName => {
-						instance!.addRoot( rootName, {
-							data: data[ rootName ] || '',
-							attributes: attributes?.[ rootName ] || {},
-							isUndoable: true
-						} );
-					} );
-				};
-
-				const _handleRemovedRoots = ( roots: Array<string> ) => {
-					roots.forEach( rootName => {
-						instance!.detachRoot( rootName, true );
-					} );
-				};
-
-				const _updateEditorData = () => {
-					// If any of the roots content has changed, set the editor data.
-					// Unfortunately, we cannot set the editor data just for one root,
-					// so we need to overwrite all roots (`nextProps.data` is an
-					// object with data for each root).
-					instance.data.set( data, { suppressErrorInCollaboration: true } as any );
-				};
-
-				const _updateEditorAttributes = ( writer: Writer, roots: Array<string> ) => {
-					roots.forEach( rootName => {
-						Object.keys( attributes![ rootName ] ).forEach( attr => {
-							instance.registerRootAttribute( attr );
-						} );
-
-						writer.clearAttributes( instance.model.document.getRoot( rootName )! );
-						writer.setAttributes( attributes![ rootName ], instance.model.document.getRoot( rootName )! );
-					} );
-				};
-
-				// React struggles with rerendering during `instance.model.change` callbacks.
-				setTimeout( () => {
-					instance.model.change( writer => {
-						_handleNewRoots( newRoots );
-						_handleRemovedRoots( removedRoots );
-
-						if ( hasModifiedData ) {
-							_updateEditorData();
-						}
-
-						if ( rootsWithChangedAttributes.length ) {
-							_updateEditorAttributes( writer, rootsWithChangedAttributes );
-						}
-					} );
-				} );
+			if ( props.disabled ) {
+				instance.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+			} else {
+				instance.disableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
 			}
 		} );
+	}, [ props.disabled ] );
+
+	useEditorEffect( semaphore.current, ( { instance } ) => {
+		// Editor should be only updated when the changes come from the integrator React application.
+		if ( shouldUpdateEditor.current ) {
+			shouldUpdateEditor.current = false;
+
+			const dataKeys = Object.keys( data );
+			const attributesKeys = Object.keys( attributes );
+
+			// Check if `data` and `attributes` have the same keys.
+			//
+			// It prevents the addition of attributes for non-existing roots.
+			// If the `data` object has a different set of keys, an error will not be thrown
+			// since the attributes will be removed/added during root initialization/destruction.
+			if ( !dataKeys.every( key => attributesKeys.includes( key ) ) ) {
+				console.error( '`data` and `attributes` objects must have the same keys (roots).' );
+				throw new Error( '`data` and `attributes` objects must have the same keys (roots).' );
+			}
+
+			const editorData = instance.getFullData();
+			const editorAttributes = instance.getRootsAttributes();
+
+			const {
+				addedKeys: newRoots,
+				removedKeys: removedRoots
+			} = _getStateDiff( editorData, data || {} );
+
+			const hasModifiedData = dataKeys.some( rootName =>
+				editorData[ rootName ] !== undefined &&
+				JSON.stringify( editorData[ rootName ] ) !== JSON.stringify( data[ rootName ] )
+			);
+
+			const rootsWithChangedAttributes = attributesKeys.filter( rootName =>
+				JSON.stringify( editorAttributes[ rootName ] ) !== JSON.stringify( attributes[ rootName ] ) );
+
+			const _handleNewRoots = ( roots: Array<string> ) => {
+				roots.forEach( rootName => {
+					instance!.addRoot( rootName, {
+						data: data[ rootName ] || '',
+						attributes: attributes?.[ rootName ] || {},
+						isUndoable: true
+					} );
+				} );
+			};
+
+			const _handleRemovedRoots = ( roots: Array<string> ) => {
+				roots.forEach( rootName => {
+					instance!.detachRoot( rootName, true );
+				} );
+			};
+
+			const _updateEditorData = () => {
+				// If any of the roots content has changed, set the editor data.
+				// Unfortunately, we cannot set the editor data just for one root,
+				// so we need to overwrite all roots (`nextProps.data` is an
+				// object with data for each root).
+				instance.data.set( data, { suppressErrorInCollaboration: true } as any );
+			};
+
+			const _updateEditorAttributes = ( writer: Writer, roots: Array<string> ) => {
+				roots.forEach( rootName => {
+					Object.keys( attributes![ rootName ] ).forEach( attr => {
+						instance.registerRootAttribute( attr );
+					} );
+
+					writer.clearAttributes( instance.model.document.getRoot( rootName )! );
+					writer.setAttributes( attributes![ rootName ], instance.model.document.getRoot( rootName )! );
+				} );
+			};
+
+			// React struggles with rerendering during `instance.model.change` callbacks.
+			setTimeout( () => {
+				instance.model.change( writer => {
+					_handleNewRoots( newRoots );
+					_handleRemovedRoots( removedRoots );
+
+					if ( hasModifiedData ) {
+						_updateEditorData();
+					}
+
+					if ( rootsWithChangedAttributes.length ) {
+						_updateEditorAttributes( writer, rootsWithChangedAttributes );
+					}
+				} );
+			} );
+		}
 	}, [ data, attributes ] );
 
 	const editableElements = roots.map(
