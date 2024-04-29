@@ -10,7 +10,7 @@ import { useInstantEffect } from './useInstantEffect';
 /**
  * `useEffect` alternative but executed after mounting of editor.
  */
-export const useEditorEffect = <R>(
+export const useInstantEditorEffect = <R>(
 	semaphore: LifeCycleElementSemaphore<R> | null,
 	fn: ( mountResult: R ) => void,
 	deps: DependencyList

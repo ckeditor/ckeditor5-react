@@ -31,7 +31,7 @@ import { overwriteObject } from './utils/overwriteObject';
 import { useRefSafeCallback } from './hooks/useRefSafeCallback';
 import { uniq } from './utils/uniq';
 import { overwriteArray } from './utils/overwriteArray';
-import { useEditorEffect } from './hooks/useEditorEffect';
+import { useInstantEditorEffect } from './hooks/useInstantEditorEffect';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -431,7 +431,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		/>
 	);
 
-	useEditorEffect( semaphore.current, () => {
+	useInstantEditorEffect( semaphore.current, () => {
 		semaphore.runAfterMount( ( { instance } ) => {
 			if ( props.disabled ) {
 				instance.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
@@ -441,7 +441,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} );
 	}, [ props.disabled ] );
 
-	useEditorEffect( semaphore.current, ( { instance } ) => {
+	useInstantEditorEffect( semaphore.current, ( { instance } ) => {
 		// Editor should be only updated when the changes come from the integrator React application.
 		if ( shouldUpdateEditor.current ) {
 			shouldUpdateEditor.current = false;
