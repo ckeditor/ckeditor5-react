@@ -11,6 +11,7 @@ import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
 import CKEditor from '../../src/ckeditor.tsx';
+import { timeout } from '../_utils/timeout.js';
 
 configure( { adapter: new Adapter() } );
 
@@ -130,7 +131,12 @@ describe( '<CKEditor> memory usage', () => {
 		function createAndDestroy() {
 			return Promise.resolve()
 				.then( createEditor )
-				.then( destroyEditor );
+				.then( destroyEditor )
+				.then( () => {
+					// Simulate real world rerendering queue. Unmounting of editor is *async* so it'll take a while
+					// to unmount existing instance of editor.
+					return timeout( 200 );
+				} );
 		}
 	}
 

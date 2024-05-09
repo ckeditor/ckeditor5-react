@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global MultiRootEditor */
+/* global MultiRootEditor, document */
 
 import React from 'react';
 import { renderHook, act } from '@testing-library/react-hooks/dom';
@@ -14,9 +14,11 @@ import { ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import useMultiRootEditor from '../src/useMultiRootEditor.tsx';
 import { ContextWatchdogContext } from '../src/ckeditorcontext';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
+import { timeout } from './_utils/timeout';
 
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
+import { createDefer } from './_utils/defer.js';
 
 configure( { adapter: new Adapter() } );
 
@@ -49,6 +51,7 @@ describe( 'useMultiRootEditor', () => {
 	let originalConsoleError, originalConsoleWarn;
 
 	beforeEach( () => {
+		editorProps.semaphoreElement = document.createElement( 'div' );
 		originalConsoleError = console.error;
 		originalConsoleWarn = console.warn;
 
@@ -57,6 +60,7 @@ describe( 'useMultiRootEditor', () => {
 	} );
 
 	afterEach( () => {
+		editorProps.semaphoreElement = null;
 		console.error = originalConsoleError;
 		console.warn = originalConsoleWarn;
 
@@ -65,19 +69,21 @@ describe( 'useMultiRootEditor', () => {
 
 	describe( 'editor', () => {
 		it( 'should initialize the MultiRootEditor instance after mounting', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			expect( result.current.editor ).to.be.null;
 
-			await waitForNextUpdate();
-
-			expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 		} );
 
 		it( 'should reinitialize the editor instance after crashing when watchdog is enabled', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor, data, attributes } = result.current;
 
@@ -95,57 +101,58 @@ describe( 'useMultiRootEditor', () => {
 			// Throw the error.
 			editor.focus();
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				const { editor: newEditor, data: newData, attributes: newAttributes } = result.current;
 
-			const { editor: newEditor, data: newData, attributes: newAttributes } = result.current;
-
-			expect( newEditor ).to.be.exist;
-			expect( newEditor.id ).to.not.be.equal( editor.id );
-			expect( newData ).to.deep.equal( data );
-			expect( newAttributes ).to.deep.equal( attributes );
+				expect( newEditor ).to.be.exist;
+				expect( newEditor.id ).to.not.be.equal( editor.id );
+				expect( newData ).to.deep.equal( data );
+				expect( newAttributes ).to.deep.equal( attributes );
+			} );
 		} );
 
 		it( 'should not initialize the editor when config#isLayoutReady flag is false', async () => {
-			const { result, waitForNextUpdate, rerender } = renderHook( isLayoutReady => useMultiRootEditor( {
+			const { result, waitFor, rerender } = renderHook( isLayoutReady => useMultiRootEditor( {
 				...editorProps,
 				isLayoutReady
 			} ), { initialProps: false } );
 
-			await waitForNextUpdate().catch( () => {
-				expect( result.current.editor ).to.be.null;
-			} );
+			await timeout( 200 );
 
+			expect( result.current.editor ).to.be.null;
 			rerender( true );
 
-			await waitForNextUpdate();
-
-			expect( result.current.editor ).to.be.exist;
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.exist;
+			} );
 		} );
 
 		it( 'should bind the editor read-only mode to config#disabled flag', async () => {
-			const { result, waitForNextUpdate, rerender } = renderHook( disabled => useMultiRootEditor( {
+			const { result, waitFor, rerender } = renderHook( disabled => useMultiRootEditor( {
 				...editorProps,
 				disabled
 			} ), { initialProps: true } );
 
-			await waitForNextUpdate();
-
-			expect( result.current.editor.isReadOnly ).to.be.true;
+			await waitFor( () => {
+				expect( result.current.editor.isReadOnly ).to.be.true;
+			} );
 
 			rerender( false );
 
-			expect( result.current.editor.isReadOnly ).to.be.false;
+			await waitFor( () => {
+				expect( result.current.editor.isReadOnly ).to.be.false;
+			} );
 		} );
 
 		it( 'should initialize the MultiRootEditor instance when watchdog is disabled', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( {
 				...editorProps,
 				disableWatchdog: true
 			} ) );
 
-			await waitForNextUpdate();
-
-			expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 		} );
 
 		it( 'should initialize the MultiRootEditor instance with context', async () => {
@@ -155,30 +162,32 @@ describe( 'useMultiRootEditor', () => {
 			const useContextSpy = sinon.stub( React, 'useContext' );
 			useContextSpy.withArgs( ContextWatchdogContext ).returns( contextWatchdog );
 
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
-			await waitForNextUpdate();
-
-			expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 		} );
 	} );
 
 	describe( 'toolbarElement', () => {
 		it( 'should be a component containing toolbar element', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				const { toolbarElement } = result.current;
+				const wrapper = mount( toolbarElement );
 
-			const { toolbarElement } = result.current;
-			const wrapper = mount( toolbarElement );
-
-			expect( wrapper.render().find( '.ck-toolbar' ) ).to.be.exist;
+				expect( wrapper.render().find( '.ck-toolbar' ) ).to.be.exist;
+			} );
 		} );
 
 		it( 'should be reinitialized after crashing when watchdog is enabled', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor, toolbarElement } = result.current;
 
@@ -196,51 +205,55 @@ describe( 'useMultiRootEditor', () => {
 			// Throw the error.
 			editor.focus();
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				const { toolbarElement: newToolbarElement } = result.current;
 
-			const { toolbarElement: newToolbarElement } = result.current;
-
-			expect( newToolbarElement ).to.be.exist;
-			expect( newToolbarElement ).to.not.be.equal( toolbarElement );
+				expect( newToolbarElement ).to.be.exist;
+				expect( newToolbarElement ).to.not.be.equal( toolbarElement );
+			} );
 		} );
 	} );
 
 	describe( 'data and editableElements', () => {
 		it( 'should return the initial state', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				const { data, editableElements } = result.current;
 
-			const { data, editableElements } = result.current;
-
-			expect( data ).to.deep.equal( rootsContent );
-			expect( editableElements.length ).to.equal( 2 );
+				expect( data ).to.deep.equal( rootsContent );
+				expect( editableElements.length ).to.equal( 2 );
+			} );
 		} );
 
 		it( 'should update the editor data when the state has been changed', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor, setData } = result.current;
 			const spy = sinon.spy( editor.data, 'set' );
 
 			setData( { ...rootsContent, 'intro': 'New data' } );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				const { data, editableElements } = result.current;
 
-			const { data, editableElements } = result.current;
-
-			sinon.assert.calledOnce( spy );
-			expect( data.intro ).to.equal( '<p>New data</p>' );
-			expect( editableElements.length ).to.equal( 2 );
-			expect( editor.getFullData().intro ).to.equal( '<p>New data</p>' );
+				sinon.assert.calledOnce( spy );
+				expect( data.intro ).to.equal( '<p>New data</p>' );
+				expect( editableElements.length ).to.equal( 2 );
+				expect( editor.getFullData().intro ).to.equal( '<p>New data</p>' );
+			} );
 		} );
 
 		it( 'should remove the editor root when the key has been removed from the state', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor, setData } = result.current;
 			const spy = sinon.spy( editor, 'detachRoot' );
@@ -250,20 +263,22 @@ describe( 'useMultiRootEditor', () => {
 
 			setData( { ...newData } );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				const { data, editableElements } = result.current;
 
-			const { data, editableElements } = result.current;
-
-			sinon.assert.calledOnce( spy );
-			expect( data.intro ).to.be.undefined;
-			expect( editableElements.length ).to.equal( 1 );
-			expect( editor.getFullData().intro ).to.be.undefined;
+				sinon.assert.calledOnce( spy );
+				expect( data.intro ).to.be.undefined;
+				expect( editableElements.length ).to.equal( 1 );
+				expect( editor.getFullData().intro ).to.be.undefined;
+			} );
 		} );
 
 		it( 'should add the editor root when the key has been added to the state', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor, setData, setAttributes } = result.current;
 			const spy = sinon.spy( editor, 'addRoot' );
@@ -273,18 +288,22 @@ describe( 'useMultiRootEditor', () => {
 				setAttributes( { ...rootsAttributes, 'outro': {} } );
 			} );
 
-			const { data, editableElements } = result.current;
+			await waitFor( () => {
+				const { data, editableElements } = result.current;
 
-			sinon.assert.calledOnce( spy );
-			expect( data.outro ).to.be.equal( '<p>New data</p>' );
-			expect( editableElements.length ).to.equal( 3 );
-			expect( editor.getFullData().outro ).to.be.equal( '<p>New data</p>' );
+				sinon.assert.calledOnce( spy );
+				expect( data.outro ).to.be.equal( '<p>New data</p>' );
+				expect( editableElements.length ).to.equal( 3 );
+				expect( editor.getFullData().outro ).to.be.equal( '<p>New data</p>' );
+			} );
 		} );
 
 		it( 'should update the state when editor root value has been updated', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor } = result.current;
 			editor.data.set( { ...rootsContent, 'intro': 'New data' } );
@@ -297,9 +316,11 @@ describe( 'useMultiRootEditor', () => {
 		} );
 
 		it( 'should update the state when editor#addRoot is called', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor } = result.current;
 			const spy = sinon.spy( editor.ui.view, 'createEditable' );
@@ -320,18 +341,20 @@ describe( 'useMultiRootEditor', () => {
 		} );
 
 		it( 'should update the state when editor#detachRoot is called', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor } = result.current;
-			const spy = sinon.spy( editor, 'detachEditable' );
+
+			expect( result.current.editableElements.length ).to.equal( 2 );
 
 			editor.detachRoot( 'intro' );
 
 			const { data, editableElements } = result.current;
 
-			sinon.assert.calledOnce( spy );
 			expect( data.intro ).to.be.undefined;
 			expect( editableElements.length ).to.equal( 1 );
 			expect( editor.getFullData().intro ).to.be.undefined;
@@ -343,9 +366,11 @@ describe( 'useMultiRootEditor', () => {
 
 			global.onerror = stubOnError;
 
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { setData } = result.current;
 
@@ -374,30 +399,34 @@ describe( 'useMultiRootEditor', () => {
 		} );
 
 		it( 'should update the editor attributes when setAttributes is called', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor, setAttributes } = result.current;
 
-			setAttributes( { ...rootsAttributes, 'intro': { foo: 'bar', order: 5 } } );
+			act( () => {
+				setAttributes( { ...rootsAttributes, 'intro': { foo: 'bar', order: 5 } } );
+			} );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				const { attributes } = result.current;
 
-			const { attributes } = result.current;
+				const expectedAttributes = {
+					foo: 'bar',
+					order: 5,
+					row: null
+				};
 
-			const expectedAttributes = {
-				foo: 'bar',
-				order: 5,
-				row: null
-			};
-
-			expect( attributes.intro ).to.deep.equal( expectedAttributes );
-			expect( editor.getRootAttributes( 'intro' ) ).to.deep.equal( expectedAttributes );
+				expect( attributes.intro ).to.deep.equal( expectedAttributes );
+				expect( editor.getRootAttributes( 'intro' ) ).to.deep.equal( expectedAttributes );
+			} );
 		} );
 
 		it( 'should remove the editor root attribute when the key has been removed from the state', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
+			const { result, waitFor, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitForNextUpdate();
 
@@ -406,14 +435,16 @@ describe( 'useMultiRootEditor', () => {
 			const newRootsAttributes = { ...rootsAttributes };
 			newRootsAttributes.intro = {};
 
-			setAttributes( { ...newRootsAttributes } );
+			act( () => {
+				setAttributes( { ...newRootsAttributes } );
+			} );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				const { attributes } = result.current;
 
-			const { attributes } = result.current;
-
-			expect( attributes.intro ).to.deep.equal( { row: null, order: null } );
-			expect( editor.getRootAttributes( 'intro' ) ).to.deep.equal( { row: null, order: null } );
+				expect( attributes.intro ).to.deep.equal( { row: null, order: null } );
+				expect( editor.getRootAttributes( 'intro' ) ).to.deep.equal( { row: null, order: null } );
+			} );
 		} );
 
 		it( 'should update the state when editor API is called', async () => {
@@ -443,14 +474,11 @@ describe( 'useMultiRootEditor', () => {
 		} );
 
 		it( 'should throw error when attributes keys do not match data', async () => {
-			const originalOnError = global.onerror;
-			const stubOnError = sinon.stub();
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
-			global.onerror = stubOnError;
-
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( editorProps ) );
-
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { setAttributes } = result.current;
 
@@ -461,25 +489,22 @@ describe( 'useMultiRootEditor', () => {
 				setAttributes( { ...newRootsAttributes } );
 			} );
 
-			sinon.assert.calledOnce( stubOnError );
-			expect( stubOnError.args[ 0 ][ 0 ] ).to.include( '`data` and `attributes` objects must have the same keys (roots).' );
-
-			global.onerror = originalOnError;
+			sinon.assert.calledWithExactly( console.error, '`data` and `attributes` objects must have the same keys (roots).' );
 		} );
 	} );
 
 	describe( 'callbacks', () => {
 		it( 'should call onReady callback when editor has been initialized', async () => {
 			const spy = sinon.spy();
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( {
 				...editorProps,
 				onReady: spy
 			} ) );
 
-			await waitForNextUpdate();
-
-			sinon.assert.calledOnce( spy );
-			sinon.assert.calledWithExactly( spy, result.current.editor );
+			await waitFor( () => {
+				sinon.assert.calledOnce( spy );
+				sinon.assert.calledWithExactly( spy, result.current.editor );
+			} );
 		} );
 
 		it( 'should call onError callback when an error has been thrown', async () => {
@@ -502,12 +527,14 @@ describe( 'useMultiRootEditor', () => {
 
 		it( 'should call onChange callback when the editor has been updated', async () => {
 			const spy = sinon.spy();
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( {
 				...editorProps,
 				onChange: spy
 			} ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor, data } = result.current;
 
@@ -520,12 +547,14 @@ describe( 'useMultiRootEditor', () => {
 
 		it( 'should call onFocus callback when the editor has been focused', async () => {
 			const spy = sinon.spy();
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( {
 				...editorProps,
 				onFocus: spy
 			} ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor } = result.current;
 
@@ -537,12 +566,14 @@ describe( 'useMultiRootEditor', () => {
 
 		it( 'should call onBlur callback when the editor has been blurred', async () => {
 			const spy = sinon.spy();
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( {
 				...editorProps,
 				onBlur: spy
 			} ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor } = result.current;
 
@@ -555,12 +586,14 @@ describe( 'useMultiRootEditor', () => {
 
 	describe( 'disableTwoWayDataBinding set to `true`', () => {
 		it( 'should not update the `data` state when editor root value has been updated', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( {
 				...editorProps,
 				disableTwoWayDataBinding: true
 			} ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor } = result.current;
 			const getDataSpy = sinon.spy( editor, 'getData' );
@@ -575,12 +608,14 @@ describe( 'useMultiRootEditor', () => {
 		} );
 
 		it( 'should not update the `data` state when editor#addRoot is called', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( {
 				...editorProps,
 				disableTwoWayDataBinding: true
 			} ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor } = result.current;
 			const spy = sinon.spy( editor.ui.view, 'createEditable' );
@@ -601,33 +636,37 @@ describe( 'useMultiRootEditor', () => {
 		} );
 
 		it( 'should not update the `data` state when editor#detachRoot is called', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( {
 				...editorProps,
 				disableTwoWayDataBinding: true
 			} ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor } = result.current;
-			const spy = sinon.spy( editor, 'detachEditable' );
+
+			expect( result.current.editableElements.length ).to.equal( 2 );
 
 			editor.detachRoot( 'intro' );
 
 			const { data, editableElements } = result.current;
 
-			sinon.assert.calledOnce( spy );
 			expect( data.intro ).to.be.equal( rootsContent.intro );
 			expect( editableElements.length ).to.equal( 1 );
 			expect( editor.getFullData().intro ).to.be.undefined;
 		} );
 
 		it( 'should not update the `attributes` state when editor API is called', async () => {
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( {
 				...editorProps,
 				disableTwoWayDataBinding: true
 			} ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor } = result.current;
 
@@ -653,20 +692,152 @@ describe( 'useMultiRootEditor', () => {
 
 		it( 'should call `onChange` callback when editor API is called', async () => {
 			const spy = sinon.spy();
-			const { result, waitForNextUpdate } = renderHook( () => useMultiRootEditor( {
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( {
 				...editorProps,
 				onChange: spy
 			} ) );
 
-			await waitForNextUpdate();
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+			} );
 
 			const { editor, data } = result.current;
 
-			data.intro = 'new Data';
-			editor.setData( { ...data } );
+			editor.setData( { ...data, intro: 'New Data' } );
 
-			sinon.assert.calledOnce( spy );
-			sinon.assert.calledWith( spy, sinon.match.any, editor );
+			await waitFor( () => {
+				sinon.assert.calledWith( spy, sinon.match.any, editor );
+			} );
 		} );
+	} );
+
+	describe( 'semaphores', () => {
+		const testSemaphoreForWatchdog = enableWatchdog => {
+			it( 'should assign properly `data` property to editor even if it is still mounting', async () => {
+				const deferInitialization = createDefer();
+
+				class SlowEditor extends MultiRootEditor {
+					constructor( initialData, config ) {
+						super( initialData, config );
+
+						let value = initialData || {};
+
+						this.data = {
+							get() {
+								return value;
+							},
+
+							set( newValue ) {
+								value = newValue;
+							}
+						};
+					}
+
+					static async create( ...args ) {
+						await deferInitialization.promise;
+
+						return new SlowEditor( ...args );
+					}
+				}
+
+				const { result, waitFor } = renderHook( () => useMultiRootEditor( {
+					...editorProps,
+					disableWatchdog: !enableWatchdog,
+					editor: SlowEditor
+				} ) );
+
+				await timeout( 100 );
+
+				result.current.setData( {
+					intro: 'Hello World!',
+					content: ''
+				} );
+
+				await timeout( 200 );
+
+				deferInitialization.resolve();
+
+				await waitFor( () => {
+					expect( result.current.editor ).to.be.instanceof( SlowEditor );
+					expect( result.current.editor.data.get() ).to.deep.equal( {
+						intro: 'Hello World!',
+						content: ''
+					} );
+				} );
+			} );
+
+			it( 'should buffer many rerenders while creating editor', async () => {
+				const initializerLog = [];
+
+				class SlowEditor extends MultiRootEditor {
+					constructor( initialData, config ) {
+						super( initialData, config );
+						this.key = config.key;
+					}
+
+					static async create( ...args ) {
+						await timeout( 300 );
+
+						return new SlowEditor( ...args );
+					}
+				}
+
+				const { waitFor, rerender } = renderHook( newProps => useMultiRootEditor( {
+					...editorProps,
+					disableWatchdog: !enableWatchdog,
+					editor: SlowEditor,
+					onReady: instance => {
+						initializerLog.push( {
+							status: 'ready',
+							id: instance.key
+						} );
+					},
+					onAfterDestroy: instance => {
+						initializerLog.push( {
+							status: 'destroy',
+							id: instance.key
+						} );
+					},
+					...newProps
+				} ) );
+
+				rerender( {
+					id: 111,
+					config: {
+						key: 2
+					}
+				} );
+
+				await timeout( 10 );
+
+				rerender( {
+					id: 112,
+					config: {
+						key: 3
+					}
+				} );
+
+				await timeout( 10 );
+
+				rerender( {
+					id: 113,
+					config: {
+						key: 4
+					}
+				} );
+
+				await waitFor( () => {
+					expect( initializerLog ).to.deep.equal( [
+						{ status: 'ready', id: 2 },
+						{ status: 'destroy', id: 2 },
+						{ status: 'ready', id: 4 }
+					] );
+				} );
+			} );
+		};
+
+		for ( const enableWatchdog of [ false, true ] ) {
+			describe( `watchdog=${ enableWatchdog }`, () => testSemaphoreForWatchdog( enableWatchdog ) );
+		}
 	} );
 } );

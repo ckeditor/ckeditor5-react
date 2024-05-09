@@ -13,6 +13,7 @@ import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
 import ContextMock from './_utils/context.js';
+import { waitFor } from './_utils/waitFor.js';
 
 configure( { adapter: new Adapter() } );
 
@@ -118,11 +119,13 @@ describe( '<CKEditorContext> Component', () => {
 				} );
 			} );
 
-			const editor1 = wrapper.childAt( 0 ).instance().editor;
-			const editor2 = wrapper.childAt( 1 ).instance().editor;
+			await waitFor( () => {
+				const editor1 = wrapper.childAt( 0 ).instance().editor;
+				const editor2 = wrapper.childAt( 1 ).instance().editor;
 
-			expect( editor1 ).to.be.an( 'object' );
-			expect( editor2 ).to.be.an( 'object' );
+				expect( editor1 ).to.be.an( 'object' );
+				expect( editor2 ).to.be.an( 'object' );
+			} );
 
 			sinon.assert.calledTwice( editorCreateSpy );
 
@@ -321,10 +324,12 @@ describe( '<CKEditorContext> Component', () => {
 				} );
 			} );
 
-			const { watchdog: secondWatchdog } = wrapper.childAt( 0 ).instance();
+			await waitFor( () => {
+				const { watchdog: secondWatchdog } = wrapper.childAt( 0 ).instance();
 
-			expect( secondWatchdog ).to.not.equal( null );
-			expect( secondWatchdog._contextWatchdog.state ).to.equal( 'ready' );
+				expect( secondWatchdog ).to.not.equal( null );
+				expect( secondWatchdog._contextWatchdog.state ).to.equal( 'ready' );
+			} );
 		} );
 
 		it( 'should not re-render the component if layout is not ready after initialization', async () => {
