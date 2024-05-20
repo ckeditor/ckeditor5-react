@@ -562,18 +562,32 @@ const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 		let editor: MultiRootEditor | null;
 
 		semaphore.runAfterMount( ( { instance } ) => {
-			if ( innerRef.current ) {
-				editor = instance;
-				editable = instance.ui.view.createEditable( rootName, innerRef.current );
-
-				instance.ui.addEditable( editable );
-				instance.editing.view.forceRender();
+			if ( !innerRef.current ) {
+				return;
 			}
+
+			editor = instance;
+
+			const { ui } = editor;
+			const prevEditable = ui.view.editables[ rootName ];
+
+			if ( prevEditable ) {
+				ui.removeEditable( prevEditable );
+				ui.view.removeEditable( rootName );
+			}
+
+			editable = ui.view.createEditable( rootName, innerRef.current );
+			ui.addEditable( editable );
+
+			instance.editing.view.forceRender();
 		} );
 
 		return () => {
 			if ( editable && innerRef.current && editor && editor.state !== 'destroyed' ) {
-				editor.ui.removeEditable( editable );
+				const { ui } = editor;
+
+				ui.removeEditable( editable );
+				ui.view.removeEditable( rootName );
 			}
 		};
 	}, [ semaphore.revision ] );

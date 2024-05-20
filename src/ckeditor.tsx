@@ -7,6 +7,7 @@
 
 import React from 'react';
 import PropTypes, { type InferProps, type Validator } from 'prop-types';
+
 import type {
 	EventInfo,
 	Editor,
@@ -18,10 +19,11 @@ import type {
 	EditorCreatorFunction
 } from 'ckeditor5';
 
-import { uid } from './utils/uid';
-import { ContextWatchdogContext } from './ckeditorcontext';
-import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
+
+import { uid } from './utils/uid';
+import { ContextWatchdogContext, isContextWatchdogValue, isContextWatchdogValueWithStatus } from './ckeditorcontext';
+import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -91,8 +93,24 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * The CKEditor component should not be updated by React itself.
 	 * However, if the component identifier changes, the whole structure should be created once again.
 	 */
-	public override shouldComponentUpdate( nextProps: Readonly<Props<TEditor>> ): boolean {
-		const { props, editorSemaphore } = this;
+	public override shouldComponentUpdate(
+		nextProps: Readonly<Props<TEditor>>,
+		_: Readonly<unknown>,
+		nextContext: any
+	): boolean {
+		const { context, props, editorSemaphore } = this;
+
+		// When the context nullability changes, the component should be updated.
+		if ( !!context !== !!nextContext ) {
+			return true;
+		}
+
+		// When the watchdog status changes, the component should be updated.
+		if ( isContextWatchdogValue( context ) &&
+				isContextWatchdogValue( nextContext ) &&
+				context.status !== nextContext.status ) {
+			return true;
+		}
 
 		// Only when the component identifier changes the whole structure should be re-created once again.
 		if ( nextProps.id !== props.id ) {
@@ -128,14 +146,18 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Initialize the editor when the component is mounted.
 	 */
 	public override componentDidMount(): void {
-		this._initLifeCycleSemaphore();
+		if ( !isContextWatchdogValueWithStatus( 'initializing', this.context ) ) {
+			this._initLifeCycleSemaphore();
+		}
 	}
 
 	/**
 	 * Re-render the entire component once again. The old editor will be destroyed and the new one will be created.
 	 */
 	public override componentDidUpdate(): void {
-		this._initLifeCycleSemaphore();
+		if ( !isContextWatchdogValueWithStatus( 'initializing', this.context ) ) {
+			this._initLifeCycleSemaphore();
+		}
 	}
 
 	/**
@@ -217,8 +239,8 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		}
 
 		const watchdog = ( () => {
-			if ( this.context instanceof this.props.editor.ContextWatchdog ) {
-				return new EditorWatchdogAdapter( this.context );
+			if ( isContextWatchdogValueWithStatus( 'initialized', this.context ) ) {
+				return new EditorWatchdogAdapter( this.context.watchdog );
 			}
 
 			return new this.props.editor.EditorWatchdog( this.props.editor, this.props.watchdogConfig );

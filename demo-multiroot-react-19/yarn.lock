@@ -305,7 +305,7 @@
     "@ckeditor/ckeditor5-table" "41.4.2"
     "@ckeditor/ckeditor5-typing" "41.4.2"
 
-"@ckeditor/ckeditor5-build-classic@41.4.2", "@ckeditor/ckeditor5-build-classic@^41.4.2":
+"@ckeditor/ckeditor5-build-classic@41.4.2":
   version "41.4.2"
   resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-build-classic/-/ckeditor5-build-classic-41.4.2.tgz#2976203162b9a9dcddbe115466bfa08b3a44e0a9"
   integrity sha512-fdsxmEPdNdo/usXyYMS2cN/E9KcQIrtmImUYDI+jEs6yzmSgI8By01n+enkKgVxu+2t+g+ctjQwrCpiyWIHTAQ==
@@ -385,7 +385,7 @@
     "@ckeditor/ckeditor5-table" "41.4.2"
     "@ckeditor/ckeditor5-typing" "41.4.2"
 
-"@ckeditor/ckeditor5-build-multi-root@41.4.2":
+"@ckeditor/ckeditor5-build-multi-root@41.4.2", "@ckeditor/ckeditor5-build-multi-root@^41.4.2":
   version "41.4.2"
   resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-build-multi-root/-/ckeditor5-build-multi-root-41.4.2.tgz#bd535746f7445163a463220844befc0252bd1072"
   integrity sha512-Hou3cHuzx2YR6cfbTYYgk2cSBkudCfPru471KxsXUtzw+B7KuHLm3LtnLJNpScF2WoGaOoaFzB9D2PkzlhF5hA==
@@ -1385,7 +1385,7 @@ is-potential-custom-element-name@^1.0.1:
   resolved "https://registry.yarnpkg.com/is-potential-custom-element-name/-/is-potential-custom-element-name-1.0.1.tgz#171ed6f19e3ac554394edf78caa05784a45bebb5"
   integrity sha512-bCYeRA2rVibKZd+s2625gGnGF/t7DSqDs4dP7CrLA1m7jKWz6pps0LpYLJN8Q64HtmPKJ1hrN3nzPNKFEKOUiQ==
 
-"js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
+js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
   integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
@@ -1442,13 +1442,6 @@ lodash@^4.7.0:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
-
-loose-envify@^1.1.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/loose-envify/-/loose-envify-1.4.0.tgz#71ee51fa7be4caec1a63839f7e682d8132d30caf"
-  integrity sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==
-  dependencies:
-    js-tokens "^3.0.0 || ^4.0.0"
 
 lru-cache@^5.1.1:
   version "5.1.1"
@@ -1535,25 +1528,22 @@ querystringify@^2.1.1:
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.2.0.tgz#3345941b4153cb9d082d8eee4cda2016a9aef7f6"
   integrity sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==
 
-react-dom@^18.2.0:
-  version "18.3.1"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.3.1.tgz#c2265d79511b57d479b3dd3fdfa51536494c5cb4"
-  integrity sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==
+react-dom@19.0.0-beta-26f2496093-20240514:
+  version "19.0.0-beta-26f2496093-20240514"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-19.0.0-beta-26f2496093-20240514.tgz#5fe4e829db8d379303057f539900a61ed6ca2615"
+  integrity sha512-UvQ+K1l3DFQ34LDgfFSNuUGi9EC+yfE9tS6MdpNTd5fx7qC7KLfepfC/KpxWMQZ7JfE3axD4ZO6H4cBSpAZpqw==
   dependencies:
-    loose-envify "^1.1.0"
-    scheduler "^0.23.2"
+    scheduler "0.25.0-beta-26f2496093-20240514"
 
 react-refresh@^0.14.0:
   version "0.14.2"
   resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.14.2.tgz#3833da01ce32da470f1f936b9d477da5c7028bf9"
   integrity sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA==
 
-react@^18.2.0:
-  version "18.3.1"
-  resolved "https://registry.yarnpkg.com/react/-/react-18.3.1.tgz#49ab892009c53933625bd16b2533fc754cab2891"
-  integrity sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==
-  dependencies:
-    loose-envify "^1.1.0"
+react@19.0.0-beta-26f2496093-20240514:
+  version "19.0.0-beta-26f2496093-20240514"
+  resolved "https://registry.yarnpkg.com/react/-/react-19.0.0-beta-26f2496093-20240514.tgz#3a0d63746b3f9ebd461a0731191bd08047fb1dbb"
+  integrity sha512-ZsU/WjNZ6GfzMWsq2DcGjElpV9it8JmETHm9mAJuOJNhuJcWJxt8ltCJabONFRpDFq1A/DP0d0KFj9CTJVM4VA==
 
 requires-port@^1.0.0:
   version "1.0.0"
@@ -1579,12 +1569,10 @@ saxes@^5.0.1:
   dependencies:
     xmlchars "^2.2.0"
 
-scheduler@^0.23.2:
-  version "0.23.2"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.23.2.tgz#414ba64a3b282892e944cf2108ecc078d115cdc3"
-  integrity sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==
-  dependencies:
-    loose-envify "^1.1.0"
+scheduler@0.25.0-beta-26f2496093-20240514:
+  version "0.25.0-beta-26f2496093-20240514"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.25.0-beta-26f2496093-20240514.tgz#a3bc0ff694ec6de7a78c1e48e1f8f4a8555bd77d"
+  integrity sha512-vDwOytLHFnA3SW2B1lNcbO+/qKVyLCX+KLpm+tRGNDsXpyxzRgkIaYGWmX+S70AJGchUHCtuqQ50GFeFgDbXUw==
 
 semver@^6.3.1:
   version "6.3.1"
