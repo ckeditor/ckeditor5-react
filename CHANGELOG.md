@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## [7.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v6.3.0...v7.0.0) (2024-05-20)
+
+### Bug fixes
+
+* The quick re-rendering, especially in `React.StrictMode`, will no longer cause the editor errors. Closes [#442](https://github.com/ckeditor/ckeditor5-react/issues/442), [#469](https://github.com/ckeditor/ckeditor5-react/issues/469), [#471](https://github.com/ckeditor/ckeditor5-react/issues/471), [#476](https://github.com/ckeditor/ckeditor5-react/issues/476). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/ce6cad06e7a847b48189ddfaeed57921ce314874))
+
+
 ## [6.3.0](https://github.com/ckeditor/ckeditor5-react/compare/v6.2.0...v6.3.0) (2024-04-25)
 
 ### Features
