@@ -3,127 +3,117 @@
  * For licensing, see LICENSE.md.
  */
 
-import React, { type ReactNode } from 'react';
-import PropTypes, { type InferProps, type Validator } from 'prop-types';
-
+import React, { useState, useRef, type ReactNode, type ReactElement, useEffect } from 'react';
 import { ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
+
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
-
 import type { Context, ContextConfig } from '@ckeditor/ckeditor5-core';
+import type { OptionalRecord } from './types';
 
-export const ContextWatchdogContext = React.createContext<ContextWatchdog | 'contextWatchdog' | null>( 'contextWatchdog' );
+export const ContextWatchdogContext = React.createContext<ContextWatchdog | null>( null );
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export default class CKEditorContext<TContext extends Context = Context> extends React.Component<Props<TContext>, {}> {
-	public contextWatchdog: ContextWatchdog<TContext> | null = null;
+const CKEditorContext = <TContext extends Context = Context>( props: Props<TContext> ): ReactElement | null => {
+	const {
+		id, context, watchdogConfig, isLayoutReady = true,
+		config, onReady, onError
+	} = props;
 
-	constructor( props: Props<TContext>, context: any ) {
-		super( props, context );
-
-		if ( this.props.isLayoutReady ) {
-			this._initializeContextWatchdog( this.props.config );
-		}
-	}
-
-	public override shouldComponentUpdate( nextProps: Readonly<Props<TContext> & { children?: ReactNode | undefined }> ): boolean {
-		return this._shouldComponentUpdate( nextProps ) as unknown as boolean;
-	}
+	const pendingContextInitializationsRef = useRef<Array<ContextWatchdog>>( [] );
+	const [ currentContextWatchdog, setCurrentContextWatchdog ] = useState<ContextWatchdog<TContext> | null>( null );
 
 	/**
-	 * Wrapper for the async handler. Note that this is an implementation bug, see https://github.com/ckeditor/ckeditor5-react/issues/312.
+	 * Hooks in strict mode runs twice, so we need to make sure that we don't assign the watchdog to state twice.
+	 * This is a workaround. We create a initializer queue, and push two watchdogs in initializing state.
+	 *
+	 * 	1. First push occurs on first render (normal one).
+	 * 	2. The second push occurs on the second render (when strict mode rerender occurs).
+	 *
+	 * Initializer queue is resolved in push order so at the second render we have 2 instances of watchdog.
+	 * We need to make sure that we don't assign the watchdog to state twice so we take only the last one.
+	 * The first one is destroyed just before assigning it to state.
 	 */
-	private async _shouldComponentUpdate( nextProps: Readonly<Props<TContext> & { children?: ReactNode | undefined }> ): Promise<boolean> {
-		// If the configuration changes then the ContextWatchdog needs to be destroyed and recreated
-		// On top of the new configuration.
-		if ( nextProps.id !== this.props.id ) {
-			/* istanbul ignore else */
-			if ( this.contextWatchdog ) {
-				await this.contextWatchdog.destroy();
-			}
-
-			await this._initializeContextWatchdog( nextProps.config );
+	useEffect( () => {
+		if ( isLayoutReady ) {
+			pendingContextInitializationsRef.current.push( initializeContextWatchdog() );
+		} else {
+			setCurrentContextWatchdog( null );
 		}
+	}, [ id, isLayoutReady ] );
 
-		if ( nextProps.isLayoutReady && !this.contextWatchdog ) {
-			await this._initializeContextWatchdog( nextProps.config );
-
-			return true;
+	useEffect( () => () => {
+		if ( currentContextWatchdog ) {
+			currentContextWatchdog.destroy();
 		}
+	}, [ ] );
 
-		// Rerender the component only when children has changed.
-		return this.props.children !== nextProps.children;
-	}
+	function initializeContextWatchdog() {
+		const contextWatchdog = new ContextWatchdog( context!, watchdogConfig );
 
-	public override render(): ReactNode {
-		return (
-			<ContextWatchdogContext.Provider value={ this.contextWatchdog }>
-				{ this.props.children }
-			</ContextWatchdogContext.Provider>
-		);
-	}
-
-	public override componentWillUnmount(): void {
-		this._destroyContext();
-	}
-
-	private async _initializeContextWatchdog( config?: ContextConfig ): Promise<void> {
-		this.contextWatchdog = new ContextWatchdog( this.props.context!, this.props.watchdogConfig );
-
-		this.contextWatchdog.on( 'error', ( _, errorEvent ) => {
-			this.props.onError( errorEvent.error, {
+		contextWatchdog.on( 'error', ( _, errorEvent ) => {
+			props.onError( errorEvent.error, {
 				phase: 'runtime',
 				willContextRestart: errorEvent.causesRestart
 			} );
 		} );
 
-		this.contextWatchdog.on( 'stateChange', () => {
-			if ( this.contextWatchdog!.state === 'ready' && this.props.onReady ) {
-				this.props.onReady( this.contextWatchdog!.context! );
+		contextWatchdog.on( 'stateChange', () => {
+			if ( contextWatchdog!.state === 'ready' && onReady ) {
+				onReady( contextWatchdog!.context! );
 			}
 		} );
 
-		await this.contextWatchdog.create( config )
+		contextWatchdog
+			.create( config )
+			.then( () => {
+				pendingContextInitializationsRef.current = pendingContextInitializationsRef.current.filter(
+					watchdog => watchdog !== contextWatchdog
+				);
+
+				if ( !pendingContextInitializationsRef.current.length ) {
+					setCurrentContextWatchdog( contextWatchdog );
+				} else {
+					contextWatchdog.destroy();
+				}
+			} )
 			.catch( error => {
-				this.props.onError( error, {
+				onError( error, {
 					phase: 'initialization',
 					willContextRestart: false
 				} );
 			} );
+
+		return contextWatchdog;
 	}
 
-	private async _destroyContext(): Promise<void> {
-		if ( this.contextWatchdog ) {
-			await this.contextWatchdog.destroy();
-			this.contextWatchdog = null;
-		}
-	}
+	return (
+		<ContextWatchdogContext.Provider value={currentContextWatchdog}>
+			{props.children}
+		</ContextWatchdogContext.Provider>
+	);
+};
 
-	public static defaultProps: Partial<Props<Context>> = {
-		isLayoutReady: true,
-		onError: ( error, details ) => console.error( error, details )
+type Props<TContext extends Context> =
+	& OptionalRecord<{
+		id: string;
+		isLayoutReady: boolean;
+		context: { create( ...args: any ): Promise<any> };
+		watchdogConfig: object;
+		config: object;
+		onReady: Function;
+		onError: Function;
+	}>
+	& {
+		context?: { create( ...args: any ): Promise<TContext> };
+		watchdogConfig?: WatchdogConfig;
+		config?: ContextConfig;
+		onReady?: ( context: Context ) => void; // TODO this should accept TContext (after ContextWatchdog release).
+		onError: ( error: Error, details: ErrorDetails ) => void;
+		children?: ReactNode;
 	};
 
-	public static propTypes = {
-		id: PropTypes.string,
-		isLayoutReady: PropTypes.bool,
-		context: PropTypes.func as unknown as Validator<{ create( ...args: any ): Promise<any> } | undefined>,
-		watchdogConfig: PropTypes.object,
-		config: PropTypes.object,
-		onReady: PropTypes.func,
-		onError: PropTypes.func
-	};
-}
-
-interface Props<TContext extends Context> extends InferProps<typeof CKEditorContext.propTypes> {
-	context?: { create( ...args: any ): Promise<TContext> };
-	watchdogConfig?: WatchdogConfig;
-	config?: ContextConfig;
-	onReady?: ( context: Context ) => void; // TODO this should accept TContext (after ContextWatchdog release).
-	onError: ( error: Error, details: ErrorDetails ) => void;
-	children?: ReactNode;
-}
-
-interface ErrorDetails {
+type ErrorDetails = {
 	phase: 'initialization' | 'runtime';
 	willContextRestart: boolean;
-}
+};
+
+export default CKEditorContext;

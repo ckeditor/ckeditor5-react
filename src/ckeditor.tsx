@@ -14,7 +14,7 @@ import type { EventInfo } from '@ckeditor/ckeditor5-utils';
 import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
 import type { DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';
 
-import { EditorWatchdog, ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
+import { ContextWatchdog, EditorWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 
