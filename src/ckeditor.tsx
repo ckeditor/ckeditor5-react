@@ -18,7 +18,7 @@ import { ContextWatchdog, EditorWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 
-import { ContextWatchdogContext } from './ckeditorcontext';
+import { ContextWatchdogContext, isContextWatchdogValueWithStatus } from './ckeditorcontext';
 
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
 import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
@@ -119,14 +119,18 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Initialize the editor when the component is mounted.
 	 */
 	public override componentDidMount(): void {
-		this._initLifeCycleSemaphore();
+		if ( !isContextWatchdogValueWithStatus( 'initializing', this.context ) ) {
+			this._initLifeCycleSemaphore();
+		}
 	}
 
 	/**
 	 * Re-render the entire component once again. The old editor will be destroyed and the new one will be created.
 	 */
 	public override componentDidUpdate(): void {
-		this._initLifeCycleSemaphore();
+		if ( !isContextWatchdogValueWithStatus( 'initializing', this.context ) ) {
+			this._initLifeCycleSemaphore();
+		}
 	}
 
 	/**
