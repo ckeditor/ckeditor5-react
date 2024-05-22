@@ -210,7 +210,7 @@ type Props<TContext extends Context> =
 		watchdogConfig?: WatchdogConfig;
 		config?: ContextConfig;
 		onReady?: ( context: TContext, watchdog: ContextWatchdog<TContext> ) => void;
-		onError: ( error: Error, details: ErrorDetails ) => void;
+		onError?: ( error: Error, details: ErrorDetails ) => void;
 		children?: ReactNode;
 	};
 
