@@ -26,6 +26,8 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 	const isMountedRef = useIsMountedRef();
 	const prevWatchdogInitializationIDRef = useRef<string | null>( null );
 
+	// The currentContextWatchdog state is set to 'initializing' because it is checked later in the CKEditor component
+	// which is waiting for the full initialization of the context watchdog.
 	const [ currentContextWatchdog, setCurrentContextWatchdog ] = useState<ContextWatchdogValue>( {
 		status: 'initializing'
 	} );
@@ -69,6 +71,11 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		return prevWatchdogInitializationIDRef.current === initializationID && isMountedRef.current;
 	}
 
+	/**
+	 * Initializes the context watchdog.
+	 *
+	 * @returns Watchdog instance.
+	 */
 	function initializeContextWatchdog() {
 		// The prevWatchdogInitializationID variable is used to keep track of the previous initialization ID.
 		// It is used to ensure that the state update is performed only if the current initialization ID matches the previous one.
