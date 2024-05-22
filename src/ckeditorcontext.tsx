@@ -10,9 +10,13 @@ import { useIsMountedRef } from './hooks/useIsMountedRef';
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 import type { Context, ContextConfig } from '@ckeditor/ckeditor5-core';
 import type { OptionalRecord } from './types';
+import { randomID } from './utils/randomId';
 
 export const ContextWatchdogContext = React.createContext<ContextWatchdogValue | null>( null );
 
+/**
+ * A React component that provides a context for CKEditor.
+ */
 const CKEditorContext = <TContext extends Context = Context>( props: Props<TContext> ): ReactElement | null => {
 	const {
 		id, context, watchdogConfig, isLayoutReady = true,
@@ -20,26 +24,15 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 	} = props;
 
 	const isMountedRef = useIsMountedRef();
-	const pendingContextInitializationsRef = useRef<Array<ContextWatchdog>>( [] );
+	const prevWatchdogInitializationIDRef = useRef<string | null>( null );
 
 	const [ currentContextWatchdog, setCurrentContextWatchdog ] = useState<ContextWatchdogValue>( {
 		status: 'initializing'
 	} );
 
-	/**
-	 * Hooks in strict mode runs twice, so we need to make sure that we don't assign the watchdog to state twice.
-	 * This is a workaround. We create a initializer queue, and push two watchdogs in initializing state.
-	 *
-	 * 	1. First push occurs on first render (normal one).
-	 * 	2. The second push occurs on the second render (when strict mode rerender occurs).
-	 *
-	 * Initializer queue is resolved in push order so at the second render we have 2 instances of watchdog.
-	 * We need to make sure that we don't assign the watchdog to state twice so we take only the last one.
-	 * The first one is destroyed just before assigning it to state.
-	 */
 	useEffect( () => {
 		if ( isLayoutReady ) {
-			pendingContextInitializationsRef.current.push( initializeContextWatchdog() );
+			initializeContextWatchdog();
 		} else {
 			setCurrentContextWatchdog( {
 				status: 'initializing'
@@ -51,20 +44,39 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		if ( currentContextWatchdog.status === 'initialized' ) {
 			currentContextWatchdog.watchdog.destroy();
 		}
-	}, [] );
+	}, [ currentContextWatchdog ] );
+
+	/**
+	 * Regenerates the initialization ID by generating a random ID and updating the previous watchdog initialization ID.
+	 * This is necessary to ensure that the state update is performed only if the current initialization ID matches the previous one.
+	 * This helps to avoid race conditions and ensures that the correct context watchdog is associated with the component.
+	 *
+	 * @returns The regenerated initialization ID.
+	 */
+	function regenerateInitializationID() {
+		prevWatchdogInitializationIDRef.current = randomID();
+
+		return prevWatchdogInitializationIDRef.current;
+	}
+
+	/**
+	 * Checks if the state can be updated based on the provided initialization ID.
+	 *
+	 * @param initializationID - The initialization ID to compare with the previous one.
+	 * @returns A boolean indicating whether the state can be updated.
+	 */
+	function canUpdateState( initializationID: string ) {
+		return prevWatchdogInitializationIDRef.current === initializationID && isMountedRef.current;
+	}
 
 	function initializeContextWatchdog() {
+		// The prevWatchdogInitializationID variable is used to keep track of the previous initialization ID.
+		// It is used to ensure that the state update is performed only if the current initialization ID matches the previous one.
+		// This helps to avoid race conditions and ensures that the correct context watchdog is associated with the component.
+		const watchdogInitializationID = regenerateInitializationID();
 		const contextWatchdog = new ContextWatchdog( context!, watchdogConfig );
 
-		// Returns `true` if the state can be assigned in current promise chain.
-		const releaseStateAssignLock = () => {
-			pendingContextInitializationsRef.current = pendingContextInitializationsRef.current.filter(
-				watchdog => watchdog !== contextWatchdog
-			);
-
-			return isMountedRef.current && !pendingContextInitializationsRef.current.length;
-		};
-
+		// Handle error event from context watchdog
 		contextWatchdog.on( 'error', ( _, errorEvent ) => {
 			props.onError( errorEvent.error, {
 				phase: 'runtime',
@@ -72,31 +84,37 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 			} );
 		} );
 
+		// Handle state change event from context watchdog
 		contextWatchdog.on( 'stateChange', () => {
-			if ( contextWatchdog!.state === 'ready' && onReady ) {
-				onReady( contextWatchdog!.context! );
+			if ( contextWatchdog.state === 'ready' && onReady ) {
+				onReady( contextWatchdog.context! );
 			}
 		} );
 
+		// Create the context watchdog and initialize it with the provided config
 		contextWatchdog
 			.create( config )
 			.then( () => {
-				if ( releaseStateAssignLock() ) {
+				// Check if the state update is still valid and update the current context watchdog
+				if ( canUpdateState( watchdogInitializationID ) ) {
 					setCurrentContextWatchdog( {
 						status: 'initialized',
 						watchdog: contextWatchdog
 					} );
 				} else {
+					// Destroy the context watchdog if the state update is no longer valid
 					contextWatchdog.destroy();
 				}
 			} )
 			.catch( error => {
+				// Handle error during context watchdog initialization
 				onError( error, {
 					phase: 'initialization',
 					willContextRestart: false
 				} );
 
-				if ( releaseStateAssignLock() ) {
+				// Update the current context watchdog with the error status
+				if ( canUpdateState( watchdogInitializationID ) ) {
 					setCurrentContextWatchdog( {
 						status: 'error',
 						error
@@ -116,7 +134,8 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 
 /**
  * Checks if the given object is of type ContextWatchdogValue.
- * @param obj - The object to be checked.
+ *
+ * @param obj The object to be checked.
  * @returns True if the object is of type ContextWatchdogValue, false otherwise.
  */
 export const isContextWatchdogValue = ( obj: any ): obj is ContextWatchdogValue =>
