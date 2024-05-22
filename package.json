@@ -93,7 +93,7 @@
     "@ckeditor/ckeditor5-engine": ">=41.3.1",
     "@ckeditor/ckeditor5-utils": ">=41.3.1",
     "@ckeditor/ckeditor5-watchdog": ">=41.3.1",
-    "react": "^16.13.1 || ^17.0.0 || ^18.0.0"
+    "react": "^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
