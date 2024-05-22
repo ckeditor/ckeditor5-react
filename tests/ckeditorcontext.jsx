@@ -6,14 +6,16 @@
 import React from 'react';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import CKEditorContext from '../src/ckeditorcontext.tsx';
+import CKEditorContext, { useCKEditorWatchdogContext } from '../src/ckeditorcontext.tsx';
 import CKEditor from '../src/ckeditor.tsx';
 import EditorMock from './_utils/editor.js';
 import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
-import ContextMock from './_utils/context.js';
+import ContextMock, { DeferredContextMock } from './_utils/context.js';
+
 import { waitFor } from './_utils/waitFor.js';
+import { timeout } from './_utils/timeout.js';
 
 configure( { adapter: new Adapter() } );
 
@@ -30,36 +32,94 @@ describe( '<CKEditorContext> Component', () => {
 
 	describe( 'initialization', () => {
 		it( 'should create an instance of the ContextWatchdog', async () => {
-			await new Promise( res => {
-				wrapper = mount( <CKEditorContext context={ ContextMock } onReady={ res } /> );
+			const myWatchdogConfig = { crashNumberLimit: 678 };
+			const contextWatchdog = await new Promise( res => {
+				wrapper = mount(
+					<CKEditorContext
+						context={ ContextMock }
+						watchdogConfig={ myWatchdogConfig }
+						onReady={ ( _, watchdog ) => res( watchdog ) }
+					/>
+				);
 			} );
 
-			const component = wrapper.instance();
-
-			expect( component.contextWatchdog ).to.be.an( 'object' );
-			expect( component.contextWatchdog ).to.be.instanceOf( ContextWatchdog );
+			expect( contextWatchdog ).to.be.an( 'object' );
+			expect( contextWatchdog ).to.be.instanceOf( ContextWatchdog );
 		} );
 
 		it( 'should pass the watchdog config to the ContextWatchdog', async () => {
 			const myWatchdogConfig = { crashNumberLimit: 678 };
-
-			await new Promise( res => {
-				wrapper = mount( <CKEditorContext context={ ContextMock } onReady={ res } watchdogConfig={ myWatchdogConfig }/> );
+			const contextWatchdog = await new Promise( res => {
+				wrapper = mount(
+					<CKEditorContext
+						context={ ContextMock }
+						watchdogConfig={ myWatchdogConfig }
+						onReady={ ( _, watchdog ) => res( watchdog ) }
+					/>
+				);
 			} );
 
-			const component = wrapper.instance();
+			expect( contextWatchdog ).to.be.an( 'object' );
+			expect( contextWatchdog ).to.be.instanceOf( ContextWatchdog );
+			expect( contextWatchdog._crashNumberLimit ).to.equal( myWatchdogConfig.crashNumberLimit );
+		} );
 
-			expect( component.contextWatchdog ).to.be.an( 'object' );
-			expect( component.contextWatchdog ).to.be.instanceOf( ContextWatchdog );
-			expect( component.contextWatchdog._crashNumberLimit ).to.equal( 678 );
+		it( 'should be initialized with the context instance', async () => {
+			const { contextRef, defer } = mountAndReadReactContextValueRef();
+
+			expect( contextRef.current ).to.be.deep.equal( {
+				status: 'initializing'
+			} );
+
+			defer.resolve();
+
+			await waitFor( () => {
+				const { current } = contextRef;
+
+				expect( current ).to.have.property( 'watchdog' );
+				expect( current.status ).to.be.equal( 'initialized' );
+				expect( current.watchdog ).to.be.an.instanceOf( ContextWatchdog );
+			} );
 		} );
 
 		it( 'should not create anything if the layout is not ready', async () => {
-			wrapper = mount( <CKEditorContext context={ ContextMock } isLayoutReady={ false }/> );
+			const { contextRef, defer } = mountAndReadReactContextValueRef( {
+				isLayoutReady: false
+			} );
 
-			const component = wrapper.instance();
+			expect( contextRef.current ).to.be.deep.equal( {
+				status: 'initializing'
+			} );
 
-			expect( component.contextWatchdog ).to.equal( null );
+			defer.resolve();
+			await timeout( 100 );
+
+			// It should keep in `initializing` state even if deferred.
+			expect( contextRef.current ).to.be.deep.equal( {
+				status: 'initializing'
+			} );
+
+			wrapper.setProps( {
+				isLayoutReady: true
+			} );
+
+			await waitFor( () => {
+				const { current } = contextRef;
+
+				expect( current ).to.have.property( 'watchdog' );
+				expect( current.status ).to.be.equal( 'initialized' );
+				expect( current.watchdog ).to.be.an.instanceOf( ContextWatchdog );
+			} );
+
+			wrapper.setProps( {
+				isLayoutReady: false
+			} );
+
+			await waitFor( () => {
+				expect( contextRef.current ).to.be.deep.equal( {
+					status: 'initializing'
+				} );
+			} );
 		} );
 
 		it( 'should render its children', async () => {
@@ -85,18 +145,13 @@ describe( '<CKEditorContext> Component', () => {
 				);
 			} );
 
-			const component = wrapper.instance();
-
-			expect( component.contextWatchdog ).to.be.an( 'object' );
 			expect( wrapper.childAt( 0 ).name() ).to.equal( 'CKEditor' );
 			expect( wrapper.childAt( 0 ).prop( 'editor' ) ).to.be.a( 'function' );
-
 			expect( wrapper.childAt( 0 ).instance().editor ).to.be.an( 'object' );
 
 			sinon.assert.calledOnce( editorCreateSpy );
 
 			expect( editorCreateSpy.firstCall.args[ 1 ] ).to.have.property( 'context' );
-			expect( editorCreateSpy.firstCall.args[ 1 ].context ).to.be.instanceOf( ContextMock );
 		} );
 
 		it( 'should initialize its inner editors correctly', async () => {
@@ -104,19 +159,15 @@ describe( '<CKEditorContext> Component', () => {
 
 			await new Promise( ( res, rej ) => {
 				wrapper = mount(
-					<CKEditorContext context={ ContextMock } onError={ rej } >
+					<CKEditorContext
+						context={ ContextMock }
+						onError={ rej }
+						onReady={ ( _, watchdog ) => res( watchdog ) }
+					>
 						<CKEditor editor={ EditorMock } config={ { initialData: '<p>Foo</p>' } } />
 						<CKEditor editor={ EditorMock } config={ { initialData: '<p>Bar</p>' } } />
 					</CKEditorContext>
 				);
-
-				const watchdog = wrapper.instance().contextWatchdog;
-
-				watchdog.on( 'stateChange', () => {
-					if ( watchdog.state === 'ready' ) {
-						res();
-					}
-				} );
 			} );
 
 			await waitFor( () => {
@@ -129,41 +180,30 @@ describe( '<CKEditorContext> Component', () => {
 
 			sinon.assert.calledTwice( editorCreateSpy );
 
+			expect( editorCreateSpy.firstCall.args[ 1 ].initialData ).to.equal( '<p>Foo</p>' );
+			expect( editorCreateSpy.secondCall.args[ 1 ].initialData ).to.equal( '<p>Bar</p>' );
+
 			expect( editorCreateSpy.firstCall.args[ 1 ].context ).to.be.instanceOf( ContextMock );
 			expect( editorCreateSpy.secondCall.args[ 1 ].context ).to.be.instanceOf( ContextMock );
 			expect( editorCreateSpy.firstCall.args[ 1 ].context ).to.equal( editorCreateSpy.secondCall.args[ 1 ].context );
-
-			expect( editorCreateSpy.firstCall.args[ 1 ].initialData ).to.equal( '<p>Foo</p>' );
-			expect( editorCreateSpy.secondCall.args[ 1 ].initialData ).to.equal( '<p>Bar</p>' );
 		} );
 
 		it( 'should wait for the `ContextWatchdog#destroy()` promise when destroying the context feature', async () => {
-			let watchdog;
-
-			await new Promise( ( res, rej ) => {
+			const watchdog = await new Promise( ( res, rej ) => {
 				wrapper = mount(
-					<CKEditorContext context={ ContextMock } onError={ rej }>
-					</CKEditorContext>
+					<CKEditorContext
+						context={ ContextMock }
+						onError={ rej }
+						onReady={ ( _, watchdog ) => res( watchdog ) }
+					/>
 				);
-
-				watchdog = wrapper.instance().contextWatchdog;
-
-				watchdog.on( 'stateChange', () => {
-					if ( watchdog.state === 'ready' ) {
-						res();
-					}
-				} );
 			} );
 
 			wrapper.unmount();
 			wrapper = null;
 
-			return new Promise( resolve => {
-				setTimeout( () => {
-					expect( watchdog._context ).to.equal( null );
-
-					resolve();
-				} );
+			await waitFor( () => {
+				expect( watchdog._context ).to.equal( null );
 			} );
 		} );
 	} );
@@ -177,7 +217,10 @@ describe( '<CKEditorContext> Component', () => {
 
 				const errorEvent = await new Promise( res => {
 					wrapper = mount(
-						<CKEditorContext context={ ContextMock } onError={ ( error, details ) => res( { error, details } ) } >
+						<CKEditorContext
+							context={ ContextMock }
+							onError={ ( error, details ) => res( { error, details } ) }
+						>
 							<CKEditor editor={ EditorMock } />
 						</CKEditorContext>
 					);
@@ -193,29 +236,29 @@ describe( '<CKEditorContext> Component', () => {
 
 			it( 'should be called when a runtime error occurs', async () => {
 				const onErrorSpy = sinon.spy();
-
-				await new Promise( res => {
-					wrapper = mount(
-						<CKEditorContext
-							context={ ContextMock }
-							onReady={ res }
-							onError={ onErrorSpy }
-						>
-							<CKEditor editor={ EditorMock } />
-						</CKEditorContext >
-					);
+				const { contextRef, defer } = mountAndReadReactContextValueRef( {
+					onError: onErrorSpy
 				} );
 
-				const error = new CKEditorError( 'foo', wrapper.instance().contextWatchdog.context );
+				defer.resolve();
 
-				await turnOffDefaultErrorCatching( () => {
-					return new Promise( res => {
-						wrapper.setProps( { onReady: res } );
+				await waitFor( () => {
+					const { current } = contextRef;
 
-						setTimeout( () => {
-							throw error;
-						} );
+					expect( current ).to.have.property( 'watchdog' );
+					expect( current.status ).to.be.equal( 'initialized' );
+					expect( current.watchdog ).to.be.an.instanceOf( ContextWatchdog );
+				} );
+
+				const { watchdog } = contextRef.current;
+				const error = new CKEditorError( 'foo', watchdog.context );
+
+				await turnOffDefaultErrorCatching( async () => {
+					setTimeout( () => {
+						throw error;
 					} );
+
+					await timeout( 150 );
 				} );
 
 				sinon.assert.calledOnce( onErrorSpy );
@@ -226,6 +269,8 @@ describe( '<CKEditorContext> Component', () => {
 					phase: 'runtime',
 					willContextRestart: true
 				} );
+
+				expect( contextRef.current.status ).to.be.equal( 'initialized' );
 			} );
 
 			it( 'displays an error if something went wrong and "onError" callback was not specified', async () => {
@@ -234,15 +279,19 @@ describe( '<CKEditorContext> Component', () => {
 
 				sinon.stub( ContextWatchdog.prototype, 'create' ).rejects( error );
 
-				await turnOffDefaultErrorCatching( () => {
-					wrapper = mount(
-						<CKEditorContext context={ ContextMock }></CKEditorContext>
-					);
+				const { contextRef, defer } = mountAndReadReactContextValueRef();
+				defer.resolve();
+
+				await waitFor( () => {
+					const { current } = contextRef;
+
+					expect( consoleErrorStub.callCount ).to.equal( 1 );
+					consoleErrorStub.restore();
+
+					expect( current ).to.have.property( 'status' );
+					expect( current.status ).to.be.equal( 'error' );
+					expect( current.error ).to.be.equal( error );
 				} );
-
-				consoleErrorStub.restore();
-
-				expect( consoleErrorStub.callCount ).to.equal( 1 );
 			} );
 		} );
 
@@ -303,7 +352,6 @@ describe( '<CKEditorContext> Component', () => {
 			} );
 
 			expect( context ).to.be.an.instanceOf( ContextMock );
-			expect( wrapper.instance().contextWatchdog ).to.not.equal( null );
 		} );
 
 		it( 'should not create the component watchdog if layout is not ready', async () => {
@@ -332,45 +380,74 @@ describe( '<CKEditorContext> Component', () => {
 			} );
 		} );
 
-		it( 'should not re-render the component if layout is not ready after initialization', async () => {
-			const oldContext = await new Promise( res => {
-				wrapper = mount(
-					<CKEditorContext context={ ContextMock } id="1" onReady={ res }>
-						<CKEditor editor={ EditorMock } />
-					</CKEditorContext>
-				);
-			} );
-
-			wrapper.setProps( {
-				isLayoutReady: false
-			} );
-
-			const componentInstance = wrapper.instance(); // <CKEditorContext>
-
-			expect( componentInstance.contextWatchdog.context ).to.equal( oldContext );
-		} );
-
 		it( 'should restart the Context and all editors if children has changed', async () => {
-			await new Promise( res => {
-				wrapper = mount(
-					<CKEditorContext context={ ContextMock } id="1" onReady={ res }>
-						<CKEditor editor={ EditorMock } />
-					</CKEditorContext>
-				);
-			} );
+			const editorCreateSpy = sinon.spy( EditorMock, 'create' );
+			const { waitForInitialize } = mountAndReadReactContextValueRef(
+				{},
+				<CKEditor editor={ EditorMock } config={{ initialData: 'Hello World' }} />
+			);
 
+			await waitForInitialize();
+
+			expect( editorCreateSpy.firstCall.args[ 1 ].initialData ).to.equal( 'Hello World' );
 			wrapper.setProps( {
 				children: [
 					// The `key` property is required when defining children this way.
 					// See: https://reactjs.org/docs/lists-and-keys.html#keys.
-					<CKEditor editor={ EditorMock } key="id-1" />,
-					<CKEditor editor={ EditorMock } key="id-2" />
+					<CKEditor editor={ EditorMock } key="id-1" config={{ initialData: 'Foo' }} />,
+					<CKEditor editor={ EditorMock } key="id-2" config={{ initialData: 'Bar' }} />
 				]
 			} );
 
-			expect( wrapper.instance().props.children.length ).to.equal( 2 );
+			await waitFor( () => {
+				sinon.assert.calledThrice( editorCreateSpy );
+
+				expect( editorCreateSpy.secondCall.args[ 1 ].initialData ).to.equal( 'Foo' );
+				expect( editorCreateSpy.thirdCall.args[ 1 ].initialData ).to.equal( 'Bar' );
+			} );
 		} );
 	} );
+
+	function mountAndReadReactContextValueRef(
+		props = {},
+		children = <CKEditor editor={ EditorMock } />
+	) {
+		const deferContext = DeferredContextMock.create();
+		const contextRef = {
+			current: null
+		};
+
+		const ContextReader = () => {
+			contextRef.current = useCKEditorWatchdogContext();
+			return null;
+		};
+
+		wrapper = mount(
+			<CKEditorContext
+				context={ deferContext }
+				watchdogConfig={ { crashNumberLimit: 678 } }
+				{...props}
+			>
+				<ContextReader />
+				{ children }
+			</CKEditorContext>
+		);
+
+		const waitForInitialize = async () => {
+			deferContext.defer.resolve();
+
+			await waitFor( () => {
+				expect( contextRef.current.status ).to.be.equal( 'initialized' );
+			} );
+		};
+
+		return {
+			defer: deferContext.defer,
+			wrapper,
+			contextRef,
+			waitForInitialize
+		};
+	}
 } );
 
 describe( 'EditorWatchdogAdapter', () => {

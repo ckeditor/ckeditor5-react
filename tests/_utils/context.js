@@ -3,6 +3,8 @@
  * For licensing, see LICENSE.md.
  */
 
+import { createDefer } from './defer.js';
+
 /**
  * Mock of class that representing the Context feature.
  *
@@ -19,5 +21,19 @@ export default class ContextMock {
 
 	destroy() {
 		return Promise.resolve();
+	}
+}
+
+/**
+ * A mock class representing a deferred context.
+ */
+export class DeferredContextMock {
+	static create() {
+		const defer = createDefer();
+
+		return {
+			defer,
+			create: ( ...args ) => defer.promise.then( () => new ContextMock( ...args ) )
+		};
 	}
 }

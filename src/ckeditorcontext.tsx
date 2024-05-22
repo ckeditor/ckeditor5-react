@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
-import React, { useState, useRef, useEffect, type ReactNode, type ReactElement } from 'react';
+import React, { useState, useRef, useEffect, type ReactNode, type ReactElement, useContext } from 'react';
 import { ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import { useIsMountedRef } from './hooks/useIsMountedRef';
 
@@ -15,12 +15,20 @@ import { randomID } from './utils/randomId';
 export const ContextWatchdogContext = React.createContext<ContextWatchdogValue | null>( null );
 
 /**
+ * Custom hook that returns the CKEditor Watchdog context value.
+ */
+export const useCKEditorWatchdogContext = (): ContextWatchdogValue | null =>
+	useContext( ContextWatchdogContext );
+
+/**
  * A React component that provides a context for CKEditor.
  */
 const CKEditorContext = <TContext extends Context = Context>( props: Props<TContext> ): ReactElement | null => {
 	const {
-		id, context, watchdogConfig, isLayoutReady = true,
-		config, onReady, onError
+		id, context, watchdogConfig,
+		children, config, onReady,
+		isLayoutReady = true,
+		onError = ( error, details ) => console.error( error, details )
 	} = props;
 
 	const isMountedRef = useIsMountedRef();
@@ -85,7 +93,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 
 		// Handle error event from context watchdog
 		contextWatchdog.on( 'error', ( _, errorEvent ) => {
-			props.onError( errorEvent.error, {
+			onError( errorEvent.error, {
 				phase: 'runtime',
 				willContextRestart: errorEvent.causesRestart
 			} );
@@ -94,7 +102,10 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		// Handle state change event from context watchdog
 		contextWatchdog.on( 'stateChange', () => {
 			if ( contextWatchdog.state === 'ready' && onReady ) {
-				onReady( contextWatchdog.context! );
+				onReady(
+					contextWatchdog.context! as TContext,
+					contextWatchdog
+				);
 			}
 		} );
 
@@ -134,7 +145,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 
 	return (
 		<ContextWatchdogContext.Provider value={currentContextWatchdog}>
-			{props.children}
+			{children}
 		</ContextWatchdogContext.Provider>
 	);
 };
@@ -198,7 +209,7 @@ type Props<TContext extends Context> =
 		context?: { create( ...args: any ): Promise<TContext> };
 		watchdogConfig?: WatchdogConfig;
 		config?: ContextConfig;
-		onReady?: ( context: Context ) => void; // TODO this should accept TContext (after ContextWatchdog release).
+		onReady?: ( context: TContext, watchdog: ContextWatchdog<TContext> ) => void;
 		onError: ( error: Error, details: ErrorDetails ) => void;
 		children?: ReactNode;
 	};

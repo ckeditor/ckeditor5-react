@@ -14,7 +14,7 @@ import type { EventInfo } from '@ckeditor/ckeditor5-utils';
 import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
 import type { DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';
 
-import { ContextWatchdog, EditorWatchdog } from '@ckeditor/ckeditor5-watchdog';
+import { EditorWatchdog, type ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 
@@ -212,8 +212,8 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		}
 
 		const watchdog = ( () => {
-			if ( this.context instanceof ContextWatchdog ) {
-				return new EditorWatchdogAdapter( this.context );
+			if ( isContextWatchdogValueWithStatus( 'initialized', this.context ) ) {
+				return new EditorWatchdogAdapter( this.context.watchdog );
 			}
 
 			return new CKEditor._EditorWatchdog( this.props.editor, this.props.watchdogConfig );
