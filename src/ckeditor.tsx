@@ -18,7 +18,11 @@ import { EditorWatchdog, type ContextWatchdog } from '@ckeditor/ckeditor5-watchd
 import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 
-import { ContextWatchdogContext, isContextWatchdogValueWithStatus } from './ckeditorcontext';
+import {
+	ContextWatchdogContext,
+	isContextWatchdogValue,
+	isContextWatchdogValueWithStatus
+} from './ckeditorcontext';
 
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
 import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
@@ -82,8 +86,24 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * The CKEditor component should not be updated by React itself.
 	 * However, if the component identifier changes, the whole structure should be created once again.
 	 */
-	public override shouldComponentUpdate( nextProps: Readonly<Props<TEditor>> ): boolean {
-		const { props, editorSemaphore } = this;
+	public override shouldComponentUpdate(
+		nextProps: Readonly<Props<TEditor>>,
+		_: Readonly<unknown>,
+		nextContext: any
+	): boolean {
+		const { context, props, editorSemaphore } = this;
+
+		// When the context nullability changes, the component should be updated.
+		if ( !!context !== !!nextContext ) {
+			return true;
+		}
+
+		// When the watchdog status changes, the component should be updated.
+		if ( isContextWatchdogValue( context ) &&
+				isContextWatchdogValue( nextContext ) &&
+				context.status !== nextContext.status ) {
+			return true;
+		}
 
 		// Only when the component identifier changes the whole structure should be re-created once again.
 		if ( nextProps.id !== props.id ) {
