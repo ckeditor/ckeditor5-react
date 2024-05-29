@@ -8,15 +8,17 @@
 import React from 'react';
 import PropTypes, { type InferProps, type Validator } from 'prop-types';
 
-import uid from '@ckeditor/ckeditor5-utils/src/uid';
-
-import type { EventInfo } from '@ckeditor/ckeditor5-utils';
-import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
-import type { DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';
-
-import { EditorWatchdog, type ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
-import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
-import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
+import {
+	uid,
+	EditorWatchdog,
+	type Editor,
+	type EventInfo,
+	type EditorConfig,
+	type ContextWatchdog,
+	type DocumentChangeEvent,
+	type WatchdogConfig,
+	type EditorCreatorFunction
+} from 'ckeditor5';
 
 import {
 	ContextWatchdogContext,
@@ -26,6 +28,12 @@ import {
 
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
 import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
+
+/**
+ * TODO: This is a copy of a `uid` from `@ckeditor/ckeditor5-utils`. Once we drop support for
+ * the old installation methods of CKEditor 5, we can import `uid` directly from `ckeditor5`.
+ */
+// import { uid } from './utils/uid';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -45,17 +53,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	constructor( props: Props<TEditor> ) {
 		super( props );
 
-		const { CKEDITOR_VERSION } = window;
-
-		if ( CKEDITOR_VERSION ) {
-			const [ major ] = CKEDITOR_VERSION.split( '.' ).map( Number );
-
-			if ( major < 37 ) {
-				console.warn( 'The <CKEditor> component requires using CKEditor 5 in version 37 or higher.' );
-			}
-		} else {
-			console.warn( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
-		}
+		this._checkVersion();
 	}
 
 	private get _semaphoreValue(): EditorSemaphoreMountResult<TEditor> | null {
@@ -80,6 +78,25 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		const { _semaphoreValue } = this;
 
 		return _semaphoreValue ? _semaphoreValue.instance : null;
+	}
+
+	/**
+	 * Checks if the CKEditor version used in the application is compatible with the component.
+	 */
+	private _checkVersion(): void {
+		const { CKEDITOR_VERSION } = window;
+
+		if ( !CKEDITOR_VERSION ) {
+			return console.warn( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
+		}
+
+		const [ major ] = CKEDITOR_VERSION.split( '.' ).map( Number );
+
+		if ( major >= 42 || CKEDITOR_VERSION.startsWith( '0.0.0' ) ) {
+			return;
+		}
+
+		console.warn( 'The <CKEditor> component requires using CKEditor 5 in version 42+ or nightly build.' );
 	}
 
 	/**

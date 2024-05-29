@@ -3,11 +3,12 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global document, ClassicEditor */
+/* global document */
 /* eslint-disable react/no-render-return-value */
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { ClassicEditor, Essentials, Paragraph } from 'ckeditor5';
 import { configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
@@ -15,9 +16,12 @@ import CKEditor from '../../src/ckeditor.tsx';
 
 configure( { adapter: new Adapter() } );
 
+class TestEditor extends ClassicEditor {}
+TestEditor.builtinPlugins = [ Essentials, Paragraph ];
+
 const Editor = props => {
 	return (
-		<CKEditor editor={ ClassicEditor } { ...props } />
+		<CKEditor editor={ TestEditor } { ...props } />
 	);
 };
 

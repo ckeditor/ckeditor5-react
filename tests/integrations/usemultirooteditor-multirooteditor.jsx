@@ -3,9 +3,8 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global MultiRootEditor */
-
 import React from 'react';
+import { MultiRootEditor } from 'ckeditor5';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import { act } from 'react-dom/test-utils';

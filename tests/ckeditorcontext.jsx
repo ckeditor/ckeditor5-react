@@ -9,8 +9,7 @@ import Adapter from 'enzyme-adapter-react-16';
 import CKEditorContext, { useCKEditorWatchdogContext } from '../src/ckeditorcontext.tsx';
 import CKEditor from '../src/ckeditor.tsx';
 import EditorMock from './_utils/editor.js';
-import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
-import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
+import { ContextWatchdog, CKEditorError } from 'ckeditor5';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
 import ContextMock, { DeferredContextMock } from './_utils/context.js';
 

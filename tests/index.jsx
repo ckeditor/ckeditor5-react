@@ -9,7 +9,7 @@ import React from 'react';
 
 import ContextMock from './_utils/context.js';
 import Editor from './_utils/editor';
-import { CKEditor, CKEditorContext } from '../dist';
+import { CKEditor, CKEditorContext } from '../src/index';
 
 configure( { adapter: new Adapter() } );
 

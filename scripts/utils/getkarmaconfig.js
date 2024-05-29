@@ -55,9 +55,6 @@ module.exports = function getKarmaConfig() {
 		frameworks: [ 'mocha', 'chai', 'sinon', 'webpack' ],
 
 		files: [
-			// If the file below is imported in tests directly, it leads to an error related to CKEDITOR_VERSION collision.
-			// It may be related to presets that are required for *.jsx files.
-			path.resolve( __dirname, '..', '..', 'tests', '_utils', '_buildclassicdll.js' ),
 			'tests/**/*.js',
 			'tests/**/*.jsx'
 		],

@@ -4,11 +4,13 @@
  */
 
 import React, { useState, useRef, useEffect, type ReactNode, type ReactElement, useContext } from 'react';
-import { ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
+import {
+	ContextWatchdog,
+	type Context,
+	type ContextConfig,
+	type WatchdogConfig
+} from 'ckeditor5';
 import { useIsMountedRef } from './hooks/useIsMountedRef';
-
-import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
-import type { Context, ContextConfig } from '@ckeditor/ckeditor5-core';
 import type { OptionalRecord } from './types';
 import { randomID } from './utils/randomId';
 

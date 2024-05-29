@@ -3,22 +3,19 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global MultiRootEditor, document */
+/* global document */
 
 import React from 'react';
 import { renderHook, act } from '@testing-library/react-hooks/dom';
-
-import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
-import { ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
+import { MultiRootEditor, CKEditorError, ContextWatchdog } from 'ckeditor5';
+import { configure, mount } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 
 import useMultiRootEditor from '../src/useMultiRootEditor.tsx';
 import { ContextWatchdogContext } from '../src/ckeditorcontext';
-import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
 import { timeout } from './_utils/timeout';
-
-import { configure, mount } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-import { createDefer } from './_utils/defer.js';
+import { createDefer } from './_utils/defer';
+import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
 
 configure( { adapter: new Adapter() } );
 

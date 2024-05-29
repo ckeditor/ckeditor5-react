@@ -3,8 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
-import type { Editor } from '@ckeditor/ckeditor5-core';
-import type { EditorWatchdog } from '@ckeditor/ckeditor5-watchdog';
+import type { Editor, EditorWatchdog } from 'ckeditor5';
 
 import type { EditorWatchdogAdapter } from '../ckeditor';
 import type { LifeCycleElementSemaphore } from './LifeCycleElementSemaphore';

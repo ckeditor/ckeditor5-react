@@ -3,10 +3,11 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global ClassicEditor, window, document */
+/* global window, document */
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { ClassicEditor } from 'ckeditor5';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 

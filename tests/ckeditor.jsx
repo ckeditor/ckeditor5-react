@@ -10,8 +10,8 @@ import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import Editor from './_utils/editor';
 import CKEditor from '../src/ckeditor.tsx';
-import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
-import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
+import { CKEditorError } from 'ckeditor5';
+import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
 import { waitFor } from './_utils/waitFor.js';
 import { createDefer } from './_utils/defer.js';
 import { timeout } from './_utils/timeout.js';
@@ -25,7 +25,7 @@ describe( '<CKEditor> Component', () => {
 		CKEDITOR_VERSION = window.CKEDITOR_VERSION;
 
 		wrapper = null;
-		window.CKEDITOR_VERSION = '37.0.0';
+		window.CKEDITOR_VERSION = '42.0.0';
 		sinon.stub( Editor._model.document, 'on' );
 		sinon.stub( Editor._editing.view.document, 'on' );
 	} );
@@ -61,7 +61,7 @@ describe( '<CKEditor> Component', () => {
 			const onReady = () => {
 				expect( warnStub.callCount ).to.equal( 1 );
 				expect( warnStub.firstCall.args[ 0 ] ).to.equal(
-					'The <CKEditor> component requires using CKEditor 5 in version 37 or higher.'
+					'The <CKEditor> component requires using CKEditor 5 in version 42+ or nightly build.'
 				);
 				done();
 			};
@@ -70,7 +70,7 @@ describe( '<CKEditor> Component', () => {
 		} );
 
 		it( 'should not print any warninig if using CKEditor 5 in version 37 or higher', done => {
-			window.CKEDITOR_VERSION = '37.0.0';
+			window.CKEDITOR_VERSION = '42.0.0';
 			const warnStub = sinon.stub( console, 'warn' );
 
 			const onReady = () => {

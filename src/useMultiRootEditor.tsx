@@ -8,16 +8,20 @@ import React, {
 	type Dispatch, type SetStateAction, type RefObject
 } from 'react';
 
-import type { InlineEditableUIView } from '@ckeditor/ckeditor5-ui';
-import type { EditorConfig } from '@ckeditor/ckeditor5-core';
-import type { DocumentChangeEvent, Writer, RootElement } from '@ckeditor/ckeditor5-engine';
-
-import { ContextWatchdog, EditorWatchdog } from '@ckeditor/ckeditor5-watchdog';
-import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
-
-import type { AddRootEvent, DetachRootEvent } from '@ckeditor/ckeditor5-editor-multi-root/src/multirooteditor';
-import type MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
-import type EventInfo from '@ckeditor/ckeditor5-utils/src/eventinfo';
+import {
+	EditorWatchdog,
+	ContextWatchdog,
+	type Writer,
+	type EventInfo,
+	type RootElement,
+	type EditorConfig,
+	type AddRootEvent,
+	type DetachRootEvent,
+	type MultiRootEditor,
+	type DocumentChangeEvent,
+	type InlineEditableUIView,
+	type WatchdogConfig
+} from 'ckeditor5';
 
 import { ContextWatchdogContext } from './ckeditorcontext';
 import { EditorWatchdogAdapter } from './ckeditor';
