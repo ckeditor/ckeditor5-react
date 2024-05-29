@@ -8,16 +8,15 @@
 import React from 'react';
 import PropTypes, { type InferProps, type Validator } from 'prop-types';
 
-import {
-	uid,
+import type {
+	Editor,
+	EventInfo,
+	EditorConfig,
 	EditorWatchdog,
-	type Editor,
-	type EventInfo,
-	type EditorConfig,
-	type ContextWatchdog,
-	type DocumentChangeEvent,
-	type WatchdogConfig,
-	type EditorCreatorFunction
+	ContextWatchdog,
+	DocumentChangeEvent,
+	WatchdogConfig,
+	EditorCreatorFunction
 } from 'ckeditor5';
 
 import {
@@ -27,7 +26,10 @@ import {
 } from './ckeditorcontext';
 
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
+import type { EditorFactory } from './types';
+
 import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
+import { uid } from './utils/uid';
 
 /**
  * TODO: This is a copy of a `uid` from `@ckeditor/ckeditor5-utils`. Once we drop support for
@@ -253,7 +255,9 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 				return new EditorWatchdogAdapter( this.context.watchdog );
 			}
 
-			return new CKEditor._EditorWatchdog( this.props.editor, this.props.watchdogConfig );
+			const { editor, watchdogConfig } = this.props;
+
+			return new editor.ContextWatchdog( editor, watchdogConfig );
 		} )() as EditorWatchdogAdapter<TEditor>;
 
 		const totalRestartsRef = {
@@ -450,17 +454,13 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		disabled: PropTypes.bool,
 		id: PropTypes.any
 	};
-
-	// Store the API in the static property to easily overwrite it in tests.
-	// Too bad dependency injection does not work in Webpack + ES 6 (const) + Babel.
-	public static _EditorWatchdog = EditorWatchdog;
 }
 
 /**
  * TODO this is type space definition for props, the CKEditor.propTypes is a run-time props validation that should match.
  */
-interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propTypes> {
-	editor: { create( ...args: any ): Promise<TEditor> };
+type Props<TEditor extends Editor> = Omit<InferProps<typeof CKEditor.propTypes>, 'editor'> & {
+	editor: EditorFactory<TEditor>;
 	config?: EditorConfig;
 	watchdogConfig?: WatchdogConfig;
 	disableWatchdog?: boolean;
@@ -470,7 +470,7 @@ interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propT
 	onChange?: ( event: EventInfo, editor: TEditor ) => void;
 	onFocus?: ( event: EventInfo, editor: TEditor ) => void;
 	onBlur?: ( event: EventInfo, editor: TEditor ) => void;
-}
+};
 
 interface ErrorDetails {
 	phase: 'initialization' | 'runtime';
