@@ -1,6 +1,6 @@
 import React, { type ReactNode } from 'react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
+import { CKEditor } from '../../src/';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 

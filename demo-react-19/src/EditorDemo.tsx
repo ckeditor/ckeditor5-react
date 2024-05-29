@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
+import { CKEditor } from '../../src/';
+import CustomEditor from './CustomEditor';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
@@ -11,7 +11,7 @@ type EditorDemoProps = {
 type EditorDemoState = {
 	documents: Array<string>;
 	documentID: number;
-	editor: ClassicEditor | null;
+	editor: CustomEditor | null;
 };
 
 export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
@@ -111,7 +111,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 			{ /* @ts-expect-error: Caused by linking to parent project and conflicting react types */ }
 			<CKEditor
-				editor={ ClassicEditor }
+				editor={ CustomEditor }
 				id={ state.documentID }
 				disableWatchdog={ isWatchdogDisabled }
 				data={ state.documents[ state.documentID ] }

@@ -1,7 +1,7 @@
 import React from 'react';
 import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 
-import { useMultiRootEditor, type MultiRootHookProps } from '@ckeditor/ckeditor5-react';
+import { useMultiRootEditor, type MultiRootHookProps } from '../../src/';
 
 type EditorDemoProps = {
 	data: Record<string, string>;

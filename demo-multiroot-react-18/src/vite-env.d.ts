@@ -1,4 +1,4 @@
-import type MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
+import type { MultiRootEditor } from 'ckeditor5';
 
 declare global {
 	interface Window {

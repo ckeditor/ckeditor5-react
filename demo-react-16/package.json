@@ -9,8 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-react": "file:..",
-    "@ckeditor/ckeditor5-build-classic": "^41.4.2",
+    "ckeditor5": "nightly",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
   },
