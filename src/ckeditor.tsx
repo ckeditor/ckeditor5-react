@@ -29,6 +29,7 @@ import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSema
 import type { EditorFactory } from './types';
 
 import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
+import { CKEditorFactoryTracker } from './useCKEditorFactoriesTracker';
 import { uid } from './utils/uid';
 
 /**
@@ -233,7 +234,10 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 */
 	public override render(): React.ReactNode {
 		return (
-			<div ref={ this.domContainer }></div>
+			<>
+				<div ref={ this.domContainer }></div>
+				<CKEditorFactoryTracker factory={this.props.editor} />
+			</>
 		);
 	}
 

@@ -4,15 +4,17 @@
  */
 
 import React, { useState, useRef, useEffect, type ReactNode, type ReactElement, useContext } from 'react';
-import {
+
+import type {
 	ContextWatchdog,
-	type Context,
-	type ContextConfig,
-	type WatchdogConfig
+	Context,
+	ContextConfig,
+	WatchdogConfig
 } from 'ckeditor5';
+
 import { useIsMountedRef } from './hooks/useIsMountedRef';
-import type { OptionalRecord } from './types';
 import { randomID } from './utils/randomId';
+import { CKEditorFactoriesContext, useCKEditorFactoriesTracker } from './useCKEditorFactoriesTracker';
 
 export const ContextWatchdogContext = React.createContext<ContextWatchdogValue | null>( null );
 
@@ -33,6 +35,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		onError = ( error, details ) => console.error( error, details )
 	} = props;
 
+	const factoriesTracker = useCKEditorFactoriesTracker();
 	const isMountedRef = useIsMountedRef();
 	const prevWatchdogInitializationIDRef = useRef<string | null>( null );
 
@@ -43,14 +46,14 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 	} );
 
 	useEffect( () => {
-		if ( isLayoutReady ) {
+		if ( factoriesTracker.watchdogConstructor && isLayoutReady ) {
 			initializeContextWatchdog();
 		} else {
 			setCurrentContextWatchdog( {
 				status: 'initializing'
 			} );
 		}
-	}, [ id, isLayoutReady ] );
+	}, [ id, isLayoutReady, factoriesTracker.watchdogConstructor ] );
 
 	useEffect( () => () => {
 		if ( currentContextWatchdog.status === 'initialized' ) {
@@ -91,7 +94,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		// It is used to ensure that the state update is performed only if the current initialization ID matches the previous one.
 		// This helps to avoid race conditions and ensures that the correct context watchdog is associated with the component.
 		const watchdogInitializationID = regenerateInitializationID();
-		const contextWatchdog = new ContextWatchdog( context!, watchdogConfig );
+		const contextWatchdog = new factoriesTracker.watchdogConstructor!( context!, watchdogConfig ) as ContextWatchdog<TContext>;
 
 		// Handle error event from context watchdog
 		contextWatchdog.on( 'error', ( _, errorEvent ) => {
@@ -146,9 +149,11 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 	}
 
 	return (
-		<ContextWatchdogContext.Provider value={currentContextWatchdog}>
-			{children}
-		</ContextWatchdogContext.Provider>
+		<CKEditorFactoriesContext.Provider value={factoriesTracker}>
+			<ContextWatchdogContext.Provider value={currentContextWatchdog}>
+				{children}
+			</ContextWatchdogContext.Provider>
+		</CKEditorFactoriesContext.Provider>
 	);
 };
 
@@ -197,24 +202,16 @@ export type ExtractContextWatchdogValueByStatus<S extends ContextWatchdogValueSt
 /**
  * Props for the CKEditorContext component.
  */
-type Props<TContext extends Context> =
-	& OptionalRecord<{
-		id: string;
-		isLayoutReady: boolean;
-		context: { create( ...args: any ): Promise<any> };
-		watchdogConfig: object;
-		config: object;
-		onReady: Function;
-		onError: Function;
-	}>
-	& {
-		context?: { create( ...args: any ): Promise<TContext> };
-		watchdogConfig?: WatchdogConfig;
-		config?: ContextConfig;
-		onReady?: ( context: TContext, watchdog: ContextWatchdog<TContext> ) => void;
-		onError?: ( error: Error, details: ErrorDetails ) => void;
-		children?: ReactNode;
-	};
+type Props<TContext extends Context> = {
+	id?: string;
+	isLayoutReady?: boolean;
+	context?: { create( ...args: any ): Promise<TContext> };
+	watchdogConfig?: WatchdogConfig;
+	config?: ContextConfig;
+	onReady?: ( context: TContext, watchdog: ContextWatchdog<TContext> ) => void;
+	onError?: ( error: Error, details: ErrorDetails ) => void;
+	children?: ReactNode;
+};
 
 type ErrorDetails = {
 	phase: 'initialization' | 'runtime';

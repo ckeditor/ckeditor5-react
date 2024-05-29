@@ -5,17 +5,13 @@
 
 import type { ContextWatchdog, Editor } from 'ckeditor5';
 
-export type Optional<T> = T | null | undefined;
-
-export type OptionalRecord<R extends object> = {
-	[K in keyof R]?: Optional<R[K]>;
-};
+export type WatchdogConstructor = { new( ...args: any ): ContextWatchdog };
 
 export type WithWatchdogConstructorProperty = {
-	ContextWatchdog: { new( ...args: any ): ContextWatchdog };
+	ContextWatchdog: WatchdogConstructor;
 };
 
-export type EditorFactory<TEditor extends Editor> =
+export type EditorFactory<TEditor extends Editor = Editor> =
 	& WithWatchdogConstructorProperty
 	& {
 		create( ...args: any ): Promise<TEditor>;
