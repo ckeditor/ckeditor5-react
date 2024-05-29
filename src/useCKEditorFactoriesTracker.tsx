@@ -23,17 +23,16 @@ export const useCKEditorFactoriesTracker = (): CKEditorFactoriesTracking => {
 	 */
 	const removeTrackedFactory = ( factory: CKEditorTrackedFactory ) => {
 		factoriesRef.current = factoriesRef.current.filter( item => item !== factory );
-		setWatchdogConstructor( () => {
-			const [ firstFactory ] = factoriesRef.current;
 
-			if ( !firstFactory ) {
-				return null;
-			}
+		const [ firstFactory ] = factoriesRef.current;
 
-			return {
+		if ( firstFactory ) {
+			setWatchdogConstructor( {
 				constructor: firstFactory.factory.ContextWatchdog
-			};
-		} );
+			} );
+		} else {
+			setWatchdogConstructor( null );
+		}
 	};
 
 	/**
