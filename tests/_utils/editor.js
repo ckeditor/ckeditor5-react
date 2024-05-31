@@ -5,6 +5,8 @@
 
 /* globals document */
 
+import { EditorWatchdog, ContextWatchdog } from 'ckeditor5';
+
 /**
  * Mock of class that representing a basic, generic editor.
  *
@@ -77,6 +79,9 @@ export default class Editor {
 		return Promise.resolve( new this( element, config ) );
 	}
 }
+
+Editor.EditorWatchdog = EditorWatchdog;
+Editor.ContextWatchdog = ContextWatchdog;
 
 // In order to tests events, we need to somehow mock those properties.
 Editor._on = () => {};

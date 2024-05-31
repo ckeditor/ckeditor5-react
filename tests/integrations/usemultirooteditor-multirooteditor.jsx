@@ -3,14 +3,14 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global MultiRootEditor */
-
 import React from 'react';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import { act } from 'react-dom/test-utils';
 
 import useMultiRootEditor from '../../src/useMultiRootEditor.tsx';
+
+import { TestMultiRootEditor } from '../_utils/multirooteditor.js';
 
 configure( { adapter: new Adapter() } );
 
@@ -47,7 +47,7 @@ describe( 'useMultiRootEditor Hook + MultiRootEditor Build', () => {
 	};
 
 	const editorProps = {
-		editor: MultiRootEditor,
+		editor: TestMultiRootEditor,
 		data,
 		rootsAttributes,
 		config: {

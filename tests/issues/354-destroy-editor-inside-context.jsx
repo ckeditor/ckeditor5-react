@@ -3,16 +3,16 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global window */
-
 import React from 'react';
+import { Context } from 'ckeditor5';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
+
 import CKEditor from '../../src/ckeditor.tsx';
 import CKEditorContext from '../../src/ckeditorcontext.tsx';
-import { waitFor } from '../_utils/waitFor.js';
 
-const { Context } = window.CKEditor5.core;
+import { waitFor } from '../_utils/waitFor.js';
+import { TestClassicEditor } from '../_utils/classiceditor.js';
 
 class CustomContext extends Context {}
 
@@ -46,7 +46,7 @@ class App extends React.Component {
 							<CKEditor
 								onReady={ () => this.props.onReady() }
 								onChange={ ( event, editor ) => console.log( { event, editor } ) }
-								editor={ window.ClassicEditor }
+								editor={ TestClassicEditor }
 								config={ {} }
 								data={ '<p>Paragraph</p>' }
 							/>

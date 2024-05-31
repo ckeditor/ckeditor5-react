@@ -9,8 +9,7 @@ import Adapter from 'enzyme-adapter-react-16';
 import CKEditorContext from '../src/ckeditorcontext.tsx';
 import CKEditor from '../src/ckeditor.tsx';
 import EditorMock from './_utils/editor.js';
-import ContextWatchdog from '@ckeditor/ckeditor5-watchdog/src/contextwatchdog';
-import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
+import { ContextWatchdog, CKEditorError } from 'ckeditor5';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
 import ContextMock from './_utils/context.js';
 import { waitFor } from './_utils/waitFor.js';
@@ -31,7 +30,13 @@ describe( '<CKEditorContext> Component', () => {
 	describe( 'initialization', () => {
 		it( 'should create an instance of the ContextWatchdog', async () => {
 			await new Promise( res => {
-				wrapper = mount( <CKEditorContext context={ ContextMock } onReady={ res } /> );
+				wrapper = mount(
+					<CKEditorContext
+						context={ ContextMock }
+						contextWatchdog={ ContextWatchdog }
+						onReady={ res }
+					/>
+				);
 			} );
 
 			const component = wrapper.instance();
@@ -44,7 +49,14 @@ describe( '<CKEditorContext> Component', () => {
 			const myWatchdogConfig = { crashNumberLimit: 678 };
 
 			await new Promise( res => {
-				wrapper = mount( <CKEditorContext context={ ContextMock } onReady={ res } watchdogConfig={ myWatchdogConfig }/> );
+				wrapper = mount(
+					<CKEditorContext
+						context={ ContextMock }
+						contextWatchdog={ ContextWatchdog }
+						onReady={ res }
+						watchdogConfig={ myWatchdogConfig }
+					/>
+				);
 			} );
 
 			const component = wrapper.instance();
@@ -55,7 +67,13 @@ describe( '<CKEditorContext> Component', () => {
 		} );
 
 		it( 'should not create anything if the layout is not ready', async () => {
-			wrapper = mount( <CKEditorContext context={ ContextMock } isLayoutReady={ false }/> );
+			wrapper = mount(
+				<CKEditorContext
+					context={ ContextMock }
+					contextWatchdog={ ContextWatchdog }
+					isLayoutReady={ false }
+				/>
+			);
 
 			const component = wrapper.instance();
 
@@ -64,7 +82,7 @@ describe( '<CKEditorContext> Component', () => {
 
 		it( 'should render its children', async () => {
 			wrapper = mount(
-				<CKEditorContext context={ ContextMock } >
+				<CKEditorContext context={ ContextMock } contextWatchdog={ ContextWatchdog } >
 					<div></div>
 					<p>Foo</p>
 				</CKEditorContext>
@@ -79,7 +97,7 @@ describe( '<CKEditorContext> Component', () => {
 
 			await new Promise( ( res, rej ) => {
 				wrapper = mount(
-					<CKEditorContext context={ ContextMock } onError={ rej } >
+					<CKEditorContext context={ ContextMock } contextWatchdog={ ContextWatchdog } onError={ rej } >
 						<CKEditor editor={ EditorMock } onReady={ res } onError={ rej } />
 					</CKEditorContext>
 				);
@@ -104,7 +122,7 @@ describe( '<CKEditorContext> Component', () => {
 
 			await new Promise( ( res, rej ) => {
 				wrapper = mount(
-					<CKEditorContext context={ ContextMock } onError={ rej } >
+					<CKEditorContext context={ ContextMock } contextWatchdog={ ContextWatchdog } onError={ rej } >
 						<CKEditor editor={ EditorMock } config={ { initialData: '<p>Foo</p>' } } />
 						<CKEditor editor={ EditorMock } config={ { initialData: '<p>Bar</p>' } } />
 					</CKEditorContext>
@@ -142,7 +160,7 @@ describe( '<CKEditorContext> Component', () => {
 
 			await new Promise( ( res, rej ) => {
 				wrapper = mount(
-					<CKEditorContext context={ ContextMock } onError={ rej }>
+					<CKEditorContext context={ ContextMock } contextWatchdog={ ContextWatchdog } onError={ rej }>
 					</CKEditorContext>
 				);
 
@@ -177,7 +195,11 @@ describe( '<CKEditorContext> Component', () => {
 
 				const errorEvent = await new Promise( res => {
 					wrapper = mount(
-						<CKEditorContext context={ ContextMock } onError={ ( error, details ) => res( { error, details } ) } >
+						<CKEditorContext
+							context={ ContextMock }
+							contextWatchdog={ ContextWatchdog }
+							onError={ ( error, details ) => res( { error, details } ) }
+						>
 							<CKEditor editor={ EditorMock } />
 						</CKEditorContext>
 					);
@@ -198,6 +220,7 @@ describe( '<CKEditorContext> Component', () => {
 					wrapper = mount(
 						<CKEditorContext
 							context={ ContextMock }
+							contextWatchdog={ ContextWatchdog }
 							onReady={ res }
 							onError={ onErrorSpy }
 						>
@@ -236,7 +259,11 @@ describe( '<CKEditorContext> Component', () => {
 
 				await turnOffDefaultErrorCatching( () => {
 					wrapper = mount(
-						<CKEditorContext context={ ContextMock }></CKEditorContext>
+						<CKEditorContext
+							context={ ContextMock }
+							contextWatchdog={ ContextWatchdog }
+						>
+						</CKEditorContext>
 					);
 				} );
 
@@ -252,7 +279,12 @@ describe( '<CKEditorContext> Component', () => {
 
 				await new Promise( ( res, rej ) => {
 					wrapper = mount(
-						<CKEditorContext context={ ContextMock } onReady={ res } onError={ rej } >
+						<CKEditorContext
+							context={ ContextMock }
+							contextWatchdog={ ContextWatchdog }
+							onReady={ res }
+							onError={ rej }
+						>
 							<CKEditor editor={ EditorMock } onReady={ editorReadySpy } config={ { initialData: '<p>Foo</p>' } } />
 							<CKEditor editor={ EditorMock } onReady={ editorReadySpy } config={ { initialData: '<p>Bar</p>' } } />
 						</CKEditorContext>
@@ -271,7 +303,12 @@ describe( '<CKEditorContext> Component', () => {
 		it( 'should restart the Context and all editors if the Context#id has changed', async () => {
 			const oldContext = await new Promise( res => {
 				wrapper = mount(
-					<CKEditorContext context={ ContextMock } id="1" onReady={ res }>
+					<CKEditorContext
+						context={ ContextMock }
+						contextWatchdog={ ContextWatchdog }
+						id="1"
+						onReady={ res }
+					>
 						<CKEditor editor={ EditorMock } />
 					</CKEditorContext>
 				);
@@ -290,7 +327,12 @@ describe( '<CKEditorContext> Component', () => {
 
 		it( 'should re-render the entire component when the layout is ready', async () => {
 			wrapper = mount(
-				<CKEditorContext context={ ContextMock } id="1" isLayoutReady={ false }>
+				<CKEditorContext
+					context={ ContextMock }
+					contextWatchdog={ ContextWatchdog }
+					id="1"
+					isLayoutReady={ false }
+				>
 					<CKEditor editor={ EditorMock } />
 				</CKEditorContext>
 			);
@@ -308,7 +350,12 @@ describe( '<CKEditorContext> Component', () => {
 
 		it( 'should not create the component watchdog if layout is not ready', async () => {
 			wrapper = mount(
-				<CKEditorContext context={ ContextMock } id="1" isLayoutReady={ false }>
+				<CKEditorContext
+					context={ ContextMock }
+					contextWatchdog={ ContextWatchdog }
+					id="1"
+					isLayoutReady={ false }
+				>
 					<CKEditor editor={ EditorMock } />
 				</CKEditorContext>
 			);
@@ -335,7 +382,12 @@ describe( '<CKEditorContext> Component', () => {
 		it( 'should not re-render the component if layout is not ready after initialization', async () => {
 			const oldContext = await new Promise( res => {
 				wrapper = mount(
-					<CKEditorContext context={ ContextMock } id="1" onReady={ res }>
+					<CKEditorContext
+						context={ ContextMock }
+						contextWatchdog={ ContextWatchdog }
+						id="1"
+						onReady={ res }
+					>
 						<CKEditor editor={ EditorMock } />
 					</CKEditorContext>
 				);
@@ -353,7 +405,12 @@ describe( '<CKEditorContext> Component', () => {
 		it( 'should restart the Context and all editors if children has changed', async () => {
 			await new Promise( res => {
 				wrapper = mount(
-					<CKEditorContext context={ ContextMock } id="1" onReady={ res }>
+					<CKEditorContext
+						context={ ContextMock }
+						contextWatchdog={ ContextWatchdog }
+						id="1"
+						onReady={ res }
+					>
 						<CKEditor editor={ EditorMock } />
 					</CKEditorContext>
 				);
@@ -392,7 +449,11 @@ describe( 'EditorWatchdogAdapter', () => {
 
 			await new Promise( res => {
 				wrapper = mount(
-					<CKEditorContext context={ ContextMock } id="1">
+					<CKEditorContext
+						context={ ContextMock }
+						contextWatchdog={ ContextWatchdog }
+						id="1"
+					>
 						<CKEditor editor={ EditorMock } onReady={ res } onError={ errorSpy } />
 					</CKEditorContext>
 				);
@@ -412,7 +473,11 @@ describe( 'EditorWatchdogAdapter', () => {
 
 			await new Promise( res => {
 				wrapper = mount(
-					<CKEditorContext context={ ContextMock } id="1">
+					<CKEditorContext
+						context={ ContextMock }
+						contextWatchdog={ ContextWatchdog }
+						id="1"
+					>
 						<CKEditor editor={ EditorMock } onReady={ res } onError={ firstEditorErrorSpy } />
 						<CKEditor editor={ EditorMock } onReady={ res } onError={ secondEditorErrorSpy } />
 					</CKEditorContext>

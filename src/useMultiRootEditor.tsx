@@ -8,16 +8,20 @@ import React, {
 	type Dispatch, type SetStateAction, type RefObject
 } from 'react';
 
-import type { InlineEditableUIView } from '@ckeditor/ckeditor5-ui';
-import type { EditorConfig } from '@ckeditor/ckeditor5-core';
-import type { DocumentChangeEvent, Writer, RootElement } from '@ckeditor/ckeditor5-engine';
-
-import { ContextWatchdog, EditorWatchdog } from '@ckeditor/ckeditor5-watchdog';
-import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
-
-import type { AddRootEvent, DetachRootEvent } from '@ckeditor/ckeditor5-editor-multi-root/src/multirooteditor';
-import type MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
-import type EventInfo from '@ckeditor/ckeditor5-utils/src/eventinfo';
+import type {
+	InlineEditableUIView,
+	EditorConfig,
+	DocumentChangeEvent,
+	Writer,
+	RootElement,
+	ContextWatchdog,
+	EditorWatchdog,
+	WatchdogConfig,
+	AddRootEvent,
+	DetachRootEvent,
+	MultiRootEditor,
+	EventInfo
+} from 'ckeditor5';
 
 import { ContextWatchdogContext } from './ckeditorcontext';
 import { EditorWatchdogAdapter } from './ckeditor';
@@ -332,11 +336,11 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		}
 
 		const watchdog = ( () => {
-			if ( context instanceof ContextWatchdog ) {
+			if ( context instanceof props.editor.ContextWatchdog ) {
 				return new EditorWatchdogAdapter( context );
 			}
 
-			return new EditorWatchdog( props.editor, props.watchdogConfig );
+			return new props.editor.EditorWatchdog( props.editor, props.watchdogConfig );
 		} )() as EditorWatchdogAdapter<MultiRootEditor>;
 
 		const totalRestartsRef = {
