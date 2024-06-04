@@ -28,7 +28,7 @@ import {
 	TextTransformation
 } from 'ckeditor5';
 
-// import 'ckeditor5/index.css';
+// import 'ckeditor5/ckeditor5.css';
 
 export class TestClassicEditor extends ClassicEditor {}
 
