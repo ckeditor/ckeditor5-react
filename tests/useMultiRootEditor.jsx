@@ -3,22 +3,21 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global MultiRootEditor, document */
+/* global document */
 
 import React from 'react';
+import { CKEditorError, ContextWatchdog } from 'ckeditor5';
+import { configure, mount } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 import { renderHook, act } from '@testing-library/react-hooks/dom';
-
-import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
-import { ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
 
 import useMultiRootEditor from '../src/useMultiRootEditor.tsx';
 import { ContextWatchdogContext } from '../src/ckeditorcontext';
-import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
-import { timeout } from './_utils/timeout';
 
-import { configure, mount } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { timeout } from './_utils/timeout';
 import { createDefer } from './_utils/defer.js';
+import { TestMultiRootEditor } from './_utils/multirooteditor.js';
+import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
 
 configure( { adapter: new Adapter() } );
 
@@ -40,7 +39,7 @@ describe( 'useMultiRootEditor', () => {
 	};
 
 	const editorProps = {
-		editor: MultiRootEditor,
+		editor: TestMultiRootEditor,
 		data: rootsContent,
 		rootsAttributes,
 		config: {
@@ -74,7 +73,7 @@ describe( 'useMultiRootEditor', () => {
 			expect( result.current.editor ).to.be.null;
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 		} );
 
@@ -82,7 +81,7 @@ describe( 'useMultiRootEditor', () => {
 			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor, data, attributes } = result.current;
@@ -151,12 +150,12 @@ describe( 'useMultiRootEditor', () => {
 			} ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 		} );
 
 		it( 'should initialize the MultiRootEditor instance with context', async () => {
-			const contextWatchdog = new ContextWatchdog( MultiRootEditor.Context );
+			const contextWatchdog = new ContextWatchdog( TestMultiRootEditor.Context );
 			contextWatchdog.create();
 
 			const useContextSpy = sinon.stub( React, 'useContext' );
@@ -165,7 +164,7 @@ describe( 'useMultiRootEditor', () => {
 			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 		} );
 	} );
@@ -186,7 +185,7 @@ describe( 'useMultiRootEditor', () => {
 			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor, toolbarElement } = result.current;
@@ -230,7 +229,7 @@ describe( 'useMultiRootEditor', () => {
 			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor, setData } = result.current;
@@ -252,7 +251,7 @@ describe( 'useMultiRootEditor', () => {
 			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor, setData } = result.current;
@@ -277,7 +276,7 @@ describe( 'useMultiRootEditor', () => {
 			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor, setData, setAttributes } = result.current;
@@ -302,7 +301,7 @@ describe( 'useMultiRootEditor', () => {
 			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor } = result.current;
@@ -319,7 +318,7 @@ describe( 'useMultiRootEditor', () => {
 			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor } = result.current;
@@ -344,7 +343,7 @@ describe( 'useMultiRootEditor', () => {
 			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor } = result.current;
@@ -369,7 +368,7 @@ describe( 'useMultiRootEditor', () => {
 			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { setData } = result.current;
@@ -402,7 +401,7 @@ describe( 'useMultiRootEditor', () => {
 			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor, setAttributes } = result.current;
@@ -477,7 +476,7 @@ describe( 'useMultiRootEditor', () => {
 			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { setAttributes } = result.current;
@@ -510,7 +509,7 @@ describe( 'useMultiRootEditor', () => {
 		it( 'should call onError callback when an error has been thrown', async () => {
 			const error = new Error( 'Error was thrown.' );
 
-			sinon.stub( MultiRootEditor, 'create' ).rejects( error );
+			sinon.stub( TestMultiRootEditor, 'create' ).rejects( error );
 
 			const spy = sinon.spy();
 			const { waitFor } = renderHook( () => useMultiRootEditor( {
@@ -533,7 +532,7 @@ describe( 'useMultiRootEditor', () => {
 			} ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor, data } = result.current;
@@ -553,7 +552,7 @@ describe( 'useMultiRootEditor', () => {
 			} ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor } = result.current;
@@ -572,7 +571,7 @@ describe( 'useMultiRootEditor', () => {
 			} ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor } = result.current;
@@ -592,7 +591,7 @@ describe( 'useMultiRootEditor', () => {
 			} ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor } = result.current;
@@ -614,7 +613,7 @@ describe( 'useMultiRootEditor', () => {
 			} ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor } = result.current;
@@ -642,7 +641,7 @@ describe( 'useMultiRootEditor', () => {
 			} ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor } = result.current;
@@ -665,7 +664,7 @@ describe( 'useMultiRootEditor', () => {
 			} ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor } = result.current;
@@ -698,7 +697,7 @@ describe( 'useMultiRootEditor', () => {
 			} ) );
 
 			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( MultiRootEditor );
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
 			const { editor, data } = result.current;
@@ -716,7 +715,7 @@ describe( 'useMultiRootEditor', () => {
 			it( 'should assign properly `data` property to editor even if it is still mounting', async () => {
 				const deferInitialization = createDefer();
 
-				class SlowEditor extends MultiRootEditor {
+				class SlowEditor extends TestMultiRootEditor {
 					constructor( initialData, config ) {
 						super( initialData, config );
 
@@ -769,7 +768,7 @@ describe( 'useMultiRootEditor', () => {
 			it( 'should buffer many rerenders while creating editor', async () => {
 				const initializerLog = [];
 
-				class SlowEditor extends MultiRootEditor {
+				class SlowEditor extends TestMultiRootEditor {
 					constructor( initialData, config ) {
 						super( initialData, config );
 						this.key = config.key;

@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global ClassicEditor, window, document */
+/* global window, document */
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -11,7 +11,9 @@ import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
 import CKEditor from '../../src/ckeditor.tsx';
+
 import { timeout } from '../_utils/timeout.js';
+import { TestClassicEditor } from '../_utils/classiceditor.js';
 
 configure( { adapter: new Adapter() } );
 
@@ -26,7 +28,7 @@ describe( 'CKEditor Component + ClassicEditor Build', () => {
 
 	it( 'should initialize the ClassicEditor properly', async () => {
 		await new Promise( res => {
-			wrapper = mount( <CKEditor editor={ ClassicEditor } onReady={ res } /> );
+			wrapper = mount( <CKEditor editor={ TestClassicEditor } onReady={ res } /> );
 		} );
 
 		const component = wrapper.instance();
@@ -82,7 +84,7 @@ describe( '<CKEditor> memory usage', () => {
 			document.body.appendChild( div );
 
 			return new Promise( res => {
-				ReactDOM.render( <CKEditor editor={ ClassicEditor } config={ config } onReady={ res } />, div );
+				ReactDOM.render( <CKEditor editor={ TestClassicEditor } config={ config } onReady={ res } />, div );
 			} );
 		}
 

@@ -10,7 +10,7 @@ import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import Editor from './_utils/editor';
 import CKEditor from '../src/ckeditor.tsx';
-import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
+import { CKEditorError, EditorWatchdog } from 'ckeditor5';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching';
 import { waitFor } from './_utils/waitFor.js';
 import { createDefer } from './_utils/defer.js';
@@ -25,7 +25,7 @@ describe( '<CKEditor> Component', () => {
 		CKEDITOR_VERSION = window.CKEDITOR_VERSION;
 
 		wrapper = null;
-		window.CKEDITOR_VERSION = '37.0.0';
+		window.CKEDITOR_VERSION = '42.0.0';
 		sinon.stub( Editor._model.document, 'on' );
 		sinon.stub( Editor._editing.view.document, 'on' );
 	} );
@@ -54,14 +54,14 @@ describe( '<CKEditor> Component', () => {
 			wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onReady={ onReady }/> );
 		} );
 
-		it( 'should print a warning if using CKEditor 5 in version lower than 37', done => {
+		it( 'should print a warning if using CKEditor 5 in version lower than 42', done => {
 			window.CKEDITOR_VERSION = '36.0.0';
 			const warnStub = sinon.stub( console, 'warn' );
 
 			const onReady = () => {
 				expect( warnStub.callCount ).to.equal( 1 );
 				expect( warnStub.firstCall.args[ 0 ] ).to.equal(
-					'The <CKEditor> component requires using CKEditor 5 in version 37 or higher.'
+					'The <CKEditor> component requires using CKEditor 5 in version 42+ or nightly build.'
 				);
 				done();
 			};
@@ -69,8 +69,8 @@ describe( '<CKEditor> Component', () => {
 			wrapper = mount( <CKEditor editor={ Editor } disabled={ true } onReady={ onReady }/> );
 		} );
 
-		it( 'should not print any warninig if using CKEditor 5 in version 37 or higher', done => {
-			window.CKEDITOR_VERSION = '37.0.0';
+		it( 'should not print any warninig if using CKEditor 5 in version 42 or higher', done => {
+			window.CKEDITOR_VERSION = '42.0.0';
 			const warnStub = sinon.stub( console, 'warn' );
 
 			const onReady = () => {
@@ -235,7 +235,6 @@ describe( '<CKEditor> Component', () => {
 		} );
 
 		it( 'passes the specified editor class to the watchdog feature', async () => {
-			const EditorWatchdog = CKEditor._EditorWatchdog;
 			const constructorSpy = sinon.spy();
 
 			class CustomEditorWatchdog extends EditorWatchdog {
@@ -245,7 +244,7 @@ describe( '<CKEditor> Component', () => {
 				}
 			}
 
-			CKEditor._EditorWatchdog = CustomEditorWatchdog;
+			Editor.EditorWatchdog = CustomEditorWatchdog;
 
 			await new Promise( res => {
 				wrapper = mount( <CKEditor editor={ Editor } onReady={ res }/> );
@@ -254,11 +253,10 @@ describe( '<CKEditor> Component', () => {
 			expect( constructorSpy.called ).to.equal( true );
 			expect( constructorSpy.firstCall.args[ 0 ] ).to.equal( Editor );
 
-			CKEditor._EditorWatchdog = EditorWatchdog;
+			Editor.EditorWatchdog = EditorWatchdog;
 		} );
 
 		it( 'passes the watchdog config to the watchdog feature', async () => {
-			const EditorWatchdog = CKEditor._EditorWatchdog;
 			const constructorSpy = sinon.spy();
 			const myWatchdogConfig = { crashNumberLimit: 678 };
 
@@ -269,7 +267,7 @@ describe( '<CKEditor> Component', () => {
 				}
 			}
 
-			CKEditor._EditorWatchdog = CustomEditorWatchdog;
+			Editor.EditorWatchdog = CustomEditorWatchdog;
 
 			await new Promise( res => {
 				wrapper = mount( <CKEditor editor={ Editor } onReady={ res } watchdogConfig={ myWatchdogConfig }/> );
@@ -278,7 +276,7 @@ describe( '<CKEditor> Component', () => {
 			expect( constructorSpy.called ).to.equal( true );
 			expect( constructorSpy.firstCall.args[ 1 ] ).to.deep.equal( myWatchdogConfig );
 
-			CKEditor._EditorWatchdog = EditorWatchdog;
+			Editor.EditorWatchdog = EditorWatchdog;
 		} );
 	} );
 

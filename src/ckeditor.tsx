@@ -7,21 +7,21 @@
 
 import React from 'react';
 import PropTypes, { type InferProps, type Validator } from 'prop-types';
+import type {
+	EventInfo,
+	Editor,
+	EditorConfig,
+	DocumentChangeEvent,
+	EditorWatchdog,
+	ContextWatchdog,
+	WatchdogConfig,
+	EditorCreatorFunction
+} from 'ckeditor5';
 
-import uid from '@ckeditor/ckeditor5-utils/src/uid';
-
-import type { EventInfo } from '@ckeditor/ckeditor5-utils';
-import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
-import type { DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';
-
-import { EditorWatchdog, ContextWatchdog } from '@ckeditor/ckeditor5-watchdog';
-import type { WatchdogConfig } from '@ckeditor/ckeditor5-watchdog/src/watchdog';
-import type { EditorCreatorFunction } from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
-
+import { uid } from './utils/uid';
 import { ContextWatchdogContext } from './ckeditorcontext';
-
-import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
 import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
+import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -41,17 +41,26 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	constructor( props: Props<TEditor> ) {
 		super( props );
 
+		this._checkVersion();
+	}
+
+	/**
+	 * Checks if the CKEditor version used in the application is compatible with the component.
+	 */
+	private _checkVersion(): void {
 		const { CKEDITOR_VERSION } = window;
 
-		if ( CKEDITOR_VERSION ) {
-			const [ major ] = CKEDITOR_VERSION.split( '.' ).map( Number );
-
-			if ( major < 37 ) {
-				console.warn( 'The <CKEditor> component requires using CKEditor 5 in version 37 or higher.' );
-			}
-		} else {
-			console.warn( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
+		if ( !CKEDITOR_VERSION ) {
+			return console.warn( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
 		}
+
+		const [ major ] = CKEDITOR_VERSION.split( '.' ).map( Number );
+
+		if ( major >= 42 || CKEDITOR_VERSION.startsWith( '0.0.0' ) ) {
+			return;
+		}
+
+		console.warn( 'The <CKEditor> component requires using CKEditor 5 in version 42+ or nightly build.' );
 	}
 
 	private get _semaphoreValue(): EditorSemaphoreMountResult<TEditor> | null {
@@ -208,11 +217,11 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		}
 
 		const watchdog = ( () => {
-			if ( this.context instanceof ContextWatchdog ) {
+			if ( this.context instanceof this.props.editor.ContextWatchdog ) {
 				return new EditorWatchdogAdapter( this.context );
 			}
 
-			return new CKEditor._EditorWatchdog( this.props.editor, this.props.watchdogConfig );
+			return new this.props.editor.EditorWatchdog( this.props.editor, this.props.watchdogConfig );
 		} )() as EditorWatchdogAdapter<TEditor>;
 
 		const totalRestartsRef = {
@@ -409,17 +418,17 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		disabled: PropTypes.bool,
 		id: PropTypes.any
 	};
-
-	// Store the API in the static property to easily overwrite it in tests.
-	// Too bad dependency injection does not work in Webpack + ES 6 (const) + Babel.
-	public static _EditorWatchdog = EditorWatchdog;
 }
 
 /**
  * TODO this is type space definition for props, the CKEditor.propTypes is a run-time props validation that should match.
  */
 interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propTypes> {
-	editor: { create( ...args: any ): Promise<TEditor> };
+	editor: {
+		create( ...args: any ): Promise<TEditor>;
+		EditorWatchdog: typeof EditorWatchdog;
+		ContextWatchdog: typeof ContextWatchdog;
+	};
 	config?: EditorConfig;
 	watchdogConfig?: WatchdogConfig;
 	disableWatchdog?: boolean;

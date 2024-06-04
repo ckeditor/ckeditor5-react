@@ -3,13 +3,14 @@
  * For licensing, see LICENSE.md.
  */
 
+import React from 'react';
+import { ContextWatchdog } from 'ckeditor5';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import React from 'react';
 
 import ContextMock from './_utils/context.js';
 import Editor from './_utils/editor';
-import { CKEditor, CKEditorContext } from '../dist';
+import { CKEditor, CKEditorContext } from '../src/index';
 
 configure( { adapter: new Adapter() } );
 
@@ -47,7 +48,13 @@ describe( 'index.js', () => {
 			expect( CKEditorContext ).to.be.a( 'function' );
 
 			const context = await new Promise( res => {
-				wrapper = mount( <CKEditorContext context={ ContextMock } onReady={ res } /> );
+				wrapper = mount(
+					<CKEditorContext
+						context={ ContextMock }
+						contextWatchdog={ ContextWatchdog }
+						onReady={ res }
+					/>
+				);
 			} );
 
 			expect( context ).to.be.instanceOf( ContextMock );

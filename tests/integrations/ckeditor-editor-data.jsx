@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global document, ClassicEditor */
+/* global document */
 /* eslint-disable react/no-render-return-value */
 
 import React from 'react';
@@ -13,11 +13,13 @@ import Adapter from 'enzyme-adapter-react-16';
 
 import CKEditor from '../../src/ckeditor.tsx';
 
+import { TestClassicEditor } from '../_utils/classiceditor.js';
+
 configure( { adapter: new Adapter() } );
 
 const Editor = props => {
 	return (
-		<CKEditor editor={ ClassicEditor } { ...props } />
+		<CKEditor editor={ TestClassicEditor } { ...props } />
 	);
 };
 
