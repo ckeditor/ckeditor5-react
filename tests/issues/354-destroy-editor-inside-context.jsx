@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Context } from 'ckeditor5';
+import { Context, ContextWatchdog } from 'ckeditor5';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
@@ -41,6 +41,7 @@ class App extends React.Component {
 					<CKEditorContext
 						config={ {} }
 						context={ CustomContext }
+						contextWatchdog={ ContextWatchdog }
 					>
 						{ this.state.renderEditor && (
 							<CKEditor

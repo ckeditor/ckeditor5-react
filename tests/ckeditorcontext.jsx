@@ -36,6 +36,7 @@ describe( '<CKEditorContext> Component', () => {
 				wrapper = mount(
 					<CKEditorContext
 						context={ ContextMock }
+						contextWatchdog={ ContextWatchdog }
 						watchdogConfig={ myWatchdogConfig }
 						onReady={ ( _, watchdog ) => res( watchdog ) }
 					/>
@@ -52,6 +53,7 @@ describe( '<CKEditorContext> Component', () => {
 				wrapper = mount(
 					<CKEditorContext
 						context={ ContextMock }
+						contextWatchdog={ ContextWatchdog }
 						watchdogConfig={ myWatchdogConfig }
 						onReady={ ( _, watchdog ) => res( watchdog ) }
 					/>
@@ -160,6 +162,7 @@ describe( '<CKEditorContext> Component', () => {
 				wrapper = mount(
 					<CKEditorContext
 						context={ ContextMock }
+						contextWatchdog={ ContextWatchdog }
 						onError={ rej }
 						onReady={ ( _, watchdog ) => res( watchdog ) }
 					>
@@ -192,6 +195,7 @@ describe( '<CKEditorContext> Component', () => {
 				wrapper = mount(
 					<CKEditorContext
 						context={ ContextMock }
+						contextWatchdog={ ContextWatchdog }
 						onError={ rej }
 						onReady={ ( _, watchdog ) => res( watchdog ) }
 					/>
@@ -218,6 +222,7 @@ describe( '<CKEditorContext> Component', () => {
 					wrapper = mount(
 						<CKEditorContext
 							context={ ContextMock }
+							contextWatchdog={ ContextWatchdog }
 							onError={ ( error, details ) => res( { error, details } ) }
 						>
 							<CKEditor editor={ EditorMock } />
@@ -444,6 +449,7 @@ describe( '<CKEditorContext> Component', () => {
 		wrapper = mount(
 			<CKEditorContext
 				context={ deferContext }
+				contextWatchdog={ ContextWatchdog }
 				watchdogConfig={ { crashNumberLimit: 678 } }
 				{...props}
 			>
