@@ -1,13 +1,16 @@
 import React from 'react';
-import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 
-import { useMultiRootEditor, type MultiRootHookProps, CKEditorContext } from '@ckeditor/ckeditor5-react';
+import { useMultiRootEditor, type MultiRootHookProps, CKEditorContext } from '../../src';
+import MultiRootEditor from './MultiRootEditor';
 
 export default function ContextMultiRootEditorDemo(): JSX.Element {
 	return (
 		<>
 			{ /* @ts-expect-error: Caused by linking to parent project and conflicting react types */ }
-			<CKEditorContext context={ MultiRootEditor.Context }>
+			<CKEditorContext
+				context={ MultiRootEditor.Context as any }
+				contextWatchdog={ MultiRootEditor.ContextWatchdog as any }
+			>
 				<ContextEditorDemo />
 			</CKEditorContext>
 		</>
@@ -16,6 +19,7 @@ export default function ContextMultiRootEditorDemo(): JSX.Element {
 
 function ContextEditorDemo(): JSX.Element {
 	const editorProps: Partial<MultiRootHookProps> = {
+		// @ts-expect-error: Caused by linking to parent project and conflicting react types
 		editor: MultiRootEditor,
 
 		onChange: ( event, editor ) => {
@@ -40,6 +44,7 @@ function ContextEditorDemo(): JSX.Element {
 		},
 
 		onReady: editor => {
+			// @ts-expect-error: Caused by linking to parent project and conflicting react types
 			window.editor1 = editor;
 
 			console.log( 'event: onChange', { editor } );
@@ -56,6 +61,7 @@ function ContextEditorDemo(): JSX.Element {
 		},
 
 		onReady: editor => {
+			// @ts-expect-error: Caused by linking to parent project and conflicting react types
 			window.editor2 = editor;
 
 			console.log( 'event: onChange', { editor } );
@@ -88,6 +94,7 @@ function ContextEditorDemo(): JSX.Element {
 			<div>
 				<div className="buttons">
 					<button
+						// @ts-expect-error: Caused by linking to parent project and conflicting react types
 						onClick={ () => simulateError( editor1! ) }
 						disabled={ !editor1 }
 					>
@@ -107,6 +114,7 @@ function ContextEditorDemo(): JSX.Element {
 			<div>
 				<div className="buttons">
 					<button
+						// @ts-expect-error: Caused by linking to parent project and conflicting react types
 						onClick={ () => simulateError( editor2! ) }
 						disabled={ !editor2 }
 					>

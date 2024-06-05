@@ -8,10 +8,6 @@
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "@ckeditor/ckeditor5-react": "file:..",
-    "@ckeditor/ckeditor5-build-multi-root": "^41.4.2"
-  },
   "devDependencies": {
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
@@ -19,6 +15,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^4.9.3",
-    "vite": "^4.5.3"
+    "vite": "^4.5.3",
+    "ckeditor5": "nightly"
   }
 }

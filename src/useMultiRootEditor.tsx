@@ -14,8 +14,6 @@ import type {
 	DocumentChangeEvent,
 	Writer,
 	RootElement,
-	ContextWatchdog,
-	EditorWatchdog,
 	WatchdogConfig,
 	AddRootEvent,
 	DetachRootEvent,

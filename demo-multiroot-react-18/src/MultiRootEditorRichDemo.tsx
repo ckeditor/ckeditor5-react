@@ -1,7 +1,7 @@
 import React, { useState, type ChangeEvent } from 'react';
-import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 
-import { useMultiRootEditor, type MultiRootHookProps } from '@ckeditor/ckeditor5-react';
+import { useMultiRootEditor, type MultiRootHookProps } from '../../src';
+import MultiRootEditor from './MultiRootEditor';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
@@ -12,11 +12,13 @@ type EditorDemoProps = {
 
 export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.Element {
 	const editorProps: MultiRootHookProps = {
+		// @ts-expect-error: Caused by linking to parent project and conflicting react types
 		editor: MultiRootEditor,
 		data: props.data,
 		rootsAttributes: props.rootsAttributes,
 
 		onReady: editor => {
+			// @ts-expect-error: Caused by linking to parent project and conflicting react types
 			window.editor = editor;
 
 			console.log( 'event: onChange', { editor } );

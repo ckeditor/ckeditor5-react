@@ -1,7 +1,7 @@
 import React from 'react';
-import MultiRootEditor from '@ckeditor/ckeditor5-build-multi-root';
 
-import { useMultiRootEditor, type MultiRootHookProps } from '@ckeditor/ckeditor5-react';
+import { useMultiRootEditor, type MultiRootHookProps } from '../../src';
+import MultiRootEditor from './MultiRootEditor';
 
 type EditorDemoProps = {
 	data: Record<string, string>;
@@ -10,15 +10,12 @@ type EditorDemoProps = {
 
 export default function MultiRootEditorDemo( props: EditorDemoProps ): JSX.Element {
 	const editorProps: MultiRootHookProps = {
+		// @ts-expect-error: Caused by linking to parent project and conflicting react types
 		editor: MultiRootEditor,
 		data: props.data
 	};
 
-	const {
-		editor, toolbarElement, editableElements,
-		data, setData,
-		attributes, setAttributes
-	} = useMultiRootEditor( editorProps );
+	const { toolbarElement, editableElements } = useMultiRootEditor( editorProps );
 
 	return (
 		<>

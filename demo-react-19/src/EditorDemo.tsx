@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from './ClassicEditor';
+import { CKEditor } from '../../src/';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
@@ -111,13 +111,13 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 
 			{ /* @ts-expect-error: Caused by linking to parent project and conflicting react types */ }
 			<CKEditor
-				editor={ ClassicEditor }
+				editor={ ClassicEditor as any }
 				id={ state.documentID }
 				disableWatchdog={ isWatchdogDisabled }
 				data={ state.documents[ state.documentID ] }
 				watchdogConfig={ { crashNumberLimit: 10 } }
 
-				onReady={ editor => {
+				onReady={ ( editor: any ) => {
 					window.editor = editor;
 
 					console.log( 'event: onReady' );
