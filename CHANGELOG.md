@@ -1,6 +1,17 @@
 Changelog
 =========
 
+## [8.0.0-alpha.0](https://github.com/ckeditor/ckeditor5-react/compare/v7.0.0...v8.0.0-alpha.0) (2024-06-05)
+
+### BREAKING CHANGES
+
+* Add a new required `contextWatchdog` prop to the `<CKEditorContext>` component.
+
+### Features
+
+* Change the implementation to only depend on types from the CKEditor packages and not runtime code to make the integration work with existing and new installation methods. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/5f0a7c96e67ddb36a2ba7a90bacb316e3b17c5a9))
+
+
 ## [7.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v6.3.0...v7.0.0) (2024-05-20)
 
 ### Bug fixes
