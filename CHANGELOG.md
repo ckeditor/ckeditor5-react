@@ -3,13 +3,19 @@ Changelog
 
 ## [8.0.0-alpha.0](https://github.com/ckeditor/ckeditor5-react/compare/v7.0.0...v8.0.0-alpha.0) (2024-06-05)
 
+We are happy to announce the alpha release of the next major version of the React integration.
+
+This release is intended to allow the integration to work with existing and new installation methods [announced in this post](https://github.com/ckeditor/ckeditor5/issues/15502).
+
+Please refer to [our nightly documentation build](https://ckeditor5.github.io/docs/nightly/ckeditor5/latest/index.html) for the installation instructions.
+
 ### BREAKING CHANGES
 
 * Add a new required `contextWatchdog` prop to the `<CKEditorContext>` component.
 
 ### Features
 
-* Change the implementation to only depend on types from the CKEditor packages and not runtime code to make the integration work with existing and new installation methods. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/5f0a7c96e67ddb36a2ba7a90bacb316e3b17c5a9))
+* Change the implementation to only depend on types from the `ckeditor5` package and not runtime code to make the integration work with existing and new installation methods. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/5f0a7c96e67ddb36a2ba7a90bacb316e3b17c5a9))
 
 
 ## [7.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v6.3.0...v7.0.0) (2024-05-20)
