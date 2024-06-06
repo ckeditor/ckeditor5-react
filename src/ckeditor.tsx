@@ -100,11 +100,6 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	): boolean {
 		const { context, props, editorSemaphore } = this;
 
-		// When the context nullability changes, the component should be updated.
-		if ( !!context !== !!nextContext ) {
-			return true;
-		}
-
 		// When the watchdog status changes, the component should be updated.
 		if ( isContextWatchdogValue( context ) &&
 				isContextWatchdogValue( nextContext ) &&
