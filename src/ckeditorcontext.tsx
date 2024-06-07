@@ -174,6 +174,16 @@ export const isContextWatchdogValueWithStatus = <S extends ContextWatchdogValueS
 		isContextWatchdogValue( obj ) && obj.status === status;
 
 /**
+ * Checks if the provided object is a fully initialized context watchdog value. It prevents race conditions between
+ * watchdog state that is not fully synchronized with the context state. For example, the watchdog state can be 'destroyed'
+ * while the context is still being initialized because context setState is pending.
+ */
+export const isContextWatchdogReadyToUse = ( obj: any ): obj is ExtractContextWatchdogValueByStatus<'initialized'> => (
+	isContextWatchdogValueWithStatus( 'initialized', obj ) &&
+	obj.watchdog.state === 'ready'
+);
+
+/**
  * Represents the value of the ContextWatchdog in the CKEditor context.
  */
 export type ContextWatchdogValue =

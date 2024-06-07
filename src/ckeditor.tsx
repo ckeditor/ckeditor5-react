@@ -22,7 +22,7 @@ import type {
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
 
 import { uid } from './utils/uid';
-import { ContextWatchdogContext, isContextWatchdogValueWithStatus } from './ckeditorcontext';
+import { ContextWatchdogContext, isContextWatchdogValueWithStatus, isContextWatchdogReadyToUse } from './ckeditorcontext';
 import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
@@ -225,7 +225,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		const watchdog = ( () => {
 			// There is small delay where React did not update the context yet but watchdog is already destroyed.
 			// However editor should be created again in such case, after receiving new context.
-			if ( isContextWatchdogValueWithStatus( 'initialized', this.context ) && this.context.watchdog.state !== 'destroyed' ) {
+			if ( isContextWatchdogReadyToUse( this.context ) ) {
 				return new EditorWatchdogAdapter( this.context.watchdog );
 			}
 
