@@ -60,6 +60,30 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 	const shouldUpdateEditor = useRef<boolean>( true );
 
+	/**
+	 * It's possible to unmount `useMultiRootEditor` with created editor and `elements` that are not attached to any React node.
+	 * It means that CKEditor will try to destroy editor and all it's roots in destructor. It will throw an error because
+	 * `editables` are not attached to any React node and their elements references are null. To prevent this error we need to
+	 * force assign `editables` to fake elements before destroying editor.
+	 */
+	const forceAssignFakeEditableElements = () => {
+		const editor = editorRefs.instance.current;
+
+		if ( !editor ) {
+			return;
+		}
+
+		const initializeEditableWithFakeElement = ( editable: InlineEditableUIView ) => {
+			if ( editable.name && !editor.editing.view.getDomRoot( editable.name ) ) {
+				editor.editing.view.attachDomRoot( document.createElement( 'div' ), editable.name );
+			}
+		};
+
+		Object
+			.values( editor.ui.view.editables )
+			.forEach( initializeEditableWithFakeElement );
+	};
+
 	useEffect( () => {
 		const semaphoreElement = semaphoreElementRef.current;
 
@@ -101,6 +125,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} ) );
 
 		return () => {
+			forceAssignFakeEditableElements();
 			semaphore.release( false );
 		};
 	}, [ props.id, props.isLayoutReady ] );
