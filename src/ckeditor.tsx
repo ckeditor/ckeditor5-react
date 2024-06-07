@@ -5,7 +5,7 @@
 
 /* globals window */
 
-import React, { type ContextType } from 'react';
+import React from 'react';
 import PropTypes, { type InferProps, type Validator } from 'prop-types';
 
 import type {
@@ -22,7 +22,7 @@ import type {
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
 
 import { uid } from './utils/uid';
-import { ContextWatchdogContext, isContextWatchdogValue, isContextWatchdogValueWithStatus } from './ckeditorcontext';
+import { ContextWatchdogContext, isContextWatchdogValueWithStatus } from './ckeditorcontext';
 import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
@@ -93,19 +93,8 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * The CKEditor component should not be updated by React itself.
 	 * However, if the component identifier changes, the whole structure should be created once again.
 	 */
-	public override shouldComponentUpdate(
-		nextProps: Readonly<Props<TEditor>>,
-		_: Readonly<unknown>,
-		nextContext: ContextType<typeof ContextWatchdogContext>
-	): boolean {
-		const { context, props, editorSemaphore } = this;
-
-		// When the watchdog status changes, the component should be updated.
-		if ( isContextWatchdogValue( context ) &&
-				isContextWatchdogValue( nextContext ) &&
-				context.status !== nextContext.status ) {
-			return true;
-		}
+	public override shouldComponentUpdate( nextProps: Readonly<Props<TEditor>> ): boolean {
+		const { props, editorSemaphore } = this;
 
 		// Only when the component identifier changes the whole structure should be re-created once again.
 		if ( nextProps.id !== props.id ) {
