@@ -566,12 +566,11 @@ const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 
 			editor = instance;
 
-			const { ui } = editor;
-			const prevEditable = ui.view.editables[ rootName ];
+			const { ui, model } = editor;
+			const root = model.document.getRoot( rootName );
 
-			if ( prevEditable ) {
-				ui.removeEditable( prevEditable );
-				ui.view.removeEditable( rootName );
+			if ( root && editor.ui.getEditableElement( rootName ) ) {
+				editor.detachEditable( root );
 			}
 
 			editable = ui.view.createEditable( rootName, innerRef.current );
@@ -581,11 +580,12 @@ const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 		} );
 
 		return () => {
-			if ( editable && innerRef.current && editor && editor.state !== 'destroyed' ) {
-				const { ui } = editor;
+			if ( editor && editor.state !== 'destroyed' && innerRef.current ) {
+				const root = editor.model.document.getRoot( rootName );
 
-				ui.removeEditable( editable );
-				ui.view.removeEditable( rootName );
+				if ( root ) {
+					editor.detachEditable( root );
+				}
 			}
 		};
 	}, [ semaphore.revision ] );
