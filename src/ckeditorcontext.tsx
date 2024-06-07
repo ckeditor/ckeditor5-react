@@ -79,7 +79,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 	/**
 	 * Checks if the state can be updated based on the provided initialization ID.
 	 *
-	 * @param initializationID - The initialization ID to compare with the previous one.
+	 * @param initializationID The initialization ID to compare with the previous one.
 	 * @returns A boolean indicating whether the state can be updated.
 	 */
 	function canUpdateState( initializationID: string ) {
@@ -98,7 +98,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		const watchdogInitializationID = regenerateInitializationID();
 		const contextWatchdog = new ContextWatchdogConstructor( context!, watchdogConfig );
 
-		// Handle error event from context watchdog
+		// Handle error event from context watchdog.
 		contextWatchdog.on( 'error', ( _, errorEvent ) => {
 			onError( errorEvent.error, {
 				phase: 'runtime',
@@ -106,7 +106,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 			} );
 		} );
 
-		// Handle state change event from context watchdog
+		// Handle state change event from context watchdog.
 		contextWatchdog.on( 'stateChange', () => {
 			if ( contextWatchdog.state === 'ready' && onReady ) {
 				onReady(
@@ -116,29 +116,29 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 			}
 		} );
 
-		// Create the context watchdog and initialize it with the provided config
+		// Create the context watchdog and initialize it with the provided config.
 		contextWatchdog
 			.create( config )
 			.then( () => {
-				// Check if the state update is still valid and update the current context watchdog
+				// Check if the state update is still valid and update the current context watchdog.
 				if ( canUpdateState( watchdogInitializationID ) ) {
 					setCurrentContextWatchdog( {
 						status: 'initialized',
 						watchdog: contextWatchdog
 					} );
 				} else {
-					// Destroy the context watchdog if the state update is no longer valid
+					// Destroy the context watchdog if the state update is no longer valid.
 					contextWatchdog.destroy();
 				}
 			} )
 			.catch( error => {
-				// Handle error during context watchdog initialization
+				// Handle error during context watchdog initialization.
 				onError( error, {
 					phase: 'initialization',
 					willContextRestart: false
 				} );
 
-				// Update the current context watchdog with the error status
+				// Update the current context watchdog with the error status.
 				if ( canUpdateState( watchdogInitializationID ) ) {
 					setCurrentContextWatchdog( {
 						status: 'error',
