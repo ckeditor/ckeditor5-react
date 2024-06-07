@@ -223,7 +223,9 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		}
 
 		const watchdog = ( () => {
-			if ( isContextWatchdogValueWithStatus( 'initialized', this.context ) ) {
+			// There is small delay where React did not update the context yet but watchdog is already destroyed.
+			// However editor should be created again in such case, after receiving new context.
+			if ( isContextWatchdogValueWithStatus( 'initialized', this.context ) && this.context.watchdog.state !== 'destroyed' ) {
 				return new EditorWatchdogAdapter( this.context.watchdog );
 			}
 
