@@ -5,7 +5,7 @@
 
 /* globals window */
 
-import React from 'react';
+import React, { type ContextType } from 'react';
 import PropTypes, { type InferProps, type Validator } from 'prop-types';
 
 import type {
@@ -96,7 +96,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	public override shouldComponentUpdate(
 		nextProps: Readonly<Props<TEditor>>,
 		_: Readonly<unknown>,
-		nextContext: any
+		nextContext: ContextType<typeof ContextWatchdogContext>
 	): boolean {
 		const { context, props, editorSemaphore } = this;
 
