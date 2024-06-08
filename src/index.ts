@@ -10,6 +10,8 @@ export {
 	useCKEditorWatchdogContext,
 	isContextWatchdogValue,
 	isContextWatchdogValueWithStatus,
+	isContextWatchdogReadyToUse,
+	isContextWatchdogInitializing,
 	type ContextWatchdogValue,
 	type ContextWatchdogValueStatus
 } from './ckeditorcontext';

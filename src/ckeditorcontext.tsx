@@ -100,15 +100,17 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 
 		// Handle error event from context watchdog.
 		contextWatchdog.on( 'error', ( _, errorEvent ) => {
-			onError( errorEvent.error, {
-				phase: 'runtime',
-				willContextRestart: errorEvent.causesRestart
-			} );
+			if ( canUpdateState( watchdogInitializationID ) ) {
+				onError( errorEvent.error, {
+					phase: 'runtime',
+					willContextRestart: errorEvent.causesRestart
+				} );
+			}
 		} );
 
 		// Handle state change event from context watchdog.
 		contextWatchdog.on( 'stateChange', () => {
-			if ( contextWatchdog.state === 'ready' && onReady ) {
+			if ( onReady && contextWatchdog.state === 'ready' && canUpdateState( watchdogInitializationID ) ) {
 				onReady(
 					contextWatchdog.context! as TContext,
 					contextWatchdog
@@ -132,14 +134,14 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 				}
 			} )
 			.catch( error => {
-				// Handle error during context watchdog initialization.
-				onError( error, {
-					phase: 'initialization',
-					willContextRestart: false
-				} );
-
 				// Update the current context watchdog with the error status.
 				if ( canUpdateState( watchdogInitializationID ) ) {
+					// Handle error during context watchdog initialization.
+					onError( error, {
+						phase: 'initialization',
+						willContextRestart: false
+					} );
+
 					setCurrentContextWatchdog( {
 						status: 'error',
 						error
@@ -169,9 +171,14 @@ export const isContextWatchdogValue = ( obj: any ): obj is ContextWatchdogValue 
 /**
  * Checks if the provided object is a context watchdog value with the specified status.
  */
-export const isContextWatchdogValueWithStatus = <S extends ContextWatchdogValueStatus>( status: S, obj: any ):
-	obj is ExtractContextWatchdogValueByStatus<S> =>
+export const isContextWatchdogValueWithStatus = <S extends ContextWatchdogValueStatus>( status: S ) =>
+	( obj: any ): obj is ExtractContextWatchdogValueByStatus<S> =>
 		isContextWatchdogValue( obj ) && obj.status === status;
+
+/**
+ * Checks if the context watchdog is currently initializing.
+ */
+export const isContextWatchdogInitializing = isContextWatchdogValueWithStatus( 'initializing' );
 
 /**
  * Checks if the provided object is a fully initialized context watchdog value. It prevents race conditions between
@@ -179,7 +186,7 @@ export const isContextWatchdogValueWithStatus = <S extends ContextWatchdogValueS
  * while the context is still being initialized because context setState is pending.
  */
 export const isContextWatchdogReadyToUse = ( obj: any ): obj is ExtractContextWatchdogValueByStatus<'initialized'> => (
-	isContextWatchdogValueWithStatus( 'initialized', obj ) &&
+	isContextWatchdogValueWithStatus( 'initialized' )( obj ) &&
 	obj.watchdog.state === 'ready'
 );
 
