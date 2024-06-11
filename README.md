@@ -9,14 +9,12 @@ Official [CKEditor 5](https://ckeditor.com/ckeditor-5/) rich text editor compone
 
 ## [Developer Documentation](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/react.html) 📖
 
-See the ["Rich text editor component for React"](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/react.html) guide in the [CKEditor 5 documentation](https://ckeditor.com/docs/ckeditor5/latest) to learn more:
+See the ["Rich text editor component for React"](https://ckeditor.com/docs/ckeditor5/latest/getting-started/installation/react/react.html) guide in the [CKEditor 5 documentation](https://ckeditor.com/docs/ckeditor5/latest) to learn more:
 
-* [Quick start](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/react.html#quick-start)
-	* [Component properties](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/react.html#component-properties)
-	* [Customizing the builds](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/react.html#customizing-the-builds)
-* [Integrating CKEditor 5 built from source](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/react.html#integrating-ckeditor-5-built-from-source)
-	* [Using `create-react-app@2`](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/react.html#using-create-react-app2)
-	* [Using `create-react-app@1`](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/react.html#using-create-react-app1)
+* [Quick start](https://ckeditor.com/docs/ckeditor5/latest/getting-started/installation/react/react.html#quick-start)
+* [Using CKEditr 5 Builder](https://ckeditor.com/docs/ckeditor5/latest/getting-started/installation/react/react.html#using-ckeditor-5-builder)
+* [Installling from npm](https://ckeditor.com/docs/ckeditor5/latest/getting-started/installation/react/react.html#installing-from-npm)
+* [Component properties](https://ckeditor.com/docs/ckeditor5/latest/getting-started/installation/react/react.html#component-properties)
 
 ## Contributing
 
