@@ -21,7 +21,7 @@ import type {
 	EventInfo
 } from 'ckeditor5';
 
-import { ContextWatchdogContext } from './ckeditorcontext';
+import { ContextWatchdogContext, isContextWatchdogReadyToUse } from './ckeditorcontext';
 import { EditorWatchdogAdapter } from './ckeditor';
 
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
@@ -87,6 +87,12 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	useEffect( () => {
 		const semaphoreElement = semaphoreElementRef.current;
 
+		// Check if parent context is ready (only if it is provided).
+		if ( context && !isContextWatchdogReadyToUse( context ) ) {
+			return;
+		}
+
+		// Check if hook internal state or attributes are not ready yet.
 		if ( !semaphoreElement || props.isLayoutReady === false ) {
 			return;
 		}
@@ -128,7 +134,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			forceAssignFakeEditableElements();
 			semaphore.release( false );
 		};
-	}, [ props.id, props.isLayoutReady ] );
+	}, [ props.id, props.isLayoutReady, context?.status ] );
 
 	/**
 	 * Returns the editor configuration.
