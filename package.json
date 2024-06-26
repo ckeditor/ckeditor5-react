@@ -1,6 +1,6 @@
 {
   "name": "@ckeditor/ckeditor5-react",
-  "version": "8.0.0-alpha.0",
+  "version": "8.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Official React component for CKEditor 5 – the best browser-based rich text editor.",
