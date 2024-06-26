@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## [8.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v8.0.0-alpha.0...v8.0.0) (2024-06-26)
+
+We are excited to announce the next major version of the React integration.
+
+This release is intended to allow the integration to work with the [latest version](https://github.com/ckeditor/ckeditor5/releases/tag/v42.0.0) of [new installation methods](https://github.com/ckeditor/ckeditor5/releases/tag/v42.0.0).
+
+
 ## [8.0.0-alpha.0](https://github.com/ckeditor/ckeditor5-react/compare/v7.0.0...v8.0.0-alpha.0) (2024-06-05)
 
 We are happy to announce the alpha release of the next major version of the React integration.
