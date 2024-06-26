@@ -156,15 +156,31 @@ describe( 'useMultiRootEditor', () => {
 
 		it( 'should initialize the MultiRootEditor instance with context', async () => {
 			const contextWatchdog = new ContextWatchdog( TestMultiRootEditor.Context );
-			contextWatchdog.create();
+			await contextWatchdog.create();
 
 			const useContextSpy = sinon.stub( React, 'useContext' );
-			useContextSpy.withArgs( ContextWatchdogContext ).returns( contextWatchdog );
+			useContextSpy.withArgs( ContextWatchdogContext ).returns( {
+				status: 'initialized',
+				watchdog: contextWatchdog
+			} );
 
 			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 			await waitFor( () => {
 				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+		} );
+
+		it( 'should not initialize the MultiRootEditor instance with context when watchdog is not initialized', async () => {
+			const useContextSpy = sinon.stub( React, 'useContext' );
+			useContextSpy.withArgs( ContextWatchdogContext ).returns( {
+				status: 'initializing'
+			} );
+
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.null;
 			} );
 		} );
 	} );

@@ -1,6 +1,6 @@
 import React, { type ReactNode } from 'react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { CKEditor, CKEditorContext } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from './ClassicEditor';
+import { CKEditor, CKEditorContext } from '../../src';
 
 type ContextDemoProps = {
 	content: string;
@@ -23,7 +23,10 @@ export default class ContextDemo extends React.Component<ContextDemoProps, Conte
 				<h2 className="subtitle">Editor Context Demo</h2>
 				<p className="info">Component&apos;s events are logged to the console.</p>
 
-				<CKEditorContext context={ ClassicEditor.Context }>
+				<CKEditorContext
+					context={ ClassicEditor.Context as any }
+					contextWatchdog={ ClassicEditor.ContextWatchdog as any }
+				>
 					<div className="buttons">
 						<button
 							onClick={ () => this.simulateError( this.state.editor1! ) }
@@ -34,10 +37,10 @@ export default class ContextDemo extends React.Component<ContextDemoProps, Conte
 					</div>
 
 					<CKEditor
-						editor={ ClassicEditor }
+						editor={ ClassicEditor as any }
 						data={ this.props.content }
 
-						onReady={ editor => {
+						onReady={ ( editor: any ) => {
 							window.editor2 = editor;
 
 							console.log( 'event: onReady' );
@@ -57,10 +60,10 @@ export default class ContextDemo extends React.Component<ContextDemoProps, Conte
 					</div>
 
 					<CKEditor
-						editor={ ClassicEditor }
+						editor={ ClassicEditor as any }
 						data="<h2>Another Editor</h2><p>... in common Context</p>"
 
-						onReady={ editor => {
+						onReady={ ( editor: any ) => {
 							window.editor1 = editor;
 
 							console.log( 'event: onReady' );

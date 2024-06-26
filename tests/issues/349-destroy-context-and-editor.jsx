@@ -7,7 +7,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Context } from 'ckeditor5';
+import { Context, ContextWatchdog } from 'ckeditor5';
 import { configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
@@ -47,6 +47,7 @@ class App extends React.Component {
 				{ this.state.isLayoutReady && (
 					<CKEditorContext
 						config={ {} }
+						contextWatchdog={ ContextWatchdog }
 						context={ CustomContext }
 					>
 						<CKEditor

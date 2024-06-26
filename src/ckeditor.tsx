@@ -7,6 +7,7 @@
 
 import React from 'react';
 import PropTypes, { type InferProps, type Validator } from 'prop-types';
+
 import type {
 	EventInfo,
 	Editor,
@@ -18,10 +19,15 @@ import type {
 	EditorCreatorFunction
 } from 'ckeditor5';
 
-import { uid } from './utils/uid';
-import { ContextWatchdogContext } from './ckeditorcontext';
-import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
+
+import { uid } from './utils/uid';
+import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
+import {
+	ContextWatchdogContext,
+	isContextWatchdogInitializing,
+	isContextWatchdogReadyToUse
+} from './ckeditorcontext';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -128,14 +134,18 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Initialize the editor when the component is mounted.
 	 */
 	public override componentDidMount(): void {
-		this._initLifeCycleSemaphore();
+		if ( !isContextWatchdogInitializing( this.context ) ) {
+			this._initLifeCycleSemaphore();
+		}
 	}
 
 	/**
 	 * Re-render the entire component once again. The old editor will be destroyed and the new one will be created.
 	 */
 	public override componentDidUpdate(): void {
-		this._initLifeCycleSemaphore();
+		if ( !isContextWatchdogInitializing( this.context ) ) {
+			this._initLifeCycleSemaphore();
+		}
 	}
 
 	/**
@@ -217,8 +227,10 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		}
 
 		const watchdog = ( () => {
-			if ( this.context instanceof this.props.editor.ContextWatchdog ) {
-				return new EditorWatchdogAdapter( this.context );
+			// There is small delay where React did not update the context yet but watchdog is already destroyed.
+			// However editor should be created again in such case, after receiving new context.
+			if ( isContextWatchdogReadyToUse( this.context ) ) {
+				return new EditorWatchdogAdapter( this.context.watchdog );
 			}
 
 			return new this.props.editor.EditorWatchdog( this.props.editor, this.props.watchdogConfig );

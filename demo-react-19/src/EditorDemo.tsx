@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ClassicEditor from './ClassicEditor';
-import { CKEditor } from '../../src';
+import { CKEditor } from '../../src/';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
@@ -117,16 +117,13 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				data={ state.documents[ state.documentID ] }
 				watchdogConfig={ { crashNumberLimit: 10 } }
 
-				onReady={ editor => {
-					window.editor = editor as unknown as ClassicEditor;
+				onReady={ ( editor: any ) => {
+					window.editor = editor;
 
 					console.log( 'event: onReady' );
 					console.log( 'Editor is ready to use! You can use "editor" variable to play with it.' );
 
-					setState( prevState => ( {
-						...prevState,
-						editor: editor as unknown as ClassicEditor
-					} ) );
+					setState( prevState => ( { ...prevState, editor } ) );
 				} }
 
 				onChange={ ( event, editor ) => {

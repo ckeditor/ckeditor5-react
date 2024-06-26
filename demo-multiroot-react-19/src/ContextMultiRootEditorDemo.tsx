@@ -1,13 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useMultiRootEditor, type MultiRootHookProps, CKEditorContext } from '../../src';
 import MultiRootEditor from './MultiRootEditor';
 
 export default function ContextMultiRootEditorDemo(): JSX.Element {
+	const [ isLayoutReady, setLayoutReady ] = useState( false );
+
+	useEffect( () => {
+		const timer = setTimeout( () => {
+			setLayoutReady( true );
+		}, 100 );
+
+		return () => {
+			clearTimeout( timer );
+		};
+	}, [] );
+
 	return (
 		<>
 			{ /* @ts-expect-error: Caused by linking to parent project and conflicting react types */ }
 			<CKEditorContext
+				isLayoutReady={ isLayoutReady }
 				context={ MultiRootEditor.Context as any }
 				contextWatchdog={ MultiRootEditor.ContextWatchdog as any }
 			>

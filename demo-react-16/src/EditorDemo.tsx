@@ -1,6 +1,6 @@
 import React, { type ReactNode } from 'react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from './ClassicEditor';
+import { CKEditor } from '../../src';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 
@@ -64,13 +64,13 @@ export default class EditorDemo extends React.Component<EditorDemoProps, EditorD
 				</div>
 
 				<CKEditor
-					editor={ ClassicEditor }
+					editor={ ClassicEditor as any }
 					id={ this.state.documentID }
 					disableWatchdog={ this.state.isWatchdogDisabled }
 					data={ this.state.documents[ this.state.documentID ] }
 					watchdogConfig={ { crashNumberLimit: 10 } }
 
-					onReady={ editor => {
+					onReady={ ( editor: any ) => {
 						window.editor = editor;
 
 						console.log( 'event: onReady' );

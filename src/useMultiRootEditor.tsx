@@ -14,8 +14,6 @@ import type {
 	DocumentChangeEvent,
 	Writer,
 	RootElement,
-	ContextWatchdog,
-	EditorWatchdog,
 	WatchdogConfig,
 	AddRootEvent,
 	DetachRootEvent,
@@ -23,7 +21,7 @@ import type {
 	EventInfo
 } from 'ckeditor5';
 
-import { ContextWatchdogContext } from './ckeditorcontext';
+import { ContextWatchdogContext, isContextWatchdogReadyToUse } from './ckeditorcontext';
 import { EditorWatchdogAdapter } from './ckeditor';
 
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
@@ -62,9 +60,39 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 	const shouldUpdateEditor = useRef<boolean>( true );
 
+	/**
+	 * It's possible to unmount `useMultiRootEditor` with created editor and `elements` that are not attached to any React node.
+	 * It means that CKEditor will try to destroy editor and all it's roots in destructor. It will throw an error because
+	 * `editables` are not attached to any React node and their elements references are null. To prevent this error we need to
+	 * force assign `editables` to fake elements before destroying editor.
+	 */
+	const forceAssignFakeEditableElements = () => {
+		const editor = editorRefs.instance.current;
+
+		if ( !editor ) {
+			return;
+		}
+
+		const initializeEditableWithFakeElement = ( editable: InlineEditableUIView ) => {
+			if ( editable.name && !editor.editing.view.getDomRoot( editable.name ) ) {
+				editor.editing.view.attachDomRoot( document.createElement( 'div' ), editable.name );
+			}
+		};
+
+		Object
+			.values( editor.ui.view.editables )
+			.forEach( initializeEditableWithFakeElement );
+	};
+
 	useEffect( () => {
 		const semaphoreElement = semaphoreElementRef.current;
 
+		// Check if parent context is ready (only if it is provided).
+		if ( context && !isContextWatchdogReadyToUse( context ) ) {
+			return;
+		}
+
+		// Check if hook internal state or attributes are not ready yet.
 		if ( !semaphoreElement || props.isLayoutReady === false ) {
 			return;
 		}
@@ -103,9 +131,10 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} ) );
 
 		return () => {
+			forceAssignFakeEditableElements();
 			semaphore.release( false );
 		};
-	}, [ props.id, props.isLayoutReady ] );
+	}, [ props.id, props.isLayoutReady, context?.status ] );
 
 	/**
 	 * Returns the editor configuration.
@@ -562,18 +591,32 @@ const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 		let editor: MultiRootEditor | null;
 
 		semaphore.runAfterMount( ( { instance } ) => {
-			if ( innerRef.current ) {
-				editor = instance;
-				editable = instance.ui.view.createEditable( rootName, innerRef.current );
-
-				instance.ui.addEditable( editable );
-				instance.editing.view.forceRender();
+			if ( !innerRef.current ) {
+				return;
 			}
+
+			editor = instance;
+
+			const { ui, model } = editor;
+			const root = model.document.getRoot( rootName );
+
+			if ( root && editor.ui.getEditableElement( rootName ) ) {
+				editor.detachEditable( root );
+			}
+
+			editable = ui.view.createEditable( rootName, innerRef.current );
+			ui.addEditable( editable );
+
+			instance.editing.view.forceRender();
 		} );
 
 		return () => {
-			if ( editable && innerRef.current && editor && editor.state !== 'destroyed' ) {
-				editor.ui.removeEditable( editable );
+			if ( editor && editor.state !== 'destroyed' && innerRef.current ) {
+				const root = editor.model.document.getRoot( rootName );
+
+				if ( root ) {
+					editor.detachEditable( root );
+				}
 			}
 		};
 	}, [ semaphore.revision ] );
