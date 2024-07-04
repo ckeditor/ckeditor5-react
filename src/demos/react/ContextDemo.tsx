@@ -58,7 +58,6 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 					</button>
 				</div>
 
-				{ /* @ts-expect-error: Caused by linking to parent project and conflicting react types */ }
 				<CKEditor
 					editor={ ClassicEditor as any }
 					data={ props.content }
@@ -78,7 +77,6 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 					</button>
 				</div>
 
-				{ /* @ts-expect-error: Caused by linking to parent project and conflicting react types */ }
 				<CKEditor
 					editor={ ClassicEditor as any }
 					data="<h2>Another Editor</h2><p>... in common Context</p>"
