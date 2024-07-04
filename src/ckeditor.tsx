@@ -435,7 +435,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 /**
  * TODO this is type space definition for props, the CKEditor.propTypes is a run-time props validation that should match.
  */
-interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propTypes> {
+export interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propTypes> {
 	editor: {
 		create( ...args: any ): Promise<TEditor>;
 		EditorWatchdog: typeof EditorWatchdog;

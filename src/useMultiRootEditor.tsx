@@ -222,7 +222,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	/**
 	 * Callback function for handling an added root.
 	 */
-	const onAddRoot = useRefSafeCallback( ( editor: MultiRootEditor, evt: EventInfo, root: RootElement ): void => {
+	const onAddRoot = useRefSafeCallback( ( editor: MultiRootEditor, _: EventInfo, root: RootElement ): void => {
 		const rootName = root.rootName;
 
 		if ( !props.disableTwoWayDataBinding ) {
@@ -241,7 +241,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	/**
 	 * Callback function for handling a detached root.
 	 */
-	const onDetachRoot = useRefSafeCallback( ( editor: MultiRootEditor, evt: EventInfo, root: RootElement ): void => {
+	const onDetachRoot = useRefSafeCallback( ( _: MultiRootEditor, __: EventInfo, root: RootElement ): void => {
 		const rootName = root.rootName;
 
 		if ( !props.disableTwoWayDataBinding ) {

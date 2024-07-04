@@ -9,9 +9,9 @@
 
 'use strict';
 
-const { Listr } = require( 'listr2' );
-const releaseTools = require( '@ckeditor/ckeditor5-dev-release-tools' );
-const { tools } = require( '@ckeditor/ckeditor5-dev-utils' );
+import { Listr } from 'listr2';
+import releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
+import { tools } from '@ckeditor/ckeditor5-dev-utils';
 
 const latestVersion = releaseTools.getLastFromChangelog();
 const versionChangelog = releaseTools.getChangesForVersion( latestVersion );

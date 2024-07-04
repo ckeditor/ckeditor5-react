@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>CKEditor 5 – React Component – demo</title>
+	<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+	<style>
+		body {
+			max-width: 800px;
+			margin: 20px auto;
+		}
+
+		p.info, h1, h2.subtitle {
+			text-align: center;
+		}
+
+		.buttons {
+			margin: 10px 0;
+		}
+
+		.buttons button {
+			margin-right: 5px;
+		}
+
+		.flex {
+			display: flex;
+			gap: 10px;
+			margin-top: 10px;
+		}
+
+		.flex > div {
+			overflow: auto;
+			width: 100%;
+			height: auto;
+		}
+
+		.ck.ck-content.ck-editor__editable.ck-editor__editable_inline {
+			border: 1px solid black;
+			border-collapse: collapse;
+			margin-top: 10px;
+		}
+
+		.ck-read-only {
+			opacity: 0.5;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="root"></div>
+	<script type="module" src="/src/demos/multiroot-react/main.tsx"></script>
+</body>
+</html>
