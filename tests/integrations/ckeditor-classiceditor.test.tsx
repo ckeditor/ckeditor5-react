@@ -6,7 +6,7 @@
 /* global window, document */
 
 import { describe, afterEach, it, expect } from 'vitest';
-import React from 'react';
+import React, { createRef } from 'react';
 import ReactDOM from 'react-dom';
 import { render, type RenderResult } from '@testing-library/react';
 
@@ -26,8 +26,11 @@ describe( 'CKEditor Component + ClassicEditor Build', () => {
 	} );
 
 	it( 'should initialize the ClassicEditor properly', async () => {
+		const editorRef = createRef<CKEditor<any>>();
+
 		component = render(
 			<CKEditor
+				ref={editorRef}
 				editor={ TestClassicEditor }
 				onReady={ manager.resolveOnRun() }
 			/>
@@ -35,10 +38,7 @@ describe( 'CKEditor Component + ClassicEditor Build', () => {
 
 		await manager.all();
 
-		const instance = component.instance();
-
-		expect( instance.editor ).to.not.be.null;
-		expect( instance.editor.element ).to.not.be.null;
+		expect( editorRef.current?.editor ).to.be.instanceOf( TestClassicEditor );
 	} );
 } );
 
@@ -120,7 +120,7 @@ describe.skipIf( !window.gc || isWindows() )( '<CKEditor> memory usage', () => {
 			.then( createAndDestroy ) // #5
 			.then( collectMemoryStats )
 			.then( memory => {
-				const memoryDifference = memory.usedJSHeapSize - memoryAfterFirstStart.usedJSHeapSize;
+				const memoryDifference = ( memory as any ).usedJSHeapSize - memoryAfterFirstStart.usedJSHeapSize;
 				// While theoretically we should get 0KB when there's no memory leak, in reality,
 				// the results we get (when there are no leaks) vary from -500KB to 500KB (depending on which tests are executed).
 				// However, when we had memory leaks, memoryDifference was reaching 20MB,
@@ -143,10 +143,10 @@ describe.skipIf( !window.gc || isWindows() )( '<CKEditor> memory usage', () => {
 	function collectMemoryStats() {
 		return new Promise( resolve => {
 			// Enforce garbage collection before recording memory stats.
-			window.gc();
+			window.gc?.();
 
 			setTimeout( () => {
-				const memeInfo = window.performance.memory;
+				const memeInfo = ( window.performance as any ).memory;
 
 				resolve( {
 					totalJSHeapSize: memeInfo.totalJSHeapSize,

@@ -6,7 +6,7 @@
 import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { Context, ContextWatchdog } from 'ckeditor5';
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import CKEditor from '../../src/ckeditor.tsx';
 import CKEditorContext from '../../src/ckeditorcontext.tsx';
 import { TestClassicEditor } from '../_utils/classiceditor.js';
@@ -19,12 +19,11 @@ class App extends React.Component {
 	public declare editor: any;
 	public declare state: any;
 
-	constructor( props: { onReady: Function } ) {
+	constructor( props: { onReady: Function; renderEditor?: boolean } ) {
 		super( props );
 
 		this.state = {
-			isLayoutReady: false,
-			renderEditor: true
+			isLayoutReady: false
 		};
 
 		this.editor = null;
@@ -43,7 +42,7 @@ class App extends React.Component {
 						context={ CustomContext }
 						contextWatchdog={ ContextWatchdog }
 					>
-						{ this.state.renderEditor && (
+						{ this.props.renderEditor && (
 							<CKEditor
 								onReady={ () => this.props.onReady() }
 								onChange={ ( event, editor ) => console.log( { event, editor } ) }
@@ -62,15 +61,20 @@ class App extends React.Component {
 describe( 'issue #354: unable to destroy the editor within a context', () => {
 	it( 'should destroy the editor within a context', async () => {
 		const manager = new PromiseManager();
-
-		const wrapper = render( <App onReady={ manager.resolveOnRun() } /> );
+		const wrapper = render( <App onReady={ manager.resolveOnRun() } renderEditor /> );
 
 		await manager.all();
+		await waitFor( () => {
+			expect( wrapper.queryByText( 'Rich Text Editor' ) ).not.to.be.null;
+		} );
 
-		wrapper.find( App ).setState( { renderEditor: false } );
+		wrapper.rerender(
+			<App onReady={ manager.resolveOnRun() } renderEditor={false} />
+		);
 
-		expect( wrapper.find( CKEditor ).exists() ).to.equal( false );
-		expect( wrapper.queryAllByRole( 'application' ) ).to.equal( null );
+		await waitFor( () => {
+			expect( wrapper.queryByText( 'Rich Text Editor' ) ).to.be.null;
+		} );
 
 		wrapper.unmount();
 	} );
