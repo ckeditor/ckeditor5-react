@@ -3,19 +3,22 @@
  * For licensing, see LICENSE.md.
  */
 
-/* global window, HTMLDivElement, document */
+/* global window, HTMLDivElement */
 
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
-import React from 'react';
+import React, { createRef, type RefObject } from 'react';
 import { CKEditorError, EditorWatchdog } from 'ckeditor5';
-import { render, type RenderResult } from '@testing-library/react';
+import { render, waitFor, type RenderResult } from '@testing-library/react';
 import MockedEditor from './_utils/editor.js';
 import { timeout } from './_utils/timeout.js';
-import { waitFor } from './_utils/waitFor.js';
 import { createDefer } from './_utils/defer.js';
 import { PromiseManager } from './_utils/render.js';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
-import CKEditor from '../src/ckeditor.js';
+import CKEditor, { type Props } from '../src/ckeditor.js';
+import { expectToBeTruthy } from './_utils/expectToBeTruthy.js';
+
+import type { LifeCycleElementSemaphore } from '../src/lifecycle/LifeCycleElementSemaphore.js';
+import type { EditorSemaphoreMountResult } from '../src/lifecycle/LifeCycleEditorSemaphore.js';
 
 declare global {
 	interface Window {
@@ -28,12 +31,15 @@ const MockEditor = MockedEditor as any;
 describe( '<CKEditor> Component', () => {
 	const manager: PromiseManager = new PromiseManager();
 	let component: RenderResult | null = null;
+	let instanceRef: RefObject<CKEditor<any>>;
 	let CKEDITOR_VERSION: string;
 
 	beforeEach( () => {
 		CKEDITOR_VERSION = window.CKEDITOR_VERSION;
 
 		component = null;
+		instanceRef = createRef();
+
 		window.CKEDITOR_VERSION = '42.0.0';
 		vi.spyOn( MockEditor._model.document, 'on' );
 		vi.spyOn( MockEditor._editing.view.document, 'on' );
@@ -173,7 +179,7 @@ describe( '<CKEditor> Component', () => {
 
 			await manager.all();
 
-			expect( createSpy.mock.calls[ 0 ][ 1 ].initialData ).to.equal(
+			expect( ( createSpy.mock.calls as any )[ 0 ][ 1 ].initialData ).to.equal(
 				'<p>Hello CKEditor 5!</p>'
 			);
 		} );
@@ -191,7 +197,7 @@ describe( '<CKEditor> Component', () => {
 
 			await manager.all();
 
-			expect( createSpy.mock.calls[ 0 ][ 1 ].initialData ).to.equal(
+			expect( ( createSpy.mock.calls as any )[ 0 ][ 1 ].initialData ).to.equal(
 				'<p>Hello CKEditor 5!</p>'
 			);
 		} );
@@ -231,7 +237,7 @@ describe( '<CKEditor> Component', () => {
 
 			await manager.all();
 
-			expect( createSpy.mock.calls[ 0 ][ 1 ].initialData ).to.equal( '<p>Bar</p>' );
+			expect( ( createSpy.mock.calls as any )[ 0 ][ 1 ].initialData ).to.equal( '<p>Bar</p>' );
 		} );
 
 		it( 'when setting initial data, it must not use "Editor.setData()"', async () => {
@@ -258,6 +264,7 @@ describe( '<CKEditor> Component', () => {
 
 			component = render(
 				<CKEditor
+					ref={instanceRef}
 					editor={MockEditor}
 					data="<p>Hello CKEditor 5!</p>"
 					onReady={manager.resolveOnRun()}
@@ -266,10 +273,11 @@ describe( '<CKEditor> Component', () => {
 
 			await manager.all();
 
-			const instance = component.instance();
-
-			// This method always is called with an object with component's properties.
-			expect( instance.shouldComponentUpdate( {} ) ).to.equal( false );
+			expectToBeTruthy( instanceRef.current );
+			expect( instanceRef.current.shouldComponentUpdate( {
+				editor: MockEditor,
+				data: '<p>Hello CKEditor 5!</p>'
+			} ) ).to.equal( false );
 		} );
 
 		it( 'displays an error if something went wrong and "onError" callback was not specified', async () => {
@@ -360,6 +368,7 @@ describe( '<CKEditor> Component', () => {
 
 			component = render(
 				<CKEditor
+					ref={instanceRef}
 					editor={MockEditor}
 					onReady={manager.resolveOnRun()}
 				/>
@@ -367,14 +376,13 @@ describe( '<CKEditor> Component', () => {
 
 			await manager.all();
 
-			const instance = component.instance();
-			let shouldComponentUpdate;
-
 			expect( () => {
-				shouldComponentUpdate = instance.shouldComponentUpdate( { disabled: true } );
+				expectToBeTruthy( instanceRef.current );
+				expect( instanceRef.current.shouldComponentUpdate( {
+					editor: MockEditor,
+					disabled: true
+				} ) ).to.be.false;
 			} ).to.not.throw();
-
-			expect( shouldComponentUpdate ).to.be.false;
 		} );
 
 		describe( '#onReady', () => {
@@ -443,7 +451,7 @@ describe( '<CKEditor> Component', () => {
 
 				await manager.all();
 
-				const fireChanges = onDocumentSpy.mock.calls[ 0 ][ 1 ];
+				const fireChanges = onDocumentSpy.mock.calls[ 0 ][ 1 ] as Function;
 				const event = { name: 'change:data' };
 
 				fireChanges( event );
@@ -495,7 +503,7 @@ describe( '<CKEditor> Component', () => {
 
 				await manager.all();
 
-				const fireChanges = viewDocumentSpy.mock.calls[ 0 ][ 1 ];
+				const fireChanges = viewDocumentSpy.mock.calls[ 0 ][ 1 ] as Function;
 
 				fireChanges( event );
 
@@ -520,14 +528,19 @@ describe( '<CKEditor> Component', () => {
 
 				await manager.all();
 
-				component!.setProps( { onFocus } );
+				component.rerender(
+					<CKEditor
+						editor={MockEditor}
+						onFocus={onFocus}
+					/>
+				);
 
-				const fireChanges = viewDocumentSpy.mock.calls[ 0 ][ 1 ];
+				const fireChanges = viewDocumentSpy.mock.calls[ 0 ][ 1 ] as Function;
 
 				fireChanges( { name: 'focus' } );
 
 				expect( onFocus ).toHaveBeenCalledOnce();
-				expect( onFocus.mock.calls[ 0 ][ 0 ] ).to.equal( { name: 'focus' } );
+				expect( onFocus.mock.calls[ 0 ][ 0 ] ).to.deep.equal( { name: 'focus' } );
 				expect( onFocus.mock.calls[ 0 ][ 1 ] ).to.equal( editorInstance );
 			} );
 		} );
@@ -573,7 +586,7 @@ describe( '<CKEditor> Component', () => {
 
 				await manager.all();
 
-				const fireChanges = viewDocumentSpy.mock.calls[ 1 ][ 1 ];
+				const fireChanges = viewDocumentSpy.mock.calls[ 1 ][ 1 ] as Function;
 
 				fireChanges( event );
 
@@ -599,9 +612,14 @@ describe( '<CKEditor> Component', () => {
 
 				await manager.all();
 
-				component!.setProps( { onBlur } );
+				component?.rerender(
+					<CKEditor
+						editor={MockEditor}
+						onBlur={onBlur}
+					/>
+				);
 
-				const fireChanges = viewDocumentSpy.mock.calls[ 1 ][ 1 ];
+				const fireChanges = viewDocumentSpy.mock.calls[ 1 ][ 1 ] as Function;
 
 				fireChanges( event );
 
@@ -640,6 +658,7 @@ describe( '<CKEditor> Component', () => {
 			it( 'calls the callback if the runtime error occurs', async () => {
 				component = render(
 					<CKEditor
+						ref={instanceRef}
 						editor={MockEditor}
 						onReady={manager.resolveOnRun()}
 					/>
@@ -647,20 +666,24 @@ describe( '<CKEditor> Component', () => {
 
 				await manager.all();
 
-				const error = new CKEditorError( 'foo', component!.instance().editor );
-
 				const onErrorSpy = vi.fn();
-				component!.setProps( { onError: onErrorSpy } );
 
-				await turnOffDefaultErrorCatching( () => {
-					return new Promise( res => {
-						component!.setProps( { onReady: res } );
+				component.rerender(
+					<CKEditor
+						ref={instanceRef}
+						editor={MockEditor}
+						onError={onErrorSpy}
+					/>
+				);
 
-						setTimeout( () => {
-							throw error;
-						} );
-					} );
-				} );
+				expect( instanceRef.current ).to.be.toBeTruthy();
+
+				const error = new CKEditorError( 'foo', instanceRef.current!.editor );
+				const semaphore = (
+					instanceRef.current as any
+				).editorSemaphore as LifeCycleElementSemaphore<EditorSemaphoreMountResult<any>>;
+
+				( semaphore.value?.watchdog as any )._handleError( error );
 
 				expect( onErrorSpy ).toHaveBeenCalledOnce();
 				expect( onErrorSpy.mock.calls[ 0 ][ 0 ] ).to.equal( error );
@@ -691,6 +714,7 @@ describe( '<CKEditor> Component', () => {
 			it( 'switches the editor to read-only mode when [disabled={true}] property was set in runtime', async () => {
 				component = render(
 					<CKEditor
+						ref={instanceRef}
 						editor={MockEditor}
 						onReady={manager.resolveOnRun()}
 					/>
@@ -698,14 +722,24 @@ describe( '<CKEditor> Component', () => {
 
 				await manager.all();
 
-				component!.setProps( { disabled: true } );
+				component.rerender(
+					<CKEditor
+						ref={instanceRef}
+						editor={MockEditor}
+						disabled
+					/>
+				);
 
-				expect( component!.instance().editor.isReadOnly ).to.be.true;
+				await waitFor( () => {
+					expectToBeTruthy( instanceRef.current?.editor );
+					expect( instanceRef.current.editor.isReadOnly ).to.be.true;
+				} );
 			} );
 
 			it( 'disables the read-only mode when [disabled={false}] property was set in runtime', async () => {
 				component = render(
 					<CKEditor
+						ref={instanceRef}
 						editor={MockEditor}
 						disabled={true}
 						onReady={manager.resolveOnRun()}
@@ -714,11 +748,19 @@ describe( '<CKEditor> Component', () => {
 
 				await manager.all();
 
-				expect( component!.instance().editor.isReadOnly ).to.be.true;
+				expect( instanceRef.current!.editor?.isReadOnly ).to.be.true;
 
-				component!.setProps( { disabled: false } );
+				component.rerender(
+					<CKEditor
+						ref={instanceRef}
+						editor={MockEditor}
+						disabled={false}
+					/>
+				);
 
-				expect( component!.instance().editor.isReadOnly ).to.be.false;
+				await waitFor( () => {
+					expect( instanceRef.current!.editor?.isReadOnly ).to.be.false;
+				} );
 			} );
 		} );
 
@@ -743,14 +785,25 @@ describe( '<CKEditor> Component', () => {
 				await manager.all();
 
 				expect( editorCreate ).toHaveBeenCalledOnce();
-				expect( editorCreate.mock.calls[ 0 ][ 1 ].initialData ).to.equal( '<p>foo</p>' );
+				expect( ( editorCreate.mock.calls as any )[ 0 ][ 1 ].initialData ).to.equal( '<p>foo</p>' );
 
-				const editor2 = await new Promise( res => {
-					component!.setProps( { onReady: res, id: '2', config: { initialData: '<p>bar</p>' } } );
-				} );
+				let editor2;
+
+				component.rerender(
+					<CKEditor
+						editor={MockEditor}
+						config={ { initialData: '<p>bar</p>' } }
+						id="2"
+						onReady={manager.resolveOnRun( resolvedEditor => {
+							editor2 = resolvedEditor;
+						} )}
+					/>
+				);
+
+				await manager.all();
 
 				expect( editorCreate ).toHaveBeenCalledTimes( 2 );
-				expect( editorCreate.mock.calls[ 1 ][ 1 ].initialData ).to.equal( '<p>bar</p>' );
+				expect( ( editorCreate.mock.calls as any )[ 1 ][ 1 ].initialData ).to.equal( '<p>bar</p>' );
 				expect( editor ).to.not.equal( editor2 );
 			} );
 
@@ -770,7 +823,13 @@ describe( '<CKEditor> Component', () => {
 					.spyOn( MockEditor, 'create' )
 					.mockImplementation( async () => new MockEditor() );
 
-				component!.setProps( { id: '1', config: { initialData: '<p>bar</p>' } } );
+				component.rerender(
+					<CKEditor
+						editor={MockEditor}
+						config={ { initialData: '<p>bar</p>' } }
+						id="1"
+					/>
+				);
 
 				await new Promise( res => setTimeout( res ) );
 
@@ -780,6 +839,7 @@ describe( '<CKEditor> Component', () => {
 			it( 'should destroy the old watchdog instance while re-mounting the editor', async () => {
 				component = render(
 					<CKEditor
+						ref={instanceRef}
 						editor={MockEditor}
 						config={{ initialData: '<p>foo</p>' }}
 						id="1"
@@ -789,17 +849,31 @@ describe( '<CKEditor> Component', () => {
 
 				await manager.all();
 
-				const { watchdog: firstWatchdog } = component!.instance();
+				expectToBeTruthy( instanceRef.current );
 
-				await new Promise( res => {
-					component!.setProps( { onReady: res, id: '2', config: { initialData: '<p>bar</p>' } } );
-				} );
+				const { watchdog: firstWatchdog } = instanceRef.current;
 
-				const { watchdog: secondWatchdog } = component!.instance();
+				component?.rerender(
+					<CKEditor
+						ref={instanceRef}
+						editor={MockEditor}
+						config={{ initialData: '<p>bar</p>' }}
+						id="2"
+						onReady={manager.resolveOnRun()}
+					/>
+				);
 
+				await manager.all();
+
+				expectToBeTruthy( instanceRef.current );
+				expectToBeTruthy( firstWatchdog );
+
+				const { watchdog: secondWatchdog } = instanceRef.current;
+
+				expectToBeTruthy( secondWatchdog );
 				expect( firstWatchdog ).to.not.equal( secondWatchdog );
-				expect( firstWatchdog.state ).to.equal( 'destroyed' );
-				expect( secondWatchdog.state ).to.equal( 'ready' );
+				expect( ( firstWatchdog as EditorWatchdog ).state ).to.equal( 'destroyed' );
+				expect( ( secondWatchdog as EditorWatchdog ).state ).to.equal( 'ready' );
 			} );
 		} );
 
@@ -807,6 +881,7 @@ describe( '<CKEditor> Component', () => {
 			it( 'should not initialize watchdog if disableWatchdog is set to true', async () => {
 				component = render(
 					<CKEditor
+						ref={instanceRef}
 						editor={MockEditor}
 						config={{ initialData: '<p>foo</p>' }}
 						disableWatchdog={true}
@@ -817,14 +892,14 @@ describe( '<CKEditor> Component', () => {
 
 				await manager.all();
 
-				const { watchdog } = component.instance();
-
-				expect( watchdog ).to.equal( null );
+				expectToBeTruthy( instanceRef.current );
+				expect( instanceRef.current.watchdog ).to.be.null;
 			} );
 
 			it( 'should initialize watchdog if disableWatchdog is set to false', async () => {
 				component = render(
 					<CKEditor
+						ref={instanceRef}
 						editor={MockEditor}
 						config={{ initialData: '<p>foo</p>' }}
 						disableWatchdog={false}
@@ -835,14 +910,14 @@ describe( '<CKEditor> Component', () => {
 
 				await manager.all();
 
-				const { watchdog } = component.instance();
-
-				expect( watchdog ).not.to.equal( null );
+				expectToBeTruthy( instanceRef.current );
+				expect( instanceRef.current.watchdog ).not.to.be.null;
 			} );
 
 			it( 'should initialize watchdog if disableWatchdog is not set', async () => {
 				component = render(
 					<CKEditor
+						ref={instanceRef}
 						editor={MockEditor}
 						config={{ initialData: '<p>foo</p>' }}
 						id="1"
@@ -852,14 +927,14 @@ describe( '<CKEditor> Component', () => {
 
 				await manager.all();
 
-				const { watchdog } = component.instance();
-
-				expect( watchdog ).not.to.equal( null );
+				expectToBeTruthy( instanceRef.current );
+				expect( instanceRef.current.watchdog ).not.to.be.null;
 			} );
 
 			it( 'should re-render when disableWatchdog has changed', async () => {
 				component = render(
 					<CKEditor
+						ref={instanceRef}
 						editor={MockEditor}
 						config={{ initialData: '<p>foo</p>' }}
 						id="1"
@@ -869,22 +944,36 @@ describe( '<CKEditor> Component', () => {
 
 				await manager.all();
 
-				const { watchdog: watchdog1 } = component.instance();
-				expect( watchdog1 ).not.to.equal( null );
+				expect( instanceRef.current?.watchdog ).not.to.be.null;
 
-				await new Promise( res => {
-					component.setProps( { onReady: res, disableWatchdog: true } );
-				} );
+				component?.rerender(
+					<CKEditor
+						disableWatchdog
+						ref={instanceRef}
+						editor={MockEditor}
+						config={{ initialData: '<p>foo</p>' }}
+						id="1"
+						onReady={manager.resolveOnRun()}
+					/>
+				);
 
-				const { watchdog: watchdog2 } = component.instance();
-				expect( watchdog2 ).to.equal( null );
+				await manager.all();
 
-				await new Promise( res => {
-					component.setProps( { onReady: res, disableWatchdog: false } );
-				} );
+				expect( instanceRef.current?.watchdog ).to.be.null;
 
-				const { watchdog: watchdog3 } = component.instance();
-				expect( watchdog3 ).not.to.equal( null );
+				component?.rerender(
+					<CKEditor
+						disableWatchdog={false}
+						ref={instanceRef}
+						editor={MockEditor}
+						config={{ initialData: '<p>foo</p>' }}
+						id="1"
+						onReady={manager.resolveOnRun()}
+					/>
+				);
+				await manager.all();
+
+				expect( instanceRef.current?.watchdog ).not.to.be.null;
 			} );
 		} );
 	} );
@@ -927,6 +1016,7 @@ describe( '<CKEditor> Component', () => {
 			vi.spyOn( MockEditor, 'create' ).mockResolvedValue( editorInstance );
 			component = render(
 				<CKEditor
+					ref={instanceRef}
 					editor={MockEditor}
 					onReady={manager.resolveOnRun()}
 				/>
@@ -934,16 +1024,16 @@ describe( '<CKEditor> Component', () => {
 
 			await manager.all();
 
-			const instance = component.instance();
+			const instance = instanceRef.current;
 
-			expect( instance.editor ).is.not.null;
+			expect( instance?.editor ).is.not.null;
 
-			instance.unmount();
+			component.unmount();
 			component = null;
 
 			// Wait a cycle.
 			await waitFor( () => {
-				expect( instance.editor ).is.null;
+				expect( instance?.editor ).is.null;
 			} );
 		} );
 	} );
@@ -952,6 +1042,7 @@ describe( '<CKEditor> Component', () => {
 		it( 'should restart the editor if a runtime error occurs', async () => {
 			component = render(
 				<CKEditor
+					ref={instanceRef}
 					editor={MockEditor}
 					onReady={manager.resolveOnRun()}
 				/>
@@ -959,13 +1050,19 @@ describe( '<CKEditor> Component', () => {
 
 			await manager.all();
 
-			const firstEditor = component.instance().editor;
+			const firstEditor = instanceRef.current?.editor;
 
 			expect( firstEditor ).to.be.instanceOf( MockEditor );
 
 			await turnOffDefaultErrorCatching( () => {
 				return new Promise( res => {
-					component.setProps( { onReady: res } );
+					component?.rerender(
+						<CKEditor
+							ref={instanceRef}
+							editor={MockEditor}
+							onReady={res}
+						/>
+					);
 
 					setTimeout( () => {
 						throw new CKEditorError( 'foo', firstEditor );
@@ -974,7 +1071,7 @@ describe( '<CKEditor> Component', () => {
 			} );
 
 			await waitFor( () => {
-				const { editor } = component.instance();
+				const { editor } = instanceRef.current!;
 
 				expect( editor ).to.be.instanceOf( MockEditor );
 				expect( firstEditor ).to.not.equal( editor );
@@ -1018,9 +1115,7 @@ describe( '<CKEditor> Component', () => {
 					<CKEditor
 						editor={MockSlowEditor}
 						config={{
-							initialData: '1',
-							key: 1,
-							abc: 123
+							initialData: '1'
 						}}
 						onReady={ resolvedEditor => {
 							editor = resolvedEditor;
@@ -1030,9 +1125,18 @@ describe( '<CKEditor> Component', () => {
 
 				await timeout( 100 );
 
-				component.setProps( {
-					data: 'Hello World'
-				} );
+				component.rerender(
+					<CKEditor
+						data='Hello World'
+						editor={MockSlowEditor}
+						config={{
+							initialData: '1'
+						}}
+						onReady={ resolvedEditor => {
+							editor = resolvedEditor;
+						} }
+					/>
+				);
 
 				deferInitialization.resolve();
 
@@ -1072,9 +1176,7 @@ describe( '<CKEditor> Component', () => {
 					<CKEditor
 						editor={MockSlowEditor}
 						config={{
-							initialData: '1',
-							key: 1,
-							abc: 123
+							initialData: '1'
 						}}
 						onReady={ resolvedEditor => {
 							editor = resolvedEditor;
@@ -1082,11 +1184,23 @@ describe( '<CKEditor> Component', () => {
 					/>
 				);
 
-				component.setProps( {
-					data: 'Hello World'
-				} );
+				component.rerender(
+					<CKEditor
+						data='Hello World'
+						editor={MockSlowEditor}
+						config={{
+							initialData: '1'
+						}}
+						onReady={ resolvedEditor => {
+							editor = resolvedEditor;
+						} }
+					/>
+				);
 
-				expect( editor.data.get() ).to.be.equal( 'Hello World' );
+				await waitFor( () => {
+					expect( editor ).not.to.be.null;
+					expect( editor.data.get() ).to.be.equal( 'Hello World' );
+				} );
 			} );
 
 			it( 'should buffer many rerenders while creating editor', async () => {
@@ -1101,55 +1215,62 @@ describe( '<CKEditor> Component', () => {
 				}
 
 				const MockSlowEditor = SlowEditor as any;
-
-				const component = render(
+				const createEditorElement = ( props: Partial<Props<any>> = {} ) => (
 					<CKEditor
 						editor={MockSlowEditor}
 						config={{
 							initialData: '1',
 							key: 1,
 							abc: 123
-						}}
-						onReady={manager.resolveOnRun( resolvedEditor => {
+						} as any}
+						onReady={resolvedEditor => {
 							initializerLog.push( {
 								status: 'ready',
 								id: resolvedEditor.config.key
 							} );
-
+						}}
+						onAfterDestroy={destroyedEditor => {
 							initializerLog.push( {
 								status: 'destroy',
-								id: resolvedEditor.config.key
+								id: destroyedEditor.config.key
 							} );
-						} )}
+						}}
+						{...props}
 					/>
 				);
 
-				await manager.all();
+				const component = render( createEditorElement() );
 
-				component.setProps( {
-					id: 111,
-					config: {
-						key: 2
-					}
-				} );
-
-				await timeout( 50 );
-
-				component.setProps( {
-					id: 112,
-					config: {
-						key: 3
-					}
-				} );
+				component?.rerender(
+					createEditorElement( {
+						id: 111,
+						config: {
+							key: 2
+						} as any
+					} )
+				);
 
 				await timeout( 50 );
 
-				component.setProps( {
-					id: 113,
-					config: {
-						key: 4
-					}
-				} );
+				component?.rerender(
+					createEditorElement( {
+						id: 112,
+						config: {
+							key: 3
+						} as any
+					} )
+				);
+
+				await timeout( 50 );
+
+				component?.rerender(
+					createEditorElement( {
+						id: 113,
+						config: {
+							key: 4
+						} as any
+					} )
+				);
 
 				await waitFor( () => {
 					expect( initializerLog ).to.deep.equal( [

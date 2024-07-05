@@ -6,7 +6,6 @@
 import { describe, beforeEach, it, expect } from 'vitest';
 import React from 'react';
 import { render, type RenderResult } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
 import useMultiRootEditor from '../../src/useMultiRootEditor.tsx';
 import { TestMultiRootEditor } from '../_utils/multirooteditor.js';
 
@@ -17,8 +16,8 @@ const AppUsingHooks = props => {
 
 	return (
 		<div>
-			<div id="toolbar">{ toolbarElement }</div>
-			<div id="roots">{ editableElements }</div>
+			<div data-testid="toolbar">{ toolbarElement }</div>
+			<div data-testid="roots">{ editableElements }</div>
 		</div>
 	);
 };
@@ -56,12 +55,9 @@ describe( 'useMultiRootEditor Hook + MultiRootEditor Build', () => {
 	} );
 
 	it( 'should initialize the MultiRootEditor properly', async () => {
-		await act( async () => {
-			component = render( <AppUsingHooks { ...editorProps } /> );
-		} );
+		component = render( <AppUsingHooks { ...editorProps } /> );
 
-		expect( component.exists() ).to.be.true;
-		expect( component.find( '#toolbar' ).instance().childElementCount ).to.be.equal( 1 );
-		expect( component.find( '#roots' ).instance().childElementCount ).to.be.equal( 2 );
+		expect( component.getByTestId( 'toolbar' ).children ).to.have.length( 1 );
+		expect( component.getByTestId( 'roots' ).children ).to.have.length( 2 );
 	} );
 } );
