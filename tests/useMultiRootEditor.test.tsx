@@ -6,15 +6,15 @@
 /* global document, window */
 
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
-import React from 'react';
-import { CKEditorError, ContextWatchdog } from 'ckeditor5';
-import { render } from '@testing-library/react';
+import React, { useEffect } from 'react';
+import { CKEditorError } from 'ckeditor5';
+import { render, waitFor } from '@testing-library/react';
 import { renderHook, act } from '@testing-library/react-hooks/dom';
-import useMultiRootEditor from '../src/useMultiRootEditor.tsx';
+import useMultiRootEditor, { EditorEditable, EditorToolbarWrapper } from '../src/useMultiRootEditor.tsx';
 import { ContextWatchdogContext } from '../src/ckeditorcontext.tsx';
 import { timeout } from './_utils/timeout.js';
 import { createDefer } from './_utils/defer.js';
-import { TestMultiRootEditor } from './_utils/multirooteditor.js';
+import { createTestMultiRootWatchdog, TestMultiRootEditor } from './_utils/multirooteditor.js';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
 
 describe( 'useMultiRootEditor', () => {
@@ -58,6 +58,40 @@ describe( 'useMultiRootEditor', () => {
 		vi.unstubAllGlobals();
 
 		editorProps.semaphoreElement = null;
+	} );
+
+	describe( 'editor props', () => {
+		it( 'should raise proper warning when `data` and `initialData` is passed to config at the same time', async () => {
+			const spy = vi.spyOn( console, 'warn' );
+
+			const { waitFor } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true,
+				config: {
+					...editorProps.config,
+					initialData: rootsContent
+				}
+			} ) );
+
+			await waitFor( () => {
+				expect( spy ).toHaveBeenCalledWith(
+					'Editor data should be provided either using `config.initialData` or `data` property. ' +
+					'The config value takes precedence over `data` property and will be used when both are specified.'
+				);
+			} );
+		} );
+
+		it( 'should not crash if config property is not provided', async () => {
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true,
+				config: undefined
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+		} );
 	} );
 
 	describe( 'editor', () => {
@@ -145,46 +179,6 @@ describe( 'useMultiRootEditor', () => {
 
 			await waitFor( () => {
 				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
-			} );
-		} );
-
-		it( 'should initialize the MultiRootEditor instance with context', async () => {
-			const contextWatchdog = new ContextWatchdog( TestMultiRootEditor.Context );
-			await contextWatchdog.create();
-
-			vi.spyOn( React, 'useContext' ).mockImplementation( arg => {
-				if ( arg !== ContextWatchdogContext ) {
-					return React.useContext( arg );
-				}
-
-				return {
-					status: 'initialized',
-					watchdog: contextWatchdog
-				};
-			} );
-
-			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
-
-			await waitFor( () => {
-				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
-			} );
-		} );
-
-		it( 'should not initialize the MultiRootEditor instance with context when watchdog is not initialized', async () => {
-			vi.spyOn( React, 'useContext' ).mockImplementation( arg => {
-				if ( arg !== ContextWatchdogContext ) {
-					return React.useContext( arg );
-				}
-
-				return {
-					status: 'initializing'
-				};
-			} );
-
-			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
-
-			await waitFor( () => {
-				expect( result.current.editor ).to.be.null;
 			} );
 		} );
 	} );
@@ -354,6 +348,35 @@ describe( 'useMultiRootEditor', () => {
 			expect( attributes.outro ).to.deep.equal( { order: null, row: null } );
 			expect( editableElements.length ).to.equal( 3 );
 			expect( editor!.getFullData().outro ).to.equal( '' );
+		} );
+
+		it( 'should handle newly added roots by _externalSetData', async () => {
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			const editor = result.current.editor!;
+
+			act( () => {
+				result.current.setAttributes( {
+					...rootsAttributes,
+					outro: {
+						order: 10,
+						row: Date.now()
+					}
+				} );
+
+				result.current.setData( {
+					...rootsContent,
+					outro: ''
+				} );
+			} );
+
+			await waitFor( () => {
+				expect( editor.model.document.getRoot( 'outro' ) ).not.toBeNull();
+			} );
 		} );
 
 		it( 'should update the state when editor#detachRoot is called', async () => {
@@ -596,6 +619,66 @@ describe( 'useMultiRootEditor', () => {
 
 			expect( spy ).toHaveBeenCalledOnce();
 			expect( spy ).toHaveBeenCalledWith( expect.anything(), editor );
+		} );
+
+		it( 'should call onReady if editor is ready when watchdog is enabled', async () => {
+			const onReadyMock = vi.fn();
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				onReady: onReadyMock
+			} ) );
+
+			await waitFor( () => {
+				expect( onReadyMock ).toHaveBeenCalledOnce();
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+		} );
+
+		it( 'should call onAfterDestroy when watchdog restarted editor', async () => {
+			const onAfterDestroyMock = vi.fn();
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				onAfterDestroy: onAfterDestroyMock
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			const { editor } = result.current;
+
+			// Mock the error.
+			vi.spyOn( editor!, 'focus' ).mockImplementation( async () => {
+				await turnOffDefaultErrorCatching( () => {
+					return new Promise( () => {
+						setTimeout( () => {
+							throw new CKEditorError( 'a-custom-error', editor );
+						} );
+					} );
+				} );
+			} );
+
+			// Throw the error.
+			editor!.focus();
+
+			await waitFor( () => {
+				expect( onAfterDestroyMock ).toHaveBeenCalledOnce();
+			} );
+		} );
+
+		it( 'should use console error instead of onError if callback is not passed and watchdog is enabled', async () => {
+			const error = new Error( 'Error was thrown.' );
+
+			vi.spyOn( TestMultiRootEditor, 'create' ).mockRejectedValue( error );
+
+			const { waitFor } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				onError: undefined
+			} ) );
+
+			await waitFor( () => {
+				expect( console.error ).toHaveBeenCalledWith( error, { phase: 'initialization', willEditorRestart: false } );
+			} );
 		} );
 	} );
 
@@ -859,6 +942,213 @@ describe( 'useMultiRootEditor', () => {
 
 		for ( const enableWatchdog of [ false, true ] ) {
 			describe( `watchdog=${ enableWatchdog }`, () => testSemaphoreForWatchdog( enableWatchdog ) );
+		}
+	} );
+
+	describe( 'unmount', () => {
+		it( 'should not crash when the multiroot editor is unmounted without assigning any editable to any root', async () => {
+			const { result, unmount, waitFor } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true,
+				semaphoreElement: document.createElement( 'div' )
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			const editor = result.current.editor!;
+			const { ui, model, editing } = editor;
+
+			const root = model.document.getRoot( 'intro' );
+
+			if ( root && ui.getEditableElement( 'intro' ) ) {
+				editor.detachEditable( root );
+			}
+
+			const editable = ui.view.createEditable( 'intro', document.createElement( 'div' ) );
+			ui.addEditable( editable );
+
+			editing.view.domRoots.delete( 'intro' );
+
+			expect( () => {
+				unmount();
+			} ).not.to.throw();
+		} );
+
+		it( 'should not crash when the multiroot hook editable is unmounted after removal of root', async () => {
+			let renderedEditor: TestMultiRootEditor | null = null;
+
+			const Component = ( { renderEditables = true }: { renderEditables?: boolean } ) => {
+				const { editableElements, toolbarElement, editor } = useMultiRootEditor( {
+					...editorProps,
+					disableWatchdog: true
+				} );
+
+				useEffect( () => {
+					if ( editor ) {
+						renderedEditor = editor;
+					}
+				}, [ editor ] );
+
+				return (
+					<>
+						{toolbarElement}
+						{renderEditables && editableElements}
+					</>
+				);
+			};
+
+			const { container, rerender } = render( <Component /> );
+
+			await waitFor( () => {
+				expect( container.getElementsByClassName( 'ck-editor__editable' ).length ).to.equal( 2 );
+				expect( renderedEditor ).not.to.be.null;
+			} );
+
+			renderedEditor!.model.document.roots.remove( 'intro' );
+			rerender( <Component renderEditables={false} /> );
+
+			await waitFor( () => {
+				expect( container.getElementsByClassName( 'ck-editor__editable' ).length ).to.equal( 0 );
+			} );
+		} );
+	} );
+
+	describe( 'context integration', () => {
+		it( 'should use the editor from the context', async () => {
+			const contextWatchdog = await createTestMultiRootWatchdog();
+
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ), {
+				wrapper: ( { children } ) => (
+					<ContextWatchdogContext.Provider
+						value={{
+							status: 'initialized',
+							watchdog: contextWatchdog
+						}}
+					>
+						{ children }
+					</ContextWatchdogContext.Provider>
+				)
+			} );
+
+			await waitFor( () => {
+				expect( contextWatchdog.context?.editors.has( result.current.editor! ) ).to.be.true;
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+		} );
+
+		it( 'should not use the editor from the context when watchdog is not initialized', async () => {
+			const { result, waitFor } = renderHook( () => useMultiRootEditor( editorProps ), {
+				wrapper: ( { children } ) => (
+					<ContextWatchdogContext.Provider
+						value={{
+							status: 'initializing'
+						}}
+					>
+						{ children }
+					</ContextWatchdogContext.Provider>
+				)
+			} );
+
+			// Let's wait a bit to check if nothing happens.
+			await timeout( 200 );
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.null;
+			} );
+		} );
+	} );
+
+	describe( 'EditorEditable', () => {
+		it( 'should render editable containers returned from `useMultiRootEditor` with proper class names', async () => {
+			const Component = () => {
+				const { editableElements, toolbarElement } = useMultiRootEditor( {
+					...editorProps,
+					disableWatchdog: true
+				} );
+
+				return (
+					<>
+						{editableElements}
+						{toolbarElement}
+					</>
+				);
+			};
+
+			const { container } = render( <Component /> );
+
+			await waitFor( () => {
+				expect( container.getElementsByClassName( 'ck-editor__editable' ).length ).to.equal( 2 );
+			} );
+		} );
+
+		it( 'should ensure that the editable container is rendered before running semaphore logic', async () => {
+			const defer = createDefer();
+			const postMountSpy = vi.fn();
+
+			const mockSemaphore = {
+				revision: 1,
+				runAfterMount: callback => {
+					defer.promise
+						.then( () => callback( { instance: null } ) )
+						.then( postMountSpy );
+				}
+			} as any;
+
+			const { unmount } = render(
+				<EditorEditable
+					rootName="intro"
+					id="intro"
+					semaphore={mockSemaphore}
+				/>
+			);
+
+			unmount();
+			defer.resolve();
+
+			await waitFor( () => {
+				expect( postMountSpy ).toHaveBeenCalledOnce();
+			} );
+		} );
+	} );
+
+	describe( 'EditorToolbarWrapper', () => {
+		it( 'should remove the toolbar element when the editor is unmounted', async () => {
+			const { editor, toolbarElement } = createMockEditorWithToolbar();
+			const { unmount } = render(
+				<EditorToolbarWrapper editor={editor} />
+			);
+
+			expect( unmount ).not.to.throw();
+			expect( toolbarElement.parentElement ).to.be.null;
+		} );
+
+		it( 'should not crash when editor unmounted toolbar container element before react', () => {
+			const { editor, toolbarElement } = createMockEditorWithToolbar();
+			const { unmount } = render(
+				<EditorToolbarWrapper editor={editor} />
+			);
+
+			toolbarElement.remove();
+			expect( unmount ).not.to.throw();
+		} );
+
+		function createMockEditorWithToolbar() {
+			const toolbarElement = document.createElement( 'div' );
+			const mockEditor: any = {
+				ui: {
+					view: {
+						toolbar: {
+							element: toolbarElement
+						}
+					}
+				}
+			};
+
+			return {
+				toolbarElement,
+				editor: mockEditor
+			};
 		}
 	} );
 } );

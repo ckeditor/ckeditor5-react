@@ -25,10 +25,17 @@ import {
 	PasteFromOffice,
 	Table,
 	TableToolbar,
-	TextTransformation
+	TextTransformation,
+	type ContextWatchdog
 } from 'ckeditor5';
 
 export class TestMultiRootEditor extends MultiRootEditor {}
+
+export const createTestMultiRootWatchdog = async (): Promise<ContextWatchdog> => {
+	const contextWatchdog = new TestMultiRootEditor.ContextWatchdog( TestMultiRootEditor.Context );
+	await contextWatchdog.create();
+	return contextWatchdog;
+};
 
 TestMultiRootEditor.builtinPlugins = [
 	Essentials,

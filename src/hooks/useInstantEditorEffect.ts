@@ -11,7 +11,7 @@ import { useInstantEffect } from './useInstantEffect';
  * `useEffect` alternative but executed after mounting of editor.
  */
 export const useInstantEditorEffect = <R>(
-	semaphore: LifeCycleElementSemaphore<R> | null,
+	semaphore: Pick<LifeCycleElementSemaphore<R>, 'runAfterMount'> | null,
 	fn: ( mountResult: R ) => void,
 	deps: DependencyList
 ): void => {

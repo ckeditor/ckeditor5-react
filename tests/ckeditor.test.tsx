@@ -1040,11 +1040,14 @@ describe( '<CKEditor> Component', () => {
 
 	describe( 'in case of error handling', () => {
 		it( 'should restart the editor if a runtime error occurs', async () => {
+			const onAfterDestroySpy = vi.fn();
+
 			component = render(
 				<CKEditor
 					ref={instanceRef}
 					editor={MockEditor}
 					onReady={manager.resolveOnRun()}
+					onAfterDestroy={onAfterDestroySpy}
 				/>
 			);
 
@@ -1061,6 +1064,7 @@ describe( '<CKEditor> Component', () => {
 							ref={instanceRef}
 							editor={MockEditor}
 							onReady={res}
+							onAfterDestroy={onAfterDestroySpy}
 						/>
 					);
 
@@ -1075,6 +1079,7 @@ describe( '<CKEditor> Component', () => {
 
 				expect( editor ).to.be.instanceOf( MockEditor );
 				expect( firstEditor ).to.not.equal( editor );
+				expect( onAfterDestroySpy ).toHaveBeenCalledOnce();
 			} );
 		} );
 	} );
