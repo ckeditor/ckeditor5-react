@@ -557,9 +557,7 @@ describe( 'useMultiRootEditor', () => {
 			editor!.setData( { ...data } );
 
 			expect( spy ).toHaveBeenCalledOnce();
-
-			// TODO: This causes Vitest to hang for whatever reason.
-			// expect( spy ).toHaveBeenCalledWith( expect.anything(), editor );
+			expect( spy ).toHaveBeenCalledWith( expect.anything(), editor );
 		} );
 
 		it( 'should call onFocus callback when the editor has been focused', async () => {
@@ -578,8 +576,7 @@ describe( 'useMultiRootEditor', () => {
 			editor!.editing.view.document.fire( 'focus' );
 
 			expect( spy ).toHaveBeenCalledOnce();
-			// TODO: This causes Vitest to hang for whatever reason.
-			// expect( spy ).toHaveBeenCalledWith( expect.anything(), editor );
+			expect( spy ).toHaveBeenCalledWith( expect.anything(), editor );
 		} );
 
 		it( 'should call onBlur callback when the editor has been blurred', async () => {
@@ -598,8 +595,7 @@ describe( 'useMultiRootEditor', () => {
 			editor!.editing.view.document.fire( 'blur', { target: {} } );
 
 			expect( spy ).toHaveBeenCalledOnce();
-			// TODO: This causes Vitest to hang for whatever reason.
-			// expect( spy ).toHaveBeenCalledWith( expect.anything(), editor );
+			expect( spy ).toHaveBeenCalledWith( expect.anything(), editor );
 		} );
 	} );
 
@@ -728,8 +724,7 @@ describe( 'useMultiRootEditor', () => {
 			editor!.setData( { ...data, intro: 'New Data' } );
 
 			expect( spy ).toHaveBeenCalledOnce();
-			// TODO: This causes Vitest to hang for whatever reason.
-			// expect( spy ).toHaveBeenCalledWith( expect.anything(), editor );
+			expect( spy ).toHaveBeenCalledWith( expect.anything(), editor );
 		} );
 	} );
 
