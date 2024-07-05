@@ -51,6 +51,9 @@ export default defineConfig( {
 			provider: 'istanbul',
 			include: [ 'src/*' ],
 			exclude: [ 'src/demos' ],
+			thresholds: {
+				100: true
+			},
 			reporter: [
 				'text-summary',
 				'html',

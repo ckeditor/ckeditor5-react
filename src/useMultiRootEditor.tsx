@@ -65,6 +65,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 * It means that CKEditor will try to destroy editor and all it's roots in destructor. It will throw an error because
 	 * `editables` are not attached to any React node and their elements references are null. To prevent this error we need to
 	 * force assign `editables` to fake elements before destroying editor.
+	 *
+	 * See: https://github.com/ckeditor/ckeditor5/issues/16561
 	 */
 	const forceAssignFakeEditableElements = () => {
 		const editor = editorRefs.instance.current;
@@ -169,6 +171,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				.forEach( change => {
 					let root: RootElement;
 
+					// istanbul ignore else
 					if ( change.type == 'insert' || change.type == 'remove' ) {
 						root = change.position.root as RootElement;
 					} else {
@@ -365,8 +368,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		}
 
 		const watchdog = ( () => {
-			if ( context instanceof props.editor.ContextWatchdog ) {
-				return new EditorWatchdogAdapter( context );
+			if ( isContextWatchdogReadyToUse( context ) ) {
+				return new EditorWatchdogAdapter( context.watchdog );
 			}
 
 			return new props.editor.EditorWatchdog( props.editor, props.watchdogConfig );
@@ -496,7 +499,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			const {
 				addedKeys: newRoots,
 				removedKeys: removedRoots
-			} = _getStateDiff( editorData, data || {} );
+			} = _getStateDiff( editorData, data );
 
 			const hasModifiedData = dataKeys.some( rootName =>
 				editorData[ rootName ] !== undefined &&
@@ -510,7 +513,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				roots.forEach( rootName => {
 					instance!.addRoot( rootName, {
 						data: data[ rootName ] || '',
-						attributes: attributes?.[ rootName ] || {},
+						attributes: attributes?.[ rootName ],
 						isUndoable: true
 					} );
 				} );
@@ -579,7 +582,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	};
 };
 
-const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
+export const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 	id: string;
 	rootName: string;
 	semaphore: LifeCycleSemaphoreSyncRefResult<LifeCycleMountResult>;
@@ -632,7 +635,7 @@ const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 
 EditorEditable.displayName = 'EditorEditable';
 
-const EditorToolbarWrapper = forwardRef( ( { editor }: any, ref ) => {
+export const EditorToolbarWrapper = forwardRef( ( { editor }: any, ref ) => {
 	const toolbarRef = useRef<HTMLDivElement>( null );
 
 	useEffect( () => {
@@ -644,12 +647,10 @@ const EditorToolbarWrapper = forwardRef( ( { editor }: any, ref ) => {
 
 		const element = editor.ui.view.toolbar.element!;
 
-		if ( toolbarContainer ) {
-			toolbarContainer.appendChild( element! );
-		}
+		toolbarContainer.appendChild( element! );
 
 		return () => {
-			if ( toolbarContainer ) {
+			if ( toolbarContainer.contains( element ) ) {
 				toolbarContainer.removeChild( element! );
 			}
 		};

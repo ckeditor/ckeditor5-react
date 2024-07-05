@@ -528,6 +528,138 @@ describe( '<CKEditorContext> Component', () => {
 		} );
 	} );
 
+	describe( 'fast re-initialization of multiroot editor', () => {
+		it( 'should reinitialize the context watchdog when the context changes', async () => {
+			let firstContext: ContextMock | null = null;
+			let secondContext: ContextMock | null = null;
+
+			component = render(
+				<CKEditorContext
+					context={ ContextMock }
+					contextWatchdog={ ContextWatchdog }
+					id="1"
+					onReady={ manager.resolveOnRun( context => {
+						firstContext = context;
+					} ) }
+				>
+					<CKEditor editor={ MockEditor } />
+				</CKEditorContext>
+			);
+
+			await manager.all();
+
+			component.rerender(
+				<CKEditorContext
+					context={ ContextMock }
+					contextWatchdog={ ContextWatchdog }
+					id="2"
+					onReady={ manager.resolveOnRun( context => {
+						secondContext = context;
+					} ) }
+				>
+					<CKEditor editor={ MockEditor } />
+				</CKEditorContext>
+			);
+
+			await manager.all();
+
+			expect( firstContext ).to.not.equal( secondContext );
+			expect( secondContext ).to.be.an.instanceOf( ContextMock );
+		} );
+
+		it( 'should initialize only the first and the last context if few rerenders happened in a row', async () => {
+			let firstContext: ContextMock | null = null;
+			let secondContext: ContextMock | null = null;
+
+			component = render(
+				<CKEditorContext
+					context={ ContextMock }
+					contextWatchdog={ ContextWatchdog }
+					id="1"
+					onReady={ manager.resolveOnRun( context => {
+						firstContext = context;
+					} ) }
+				>
+					<CKEditor editor={ MockEditor } />
+				</CKEditorContext>
+			);
+
+			await manager.all();
+
+			const ignoredOnReadySpy = vi.fn();
+
+			for ( let i = 0; i < 5; ++i ) {
+				component.rerender(
+					<CKEditorContext
+						context={ ContextMock }
+						contextWatchdog={ ContextWatchdog }
+						id={`rerender-${ i }`}
+						onReady={ignoredOnReadySpy}
+					>
+						<CKEditor editor={ MockEditor } />
+					</CKEditorContext>
+				);
+			}
+
+			component.rerender(
+				<CKEditorContext
+					context={ ContextMock }
+					contextWatchdog={ ContextWatchdog }
+					id="final"
+					onReady={ manager.resolveOnRun( context => {
+						secondContext = context;
+					} ) }
+				>
+					<CKEditor editor={ MockEditor } />
+				</CKEditorContext>
+			);
+
+			await manager.all();
+
+			expect( ignoredOnReadySpy ).not.toBeCalled();
+			expect( firstContext ).to.not.equal( secondContext );
+			expect( secondContext ).to.be.an.instanceOf( ContextMock );
+		} );
+
+		it( 'should ignore the errors raised by abandoned contexts', async () => {
+			const onIgnoredErrorSpy = vi.fn();
+			const onErrorSpy = vi.fn();
+
+			class BrokenContextWatchdog extends ContextWatchdog {
+				public override async create() {
+					throw new Error( 'Error :(' );
+				}
+			}
+
+			component = render(
+				<CKEditorContext
+					context={ ContextMock }
+					contextWatchdog={ BrokenContextWatchdog }
+					id="1"
+					onError={onIgnoredErrorSpy}
+				>
+					<CKEditor editor={ MockEditor } />
+				</CKEditorContext>
+			);
+
+			component.rerender(
+				<CKEditorContext
+					context={ ContextMock }
+					contextWatchdog={ BrokenContextWatchdog }
+					id="2"
+					onError={onErrorSpy}
+				>
+					<CKEditor editor={ MockEditor } />
+				</CKEditorContext>
+			);
+
+			await waitFor( () => {
+				expect( onIgnoredErrorSpy ).not.toBeCalled();
+				expect( onErrorSpy ).toHaveBeenCalledOnce();
+			} );
+		} );
+	} );
+
 	function mountAndReadReactContextValueRef(
 		props: Partial<Props<any>> = {},
 		children = <CKEditor editor={ MockEditor } />
