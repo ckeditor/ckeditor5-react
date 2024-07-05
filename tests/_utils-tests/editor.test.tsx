@@ -3,6 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
+import { describe, expect, it } from 'vitest';
 import Editor from '../_utils/editor';
 
 describe( 'Editor', () => {
@@ -21,7 +22,7 @@ describe( 'Editor', () => {
 
 			expect( editor.isReadOnly ).is.false;
 
-			editor.enableReadOnlyMode( 'foo', true );
+			editor.enableReadOnlyMode( 'foo' );
 
 			expect( editor.isReadOnly ).is.true;
 		} );
@@ -33,7 +34,7 @@ describe( 'Editor', () => {
 
 			expect( editor.isReadOnly ).is.false;
 
-			editor.enableReadOnlyMode( 'foo', true );
+			editor.enableReadOnlyMode( 'foo' );
 
 			expect( editor.isReadOnly ).is.true;
 

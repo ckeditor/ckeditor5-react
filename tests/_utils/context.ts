@@ -18,7 +18,7 @@ export default class ContextMock {
 		this.config = config;
 	}
 
-	public static create( config: ConstructorParameters<typeof ContextMock> ): Promise<Context> {
+	public static create( config?: ConstructorParameters<typeof ContextMock> ): Promise<Context> {
 		return Promise.resolve( new ContextMock( config ) as Context );
 	}
 

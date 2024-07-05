@@ -3,6 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
+import { describe, expect, it } from 'vitest';
 import Context from '../_utils/context';
 
 describe( 'Context', () => {
@@ -17,7 +18,7 @@ describe( 'Context', () => {
 
 	describe( 'destroy()', () => {
 		it( 'should return a promise that resolves properly', () => {
-			return Context.create()
+			return Context.create( )
 				.then( context => {
 					const promise = context.destroy();
 

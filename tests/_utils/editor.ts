@@ -74,7 +74,7 @@ export default class MockEditor {
 		return this._readOnlyLocks.size > 0;
 	}
 
-	public set isReadOnly( _: string ) {
+	public set isReadOnly( _: boolean ) {
 		throw new Error( 'Cannot use this setter anymore' );
 	}
 
@@ -104,7 +104,7 @@ export default class MockEditor {
 		return this.data.get.call( this, ...args );
 	}
 
-	public static create( element: HTMLElement, config: Record<string, any> ): Promise<MockEditor> {
+	public static create( element?: HTMLElement, config?: Record<string, any> ): Promise<MockEditor> {
 		return Promise.resolve( new this( element, config ) );
 	}
 }
