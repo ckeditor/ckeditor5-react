@@ -38,12 +38,7 @@ export default defineConfig( {
 			external: Object.keys( {
 				...pkg.dependencies,
 				...pkg.peerDependencies
-			} ),
-
-			// TODO: Check if this is still needed.
-			output: {
-				globals: ( name: string ) => name
-			}
+			} )
 		}
 	},
 
@@ -55,7 +50,7 @@ export default defineConfig( {
 		coverage: {
 			provider: 'istanbul',
 			include: [ 'src/*' ],
-			exclude: [ 'src/demo' ],
+			exclude: [ 'src/demos' ],
 			reporter: [
 				'text-summary',
 				'html',
