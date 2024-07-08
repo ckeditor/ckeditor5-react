@@ -9,7 +9,7 @@ import { ContextWatchdog } from 'ckeditor5';
 import { render, type RenderResult } from '@testing-library/react';
 import ContextMock from './_utils/context.js';
 import Editor from './_utils/editor.js';
-import { PromiseManager } from './_utils/render.js';
+import { PromiseManager } from './_utils/promisemanager.js';
 import { CKEditor, CKEditorContext } from '../src/index';
 
 const MockEditor = Editor as any;

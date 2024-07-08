@@ -19,7 +19,7 @@ import { ContextWatchdog, CKEditorError } from 'ckeditor5';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
 import ContextMock, { DeferredContextMock } from './_utils/context.js';
 import { timeout } from './_utils/timeout.js';
-import { PromiseManager } from './_utils/render.js';
+import { PromiseManager } from './_utils/promisemanager.js';
 
 const MockEditor = MockedEditor as any;
 

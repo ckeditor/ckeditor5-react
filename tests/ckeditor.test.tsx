@@ -12,7 +12,7 @@ import { render, waitFor, type RenderResult } from '@testing-library/react';
 import MockedEditor from './_utils/editor.js';
 import { timeout } from './_utils/timeout.js';
 import { createDefer } from './_utils/defer.js';
-import { PromiseManager } from './_utils/render.js';
+import { PromiseManager } from './_utils/promisemanager.js';
 import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
 import CKEditor, { type Props } from '../src/ckeditor.js';
 import { expectToBeTruthy } from './_utils/expectToBeTruthy.js';

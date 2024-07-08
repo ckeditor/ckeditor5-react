@@ -14,7 +14,7 @@ import CKEditor from '../../src/ckeditor.tsx';
 
 import { timeout } from '../_utils/timeout.js';
 import { TestClassicEditor } from '../_utils/classiceditor.js';
-import { PromiseManager } from '../_utils/render.tsx';
+import { PromiseManager } from '../_utils/promisemanager.tsx';
 
 describe( 'CKEditor Component + ClassicEditor Build', () => {
 	let component: RenderResult | null = null;

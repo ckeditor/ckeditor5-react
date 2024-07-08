@@ -10,7 +10,7 @@ import { render, waitFor } from '@testing-library/react';
 import CKEditor from '../../src/ckeditor.tsx';
 import CKEditorContext from '../../src/ckeditorcontext.tsx';
 import { TestClassicEditor } from '../_utils/classiceditor.js';
-import { PromiseManager } from '../_utils/render.tsx';
+import { PromiseManager } from '../_utils/promisemanager.tsx';
 
 class CustomContext extends Context {}
 
