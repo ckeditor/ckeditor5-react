@@ -499,7 +499,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			const {
 				addedKeys: newRoots,
 				removedKeys: removedRoots
-			} = _getStateDiff( editorData, data );
+			} = _getStateDiff( editorData, data || /* istanbul ignore next: It should never happen, data should be always filled. */ {} );
 
 			const hasModifiedData = dataKeys.some( rootName =>
 				editorData[ rootName ] !== undefined &&
@@ -513,7 +513,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				roots.forEach( rootName => {
 					instance!.addRoot( rootName, {
 						data: data[ rootName ] || '',
-						attributes: attributes?.[ rootName ],
+						attributes: attributes?.[ rootName ] || /* istanbul ignore next: attributes should be in sync with root keys */ {},
 						isUndoable: true
 					} );
 				} );
