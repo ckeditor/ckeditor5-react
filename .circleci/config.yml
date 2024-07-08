@@ -71,8 +71,14 @@ jobs:
           name: Run build
           command: yarn run build
       - run:
-          name: Run unit tests
-          command: yarn run test
+          name: Run unit tests against React 16
+          command: yarn run test:16
+      - run:
+          name: Run unit tests against React 18
+          command: yarn run test:18
+      - run:
+          name: Run unit tests against React 19
+          command: yarn run test:19
       - run:
           name: Verify the code coverage
           command: |
