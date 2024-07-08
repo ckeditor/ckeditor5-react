@@ -44,7 +44,7 @@
     "@vitest/browser": "^1.6.0",
     "@vitest/coverage-istanbul": "^1.6.0",
     "@vitest/ui": "^1.6.0",
-    "ckeditor5": "nightly",
+    "ckeditor5": "^42.0.0",
     "coveralls": "^3.1.1",
     "eslint": "^7.19.0",
     "eslint-config-ckeditor5": "^5.3.2",
