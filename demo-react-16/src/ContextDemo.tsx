@@ -1,6 +1,6 @@
 import React, { type ReactNode } from 'react';
 import ClassicEditor from './ClassicEditor';
-import { CKEditor, CKEditorContext } from '../../src';
+import { CKEditor, CKEditorContext } from '@ckeditor/ckeditor5-react';
 
 type ContextDemoProps = {
 	content: string;
