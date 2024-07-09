@@ -4,7 +4,7 @@
  */
 
 import { it, describe, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react-hooks/dom';
+import { renderHook, act } from '@testing-library/react';
 
 import { LifeCycleElementSemaphore } from '../../src/lifecycle/LifeCycleElementSemaphore';
 import { useLifeCycleSemaphoreSyncRef } from '../../src/lifecycle/useLifeCycleSemaphoreSyncRef';

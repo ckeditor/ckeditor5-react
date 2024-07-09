@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it, vi } from 'vitest';
-import { renderHook } from '@testing-library/react-hooks/dom';
+import { renderHook } from '@testing-library/react';
 import { useInstantEffect } from '../../src/hooks/useInstantEffect';
 
 describe( 'useInstantEffect', () => {

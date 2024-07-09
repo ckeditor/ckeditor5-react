@@ -7,7 +7,7 @@
 
 import { describe, beforeEach, afterEach, expect, it, vi } from 'vitest';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Context, ContextWatchdog } from 'ckeditor5';
 
 import CKEditor from '../../src/ckeditor.tsx';
@@ -70,14 +70,15 @@ class App extends React.Component {
 }
 
 describe( 'issue #349: crash when destroying an editor with the context', () => {
-	let div: HTMLElement;
+	let div: HTMLElement, root;
 
 	beforeEach( () => {
 		div = document.createElement( 'div' );
+		root = createRoot( div );
 		document.body.appendChild( div );
 
 		return new Promise( resolve => {
-			ReactDOM.render( <App onReady={ resolve }/>, div );
+			root.render( <App onReady={ resolve }/> );
 		} );
 	} );
 
@@ -98,7 +99,7 @@ describe( 'issue #349: crash when destroying an editor with the context', () => 
 
 		window.addEventListener( 'unhandledrejection', errorHandler );
 
-		ReactDOM.unmountComponentAtNode( div );
+		root.unmount();
 
 		// Does not work with `0`.
 		await wait( 1 );

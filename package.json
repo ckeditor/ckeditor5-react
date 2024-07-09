@@ -35,11 +35,10 @@
     "@ckeditor/ckeditor5-dev-ci": "^38.0.0",
     "@ckeditor/ckeditor5-dev-release-tools": "^38.0.0",
     "@ckeditor/ckeditor5-dev-utils": "^38.0.0",
-    "@testing-library/dom": "^10.2.0",
-    "@testing-library/react": "^12.0.0",
-    "@testing-library/react-hooks": "^8.0.1",
-    "@types/react": "^16.0.0",
-    "@types/react-dom": "^16.0.0",
+    "@testing-library/dom": "^10.3.1",
+    "@testing-library/react": "^16.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
     "@vitejs/plugin-react-swc": "^3.7.0",
     "@vitest/browser": "^1.6.0",
     "@vitest/coverage-istanbul": "^1.6.0",
@@ -53,8 +52,8 @@
     "lint-staged": "^10.2.11",
     "listr2": "^6.5.0",
     "minimist": "^1.2.5",
-    "react": "^16.0.0",
-    "react-dom": "^16.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "react16": "npm:react@^16.0.0",
     "react16-dom": "npm:react-dom@^16.0.0",
     "react18": "npm:react@^18.0.0",
@@ -67,8 +66,8 @@
     "webdriverio": "^8.39.0"
   },
   "resolutions": {
-    "strip-ansi-cjs": "1.0.0",
-    "string-width": "^4.0.0",
+    "wrap-ansi": "7.0.0",
+    "string-width": "4.1.0",
     "semver": "^7.0.0"
   },
   "engines": {
