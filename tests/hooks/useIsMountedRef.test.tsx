@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { renderHook } from '@testing-library/react-hooks/dom';
+import { renderHook } from '@testing-library/react';
 import { useIsMountedRef } from '../../src/hooks/useIsMountedRef';
 
 describe( 'useIsMountedRef', () => {

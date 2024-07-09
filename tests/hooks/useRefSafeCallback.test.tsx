@@ -4,7 +4,7 @@
  */
 
 import { expect, it, describe, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react-hooks/dom';
+import { renderHook, act } from '@testing-library/react';
 import { useRefSafeCallback } from '../../src/hooks/useRefSafeCallback';
 
 describe( 'useRefSafeCallback', () => {
