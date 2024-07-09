@@ -1,7 +1,13 @@
 version: 2.1
 
 parameters:
+  triggerCommitHash:
+    type: string
+    default: ""
   isNightly:
+    type: boolean
+    default: false
+  isRelease:
     type: boolean
     default: false
 
@@ -105,20 +111,81 @@ jobs:
                 name: Upload code coverage
                 command: cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
 
+  trigger_release_process:
+    machine: true
+    steps:
+      - checkout
+      - bootstrap_repository_command
+      - run:
+          name: Verify if CKEditor 5 is ready to release
+          command: |
+            #!/bin/bash
+
+            # Do not fail if the Node script ends with non-zero exit code.
+            set +e
+
+            # TODO: This one is missing.
+            node scripts/ci/is-repository-ready-to-release.js
+            EXIT_CODE=$( echo $? )
+
+            if [ ${EXIT_CODE} -eq 1 ];
+            then
+              circleci-agent step halt
+            fi
+      - run:
+          name: Trigger CKEditor 5 release job
+          command: |
+            export CKE5_GITHUB_REPOSITORY_SLUG=$( CIRCLE_PROJECT_USERNAME )/$( CIRCLE_PROJECT_REPONAME )
+            export CKE5_GITHUB_RELEASE_BRANCH="master"
+            export CKE5_COMMIT_SHA1=$CIRCLE_SHA1
+
+            ckeditor5-dev-ci-trigger-circle-build
+
+  release_project:
+    machine: true
+    steps:
+      - TODO: See CKEditor 5 `release_project`.
+
 workflows:
   version: 2
   main:
-    unless: << pipeline.parameters.isNightly >>
+    when:
+      and:
+        - equal: [ false, << pipeline.parameters.isNightly >> ]
+        - equal: [ false, << pipeline.parameters.isRelease >> ]
     jobs:
       - main
+      - trigger_release_process:
+          filters:
+            branches:
+              only:
+                - master
       - notify_ci_failure:
           filters:
             branches:
               only:
                 - master
 
+  release:
+    when:
+      and:
+        - equal: [ false, << pipeline.parameters.isNightly >> ]
+        - equal: [ true, << pipeline.parameters.isRelease >> ]
+    jobs:
+      - TBA.
+      - release_approval:
+          type: approval
+          requires:
+            - TBA.
+      - release_project:
+          requires:
+            - release_approval
+
   nightly:
-    when: << pipeline.parameters.isNightly >>
+    when:
+      and:
+        - equal: [ true, << pipeline.parameters.isNightly >> ]
+        - equal: [ false, << pipeline.parameters.isRelease >> ]
     jobs:
       - main
       - notify_ci_failure:

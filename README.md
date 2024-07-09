@@ -63,24 +63,4 @@ Before starting the release process, you need to generate the changelog:
 npm run changelog
 ```
 
-### Publishing
 
-After generating the changelog, you are able to release the package.
-
-First, you need to bump the version:
-
-```bash
-npm run release:prepare-packages
-```
-
-After bumping the version, you can publish the changes:
-
-```bash
-npm run release:publish-packages
-```
-
-Note: The `release/` directory will be published.
-
-## License
-
-Licensed under the terms of [GNU General Public License Version 2 or later](http://www.gnu.org/licenses/gpl.html). For full details about the license, please check the LICENSE.md file.
