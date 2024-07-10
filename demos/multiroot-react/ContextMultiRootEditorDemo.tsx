@@ -5,7 +5,7 @@
 
 import React from 'react';
 
-import { useMultiRootEditor, type MultiRootHookProps, CKEditorContext } from '../..';
+import { useMultiRootEditor, type MultiRootHookProps, CKEditorContext } from '../../src/index.js';
 import MultiRootEditor from './MultiRootEditor';
 
 export default function ContextMultiRootEditorDemo(): JSX.Element {

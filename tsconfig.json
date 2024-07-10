@@ -8,6 +8,9 @@
       "DOM",
       "DOM.Iterable"
     ],
+    "types": [
+      "./vite-env.d.ts"
+    ],
     "skipLibCheck": true,
     "jsx": "react",
 
@@ -26,7 +29,6 @@
     "declarationDir": "./dist",
   },
   "include": [
-    "vite.config.ts",
     "src"
   ]
 }

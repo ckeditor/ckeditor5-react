@@ -5,7 +5,7 @@
 
 import React from 'react';
 
-import { useMultiRootEditor, type MultiRootHookProps } from '../../index';
+import { useMultiRootEditor, type MultiRootHookProps } from '../../src/index.js';
 import MultiRootEditor from './MultiRootEditor';
 
 type EditorDemoProps = {

@@ -8,10 +8,6 @@ import { createRequire } from 'module';
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react-swc';
 
-declare global {
-	const __REACT_VERSION__: number;
-}
-
 const require = createRequire( import.meta.url );
 const pkg = require( './package.json' );
 
@@ -30,7 +26,7 @@ export default defineConfig( {
 		lib: {
 			entry: resolve( __dirname, 'src/index.ts' ),
 			name: 'CKEditor',
-			fileName: 'ckeditor',
+			fileName: 'index',
 			formats: [ 'es' ]
 		},
 

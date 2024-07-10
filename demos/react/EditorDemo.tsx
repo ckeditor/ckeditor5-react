@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import ClassicEditor from './ClassicEditor';
-import { CKEditor } from '../..';
+import { CKEditor } from '../../src/index.js';
 
 declare global {
 	interface Window {
