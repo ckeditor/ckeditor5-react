@@ -254,7 +254,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 			const instance = await this._createEditor( el as any, config );
 
-			if ( editorSemaphore && totalRestartsRef.current > 0 ) {
+			if ( totalRestartsRef.current > 0 ) {
 				editorSemaphore!.unsafeSetValue( {
 					instance,
 					watchdog
