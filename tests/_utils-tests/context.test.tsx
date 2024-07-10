@@ -18,7 +18,7 @@ describe( 'Context', () => {
 
 	describe( 'destroy()', () => {
 		it( 'should return a promise that resolves properly', () => {
-			return Context.create( )
+			return Context.create()
 				.then( context => {
 					const promise = context.destroy();
 
