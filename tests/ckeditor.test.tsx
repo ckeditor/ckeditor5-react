@@ -60,7 +60,7 @@ describe( '<CKEditor> Component', () => {
 	describe( 'initialization', async () => {
 		it( 'should print a warning if the "window.CKEDITOR_VERSION" variable is not available', async () => {
 			delete window.CKEDITOR_VERSION;
-			const warnStub = vi.spyOn( console, 'warn' );
+			const warnStub = vi.spyOn( console, 'warn' ).mockImplementation( () => {} );
 
 			component = render(
 				<CKEditor
@@ -78,7 +78,7 @@ describe( '<CKEditor> Component', () => {
 
 		it( 'should print a warning if using CKEditor 5 in version lower than 42', async () => {
 			window.CKEDITOR_VERSION = '36.0.0';
-			const warnStub = vi.spyOn( console, 'warn' );
+			const warnStub = vi.spyOn( console, 'warn' ).mockImplementation( () => {} );
 
 			component = render(
 				<CKEditor
@@ -203,7 +203,7 @@ describe( '<CKEditor> Component', () => {
 		} );
 
 		it( 'shows a warning if used "data" and "config.initialData" at the same time', async () => {
-			const consoleWarnStub = vi.spyOn( console, 'warn' );
+			const consoleWarnStub = vi.spyOn( console, 'warn' ).mockImplementation( () => {} );
 
 			component = render(
 				<CKEditor
@@ -224,6 +224,7 @@ describe( '<CKEditor> Component', () => {
 		} );
 
 		it( 'uses "config.initialData" over "data" when specified both', async () => {
+			const consoleWarnStub = vi.spyOn( console, 'warn' ).mockImplementation( () => {} );
 			const createSpy = vi.spyOn( MockEditor, 'create' ).mockResolvedValue( new MockEditor() );
 
 			component = render(
@@ -237,6 +238,7 @@ describe( '<CKEditor> Component', () => {
 
 			await manager.all();
 
+			expect( consoleWarnStub ).toHaveBeenCalledOnce();
 			expect( ( createSpy.mock.calls as any )[ 0 ][ 1 ].initialData ).to.equal( '<p>Bar</p>' );
 		} );
 
@@ -1040,6 +1042,8 @@ describe( '<CKEditor> Component', () => {
 
 	describe( 'in case of error handling', () => {
 		it( 'should restart the editor if a runtime error occurs', async () => {
+			vi.spyOn( console, 'error' ).mockImplementation( () => {} );
+
 			const onAfterDestroySpy = vi.fn();
 
 			component = render(
@@ -1193,9 +1197,6 @@ describe( '<CKEditor> Component', () => {
 					<CKEditor
 						data='Hello World'
 						editor={MockSlowEditor}
-						config={{
-							initialData: '1'
-						}}
 						onReady={ resolvedEditor => {
 							editor = resolvedEditor;
 						} }

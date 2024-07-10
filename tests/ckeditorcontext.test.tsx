@@ -282,6 +282,8 @@ describe( '<CKEditorContext> Component', () => {
 			} );
 
 			it( 'should be called when a runtime error occurs', async () => {
+				vi.spyOn( console, 'error' ).mockImplementation( () => {} );
+
 				const onErrorSpy = vi.fn();
 				const { contextRef, defer } = mountAndReadReactContextValueRef( {
 					onError: onErrorSpy
@@ -325,7 +327,7 @@ describe( '<CKEditorContext> Component', () => {
 
 			it( 'displays an error if something went wrong and "onError" callback was not specified', async () => {
 				const error = new Error( 'Something went wrong.' );
-				const consoleErrorStub = vi.spyOn( console, 'error' );
+				const consoleErrorStub = vi.spyOn( console, 'error' ).mockImplementation( () => {} );
 
 				vi.spyOn( ContextWatchdog.prototype, 'create' ).mockRejectedValue( error );
 

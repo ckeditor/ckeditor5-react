@@ -177,14 +177,14 @@ describe( 'LifeCycleElementSemaphore', () => {
 
 	it( 'should log console error when semaphore thrown exception during unmount', async () => {
 		const error = new Error( 'Unmount error' );
+		const consoleError = vi.spyOn( console, 'error' ).mockImplementation( () => {} );
+
 		const semaphore = new LifeCycleElementSemaphore( document.createElement( 'div' ), {
 			mount: async () => 'mounted',
 			unmount: async () => {
 				throw error;
 			}
 		} );
-
-		const consoleError = vi.spyOn( console, 'error' );
 
 		await vi.waitFor( () => {
 			expect( semaphore.value ).toBe( 'mounted' );
@@ -199,7 +199,7 @@ describe( 'LifeCycleElementSemaphore', () => {
 
 	it( 'should log console error when semaphore thrown exception during mount', async () => {
 		const error = new Error( 'Unmount error' );
-		const consoleError = vi.spyOn( console, 'error' );
+		const consoleError = vi.spyOn( console, 'error' ).mockImplementation( () => {} );
 
 		// eslint-disable-next-line no-new
 		new LifeCycleElementSemaphore( document.createElement( 'div' ), {
