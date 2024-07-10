@@ -259,7 +259,7 @@ workflows:
         - equal: [ true, << pipeline.parameters.isNightly >> ]
         - equal: [ false, << pipeline.parameters.isRelease >> ]
     jobs:
-      - main
+      - validate_and_tests
       - notify_ci_failure:
           hideAuthor: "true"
           filters:
