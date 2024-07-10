@@ -22,10 +22,12 @@ module.exports = function parseArguments( cliArguments ) {
 		],
 
 		string: [
+			'branch',
 			'npm-tag'
 		],
 
 		default: {
+			branch: 'master',
 			ci: false,
 			'compile-only': false,
 			'npm-tag': 'latest',
@@ -50,6 +52,8 @@ module.exports = function parseArguments( cliArguments ) {
 
 /**
  * @typedef {Object} ReleaseOptions
+ *
+ * @property {String} [branch='master']
  *
  * @property {String} [npmTag='latest']
  *

@@ -55,12 +55,12 @@ npm run build
 
 ## Releasing package
 
-### Changelog
+This package's release process is automated via CircleCI. Before you start a new release, you'll need to prepare the changelog entries.
 
-Before starting the release process, you need to generate the changelog:
-
-```bash
-npm run changelog
-```
-
-
+1. Make sure the `#master` branch is up-to-date: `git fetch && git checkout master && git pull`.
+1. Prepare a release branch: `git checkout -b release-[YYYY-MM-DD]` where `YYYY-MM-DD` is the current day.
+1. Generate the changelog entries: `yarn run changelog --branch release-[YYYY-MM-DD]`.
+    * This task checks what changed in each package and bumps the version accordingly. If nothing changes at all, it won't create a new changelog entry. If changes were irrelevant (e.g., only dependencies), it would make an "internal changes" entry.
+    * Scan the logs printed by the tool to search for errors (incorrect changelog entries). Incorrect entries (e.g., ones without the type) should be addressed. You may need to create entries for them manually. This is done directly in CHANGELOG.md (in the root directory). Make sure to verify the proposed version after you modify the changelog.
+1. Commit all changes and prepare a new pull request targeting the `#master` branch.
+1. Ping the @ckeditor/ckeditor-5-devops team to review the pull request and trigger the release process.

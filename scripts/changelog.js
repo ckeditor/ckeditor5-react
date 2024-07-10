@@ -9,8 +9,10 @@
 
 /* eslint-env node */
 
-/**
- * Scripts for generating the changelog before starting the release process.
- */
+const parseArguments = require( './utils/parsearguments' );
 
-require( '@ckeditor/ckeditor5-dev-release-tools' ).generateChangelogForSinglePackage();
+const cliArguments = parseArguments( process.argv.slice( 2 ) );
+
+require( '@ckeditor/ckeditor5-dev-release-tools' ).generateChangelogForSinglePackage( {
+	releaseBranch: cliArguments.branch
+} );
