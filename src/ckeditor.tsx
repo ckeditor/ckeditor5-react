@@ -300,7 +300,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			.then( editor => {
 				if ( 'disabled' in this.props ) {
 					// Switch to the read-only mode if the `[disabled]` attribute is specified.
-					/* istanbul ignore else */
+					/* istanbul ignore else -- @preserve */
 					if ( this.props.disabled ) {
 						editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
 					}
@@ -310,21 +310,21 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 				const viewDocument = editor.editing.view.document;
 
 				modelDocument.on<DocumentChangeEvent>( 'change:data', event => {
-					/* istanbul ignore else */
+					/* istanbul ignore else -- @preserve */
 					if ( this.props.onChange ) {
 						this.props.onChange( event, editor );
 					}
 				} );
 
 				viewDocument.on( 'focus', event => {
-					/* istanbul ignore else */
+					/* istanbul ignore else -- @preserve */
 					if ( this.props.onFocus ) {
 						this.props.onFocus( event, editor );
 					}
 				} );
 
 				viewDocument.on( 'blur', event => {
-					/* istanbul ignore else */
+					/* istanbul ignore else -- @preserve */
 					if ( this.props.onBlur ) {
 						this.props.onBlur( event, editor );
 					}
@@ -347,7 +347,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			// could be fired by <CKEditorContext /> and <CKEditor /> at the same time, this `setTimeout()` makes sure
 			// that <CKEditorContext /> component will be destroyed first, so during the code execution
 			// the `ContextWatchdog#state` would have a correct value. See `EditorWatchdogAdapter#destroy()` for more information.
-			/* istanbul ignore next */
+			/* istanbul ignore next -- @preserve */
 			setTimeout( async () => {
 				try {
 					if ( watchdog ) {

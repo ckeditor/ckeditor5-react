@@ -100,7 +100,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 
 		// Handle error event from context watchdog.
 		contextWatchdog.on( 'error', ( _, errorEvent ) => {
-			// istanbul ignore else
+			/* istanbul ignore else -- @preserve */
 			if ( canUpdateState( watchdogInitializationID ) ) {
 				onError( errorEvent.error, {
 					phase: 'runtime',

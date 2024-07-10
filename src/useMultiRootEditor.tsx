@@ -171,7 +171,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				.forEach( change => {
 					let root: RootElement;
 
-					// istanbul ignore else
+					/* istanbul ignore else -- @preserve */
 					if ( change.type == 'insert' || change.type == 'remove' ) {
 						root = change.position.root as RootElement;
 					} else {
@@ -216,7 +216,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			}
 		}
 
-		/* istanbul ignore else */
+		/* istanbul ignore else -- @preserve */
 		if ( props.onChange ) {
 			props.onChange( event, editor! );
 		}
@@ -289,7 +289,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 				if ( props.disabled ) {
 					// Switch to the read-only mode if the `[disabled]` attribute is specified.
-					/* istanbul ignore else */
+					/* istanbul ignore else -- @preserve */
 					editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
 				}
 
@@ -302,14 +302,14 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				editor.on<DetachRootEvent>( 'detachRoot', ( evt, root ) => onDetachRoot( editor, evt, root ) );
 
 				viewDocument.on( 'focus', event => {
-					/* istanbul ignore else */
+					/* istanbul ignore else -- @preserve */
 					if ( props.onFocus ) {
 						props.onFocus( event, editor );
 					}
 				} );
 
 				viewDocument.on( 'blur', event => {
-					/* istanbul ignore else */
+					/* istanbul ignore else -- @preserve */
 					if ( props.onBlur ) {
 						props.onBlur( event, editor );
 					}
@@ -332,7 +332,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			// could be fired by <CKEditorContext /> and <CKEditor /> at the same time, this `setTimeout()` makes sure
 			// that <CKEditorContext /> component will be destroyed first, so during the code execution
 			// the `ContextWatchdog#state` would have a correct value. See `EditorWatchdogAdapter#destroy()` for more information.
-			/* istanbul ignore next */
+			/* istanbul ignore next -- @preserve */
 			setTimeout( async () => {
 				try {
 					if ( watchdog ) {
