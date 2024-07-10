@@ -21,6 +21,7 @@ export default defineConfig( {
 	build: {
 		minify: false,
 		sourcemap: true,
+		target: 'es2019',
 
 		// https://vitejs.dev/guide/build#library-mode
 		lib: {
