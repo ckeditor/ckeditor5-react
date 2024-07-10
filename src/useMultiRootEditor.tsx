@@ -499,7 +499,10 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			const {
 				addedKeys: newRoots,
 				removedKeys: removedRoots
-			} = _getStateDiff( editorData, data || /* istanbul ignore next: It should never happen, data should be always filled. */ {} );
+			} = _getStateDiff(
+				editorData,
+				data || /* istanbul ignore next -- @preserve: It should never happen, data should be always filled. */ {}
+			);
 
 			const hasModifiedData = dataKeys.some( rootName =>
 				editorData[ rootName ] !== undefined &&
@@ -513,7 +516,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				roots.forEach( rootName => {
 					instance!.addRoot( rootName, {
 						data: data[ rootName ] || '',
-						attributes: attributes?.[ rootName ] || /* istanbul ignore next: attributes should be in sync with root keys */ {},
+						attributes: attributes?.[ rootName ] ||
+						/* istanbul ignore next -- @preserve: attributes should be in sync with root keys */ {},
 						isUndoable: true
 					} );
 				} );
@@ -617,7 +621,7 @@ export const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 			if ( editor && editor.state !== 'destroyed' && innerRef.current ) {
 				const root = editor.model.document.getRoot( rootName );
 
-				// istanbul ignore else
+				/* istanbul ignore else -- @preserve */
 				if ( root ) {
 					editor.detachEditable( root );
 				}
