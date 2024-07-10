@@ -26,6 +26,7 @@ module.exports = {
 	},
 	'rules': {
 		'react/prop-types': 'off',
+		'react/no-deprecated': 'off',
 		'no-console': 'off',
 		'no-trailing-spaces': 'error',
 		'ckeditor5-rules/allow-imports-only-from-main-package-entry-point': 'off',

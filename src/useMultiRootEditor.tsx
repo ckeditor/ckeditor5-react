@@ -617,6 +617,7 @@ export const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 			if ( editor && editor.state !== 'destroyed' && innerRef.current ) {
 				const root = editor.model.document.getRoot( rootName );
 
+				// istanbul ignore else
 				if ( root ) {
 					editor.detachEditable( root );
 				}

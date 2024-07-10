@@ -11,7 +11,7 @@ import react from '@vitejs/plugin-react-swc';
 const require = createRequire( import.meta.url );
 const pkg = require( './package.json' );
 
-const REACT_VERSION = Number( process.env.REACT_VERSION ) || 16;
+const REACT_VERSION = Number( process.env.REACT_VERSION ) || 18;
 
 export default defineConfig( {
 	plugins: [
