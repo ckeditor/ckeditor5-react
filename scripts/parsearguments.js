@@ -5,15 +5,13 @@
 
 /* eslint-env node */
 
-'use strict';
-
-const minimist = require( 'minimist' );
+import minimist from 'minimist';
 
 /**
  * @param {Array.<String>} cliArguments
  * @returns {ReleaseOptions} options
  */
-module.exports = function parseArguments( cliArguments ) {
+export default function parseArguments( cliArguments ) {
 	const config = {
 		string: [
 			'npm-tag'
@@ -30,7 +28,7 @@ module.exports = function parseArguments( cliArguments ) {
 	delete options[ 'npm-tag' ];
 
 	return options;
-};
+}
 
 /**
  * @typedef {Object} ReleaseOptions

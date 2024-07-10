@@ -5,8 +5,6 @@
  * For licensing, see LICENSE.md.
  */
 
-'use strict';
-
 /* eslint-env node */
 
 /**

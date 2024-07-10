@@ -3,8 +3,6 @@
  * For licensing, see LICENSE.md.
  */
 
-'use strict';
-
 /* eslint-env node */
 
 import { fileURLToPath } from 'url';
