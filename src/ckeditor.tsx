@@ -250,6 +250,9 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 			const instance = await this._createEditor( el as any, config );
 
+			// The editor semaphore can be unavailable at this stage. There is a small chance that the component
+			// was destroyed while watchdog was initializing new instance of editor. In such case, we should not
+			// call any callbacks or set any values to the semaphore.
 			if ( editorSemaphore && totalRestartsRef.current > 0 ) {
 				editorSemaphore.unsafeSetValue( {
 					instance,
