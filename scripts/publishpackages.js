@@ -13,6 +13,7 @@ const { Listr } = require( 'listr2' );
 const releaseTools = require( '@ckeditor/ckeditor5-dev-release-tools' );
 const { provideToken } = require( '@ckeditor/ckeditor5-dev-release-tools/lib/utils/cli' );
 const parseArguments = require( './utils/parsearguments' );
+const getListrOptions = require( './utils/getlistroptions' );
 
 const cliArguments = parseArguments( process.argv.slice( 2 ) );
 const latestVersion = releaseTools.getLastFromChangelog();
@@ -30,11 +31,30 @@ const tasks = new Listr( [
 				npmTag: cliArguments.npmTag,
 				listrTask: task,
 				confirmationCallback: () => {
+					if ( cliArguments.ci ) {
+						return true;
+					}
+
 					return task.prompt( { type: 'Confirm', message: 'Do you want to continue?' } );
 				}
 			} );
 		},
 		retry: 3
+	},
+	{
+		title: 'Checking if packages that returned E409 error code were uploaded correctly.',
+		task: async ( _, task ) => {
+			return releaseTools.verifyPackagesPublishedCorrectly( {
+				packagesDirectory: 'release',
+				version: latestVersion,
+				onSuccess: text => {
+					task.output = text;
+				}
+			} );
+		},
+		options: {
+			persistentOutput: true
+		}
 	},
 	{
 		title: 'Pushing changes.',
@@ -55,9 +75,12 @@ const tasks = new Listr( [
 			} );
 
 			task.output = `Release page: ${ releaseUrl }`;
+		},
+		options: {
+			persistentOutput: true
 		}
 	}
-] );
+], getListrOptions( cliArguments ) );
 
 ( async () => {
 	try {

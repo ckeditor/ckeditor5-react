@@ -12,9 +12,13 @@
 const { Listr } = require( 'listr2' );
 const releaseTools = require( '@ckeditor/ckeditor5-dev-release-tools' );
 const { tools } = require( '@ckeditor/ckeditor5-dev-utils' );
+const parseArguments = require( './utils/parsearguments' );
+const getListrOptions = require( './utils/getlistroptions' );
 
 const latestVersion = releaseTools.getLastFromChangelog();
 const versionChangelog = releaseTools.getChangesForVersion( latestVersion );
+
+const cliArguments = parseArguments( process.argv.slice( 2 ) );
 
 const tasks = new Listr( [
 	{
@@ -31,6 +35,14 @@ const tasks = new Listr( [
 			}
 
 			return Promise.reject( 'Aborted due to errors.\n' + errors.map( message => `* ${ message }` ).join( '\n' ) );
+		},
+		skip: () => {
+			// When compiling the packages only, do not validate the release.
+			if ( cliArguments.compileOnly ) {
+				return true;
+			}
+
+			return false;
 		}
 	},
 	{
@@ -39,6 +51,14 @@ const tasks = new Listr( [
 			return releaseTools.updateVersions( {
 				version: latestVersion
 			} );
+		},
+		skip: () => {
+			// When compiling the packages only, do not update any values.
+			if ( cliArguments.compileOnly ) {
+				return true;
+			}
+
+			return false;
 		}
 	},
 	{
@@ -73,9 +93,17 @@ const tasks = new Listr( [
 					'package.json'
 				]
 			} );
+		},
+		skip: () => {
+			// When compiling the packages only, do not update any values.
+			if ( cliArguments.compileOnly ) {
+				return true;
+			}
+
+			return false;
 		}
 	}
-] );
+], getListrOptions( cliArguments ) );
 
 tasks.run()
 	.catch( err => {

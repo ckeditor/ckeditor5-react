@@ -35,6 +35,22 @@ commands:
           fingerprints:
             - "a0:41:a2:56:c8:7d:3f:29:41:d1:87:92:fd:50:2b:6b"
 
+  npm_login_command:
+    description: "Enable interacting with `npm` using an auth token"
+    steps:
+      - run:
+          name: Login to the npm registry using '.npmrc' file
+          command: echo "//registry.npmjs.org/:_authToken=\${CKE5_NPM_TOKEN}" > ~/.npmrc
+
+  git_credentials_command:
+    description: "Setup git configuration"
+    steps:
+      - run:
+          name: Setup git configuration
+          command: |
+            git config --global user.email "ckeditor-bot@cksource.com"
+            git config --global user.name "CKEditorBot"
+
 jobs:
   notify_ci_failure:
     machine: true
@@ -64,7 +80,7 @@ jobs:
           command: yarn ckeditor5-dev-ci-circle-workflow-notifier
           no_output_timeout: 1h
 
-  main:
+  validate_and_tests:
     machine: true
     steps:
       - checkout
@@ -111,21 +127,29 @@ jobs:
                 name: Upload code coverage
                 command: cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
 
+  release_prepare:
+    machine: true
+    steps:
+      - checkout
+      - bootstrap_repository_command
+      - run:
+          name: Check if packages are ready to be released
+          command: yarn run release:prepare-packages --verbose --compile-only
+
   trigger_release_process:
     machine: true
     steps:
       - checkout
       - bootstrap_repository_command
       - run:
-          name: Verify if CKEditor 5 is ready to release
+          name: Verify if the project is ready to release
           command: |
             #!/bin/bash
 
             # Do not fail if the Node script ends with non-zero exit code.
             set +e
 
-            # TODO: This one is missing.
-            node scripts/ci/is-repository-ready-to-release.js
+            node scripts/ci/is-project-ready-to-release.js
             EXIT_CODE=$( echo $? )
 
             if [ ${EXIT_CODE} -eq 1 ];
@@ -133,7 +157,7 @@ jobs:
               circleci-agent step halt
             fi
       - run:
-          name: Trigger CKEditor 5 release job
+          name: Trigger the release pipeline
           command: |
             export CKE5_GITHUB_REPOSITORY_SLUG=$( CIRCLE_PROJECT_USERNAME )/$( CIRCLE_PROJECT_REPONAME )
             export CKE5_GITHUB_RELEASE_BRANCH="master"
@@ -144,7 +168,54 @@ jobs:
   release_project:
     machine: true
     steps:
-      - TODO: See CKEditor 5 `release_project`.
+      - checkout
+      - bootstrap_repository_command
+      - run:
+          name: Verify the trigger commit from the repository
+          command: |
+            #!/bin/bash
+
+            CKE5_LATEST_COMMIT_HASH=$( git log -n 1 --pretty=format:%H origin/master )
+            CKE5_TRIGGER_COMMIT_HASH=<< pipeline.parameters.triggerCommitHash >>
+
+            if [[ "${CKE5_LATEST_COMMIT_HASH}" != "${CKE5_TRIGGER_COMMIT_HASH}" ]]; then
+              echo "There is a newer commit in the repository on the \`#master\` branch. Use its build to start the release."
+              circleci-agent step halt
+            fi
+      - npm_login_command
+      - git_credentials_command
+      - run:
+          name: Verify if a releaser triggered the job
+          environment:
+            CKE5_CIRCLE_APPROVAL_JOB_NAME: release_approval
+          command: |
+            #!/bin/bash
+            
+            # Do not fail if the Node script ends with non-zero exit code.
+            set +e
+            
+            ckeditor5-dev-ci-is-job-triggered-by-member
+            EXIT_CODE=$( echo $? )
+            
+            if [ ${EXIT_CODE} -ne 0 ];
+            then
+              echo "Aborting the release due to failed verification of the approver (no rights to release)."
+              circleci-agent step halt
+            fi
+      - run:
+          name: Prepare the new version to release
+          command: yarn run release:prepare-packages --verbose
+      - run:
+          name: Publish the packages
+          command: yarn run release:publish-packages --verbose
+      - run:
+          name: Pack the "release/" directory (in case of failure)
+          command: |
+            zip -r ./release.zip ./release
+          when: always
+      - store_artifacts:
+          path: ./release.zip
+          when: always
 
 workflows:
   version: 2
@@ -154,8 +225,12 @@ workflows:
         - equal: [ false, << pipeline.parameters.isNightly >> ]
         - equal: [ false, << pipeline.parameters.isRelease >> ]
     jobs:
-      - main
+      - validate_and_tests
+      - release_prepare
       - trigger_release_process:
+          requires:
+            - validate_and_tests
+            - release_prepare
           filters:
             branches:
               only:
@@ -172,11 +247,8 @@ workflows:
         - equal: [ false, << pipeline.parameters.isNightly >> ]
         - equal: [ true, << pipeline.parameters.isRelease >> ]
     jobs:
-      - TBA.
       - release_approval:
           type: approval
-          requires:
-            - TBA.
       - release_project:
           requires:
             - release_approval
