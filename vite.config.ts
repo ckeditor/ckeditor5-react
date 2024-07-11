@@ -27,15 +27,21 @@ export default defineConfig( {
 		lib: {
 			entry: resolve( __dirname, 'src/index.ts' ),
 			name: 'CKEditor',
-			fileName: 'index',
-			formats: [ 'es' ]
+			fileName: 'index'
 		},
 
 		rollupOptions: {
 			external: Object.keys( {
 				...pkg.dependencies,
 				...pkg.peerDependencies
-			} )
+			} ),
+
+			output: {
+				globals: {
+					'react': 'React',
+					'prop-types': 'PropTypes'
+				}
+			}
 		}
 	},
 
