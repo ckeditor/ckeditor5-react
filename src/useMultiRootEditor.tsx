@@ -365,8 +365,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		}
 
 		const watchdog = ( () => {
-			if ( context instanceof props.editor.ContextWatchdog ) {
-				return new EditorWatchdogAdapter( context );
+			if ( isContextWatchdogReadyToUse( context ) ) {
+				return new EditorWatchdogAdapter( context.watchdog );
 			}
 
 			return new props.editor.EditorWatchdog( props.editor, props.watchdogConfig );
