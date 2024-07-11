@@ -188,6 +188,7 @@ jobs:
           name: Verify if a releaser triggered the job
           environment:
             CKE5_CIRCLE_APPROVAL_JOB_NAME: release_approval
+            CKE5_GITHUB_ORGANIZATION: ckeditor
           command: |
             #!/bin/bash
             
