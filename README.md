@@ -28,7 +28,7 @@ You can also use [Yarn](https://yarnpkg.com/).
 
 ### Running the development server
 
-To manually test the editor integration with different versions of React, you can run the development server using one of the commands below:
+To manually test the editor integration with different versions of React, you can start the development server using one of the commands below:
 
 ```bash
 npm run dev:16 # Open the demo projects using React 16.
