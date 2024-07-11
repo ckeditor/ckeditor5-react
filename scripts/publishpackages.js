@@ -84,7 +84,11 @@ const tasks = new Listr( [
 
 ( async () => {
 	try {
-		githubToken = await provideToken();
+		if ( process.env.CKE5_RELEASE_TOKEN ) {
+			githubToken = process.env.CKE5_RELEASE_TOKEN;
+		} else {
+			githubToken = await provideToken();
+		}
 
 		await tasks.run();
 	} catch ( err ) {
