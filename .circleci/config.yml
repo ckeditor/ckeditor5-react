@@ -194,10 +194,8 @@ jobs:
             
             # Do not fail if the Node script ends with non-zero exit code.
             set +e
-            
             ckeditor5-dev-ci-is-job-triggered-by-member
             EXIT_CODE=$( echo $? )
-            
             if [ ${EXIT_CODE} -ne 0 ];
             then
               echo "Aborting the release due to failed verification of the approver (no rights to release)."

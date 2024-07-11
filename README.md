@@ -64,3 +64,7 @@ This package's release process is automated via CircleCI. Before you start a new
     * Scan the logs printed by the tool to search for errors (incorrect changelog entries). Incorrect entries (e.g., ones without the type) should be addressed. You may need to create entries for them manually. This is done directly in CHANGELOG.md (in the root directory). Make sure to verify the proposed version after you modify the changelog.
 1. Commit all changes and prepare a new pull request targeting the `#master` branch.
 1. Ping the @ckeditor/ckeditor-5-devops team to review the pull request and trigger the release process.
+
+## License
+
+Licensed under the terms of [GNU General Public License Version 2 or later](http://www.gnu.org/licenses/gpl.html). For full details about the license, please check the LICENSE.md file.
