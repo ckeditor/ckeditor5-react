@@ -79,7 +79,6 @@
     "dev:18": "REACT_VERSION=18 vite",
     "dev:19": "REACT_VERSION=19 vite",
     "build": "vite build && tsc --emitDeclarationOnly",
-    "preview": "vite preview",
     "test": "vitest run --coverage",
     "test:watch": "vitest --ui --watch",
     "lint": "eslint --quiet \"**/*.{ts,tsx}\"",

@@ -26,28 +26,33 @@ npm install
 
 You can also use [Yarn](https://yarnpkg.com/).
 
-### Executing tests
+### Running the development server
 
-Before starting tests execution, you need to build the package. You can use `npm run build` in order to build the production-ready version
-or `npm run develop` which produces a development version with attached watcher for all sources files.
+To manually test the editor integration with different versions of React, you can run the development server using one of the commands below:
 
 ```bash
-npm run test -- [additional options]
-# or
-npm t -- [additional options]
+npm run dev:16 # Open the demo projects using React 16.
+npm run dev:18 # Open the demo projects using React 18.
+npm run dev:19 # Open the demo projects using React 19.
 ```
 
-The command accepts the following options:
+### Executing tests
 
-* `--coverage` (`-c`) &ndash; Whether to generate the code coverage.
-* `--source-map` (`-s`) &ndash; Whether to attach the source maps.
-* `--watch` (`-w`) &ndash; Whether to watch test files.
-* `--reporter` (`-r`) &ndash; Reporter for Karma (default: `mocha`, can be changed to `dots`).
-* `--browsers` (`-b`) &ndash; Browsers that will be used to run tests (default: `Chrome`, available: `Firefox`).
+To test the editor integration against a set of automated tests, run the following command:
+
+```bash
+npm run test
+```
+
+If you want to run the tests in watch mode, use the following command:
+
+```bash
+npm run test:watch
+```
 
 ### Building the package
 
-Build a minified version of the package that is ready to publish:
+To build the package that is ready to publish, use the following command:
 
 ```bash
 npm run build
