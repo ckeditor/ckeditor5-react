@@ -202,11 +202,18 @@ jobs:
               circleci-agent step halt
             fi
       - run:
+          name: Disable the redundant workflows option
+          command: ckeditor5-dev-ci-circle-disable-auto-cancel-builds
+      - run:
           name: Prepare the new version to release
           command: yarn run release:prepare-packages --verbose
       - run:
           name: Publish the packages
           command: yarn run release:publish-packages --verbose
+      - run:
+          name: Enable the redundant workflows option
+          command: ckeditor5-dev-ci-circle-enable-auto-cancel-builds
+          when: always
       - run:
           name: Pack the "release/" directory (in case of failure)
           command: |
