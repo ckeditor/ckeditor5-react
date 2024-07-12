@@ -27,6 +27,7 @@ commands:
       - run:
           name: Install dependencies
           command: yarn install
+      - prepare_environment_variables_commands
 
   install_ssh_keys_command:
     description: "Install SSH keys"
@@ -50,6 +51,28 @@ commands:
           command: |
             git config --global user.email "ckeditor-bot@cksource.com"
             git config --global user.name "CKEditorBot"
+
+
+  prepare_environment_variables_commands:
+    description: "Prepare non-secret environment variables"
+    steps:
+      - run:
+          name: Prepare environment variables
+          command: |
+            #!/bin/bash
+
+            # Non-secret environment variables needed for the pipeline scripts.
+            CKE5_GITHUB_ORGANIZATION="ckeditor"
+            CKE5_GITHUB_REPOSITORY="ckeditor5-react"
+            CKE5_CIRCLE_APPROVAL_JOB_NAME="release_approval"
+            CKE5_GITHUB_RELEASE_BRANCH="master"
+
+            echo export CKE5_CIRCLE_APPROVAL_JOB_NAME=$CKE5_CIRCLE_APPROVAL_JOB_NAME >> $BASH_ENV
+            echo export CKE5_GITHUB_RELEASE_BRANCH=$CKE5_GITHUB_RELEASE_BRANCH >> $BASH_ENV
+            echo export CKE5_GITHUB_ORGANIZATION=$CKE5_GITHUB_ORGANIZATION >> $BASH_ENV
+            echo export CKE5_GITHUB_REPOSITORY=$CKE5_GITHUB_REPOSITORY >> $BASH_ENV
+            echo export CKE5_GITHUB_REPOSITORY_SLUG="$CKE5_GITHUB_ORGANIZATION/$CKE5_GITHUB_REPOSITORY" >> $BASH_ENV
+            echo export CKE5_COMMIT_SHA1=$CIRCLE_SHA1 >> $BASH_ENV
 
 jobs:
   notify_ci_failure:
@@ -158,12 +181,7 @@ jobs:
             fi
       - run:
           name: Trigger the release pipeline
-          command: |
-            export CKE5_GITHUB_REPOSITORY_SLUG=$( CIRCLE_PROJECT_USERNAME )/$( CIRCLE_PROJECT_REPONAME )
-            export CKE5_GITHUB_RELEASE_BRANCH="master"
-            export CKE5_COMMIT_SHA1=$CIRCLE_SHA1
-
-            ckeditor5-dev-ci-trigger-circle-build
+          command: yarn ckeditor5-dev-ci-trigger-circle-build
 
   release_project:
     machine: true
@@ -186,16 +204,15 @@ jobs:
       - git_credentials_command
       - run:
           name: Verify if a releaser triggered the job
-          environment:
-            CKE5_CIRCLE_APPROVAL_JOB_NAME: release_approval
-            CKE5_GITHUB_ORGANIZATION: ckeditor
           command: |
             #!/bin/bash
             
             # Do not fail if the Node script ends with non-zero exit code.
             set +e
-            ckeditor5-dev-ci-is-job-triggered-by-member
+
+            yarn ckeditor5-dev-ci-is-job-triggered-by-member
             EXIT_CODE=$( echo $? )
+
             if [ ${EXIT_CODE} -ne 0 ];
             then
               echo "Aborting the release due to failed verification of the approver (no rights to release)."
@@ -203,16 +220,16 @@ jobs:
             fi
       - run:
           name: Disable the redundant workflows option
-          command: ckeditor5-dev-ci-circle-disable-auto-cancel-builds
+          command: yarn ckeditor5-dev-ci-circle-disable-auto-cancel-builds
       - run:
           name: Prepare the new version to release
-          command: yarn run release:prepare-packages --verbose
+          command: npm run release:prepare-packages -- --verbose
       - run:
           name: Publish the packages
-          command: yarn run release:publish-packages --verbose
+          command: npm run release:publish-packages -- --verbose
       - run:
           name: Enable the redundant workflows option
-          command: ckeditor5-dev-ci-circle-enable-auto-cancel-builds
+          command: yarn ckeditor5-dev-ci-circle-enable-auto-cancel-builds
           when: always
       - run:
           name: Pack the "release/" directory (in case of failure)
