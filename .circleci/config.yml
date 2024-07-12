@@ -52,7 +52,6 @@ commands:
             git config --global user.email "ckeditor-bot@cksource.com"
             git config --global user.name "CKEditorBot"
 
-
   prepare_environment_variables_commands:
     description: "Prepare non-secret environment variables"
     steps:
@@ -157,7 +156,7 @@ jobs:
       - bootstrap_repository_command
       - run:
           name: Check if packages are ready to be released
-          command: yarn run release:prepare-packages --verbose --compile-only
+          command: npm run release:prepare-packages -- --verbose --compile-only
 
   trigger_release_process:
     machine: true
