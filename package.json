@@ -35,10 +35,10 @@
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@ckeditor/ckeditor5-dev-bump-year": "^38.0.0",
-    "@ckeditor/ckeditor5-dev-ci": "^38.0.0",
-    "@ckeditor/ckeditor5-dev-release-tools": "^38.0.0",
-    "@ckeditor/ckeditor5-dev-utils": "^38.0.0",
+    "@ckeditor/ckeditor5-dev-bump-year": "^40.0.0",
+    "@ckeditor/ckeditor5-dev-ci": "^40.0.0",
+    "@ckeditor/ckeditor5-dev-release-tools": "^40.0.0",
+    "@ckeditor/ckeditor5-dev-utils": "^40.0.0",
     "@testing-library/dom": "^10.3.1",
     "@testing-library/react": "^16.0.0",
     "@types/react": "^18.0.0",

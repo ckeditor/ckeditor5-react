@@ -7,10 +7,11 @@
 
 /* eslint-env node */
 
-/**
- * Scripts for generating the changelog before starting the release process.
- */
-
 import { generateChangelogForSinglePackage } from '@ckeditor/ckeditor5-dev-release-tools';
+import parseArguments from './utils/parsearguments';
 
-generateChangelogForSinglePackage();
+const cliArguments = parseArguments( process.argv.slice( 2 ) );
+
+generateChangelogForSinglePackage( {
+	releaseBranch: cliArguments.branch
+} );
