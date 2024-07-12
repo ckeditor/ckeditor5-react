@@ -8,6 +8,7 @@
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
 import { existsSync } from 'fs';
+import { install } from 'husky';
 
 const ROOT_DIRECTORY = join(
 	dirname( fileURLToPath( import.meta.url ) ),
@@ -17,7 +18,5 @@ const ROOT_DIRECTORY = join(
 // When installing a repository as a dependency, the `.git` directory does not exist.
 // In such a case, husky should not attach its hooks as npm treats it as a package, not a git repository.
 if ( existsSync( join( ROOT_DIRECTORY, '.git' ) ) ) {
-	const { install } = await import( 'husky' );
-
 	install();
 }
