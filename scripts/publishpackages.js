@@ -9,7 +9,7 @@
 
 import { Listr } from 'listr2';
 import releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
-import { provideToken } from '@ckeditor/ckeditor5-dev-release-tools/lib/utils/cli';
+import releaseCliUtils from '@ckeditor/ckeditor5-dev-release-tools/lib/utils/cli.js';
 import parseArguments from './utils/parsearguments.js';
 import getListrOptions from './utils/getlistroptions.js';
 
@@ -85,7 +85,7 @@ const tasks = new Listr( [
 		if ( process.env.CKE5_RELEASE_TOKEN ) {
 			githubToken = process.env.CKE5_RELEASE_TOKEN;
 		} else {
-			githubToken = await provideToken();
+			githubToken = await releaseCliUtils.provideToken();
 		}
 
 		await tasks.run();
