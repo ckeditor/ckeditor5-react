@@ -7,13 +7,11 @@
 
 /* eslint-env node */
 
-'use strict';
-
-const { Listr } = require( 'listr2' );
-const releaseTools = require( '@ckeditor/ckeditor5-dev-release-tools' );
-const { provideToken } = require( '@ckeditor/ckeditor5-dev-release-tools/lib/utils/cli' );
-const parseArguments = require( './utils/parsearguments' );
-const getListrOptions = require( './utils/getlistroptions' );
+import { Listr } from 'listr2';
+import releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
+import { provideToken } from '@ckeditor/ckeditor5-dev-release-tools/lib/utils/cli';
+import parseArguments from './utils/parsearguments.js';
+import getListrOptions from './utils/getlistroptions.js';
 
 const cliArguments = parseArguments( process.argv.slice( 2 ) );
 const latestVersion = releaseTools.getLastFromChangelog();

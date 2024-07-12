@@ -5,15 +5,13 @@
 
 /* eslint-env node */
 
-'use strict';
-
-const minimist = require( 'minimist' );
+import minimist from 'minimist';
 
 /**
  * @param {Array.<String>} cliArguments
  * @returns {ReleaseOptions} options
  */
-module.exports = function parseArguments( cliArguments ) {
+export default function parseArguments( cliArguments ) {
 	const config = {
 		boolean: [
 			'verbose',
@@ -48,7 +46,7 @@ module.exports = function parseArguments( cliArguments ) {
 	}
 
 	return options;
-};
+}
 
 /**
  * @typedef {Object} ReleaseOptions

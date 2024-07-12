@@ -5,14 +5,13 @@
  * For licensing, see LICENSE.md.
  */
 
-'use strict';
-
 /* eslint-env node */
 
-const parseArguments = require( './utils/parsearguments' );
+import { generateChangelogForSinglePackage } from '@ckeditor/ckeditor5-dev-release-tools';
+import parseArguments from './utils/parsearguments';
 
 const cliArguments = parseArguments( process.argv.slice( 2 ) );
 
-require( '@ckeditor/ckeditor5-dev-release-tools' ).generateChangelogForSinglePackage( {
+generateChangelogForSinglePackage( {
 	releaseBranch: cliArguments.branch
 } );

@@ -65,6 +65,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 * It means that CKEditor will try to destroy editor and all it's roots in destructor. It will throw an error because
 	 * `editables` are not attached to any React node and their elements references are null. To prevent this error we need to
 	 * force assign `editables` to fake elements before destroying editor.
+	 *
+	 * See: https://github.com/ckeditor/ckeditor5/issues/16561
 	 */
 	const forceAssignFakeEditableElements = () => {
 		const editor = editorRefs.instance.current;
@@ -169,6 +171,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				.forEach( change => {
 					let root: RootElement;
 
+					/* istanbul ignore else -- @preserve */
 					if ( change.type == 'insert' || change.type == 'remove' ) {
 						root = change.position.root as RootElement;
 					} else {
@@ -213,7 +216,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			}
 		}
 
-		/* istanbul ignore else */
+		/* istanbul ignore else -- @preserve */
 		if ( props.onChange ) {
 			props.onChange( event, editor! );
 		}
@@ -222,7 +225,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	/**
 	 * Callback function for handling an added root.
 	 */
-	const onAddRoot = useRefSafeCallback( ( editor: MultiRootEditor, evt: EventInfo, root: RootElement ): void => {
+	const onAddRoot = useRefSafeCallback( ( editor: MultiRootEditor, _evt: EventInfo, root: RootElement ): void => {
 		const rootName = root.rootName;
 
 		if ( !props.disableTwoWayDataBinding ) {
@@ -241,7 +244,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	/**
 	 * Callback function for handling a detached root.
 	 */
-	const onDetachRoot = useRefSafeCallback( ( editor: MultiRootEditor, evt: EventInfo, root: RootElement ): void => {
+	const onDetachRoot = useRefSafeCallback( ( _editor: MultiRootEditor, _evt: EventInfo, root: RootElement ): void => {
 		const rootName = root.rootName;
 
 		if ( !props.disableTwoWayDataBinding ) {
@@ -286,7 +289,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 				if ( props.disabled ) {
 					// Switch to the read-only mode if the `[disabled]` attribute is specified.
-					/* istanbul ignore else */
+					/* istanbul ignore else -- @preserve */
 					editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
 				}
 
@@ -299,14 +302,14 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				editor.on<DetachRootEvent>( 'detachRoot', ( evt, root ) => onDetachRoot( editor, evt, root ) );
 
 				viewDocument.on( 'focus', event => {
-					/* istanbul ignore else */
+					/* istanbul ignore else -- @preserve */
 					if ( props.onFocus ) {
 						props.onFocus( event, editor );
 					}
 				} );
 
 				viewDocument.on( 'blur', event => {
-					/* istanbul ignore else */
+					/* istanbul ignore else -- @preserve */
 					if ( props.onBlur ) {
 						props.onBlur( event, editor );
 					}
@@ -329,7 +332,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			// could be fired by <CKEditorContext /> and <CKEditor /> at the same time, this `setTimeout()` makes sure
 			// that <CKEditorContext /> component will be destroyed first, so during the code execution
 			// the `ContextWatchdog#state` would have a correct value. See `EditorWatchdogAdapter#destroy()` for more information.
-			/* istanbul ignore next */
+			/* istanbul ignore next -- @preserve */
 			setTimeout( async () => {
 				try {
 					if ( watchdog ) {
@@ -365,8 +368,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		}
 
 		const watchdog = ( () => {
-			if ( context instanceof props.editor.ContextWatchdog ) {
-				return new EditorWatchdogAdapter( context );
+			if ( isContextWatchdogReadyToUse( context ) ) {
+				return new EditorWatchdogAdapter( context.watchdog );
 			}
 
 			return new props.editor.EditorWatchdog( props.editor, props.watchdogConfig );
@@ -496,7 +499,10 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			const {
 				addedKeys: newRoots,
 				removedKeys: removedRoots
-			} = _getStateDiff( editorData, data || {} );
+			} = _getStateDiff(
+				editorData,
+				data || /* istanbul ignore next -- @preserve: It should never happen, data should be always filled. */ {}
+			);
 
 			const hasModifiedData = dataKeys.some( rootName =>
 				editorData[ rootName ] !== undefined &&
@@ -510,7 +516,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				roots.forEach( rootName => {
 					instance!.addRoot( rootName, {
 						data: data[ rootName ] || '',
-						attributes: attributes?.[ rootName ] || {},
+						attributes: attributes?.[ rootName ] ||
+						/* istanbul ignore next -- @preserve: attributes should be in sync with root keys */ {},
 						isUndoable: true
 					} );
 				} );
@@ -579,7 +586,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	};
 };
 
-const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
+export const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 	id: string;
 	rootName: string;
 	semaphore: LifeCycleSemaphoreSyncRefResult<LifeCycleMountResult>;
@@ -614,6 +621,7 @@ const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 			if ( editor && editor.state !== 'destroyed' && innerRef.current ) {
 				const root = editor.model.document.getRoot( rootName );
 
+				/* istanbul ignore else -- @preserve */
 				if ( root ) {
 					editor.detachEditable( root );
 				}
@@ -632,7 +640,7 @@ const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 
 EditorEditable.displayName = 'EditorEditable';
 
-const EditorToolbarWrapper = forwardRef( ( { editor }: any, ref ) => {
+export const EditorToolbarWrapper = forwardRef( ( { editor }: any, ref ) => {
 	const toolbarRef = useRef<HTMLDivElement>( null );
 
 	useEffect( () => {
@@ -644,12 +652,10 @@ const EditorToolbarWrapper = forwardRef( ( { editor }: any, ref ) => {
 
 		const element = editor.ui.view.toolbar.element!;
 
-		if ( toolbarContainer ) {
-			toolbarContainer.appendChild( element! );
-		}
+		toolbarContainer.appendChild( element! );
 
 		return () => {
-			if ( toolbarContainer ) {
+			if ( toolbarContainer.contains( element ) ) {
 				toolbarContainer.removeChild( element! );
 			}
 		};

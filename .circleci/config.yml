@@ -117,7 +117,7 @@ jobs:
           command: yarn run build
       - run:
           name: Run unit tests
-          command: yarn run coverage
+          command: yarn run test
       - run:
           name: Verify the code coverage
           command: |

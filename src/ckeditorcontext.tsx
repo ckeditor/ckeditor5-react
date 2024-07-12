@@ -100,6 +100,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 
 		// Handle error event from context watchdog.
 		contextWatchdog.on( 'error', ( _, errorEvent ) => {
+			/* istanbul ignore else -- @preserve */
 			if ( canUpdateState( watchdogInitializationID ) ) {
 				onError( errorEvent.error, {
 					phase: 'runtime',
@@ -219,7 +220,7 @@ export type ExtractContextWatchdogValueByStatus<S extends ContextWatchdogValueSt
 /**
  * Props for the CKEditorContext component.
  */
-type Props<TContext extends Context> = {
+export type Props<TContext extends Context> = {
 	id?: string;
 	isLayoutReady?: boolean;
 	context?: { create( ...args: any ): Promise<TContext> };

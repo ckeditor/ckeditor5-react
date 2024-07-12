@@ -244,18 +244,17 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			const { editorSemaphore } = this;
 			const { onAfterDestroy } = this.props;
 
-			if ( totalRestartsRef.current > 0 &&
-					onAfterDestroy &&
-					editorSemaphore &&
-					editorSemaphore.value &&
-					editorSemaphore.value.instance ) {
+			if ( totalRestartsRef.current > 0 && onAfterDestroy && editorSemaphore?.value?.instance ) {
 				onAfterDestroy( editorSemaphore.value.instance );
 			}
 
 			const instance = await this._createEditor( el as any, config );
 
-			if ( totalRestartsRef.current > 0 ) {
-				editorSemaphore!.unsafeSetValue( {
+			// The editor semaphore can be unavailable at this stage. There is a small chance that the component
+			// was destroyed while watchdog was initializing new instance of editor. In such case, we should not
+			// call any callbacks or set any values to the semaphore.
+			if ( editorSemaphore && totalRestartsRef.current > 0 ) {
+				editorSemaphore.unsafeSetValue( {
 					instance,
 					watchdog
 				} );
@@ -300,7 +299,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			.then( editor => {
 				if ( 'disabled' in this.props ) {
 					// Switch to the read-only mode if the `[disabled]` attribute is specified.
-					/* istanbul ignore else */
+					/* istanbul ignore else -- @preserve */
 					if ( this.props.disabled ) {
 						editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
 					}
@@ -310,21 +309,21 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 				const viewDocument = editor.editing.view.document;
 
 				modelDocument.on<DocumentChangeEvent>( 'change:data', event => {
-					/* istanbul ignore else */
+					/* istanbul ignore else -- @preserve */
 					if ( this.props.onChange ) {
 						this.props.onChange( event, editor );
 					}
 				} );
 
 				viewDocument.on( 'focus', event => {
-					/* istanbul ignore else */
+					/* istanbul ignore else -- @preserve */
 					if ( this.props.onFocus ) {
 						this.props.onFocus( event, editor );
 					}
 				} );
 
 				viewDocument.on( 'blur', event => {
-					/* istanbul ignore else */
+					/* istanbul ignore else -- @preserve */
 					if ( this.props.onBlur ) {
 						this.props.onBlur( event, editor );
 					}
@@ -347,7 +346,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			// could be fired by <CKEditorContext /> and <CKEditor /> at the same time, this `setTimeout()` makes sure
 			// that <CKEditorContext /> component will be destroyed first, so during the code execution
 			// the `ContextWatchdog#state` would have a correct value. See `EditorWatchdogAdapter#destroy()` for more information.
-			/* istanbul ignore next */
+			/* istanbul ignore next -- @preserve */
 			setTimeout( async () => {
 				try {
 					if ( watchdog ) {
@@ -435,7 +434,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 /**
  * TODO this is type space definition for props, the CKEditor.propTypes is a run-time props validation that should match.
  */
-interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propTypes> {
+export interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propTypes> {
 	editor: {
 		create( ...args: any ): Promise<TEditor>;
 		EditorWatchdog: typeof EditorWatchdog;

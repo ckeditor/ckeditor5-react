@@ -287,7 +287,7 @@ type LifeCyclePostMountAttrs<R> = {
 	mountResult: R;
 };
 
-type LifeCycleAsyncOperators<R> = {
+export type LifeCycleAsyncOperators<R> = {
 	mount: () => Promise<R>;
 	afterMount?: ( result: LifeCyclePostMountAttrs<R> ) => Promise<void> | void;
 	unmount: ( result: LifeCyclePostMountAttrs<R> ) => Promise<void>;

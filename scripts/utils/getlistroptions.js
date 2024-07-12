@@ -5,14 +5,12 @@
 
 /* eslint-env node */
 
-'use strict';
-
 /**
  * @param {ReleaseOptions} cliArguments
  * @returns {Object}
  */
-module.exports = function getListrOptions( cliArguments ) {
+export default function getListrOptions( cliArguments ) {
 	return {
 		renderer: cliArguments.verbose ? 'verbose' : 'default'
 	};
-};
+}
