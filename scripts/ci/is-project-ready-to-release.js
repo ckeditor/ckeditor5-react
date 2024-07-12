@@ -9,9 +9,12 @@
 
 'use strict';
 
-const { execSync } = require( 'child_process' );
-const releaseTools = require( '@ckeditor/ckeditor5-dev-release-tools' );
-const semver = require( 'semver' );
+import { createRequire } from 'module';
+import releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
+import { execSync } from 'child_process';
+import semver from 'semver';
+
+const require = createRequire( import.meta.url );
 const { name } = require( '../../package.json' );
 
 const latestPublishedVersion = execSync( `npm view ${ name }@latest version`, { encoding: 'utf-8' } ).trim();
