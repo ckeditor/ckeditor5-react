@@ -7,11 +7,13 @@
 
 /* eslint-env node */
 
-'use strict';
+import { createRequire } from 'module';
+import { Listr } from 'listr2';
+import releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
+import utils from '@ckeditor/ckeditor5-dev-utils';
 
-const { Listr } = require( 'listr2' );
-const releaseTools = require( '@ckeditor/ckeditor5-dev-release-tools' );
-const { tools } = require( '@ckeditor/ckeditor5-dev-utils' );
+const require = createRequire( import.meta.url );
+const packageJson = require( '../package.json' );
 
 const latestVersion = releaseTools.getLastFromChangelog();
 const versionChangelog = releaseTools.getChangesForVersion( latestVersion );
@@ -44,7 +46,7 @@ const tasks = new Listr( [
 	{
 		title: 'Running build command.',
 		task: () => {
-			return tools.shExec( 'yarn run build', { async: true, verbosity: 'silent' } );
+			return utils.tools.shExec( 'yarn run build', { async: true, verbosity: 'silent' } );
 		}
 	},
 	{
@@ -52,7 +54,7 @@ const tasks = new Listr( [
 		task: () => {
 			return releaseTools.prepareRepository( {
 				outputDirectory: 'release',
-				rootPackageJson: require( '../package.json' )
+				rootPackageJson: packageJson
 			} );
 		}
 	},

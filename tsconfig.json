@@ -1,24 +1,33 @@
 {
   "compilerOptions": {
+    "target": "ES2019",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
     "lib": [
-      "ES2019",
+      "ES2019", // Must match the "target"
+      "ES2020.String",
       "DOM",
       "DOM.Iterable"
     ],
-    "noImplicitAny": true,
-    "noImplicitOverride": true,
-    "strict": true,
-    "module": "es6",
-    "target": "es2019",
-    "sourceMap": true,
-    "allowJs": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
+    "types": [
+      "./vite-env.d.ts"
+    ],
     "skipLibCheck": true,
     "jsx": "react",
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "moduleDetection": "force",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "emitDeclarationOnly": true,
     "declaration": true,
     "declarationDir": "./dist",
-    "esModuleInterop": true
   },
   "include": [
     "src"
