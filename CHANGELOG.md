@@ -1,6 +1,18 @@
 Changelog
 =========
 
+## [9.0.0-alpha.0](https://github.com/ckeditor/ckeditor5-react/compare/v8.0.0...v9.0.0-alpha.0) (2024-07-15)
+
+### Bug fixes
+
+* Adjusted `CKEditorContext` format to prevent race conditions in the `CKEditor` component. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/eaccdab2619551fbc867e87cac4b78e1ebab59ee))
+
+### Other changes
+
+* Added support for React 19. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/eaccdab2619551fbc867e87cac4b78e1ebab59ee))
+* Updated yarn.lock to fix dependabot alert. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/2a0d18940b461a8ff69fec4d0447eab120e09a84))
+
+
 ## [8.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v8.0.0-alpha.0...v8.0.0) (2024-06-26)
 
 We are excited to announce the next major version of the React integration.
