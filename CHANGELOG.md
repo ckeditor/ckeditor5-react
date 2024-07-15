@@ -1,6 +1,28 @@
 Changelog
 =========
 
+## [9.0.0-alpha.0](https://github.com/ckeditor/ckeditor5-react/compare/v8.0.0...v9.0.0-alpha.0) (2024-07-15)
+
+We are excited to announce the alpha release of the next major version of the React integration.
+
+In this release, we have introduced the following breaking changes that should make using the integration more intuitive and easier.
+
+* **ESM-first**: Besides the UMD build, the integration is now available in ESM format. In most projects, the new ESM build should be automatically prioritized by bundlers and other tools.
+* **Support for React 19**: We improved support for using the integration in React 19. As a result, the `<CKEditorContext>` component and the `useMultiRootEditor` hook should no longer throw errors.
+
+### BREAKING CHANGES
+
+* Migrate to ESM. See [ckeditor/ckeditor5#16616](https://github.com/ckeditor/ckeditor5/issues/16616).
+
+### Bug fixes
+
+* Adjusted `CKEditorContext` format to prevent race conditions in the `CKEditor` component. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/eaccdab2619551fbc867e87cac4b78e1ebab59ee))
+
+### Other changes
+
+* Added support for React 19. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/eaccdab2619551fbc867e87cac4b78e1ebab59ee))
+
+
 ## [8.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v8.0.0-alpha.0...v8.0.0) (2024-06-26)
 
 We are excited to announce the next major version of the React integration.

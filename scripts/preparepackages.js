@@ -15,7 +15,6 @@ import parseArguments from './utils/parsearguments.js';
 import getListrOptions from './utils/getlistroptions.js';
 
 const require = createRequire( import.meta.url );
-const packageJson = require( '../package.json' );
 
 const latestVersion = releaseTools.getLastFromChangelog();
 const versionChangelog = releaseTools.getChangesForVersion( latestVersion );
@@ -29,7 +28,7 @@ const tasks = new Listr( [
 			const errors = await releaseTools.validateRepositoryToRelease( {
 				version: latestVersion,
 				changes: versionChangelog,
-				branch: 'master'
+				branch: cliArguments.branch
 			} );
 
 			if ( !errors.length ) {
@@ -74,7 +73,7 @@ const tasks = new Listr( [
 		task: () => {
 			return releaseTools.prepareRepository( {
 				outputDirectory: 'release',
-				rootPackageJson: packageJson
+				rootPackageJson: require( '../package.json' )
 			} );
 		}
 	},
