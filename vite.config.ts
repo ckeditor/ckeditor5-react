@@ -26,7 +26,7 @@ export default defineConfig( {
 		// https://vitejs.dev/guide/build#library-mode
 		lib: {
 			entry: resolve( __dirname, 'src/index.ts' ),
-			name: 'CKEditor',
+			name: 'CKEDITOR_REACT',
 			fileName: 'index'
 		},
 
