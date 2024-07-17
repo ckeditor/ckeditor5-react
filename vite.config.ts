@@ -6,7 +6,7 @@
 import { resolve } from 'path';
 import { createRequire } from 'module';
 import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react-swc';
+import react from '@vitejs/plugin-react';
 
 const require = createRequire( import.meta.url );
 const pkg = require( './package.json' );
@@ -15,8 +15,10 @@ const REACT_VERSION = Number( process.env.REACT_VERSION ) || 18;
 
 export default defineConfig( {
 	plugins: [
-		react()
+		react( { jsxRuntime: 'classic' } )
 	],
+
+	publicDir: false,
 
 	build: {
 		minify: false,
