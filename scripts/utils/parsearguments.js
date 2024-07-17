@@ -28,7 +28,7 @@ export default function parseArguments( cliArguments ) {
 			branch: 'master',
 			ci: false,
 			'compile-only': false,
-			'npm-tag': 'latest',
+			'npm-tag': null,
 			verbose: false
 		}
 	};
@@ -53,7 +53,7 @@ export default function parseArguments( cliArguments ) {
  *
  * @property {String} [branch='master']
  *
- * @property {String} [npmTag='latest']
+ * @property {String|null} [npmTag=null]
  *
  * @property {Boolean} [compileOnly=false]
  *
