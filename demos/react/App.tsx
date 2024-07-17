@@ -15,7 +15,7 @@ const editorContent = `
 	classic editor build</a>.
 	</p>
 	<figure class="image">
-		<img src="/sample.jpg" alt="CKEditor 5 Sample image." />
+		<img src="/demos/sample.jpg" alt="CKEditor 5 Sample image." />
 	</figure>
 	<p>You can use this sample to validate whether your
 	<a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a> works fine.</p>
