@@ -5,11 +5,12 @@
 
 import React, { type ReactNode, type ComponentType } from 'react';
 
-import useCKEditorCloud, {
-	type CKExternalPluginsMap,
-	type CKEditorCloudConfig,
-	type CKEditorCloudResult
-} from './useCKEditorCloud';
+import useCKEditorCloud from './useCKEditorCloud';
+import type {
+	CKEditorCloudConfig,
+	CKEditorCloudResult,
+	CKExternalPluginsMap
+} from './cdn';
 
 /**
  * HOC that injects the CKEditor Cloud integration into a component.

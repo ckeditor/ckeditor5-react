@@ -4,6 +4,9 @@
  */
 
 import React, { type ReactNode } from 'react';
+
+import type { Plugin } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
+
 import { useCKCdnClassicEditor } from './useCKCdnClassicEditor.js';
 import { CKEditor, useCKEditorCloud } from '../../src/index.js';
 
@@ -13,7 +16,7 @@ type CKEditorCloudPluginsDemoProps = {
 
 declare global {
 	interface Window {
-		'@wiris/mathtype-ckeditor5': Window['CKEDITOR']['Plugin' ];
+		'@wiris/mathtype-ckeditor5': typeof Plugin;
 	}
 }
 

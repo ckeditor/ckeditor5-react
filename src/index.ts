@@ -8,10 +8,10 @@ export { default as CKEditorContext } from './ckeditorcontext';
 export { default as useMultiRootEditor, type MultiRootHookProps, type MultiRootHookReturns } from './useMultiRootEditor';
 
 // CDN related exports.
-export {
-	default as useCKEditorCloud,
-	type CKEditorCloudResult
-} from './cloud/useCKEditorCloud';
+import './cloud/cdn/globals.d';
+
+export { default as useCKEditorCloud } from './cloud/useCKEditorCloud';
+export type { CKEditorCloudResult } from './cloud/cdn';
 
 export {
 	default as withCKEditorCloud,

@@ -4,17 +4,10 @@
  */
 
 import { useAsyncValue } from '../hooks/useAsyncValue';
+import loadCKEditorCloud, { type CKExternalPluginsMap } from './cdn/loadCKEditorCloud';
 
 import type { AsyncCallbackState } from '../hooks/useAsyncCallback';
-import {
-	createCKCdnBaseBundlePack,
-	createCKCdnPremiumBundlePack,
-	combineCKCdnBundlesPacks,
-	loadCKCdnResourcesPack,
-	type CKCdnVersion,
-	type CKCdnResourcesPack,
-	type InferCKCdnResourcesPackExportsType
-} from './cdn';
+import type { CKEditorCloudConfig, CKEditorCloudResult } from './cdn';
 
 /**
  * Hook that loads CKEditor bundles from CDN.
@@ -45,87 +38,7 @@ export default function useCKEditorCloud<A extends CKExternalPluginsMap>(
 
 	// Fetch the CKEditor Cloud Services bundles on every modification of config.
 	return useAsyncValue(
-		async (): Promise<CKEditorCloudResult<A>> => {
-			const { version, languages, withPremiumFeatures, plugins } = config;
-
-			const pack = combineCKCdnBundlesPacks( {
-				CKEditor: createCKCdnBaseBundlePack( {
-					version,
-					languages
-				} ),
-
-				...withPremiumFeatures && {
-					CKEditorPremiumFeatures: createCKCdnPremiumBundlePack( {
-						version,
-						languages
-					} )
-				},
-
-				...plugins && {
-					CKPlugins: combineCKCdnBundlesPacks( plugins )
-				}
-			} );
-
-			return loadCKCdnResourcesPack( pack );
-		},
+		async (): Promise<CKEditorCloudResult<A>> => loadCKEditorCloud( config ),
 		[ serializedConfigKey ]
 	);
 }
-
-/**
- * `plugins` property of the `CKEditorCloudConfig`.
- */
-export type CKExternalPluginsMap = Record<string, CKCdnResourcesPack<any>>;
-
-/**
- * The result of the resolved bundles from CKEditor Cloud Services.
- *
- * @template A The type of the additional resources to load.
- */
-export type CKEditorCloudResult<A extends CKExternalPluginsMap = any> = {
-
-	/**
-	 * The base CKEditor bundle exports.
-	 */
-	CKEditor: Window['CKEDITOR'];
-
-	/**
-	 * The CKEditor Premium Features bundle exports.
-	 */
-	CKEditorPremiumFeatures?: Window['CKEDITOR_PREMIUM_FEATURES'];
-
-	/**
-	 * The additional resources exports.
-	 */
-	CKPlugins?: {
-		[ K in keyof A ]: InferCKCdnResourcesPackExportsType<A[K]>
-	};
-};
-
-/**
- * The configuration of the `useCKEditorCloud` hook.
- *
- * @template A The type of the additional resources to load.
- */
-export type CKEditorCloudConfig<A extends CKExternalPluginsMap> = {
-
-	/**
-	 * The version of CKEditor Cloud Services to use.
-	 */
-	version: CKCdnVersion;
-
-	/**
-	 * The languages to load.
-	 */
-	languages?: Array<string>;
-
-	/**
-	 * If `true` then the premium features will be loaded.
-	 */
-	withPremiumFeatures?: boolean;
-
-	/**
-	 * Additional resources to load.
-	 */
-	plugins?: A;
-};

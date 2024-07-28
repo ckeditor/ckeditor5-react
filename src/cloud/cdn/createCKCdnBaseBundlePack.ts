@@ -4,9 +4,6 @@
  */
 
 import type * as CKEditor from 'ckeditor5';
-import type { EventInfo } from 'ckeditor5';
-
-import type { Overwrite } from '../../types/Overwrite';
 import type { CKCdnResourcesPack } from './loadCKCdnResourcesPack';
 
 import { createCKCdnUrl, type CKCdnVersion } from './createCKCdnUrl';
@@ -18,14 +15,7 @@ import { injectScriptsInParallel } from '../../utils/injectScript';
  */
 declare global {
 	interface Window {
-		CKEDITOR: Overwrite<
-			typeof CKEditor,
-			{
-				// FIXME: This is a temporary workaround for the missing `prototype` property in the `EventInfo` type.
-				EventInfo: EventInfo;
-			}
-		>;
-
+		CKEDITOR: typeof CKEditor;
 		ckeditor5: Window['CKEDITOR'];
 	}
 }
@@ -49,13 +39,11 @@ declare global {
 export const createCKCdnBaseBundlePack = (
 	{
 		version,
-		languages,
-		withScripts = true,
-		withStylesheets = true
+		languages
 	}: CKCdnBaseBundlePackConfig
 ): CKCdnResourcesPack<Window['CKEDITOR']> => {
 	const urls = {
-		scripts: withScripts ? [
+		scripts: [
 			// Load the main script of the base features.
 			createCKCdnUrl( 'ckeditor5', 'ckeditor5.umd.js' )( version ),
 
@@ -63,11 +51,11 @@ export const createCKCdnBaseBundlePack = (
 			...( languages || [] ).map( language =>
 				createCKCdnUrl( 'ckeditor5', `translations/${ language }.umd.js` )( version )
 			)
-		] : [],
+		],
 
-		stylesheets: withStylesheets ? [
+		stylesheets: [
 			createCKCdnUrl( 'ckeditor5', 'ckeditor5.css' )( version )
-		] : []
+		]
 	};
 
 	return {
@@ -105,14 +93,4 @@ export type CKCdnBaseBundlePackConfig = {
 	 * The list of languages to load.
 	 */
 	languages?: Array<string>;
-
-	/**
-	 * If `true` then the stylesheets will be loaded.
-	 */
-	withStylesheets?: boolean;
-
-	/**
-	 * If `true` then the scripts will be loaded.
-	 */
-	withScripts?: boolean;
 };

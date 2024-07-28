@@ -3,17 +3,18 @@
  * For licensing, see LICENSE.md.
  */
 
+import type { ClassicEditor, Plugin } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import type { CKEditorCloudResult } from '../../src/index.js';
 
 type ClassicEditorCreatorConfig = {
 	cloud: CKEditorCloudResult;
-	additionalPlugins?: Array<Window['CKEDITOR']['Plugin' ]>;
+	additionalPlugins?: Array<typeof Plugin>;
 	overrideConfig?: object;
 };
 
 export const useCKCdnClassicEditor = ( {
 	cloud, additionalPlugins, overrideConfig
-}: ClassicEditorCreatorConfig ): Window['CKEDITOR'][ 'ClassicEditor' ] => {
+}: ClassicEditorCreatorConfig ): typeof ClassicEditor => {
 	const {
 		ClassicEditor: ClassicEditorBase,
 		Essentials,
@@ -44,7 +45,7 @@ export const useCKCdnClassicEditor = ( {
 		TextTransformation
 	} = cloud.CKEditor;
 
-	class ClassicEditor extends ClassicEditorBase {
+	class CustomEditor extends ClassicEditorBase {
 		public static override builtinPlugins = [
 			Essentials,
 			CKFinderUploadAdapter,
@@ -107,5 +108,5 @@ export const useCKCdnClassicEditor = ( {
 		};
 	}
 
-	return ClassicEditor;
+	return CustomEditor;
 };
