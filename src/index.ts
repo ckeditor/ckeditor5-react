@@ -11,7 +11,7 @@ export { default as useMultiRootEditor, type MultiRootHookProps, type MultiRootH
 import './cloud/cdn/globals.d';
 
 export { default as useCKEditorCloud } from './cloud/useCKEditorCloud';
-export type { CKEditorCloudResult } from './cloud/cdn';
+export { loadCKCdnResourcesPack, type CKEditorCloudResult } from './cloud/cdn';
 
 export {
 	default as withCKEditorCloud,
