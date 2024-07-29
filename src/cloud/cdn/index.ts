@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
-import './globals';
+import './globals.d';
 
 export * from './combineCKCdnBundlesPacks';
 export * from './createCKCdnBaseBundlePack';
