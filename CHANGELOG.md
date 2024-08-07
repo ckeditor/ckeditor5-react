@@ -1,6 +1,24 @@
 Changelog
 =========
 
+## [9.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v8.0.0...v9.0.0) (2024-08-07)
+
+### BREAKING CHANGES
+
+* Change the global name used in the UMD build from `CKEditor` to `CKEDITOR_REACT`.
+
+### Bug fixes
+
+* Adjusted `CKEditorContext` format to prevent race conditions in the `CKEditor` component. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/eaccdab2619551fbc867e87cac4b78e1ebab59ee))
+* Change JSX runtime to `classic` so that `react-jsx-runtime` is not bundled. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/e65de14ca0465c8e785ca0995ccbbc3f43b9edc6))
+* Change the global name used in the UMD build from `CKEditor` to `CKEDITOR_REACT` to match the new convention. See [ckeditor/ckeditor5#16736](https://github.com/ckeditor/ckeditor5/issues/16736). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/51c6037e34dbd655eb33e519ced9bb551f4b8fa6))
+
+### Other changes
+
+* Added support for React 19. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/eaccdab2619551fbc867e87cac4b78e1ebab59ee))
+* Updated yarn.lock to fix dependabot alert. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/2a0d18940b461a8ff69fec4d0447eab120e09a84))
+
+
 ## [9.0.0-alpha.1](https://github.com/ckeditor/ckeditor5-react/compare/v9.0.0-alpha.0...v9.0.0-alpha.1) (2024-07-17)
 
 ### BREAKING CHANGES
