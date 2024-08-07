@@ -3,6 +3,14 @@ Changelog
 
 ## [9.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v8.0.0...v9.0.0) (2024-08-07)
 
+We are excited to announce a new major release of the React integration.
+
+In this release, we have introduced the following breaking changes that should make using the integration more intuitive and easier.
+
+* **ESM-first**: Besides the UMD build, the integration is now available in ESM format. In most projects, the new ESM build should be automatically prioritized by bundlers and other tools.
+* **Support for React 19**: We improved support for using the integration in React 19. As a result, the `<CKEditorContext>` component and the `useMultiRootEditor` hook should no longer throw errors.
+* **New name of the global variable**: The name of the global variable used in the UMD build changed from `CKEditor` to `CKEDITOR_REACT`.
+
 ### BREAKING CHANGES
 
 * Change the global name used in the UMD build from `CKEditor` to `CKEDITOR_REACT`.
