@@ -13,5 +13,6 @@ import parseArguments from './utils/parsearguments.js';
 const cliArguments = parseArguments( process.argv.slice( 2 ) );
 
 generateChangelogForSinglePackage( {
+	from: cliArguments.from,
 	releaseBranch: cliArguments.branch
 } );
