@@ -21,6 +21,7 @@ export default function parseArguments( cliArguments ) {
 
 		string: [
 			'branch',
+			'from',
 			'npm-tag'
 		],
 
