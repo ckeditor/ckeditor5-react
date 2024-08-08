@@ -6,8 +6,8 @@
 import './globals.d';
 
 export * from './combineCKCdnBundlesPacks';
-export * from './createCKCdnBaseBundlePack';
-export * from './createCKCdnPremiumBundlePack';
-export * from './createCKCdnUrl';
+export * from './ck/createCKCdnUrl';
 export * from './loadCKCdnResourcesPack';
 export * from './loadCKEditorCloud';
+export * from './ck';
+export * from './ckbox';

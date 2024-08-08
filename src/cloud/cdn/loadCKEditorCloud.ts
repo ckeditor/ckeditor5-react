@@ -3,11 +3,18 @@
  * For licensing, see LICENSE.md.
  */
 
-import { combineCKCdnBundlesPacks } from './combineCKCdnBundlesPacks';
-import { createCKCdnBaseBundlePack } from './createCKCdnBaseBundlePack';
-import { createCKCdnPremiumBundlePack } from './createCKCdnPremiumBundlePack';
+import {
+	createCKBoxBundlePack,
+	type CKBoxCdnBundlePackConfig
+} from './ckbox';
 
-import type { CKCdnVersion } from './createCKCdnUrl';
+import { combineCKCdnBundlesPacks } from './combineCKCdnBundlesPacks';
+import {
+	createCKCdnBaseBundlePack,
+	createCKCdnPremiumBundlePack,
+	type CKCdnVersion
+} from './ck';
+
 import {
 	loadCKCdnResourcesPack,
 	type CKCdnResourcesPack,
@@ -31,11 +38,15 @@ import {
  *
  * const { Paragraph } = CKEditor;
  * const { SlashCommands } = CKEditorPremiumFeatures;
+ * ```
  */
 export default function loadCKEditorCloud<A extends CKExternalPluginsMap>(
 	config: CKEditorCloudConfig<A>
 ): Promise<CKEditorCloudResult<A>> {
-	const { version, languages, withPremiumFeatures, plugins } = config;
+	const {
+		version, languages, plugins,
+		withPremiumFeatures, withCKBox
+	} = config;
 
 	const pack = combineCKCdnBundlesPacks( {
 		CKEditor: createCKCdnBaseBundlePack( {
@@ -48,6 +59,10 @@ export default function loadCKEditorCloud<A extends CKExternalPluginsMap>(
 				version,
 				languages
 			} )
+		},
+
+		...withCKBox && {
+			CKBox: createCKBoxBundlePack( withCKBox )
 		},
 
 		...plugins && {
@@ -81,6 +96,11 @@ export type CKEditorCloudResult<A extends CKExternalPluginsMap = any> = {
 	CKEditorPremiumFeatures?: Window['CKEDITOR_PREMIUM_FEATURES'];
 
 	/**
+	 * The CKBox bundle exports.
+	 */
+	CKBox?: Window['CKBox'];
+
+	/**
 	 * The additional resources exports.
 	 */
 	CKPlugins?: {
@@ -109,6 +129,11 @@ export type CKEditorCloudConfig<A extends CKExternalPluginsMap> = {
 	 * If `true` then the premium features will be loaded.
 	 */
 	withPremiumFeatures?: boolean;
+
+	/**
+	 * CKBox bundle configuration.
+	 */
+	withCKBox?: CKBoxCdnBundlePackConfig;
 
 	/**
 	 * Additional resources to load.

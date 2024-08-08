@@ -3,13 +3,13 @@
  * For licensing, see LICENSE.md.
  */
 
-import type { ClassicEditor, Plugin } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
+import type { ClassicEditor, Plugin, ContextPlugin, EditorConfig } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import type { CKEditorCloudResult } from '../../src/index.js';
 
 type ClassicEditorCreatorConfig = {
 	cloud: CKEditorCloudResult;
-	additionalPlugins?: Array<typeof Plugin>;
-	overrideConfig?: object;
+	additionalPlugins?: Array<typeof Plugin | typeof ContextPlugin>;
+	overrideConfig?: EditorConfig;
 };
 
 export const useCKCdnClassicEditor = ( {
@@ -18,15 +18,12 @@ export const useCKCdnClassicEditor = ( {
 	const {
 		ClassicEditor: ClassicEditorBase,
 		Essentials,
-		CKFinderUploadAdapter,
 		Autoformat,
 		Bold,
 		Italic,
 		BlockQuote,
-		CKBox,
-		CKFinder,
-		CloudServices,
 		EasyImage,
+		CloudServices,
 		Heading,
 		Image,
 		ImageCaption,
@@ -48,14 +45,10 @@ export const useCKCdnClassicEditor = ( {
 	class CustomEditor extends ClassicEditorBase {
 		public static override builtinPlugins = [
 			Essentials,
-			CKFinderUploadAdapter,
 			Autoformat,
 			Bold,
 			Italic,
 			BlockQuote,
-			CKBox,
-			CKFinder,
-			CloudServices,
 			EasyImage,
 			Heading,
 			Image,
@@ -73,6 +66,7 @@ export const useCKCdnClassicEditor = ( {
 			Table,
 			TableToolbar,
 			TextTransformation,
+			CloudServices,
 			...additionalPlugins || []
 		];
 

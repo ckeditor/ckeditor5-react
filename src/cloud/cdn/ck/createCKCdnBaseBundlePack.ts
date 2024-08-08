@@ -4,11 +4,11 @@
  */
 
 import type * as CKEditor from 'ckeditor5';
-import type { CKCdnResourcesPack } from './loadCKCdnResourcesPack';
+import type { CKCdnResourcesPack } from '../loadCKCdnResourcesPack';
 
 import { createCKCdnUrl, type CKCdnVersion } from './createCKCdnUrl';
-import { waitForWindowEntry } from '../../utils/waitForWindowEntry';
-import { injectScriptsInParallel } from '../../utils/injectScript';
+import { waitForWindowEntry } from '../../../utils/waitForWindowEntry';
+import { injectScriptsInParallel } from '../../../utils/injectScript';
 
 /**
  * Type of the exported global variables of the base CKEditor bundle.

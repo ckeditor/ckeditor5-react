@@ -5,12 +5,12 @@
 
 import type * as CKEditorPremiumFeatures from 'ckeditor5-premium-features';
 
-import type { CKCdnResourcesPack } from './loadCKCdnResourcesPack';
+import type { CKCdnResourcesPack } from '../loadCKCdnResourcesPack';
 import type { CKCdnBaseBundlePackConfig } from './createCKCdnBaseBundlePack';
 
 import { createCKCdnUrl } from './createCKCdnUrl';
-import { waitForWindowEntry } from '../../utils/waitForWindowEntry';
-import { injectScriptsInParallel } from '../../utils/injectScript';
+import { waitForWindowEntry } from '../../../utils/waitForWindowEntry';
+import { injectScriptsInParallel } from '../../../utils/injectScript';
 
 /**
  * Type of the exported global variables of the CKEditor Premium Features.

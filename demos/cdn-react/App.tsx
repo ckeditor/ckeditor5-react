@@ -7,6 +7,7 @@ import React, { useState, type ReactNode } from 'react';
 
 import { CKEditorCloudDemo } from './CKEditorCloudDemo';
 import { CKEditorCloudPluginsDemo } from './CKEditorCloudPluginsDemo';
+import { CKEditorCKBoxCloudDemo } from './CKEditorCKBoxCloudDemo';
 
 const EDITOR_CONTENT = `
 	<h2>Sample</h2>
@@ -20,7 +21,7 @@ const EDITOR_CONTENT = `
 	<a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a> works fine.</p>
 `;
 
-const DEMOS = [ 'Editor', 'Cloud Plugins' ] as const;
+const DEMOS = [ 'Editor', 'CKBox', 'Cloud Plugins' ] as const;
 
 type Demo = ( typeof DEMOS )[ number ];
 
@@ -29,6 +30,7 @@ export const App = (): ReactNode => {
 
 	const content = ( {
 		Editor: <CKEditorCloudDemo content={ EDITOR_CONTENT } />,
+		CKBox: <CKEditorCKBoxCloudDemo content={ EDITOR_CONTENT } />,
 		'Cloud Plugins': <CKEditorCloudPluginsDemo content={ EDITOR_CONTENT } />
 	} )[ currentDemo ];
 
