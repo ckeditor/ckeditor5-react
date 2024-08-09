@@ -48,6 +48,9 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 			<CKEditorContext
 				context={ ClassicEditor.Context as any }
 				contextWatchdog={ ClassicEditor.ContextWatchdog as any }
+				onTrackInitializedEditors={ editors => {
+					console.log( 'Editors:', editors );
+				}}
 			>
 				<div className="buttons">
 					<button
@@ -59,6 +62,7 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 				</div>
 
 				<CKEditor
+					id='abc'
 					editor={ ClassicEditor as any }
 					data={ props.content }
 					onReady={ ( editor: any ) => {
