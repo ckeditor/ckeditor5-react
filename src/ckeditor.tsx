@@ -27,7 +27,7 @@ import {
 	ContextWatchdogContext,
 	isContextWatchdogInitializing,
 	isContextWatchdogReadyToUse
-} from './ckeditorcontext';
+} from './context/ckeditorcontext';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
