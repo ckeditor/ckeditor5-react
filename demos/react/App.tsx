@@ -11,14 +11,17 @@ type Demo = 'editor' | 'context';
 
 const editorContent = `
 	<h2>Sample</h2>
-	<p>This is an instance of the <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/overview.html#classic-editor">
+	<p>This is an instance of the <a href="https://ckeditor.com/docs/ckeditor5/latest/examples/builds/classic-editor.html">
 	classic editor build</a>.
 	</p>
 	<figure class="image">
 		<img src="/demos/sample.jpg" alt="CKEditor 5 Sample image." />
 	</figure>
-	<p>You can use this sample to validate whether your
-	<a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a> works fine.</p>
+	<p>
+		You can use
+		<a href="https://ckeditor.com/ckeditor-5/builder/">CKEditor Builder</a>
+		to create a custom build with your favorite features.
+	</p>
 `;
 
 export default function App(): JSX.Element {

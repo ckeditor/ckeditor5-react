@@ -22,6 +22,7 @@ import {
 	ImageToolbar,
 	ImageUpload,
 	Indent,
+	IndentBlock,
 	Link,
 	List,
 	MediaEmbed,
@@ -30,7 +31,8 @@ import {
 	PictureEditing,
 	Table,
 	TableToolbar,
-	TextTransformation
+	TextTransformation,
+	Base64UploadAdapter
 } from 'ckeditor5';
 
 import 'ckeditor5/ckeditor5.css';
@@ -54,6 +56,7 @@ export default class ClassicEditor extends ClassicEditorBase {
 		ImageToolbar,
 		ImageUpload,
 		Indent,
+		IndentBlock,
 		Link,
 		List,
 		MediaEmbed,
@@ -62,7 +65,8 @@ export default class ClassicEditor extends ClassicEditorBase {
 		PictureEditing,
 		Table,
 		TableToolbar,
-		TextTransformation
+		TextTransformation,
+		Base64UploadAdapter
 	];
 
 	public static override defaultConfig = {
