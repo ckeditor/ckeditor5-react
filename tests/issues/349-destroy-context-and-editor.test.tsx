@@ -11,7 +11,7 @@ import { createRoot } from 'react-dom/client';
 import { Context, ContextWatchdog } from 'ckeditor5';
 
 import CKEditor from '../../src/ckeditor.tsx';
-import CKEditorContext from '../../src/ckeditorcontext.tsx';
+import CKEditorContext from '../../src/context/ckeditorcontext.tsx';
 
 import { TestClassicEditor } from '../_utils/classiceditor.js';
 
