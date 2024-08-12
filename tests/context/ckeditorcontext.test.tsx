@@ -481,6 +481,29 @@ describe( '<CKEditorContext> Component', () => {
 					expect( editors ).to.have.property( 'editor2' );
 				} );
 			} );
+
+			it( 'should track only initialized editors', async () => {
+				const onTrackInitializedEditorsSpy = vi.fn().mockImplementation( ( editors: any ) => {
+					expect( editors.editor1.state ).to.be.equal( 'ready' );
+				} );
+
+				component = render(
+					<CKEditorContext
+						context={ ClassicEditor.Context }
+						contextWatchdog={ ClassicEditor.ContextWatchdog }
+						onTrackInitializedEditors={ onTrackInitializedEditorsSpy }
+					>
+						<CKEditor
+							editor={ ClassicEditor }
+							context={ { editorName: 'editor1' } }
+						/>
+					</CKEditorContext>
+				);
+
+				await waitFor( () => {
+					expect( onTrackInitializedEditorsSpy ).toHaveBeenCalledOnce();
+				} );
+			} );
 		} );
 	} );
 
