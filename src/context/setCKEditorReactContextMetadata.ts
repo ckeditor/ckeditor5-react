@@ -46,4 +46,9 @@ export type CKEditorConfigContextMetadata = {
 	 * to track the editor initialization and destruction events.
 	 */
 	editorName: string;
+
+	/**
+	 * Any additional metadata that can be stored in the context.
+	 */
+	[x: string | number | symbol]: unknown;
 };

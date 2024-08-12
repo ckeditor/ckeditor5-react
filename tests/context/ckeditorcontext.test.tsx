@@ -374,16 +374,16 @@ describe( '<CKEditorContext> Component', () => {
 			} );
 		} );
 
-		describe( '#onTrackInitializedEditors', () => {
+		describe( '#onChangeEditorsMap', () => {
 			it( 'should call the callback once in strict mode', async () => {
-				const onTrackInitializedEditorsSpy = vi.fn();
+				const onChangeEditorsMapSpy = vi.fn();
 
 				component = render(
 					<StrictMode>
 						<CKEditorContext
 							context={ ClassicEditor.Context }
 							contextWatchdog={ ClassicEditor.ContextWatchdog }
-							onTrackInitializedEditors={ onTrackInitializedEditorsSpy }
+							onChangeEditorsMap={ onChangeEditorsMapSpy }
 						>
 							<CKEditor editor={ ClassicEditor } />
 						</CKEditorContext>
@@ -392,32 +392,32 @@ describe( '<CKEditorContext> Component', () => {
 
 				await timeout( 200 );
 				await waitFor( () => {
-					expect( onTrackInitializedEditorsSpy ).toHaveBeenCalledOnce();
+					expect( onChangeEditorsMapSpy ).toHaveBeenCalledOnce();
 				} );
 			} );
 
 			it( 'should use editor uuid as key in the editors map', async () => {
-				const onTrackInitializedEditorsSpy = vi.fn();
+				const onChangeEditorsMapSpy = vi.fn();
 
 				component = render(
 					<CKEditorContext
 						context={ ClassicEditor.Context }
 						contextWatchdog={ ClassicEditor.ContextWatchdog }
-						onTrackInitializedEditors={ onTrackInitializedEditorsSpy }
+						onChangeEditorsMap={ onChangeEditorsMapSpy }
 					>
 						<CKEditor editor={ ClassicEditor } />
 					</CKEditorContext>
 				);
 
 				await waitFor( () => {
-					expect( onTrackInitializedEditorsSpy ).toHaveBeenCalledOnce();
+					expect( onChangeEditorsMapSpy ).toHaveBeenCalledOnce();
 
-					const [ editors, watchdog ] = onTrackInitializedEditorsSpy.mock.lastCall!;
+					const [ editors, watchdog ] = onChangeEditorsMapSpy.mock.lastCall!;
 					const [ editorId ] = Object.keys( editors );
 
 					// Ensure that the editor UUID is returned.
 					expect( editorId ).to.have.length( 33 );
-					expect( editors[ editorId ] ).to.be.instanceOf( ClassicEditor );
+					expect( editors[ editorId ].instance ).to.be.instanceOf( ClassicEditor );
 
 					// Expect that watchdog is an instance of the ContextWatchdog.
 					expect( watchdog ).to.be.instanceOf( ClassicEditor.ContextWatchdog );
@@ -425,13 +425,13 @@ describe( '<CKEditorContext> Component', () => {
 			} );
 
 			it( 'should use editorName property passed to the CKEditor component as key in the editors map', async () => {
-				const onTrackInitializedEditorsSpy = vi.fn();
+				const onChangeEditorsMapSpy = vi.fn();
 
 				component = render(
 					<CKEditorContext
 						context={ ClassicEditor.Context }
 						contextWatchdog={ ClassicEditor.ContextWatchdog }
-						onTrackInitializedEditors={ onTrackInitializedEditorsSpy }
+						onChangeEditorsMap={ onChangeEditorsMapSpy }
 					>
 						<CKEditor
 							editor={ ClassicEditor }
@@ -441,24 +441,24 @@ describe( '<CKEditorContext> Component', () => {
 				);
 
 				await waitFor( () => {
-					expect( onTrackInitializedEditorsSpy ).toHaveBeenCalledOnce();
+					expect( onChangeEditorsMapSpy ).toHaveBeenCalledOnce();
 
-					const [ editors ] = onTrackInitializedEditorsSpy.mock.lastCall!;
+					const [ editors ] = onChangeEditorsMapSpy.mock.lastCall!;
 					const editorId = 'my-editor';
 
 					expect( editors ).to.have.property( editorId );
-					expect( editors[ editorId ] ).to.be.instanceOf( ClassicEditor );
+					expect( editors[ editorId ].instance ).to.be.instanceOf( ClassicEditor );
 				} );
 			} );
 
 			it( 'should initialized multiple editors and track them', async () => {
-				const onTrackInitializedEditorsSpy = vi.fn();
+				const onChangeEditorsMapSpy = vi.fn();
 
 				component = render(
 					<CKEditorContext
 						context={ ClassicEditor.Context }
 						contextWatchdog={ ClassicEditor.ContextWatchdog }
-						onTrackInitializedEditors={ onTrackInitializedEditorsSpy }
+						onChangeEditorsMap={ onChangeEditorsMapSpy }
 					>
 						<CKEditor
 							editor={ ClassicEditor }
@@ -472,9 +472,9 @@ describe( '<CKEditorContext> Component', () => {
 				);
 
 				await waitFor( () => {
-					expect( onTrackInitializedEditorsSpy ).toHaveBeenCalledTimes( 2 );
+					expect( onChangeEditorsMapSpy ).toHaveBeenCalledTimes( 2 );
 
-					const [ editors ] = onTrackInitializedEditorsSpy.mock.lastCall!;
+					const [ editors ] = onChangeEditorsMapSpy.mock.lastCall!;
 
 					expect( Object.keys( editors ) ).to.have.length( 2 );
 					expect( editors ).to.have.property( 'editor1' );
@@ -482,16 +482,48 @@ describe( '<CKEditorContext> Component', () => {
 				} );
 			} );
 
+			it( 'should be possible to forward metadata to the editors map', async () => {
+				const onChangeEditorsMapSpy = vi.fn();
+
+				component = render(
+					<CKEditorContext
+						context={ ClassicEditor.Context }
+						contextWatchdog={ ClassicEditor.ContextWatchdog }
+						onChangeEditorsMap={ onChangeEditorsMapSpy }
+					>
+						<CKEditor
+							editor={ ClassicEditor }
+							context={ {
+								editorName: 'editor1',
+								stuff: 2
+							} }
+						/>
+					</CKEditorContext>
+				);
+
+				await waitFor( () => {
+					expect( onChangeEditorsMapSpy ).toHaveBeenCalledOnce();
+
+					const [ editors ] = onChangeEditorsMapSpy.mock.lastCall!;
+					const editorId = 'editor1';
+
+					expect( editors[ editorId ].metadata ).to.deep.equal( {
+						editorName: 'editor1',
+						stuff: 2
+					} );
+				} );
+			} );
+
 			it( 'should track only initialized editors', async () => {
-				const onTrackInitializedEditorsSpy = vi.fn().mockImplementation( ( editors: any ) => {
-					expect( editors.editor1.state ).to.be.equal( 'ready' );
+				const onChangeEditorsMapSpy = vi.fn().mockImplementation( ( editors: any ) => {
+					expect( editors.editor1.instance.state ).to.be.equal( 'ready' );
 				} );
 
 				component = render(
 					<CKEditorContext
 						context={ ClassicEditor.Context }
 						contextWatchdog={ ClassicEditor.ContextWatchdog }
-						onTrackInitializedEditors={ onTrackInitializedEditorsSpy }
+						onChangeEditorsMap={ onChangeEditorsMapSpy }
 					>
 						<CKEditor
 							editor={ ClassicEditor }
@@ -501,7 +533,7 @@ describe( '<CKEditorContext> Component', () => {
 				);
 
 				await waitFor( () => {
-					expect( onTrackInitializedEditorsSpy ).toHaveBeenCalledOnce();
+					expect( onChangeEditorsMapSpy ).toHaveBeenCalledOnce();
 				} );
 			} );
 		} );

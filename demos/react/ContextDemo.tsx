@@ -19,7 +19,7 @@ type ContextDemoProps = {
 };
 
 export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
-	const [ state, setState ] = useState<Record<string, ClassicEditor>>( {} );
+	const [ state, setState ] = useState<Record<string, { editor: ClassicEditor }>>( {} );
 
 	const simulateError = ( editor: ClassicEditor ) => {
 		setTimeout( () => {
@@ -40,13 +40,13 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 			<CKEditorContext
 				context={ ClassicEditor.Context as any }
 				contextWatchdog={ ClassicEditor.ContextWatchdog as any }
-				onTrackInitializedEditors={ editors => {
-					setState( editors as Record<string, ClassicEditor> );
+				onChangeEditorsMap={ editors => {
+					setState( editors as any );
 				} }
 			>
 				<div className="buttons">
 					<button
-						onClick={ () => simulateError( state.editor1! ) }
+						onClick={ () => simulateError( state.editor1!.editor ) }
 						disabled={ !state.editor1 }
 					>
 						Simulate an error in the first editor
@@ -63,7 +63,7 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 
 				<div className="buttons">
 					<button
-						onClick={ () => simulateError( state.editor2! ) }
+						onClick={ () => simulateError( state.editor2!.editor ) }
 						disabled={ !state.editor2 }
 					>
 						Simulate an error in the second editor
