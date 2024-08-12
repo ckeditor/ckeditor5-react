@@ -301,10 +301,10 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * @param config CKEditor 5 editor configuration.
 	 */
 	private _createEditor( element: HTMLElement | string | Record<string, string>, config: EditorConfig ): Promise<TEditor> {
-		const { context } = this.props;
+		const { contextItemMetadata } = this.props;
 
-		if ( context ) {
-			config = withCKEditorReactContextMetadata( context, config );
+		if ( contextItemMetadata ) {
+			config = withCKEditorReactContextMetadata( contextItemMetadata, config );
 		}
 
 		return this.props.editor.create( element as HTMLElement, config )
@@ -452,7 +452,7 @@ export interface Props<TEditor extends Editor> extends InferProps<typeof CKEdito
 		EditorWatchdog: typeof EditorWatchdog;
 		ContextWatchdog: typeof ContextWatchdog;
 	};
-	context?: CKEditorConfigContextMetadata;
+	contextItemMetadata?: CKEditorConfigContextMetadata;
 	config?: EditorConfig;
 	watchdogConfig?: WatchdogConfig;
 	disableWatchdog?: boolean;

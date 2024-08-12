@@ -435,7 +435,7 @@ describe( '<CKEditorContext> Component', () => {
 					>
 						<CKEditor
 							editor={ ClassicEditor }
-							context={ { editorName: 'my-editor' } }
+							contextItemMetadata={ { name: 'my-editor' } }
 						/>
 					</CKEditorContext>
 				);
@@ -462,11 +462,11 @@ describe( '<CKEditorContext> Component', () => {
 					>
 						<CKEditor
 							editor={ ClassicEditor }
-							context={ { editorName: 'editor1' } }
+							contextItemMetadata={ { name: 'editor1' } }
 						/>
 						<CKEditor
 							editor={ ClassicEditor }
-							context={ { editorName: 'editor2' } }
+							contextItemMetadata={ { name: 'editor2' } }
 						/>
 					</CKEditorContext>
 				);
@@ -493,8 +493,8 @@ describe( '<CKEditorContext> Component', () => {
 					>
 						<CKEditor
 							editor={ ClassicEditor }
-							context={ {
-								editorName: 'editor1',
+							contextItemMetadata={ {
+								name: 'editor1',
 								stuff: 2
 							} }
 						/>
@@ -508,7 +508,7 @@ describe( '<CKEditorContext> Component', () => {
 					const editorId = 'editor1';
 
 					expect( editors[ editorId ].metadata ).to.deep.equal( {
-						editorName: 'editor1',
+						name: 'editor1',
 						stuff: 2
 					} );
 				} );
@@ -527,7 +527,9 @@ describe( '<CKEditorContext> Component', () => {
 					>
 						<CKEditor
 							editor={ ClassicEditor }
-							context={ { editorName: 'editor1' } }
+							contextItemMetadata={ {
+								name: 'editor1'
+							} }
 						/>
 					</CKEditorContext>
 				);

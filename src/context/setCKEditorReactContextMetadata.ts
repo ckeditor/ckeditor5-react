@@ -45,7 +45,7 @@ export type CKEditorConfigContextMetadata = {
 	 * The name of the editor in the React context. It'll be later used in the `useInitializedCKEditorsMap` hook
 	 * to track the editor initialization and destruction events.
 	 */
-	editorName: string;
+	name: string;
 
 	/**
 	 * Any additional metadata that can be stored in the context.
