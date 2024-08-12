@@ -59,7 +59,7 @@ export const useInitializedCKEditorsMap = <TContext extends Context>(
 				}
 
 				const metadata = tryExtractCKEditorReactContextMetadata( editor.config );
-				const nameOrId = metadata ? metadata.editorName : editor.id;
+				const nameOrId = metadata?.editorName ?? editor.id;
 
 				map[ nameOrId ] = {
 					instance: editor,
