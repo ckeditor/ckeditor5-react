@@ -6,8 +6,10 @@
 import { useEffect } from 'react';
 import { useRefSafeCallback } from '../hooks/useRefSafeCallback';
 
-import type { CollectionAddEvent, Context, Editor } from 'ckeditor5';
+import type { CollectionAddEvent, Context, ContextWatchdog, Editor } from 'ckeditor5';
 import type { ContextWatchdogValue } from './ckeditorcontext';
+
+import { tryExtractCKEditorReactContextMetadata } from './setCKEditorReactContextMetadata';
 
 /**
  * A hook that listens for the editor initialization and destruction events and updates the editors map.
@@ -47,22 +49,27 @@ export const useInitializedCKEditorsMap = <TContext extends Context>(
 		}
 
 		// Get the initialized editors from
-		const getInitializedContextEditors = () => [ ...editors ].reduce(
+		const getInitializedContextEditors = () => [ ...editors ].reduce<InitializedEditorsMap>(
 			( map, editor ) => {
-				if ( editor.state === 'ready' ) {
-					map.set( editor.id, editor );
+				if ( editor.state !== 'ready' ) {
+					return map;
 				}
+
+				const maybeMetadata = tryExtractCKEditorReactContextMetadata( editor.config );
+				const nameOrId = maybeMetadata ? maybeMetadata.editorName : editor.id;
+
+				map[ nameOrId ] = editor;
 
 				return map;
 			},
-			new Map<string, Editor>()
+			Object.create( {} ) // Prevent the prototype pollution.
 		);
 
 		// The function that is called when the editor status changes.
 		const onEditorStatusChange = () => {
 			onTrackInitializedEditorsSafe(
 				getInitializedContextEditors(),
-				watchdog.context! as TContext
+				watchdog
 			);
 		};
 
@@ -83,7 +90,7 @@ export const useInitializedCKEditorsMap = <TContext extends Context>(
 /**
  * A map of initialized editors.
  */
-type InitializedEditorsMap = Map<string, Editor>;
+type InitializedEditorsMap = Record<string, Editor>;
 
 /**
  * The configuration of the `useInitializedCKEditorsMap` hook.
@@ -93,10 +100,10 @@ export type InitializedContextEditorsConfig<TContext extends Context> = {
 	/**
 	 * The current context watchdog value.
 	 */
-	currentContextWatchdog: ContextWatchdogValue;
+	currentContextWatchdog: ContextWatchdogValue<TContext>;
 
 	/**
 	 * The callback called when the editors map changes.
 	 */
-	onTrackInitializedEditors?: ( editors: InitializedEditorsMap, context: TContext ) => void;
+	onTrackInitializedEditors?: ( editors: InitializedEditorsMap, watchdog: ContextWatchdog<TContext> ) => void;
 };

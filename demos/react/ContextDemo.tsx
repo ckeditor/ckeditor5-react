@@ -18,16 +18,8 @@ type ContextDemoProps = {
 	content: string;
 };
 
-type ContextDemoState = {
-	editor1: ClassicEditor | null;
-	editor2: ClassicEditor | null;
-};
-
 export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
-	const [ state, setState ] = useState<ContextDemoState>( {
-		editor1: null,
-		editor2: null
-	} );
+	const [ state, setState ] = useState<Record<string, ClassicEditor>>( {} );
 
 	const simulateError = ( editor: ClassicEditor ) => {
 		setTimeout( () => {
@@ -49,8 +41,8 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 				context={ ClassicEditor.Context as any }
 				contextWatchdog={ ClassicEditor.ContextWatchdog as any }
 				onTrackInitializedEditors={ editors => {
-					console.log( 'Editors:', editors );
-				}}
+					setState( editors as Record<string, ClassicEditor> );
+				} }
 			>
 				<div className="buttons">
 					<button
@@ -62,14 +54,11 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 				</div>
 
 				<CKEditor
-					id='abc'
+					context={{
+						editorName: 'editor1'
+					}}
 					editor={ ClassicEditor as any }
 					data={ props.content }
-					onReady={ ( editor: any ) => {
-						window.editor2 = editor;
-
-						setState( prevState => ( { ...prevState, editor1: editor } ) );
-					} }
 				/>
 
 				<div className="buttons">
@@ -82,13 +71,11 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 				</div>
 
 				<CKEditor
+					context={{
+						editorName: 'editor2'
+					}}
 					editor={ ClassicEditor as any }
 					data="<h2>Another Editor</h2><p>... in common Context</p>"
-					onReady={ ( editor: any ) => {
-						window.editor1 = editor;
-
-						setState( prevState => ( { ...prevState, editor2: editor } ) );
-					} }
 				/>
 			</CKEditorContext>
 		</>

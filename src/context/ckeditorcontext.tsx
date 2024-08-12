@@ -49,7 +49,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 
 	// The currentContextWatchdog state is set to 'initializing' because it is checked later in the CKEditor component
 	// which is waiting for the full initialization of the context watchdog.
-	const [ currentContextWatchdog, setCurrentContextWatchdog ] = useState<ContextWatchdogValue>( {
+	const [ currentContextWatchdog, setCurrentContextWatchdog ] = useState<ContextWatchdogValue<TContext>>( {
 		status: 'initializing'
 	} );
 
@@ -208,19 +208,22 @@ export const isContextWatchdogReadyToUse = ( obj: any ): obj is ExtractContextWa
 /**
  * Represents the value of the ContextWatchdog in the CKEditor context.
  */
-export type ContextWatchdogValue =
+export type ContextWatchdogValue<TContext extends Context = Context> =
 	| {
 		status: 'initializing';
 	}
 	| {
 		status: 'initialized';
-		watchdog: ContextWatchdog;
+		watchdog: ContextWatchdog<TContext>;
 	}
 	| {
 		status: 'error';
 		error: ErrorDetails;
 	};
 
+/**
+ * Represents the status of the ContextWatchdogValue.
+ */
 export type ContextWatchdogValueStatus = ContextWatchdogValue[ 'status' ];
 
 /**
