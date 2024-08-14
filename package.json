@@ -73,7 +73,8 @@
   "resolutions": {
     "wrap-ansi": "7.0.0",
     "string-width": "4.1.0",
-    "semver": "^7.0.0"
+    "semver": "^7.0.0",
+    "ws":  "^8"
   },
   "engines": {
     "node": ">=18.0.0"
