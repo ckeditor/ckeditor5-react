@@ -40,7 +40,7 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 			<CKEditorContext
 				context={ ClassicEditor.Context as any }
 				contextWatchdog={ ClassicEditor.ContextWatchdog as any }
-				onChangeEditorsMap={ editors => {
+				onWatchInitializedEditors={ editors => {
 					setState( editors as any );
 				} }
 			>

@@ -374,16 +374,16 @@ describe( '<CKEditorContext> Component', () => {
 			} );
 		} );
 
-		describe( '#onChangeEditorsMap', () => {
+		describe( '#onWatchInitializedEditors', () => {
 			it( 'should call the callback once in strict mode', async () => {
-				const onChangeEditorsMapSpy = vi.fn();
+				const onWatchInitializedEditorsSpy = vi.fn();
 
 				component = render(
 					<StrictMode>
 						<CKEditorContext
 							context={ ClassicEditor.Context }
 							contextWatchdog={ ClassicEditor.ContextWatchdog }
-							onChangeEditorsMap={ onChangeEditorsMapSpy }
+							onWatchInitializedEditors={ onWatchInitializedEditorsSpy }
 						>
 							<CKEditor editor={ ClassicEditor } />
 						</CKEditorContext>
@@ -392,27 +392,27 @@ describe( '<CKEditorContext> Component', () => {
 
 				await timeout( 200 );
 				await waitFor( () => {
-					expect( onChangeEditorsMapSpy ).toHaveBeenCalledOnce();
+					expect( onWatchInitializedEditorsSpy ).toHaveBeenCalledOnce();
 				} );
 			} );
 
 			it( 'should use editor uuid as key in the editors map', async () => {
-				const onChangeEditorsMapSpy = vi.fn();
+				const onWatchInitializedEditorsSpy = vi.fn();
 
 				component = render(
 					<CKEditorContext
 						context={ ClassicEditor.Context }
 						contextWatchdog={ ClassicEditor.ContextWatchdog }
-						onChangeEditorsMap={ onChangeEditorsMapSpy }
+						onWatchInitializedEditors={ onWatchInitializedEditorsSpy }
 					>
 						<CKEditor editor={ ClassicEditor } />
 					</CKEditorContext>
 				);
 
 				await waitFor( () => {
-					expect( onChangeEditorsMapSpy ).toHaveBeenCalledOnce();
+					expect( onWatchInitializedEditorsSpy ).toHaveBeenCalledOnce();
 
-					const [ editors, watchdog ] = onChangeEditorsMapSpy.mock.lastCall!;
+					const [ editors, watchdog ] = onWatchInitializedEditorsSpy.mock.lastCall!;
 					const [ editorId ] = Object.keys( editors );
 
 					// Ensure that the editor UUID is returned.
@@ -425,13 +425,13 @@ describe( '<CKEditorContext> Component', () => {
 			} );
 
 			it( 'should use editorName property passed to the CKEditor component as key in the editors map', async () => {
-				const onChangeEditorsMapSpy = vi.fn();
+				const onWatchInitializedEditorsSpy = vi.fn();
 
 				component = render(
 					<CKEditorContext
 						context={ ClassicEditor.Context }
 						contextWatchdog={ ClassicEditor.ContextWatchdog }
-						onChangeEditorsMap={ onChangeEditorsMapSpy }
+						onWatchInitializedEditors={ onWatchInitializedEditorsSpy }
 					>
 						<CKEditor
 							editor={ ClassicEditor }
@@ -441,9 +441,9 @@ describe( '<CKEditorContext> Component', () => {
 				);
 
 				await waitFor( () => {
-					expect( onChangeEditorsMapSpy ).toHaveBeenCalledOnce();
+					expect( onWatchInitializedEditorsSpy ).toHaveBeenCalledOnce();
 
-					const [ editors ] = onChangeEditorsMapSpy.mock.lastCall!;
+					const [ editors ] = onWatchInitializedEditorsSpy.mock.lastCall!;
 					const editorId = 'my-editor';
 
 					expect( editors ).to.have.property( editorId );
@@ -452,13 +452,13 @@ describe( '<CKEditorContext> Component', () => {
 			} );
 
 			it( 'should initialized multiple editors and track them', async () => {
-				const onChangeEditorsMapSpy = vi.fn();
+				const onWatchInitializedEditorsSpy = vi.fn();
 
 				component = render(
 					<CKEditorContext
 						context={ ClassicEditor.Context }
 						contextWatchdog={ ClassicEditor.ContextWatchdog }
-						onChangeEditorsMap={ onChangeEditorsMapSpy }
+						onWatchInitializedEditors={ onWatchInitializedEditorsSpy }
 					>
 						<CKEditor
 							editor={ ClassicEditor }
@@ -472,9 +472,9 @@ describe( '<CKEditorContext> Component', () => {
 				);
 
 				await waitFor( () => {
-					expect( onChangeEditorsMapSpy ).toHaveBeenCalledTimes( 2 );
+					expect( onWatchInitializedEditorsSpy ).toHaveBeenCalledTimes( 2 );
 
-					const [ editors ] = onChangeEditorsMapSpy.mock.lastCall!;
+					const [ editors ] = onWatchInitializedEditorsSpy.mock.lastCall!;
 
 					expect( Object.keys( editors ) ).to.have.length( 2 );
 					expect( editors ).to.have.property( 'editor1' );
@@ -483,13 +483,13 @@ describe( '<CKEditorContext> Component', () => {
 			} );
 
 			it( 'should be possible to forward metadata to the editors map', async () => {
-				const onChangeEditorsMapSpy = vi.fn();
+				const onWatchInitializedEditorsSpy = vi.fn();
 
 				component = render(
 					<CKEditorContext
 						context={ ClassicEditor.Context }
 						contextWatchdog={ ClassicEditor.ContextWatchdog }
-						onChangeEditorsMap={ onChangeEditorsMapSpy }
+						onWatchInitializedEditors={ onWatchInitializedEditorsSpy }
 					>
 						<CKEditor
 							editor={ ClassicEditor }
@@ -502,9 +502,9 @@ describe( '<CKEditorContext> Component', () => {
 				);
 
 				await waitFor( () => {
-					expect( onChangeEditorsMapSpy ).toHaveBeenCalledOnce();
+					expect( onWatchInitializedEditorsSpy ).toHaveBeenCalledOnce();
 
-					const [ editors ] = onChangeEditorsMapSpy.mock.lastCall!;
+					const [ editors ] = onWatchInitializedEditorsSpy.mock.lastCall!;
 					const editorId = 'editor1';
 
 					expect( editors[ editorId ].metadata ).to.deep.equal( {
@@ -515,7 +515,7 @@ describe( '<CKEditorContext> Component', () => {
 			} );
 
 			it( 'should track only initialized editors', async () => {
-				const onChangeEditorsMapSpy = vi.fn().mockImplementation( ( editors: any ) => {
+				const onWatchInitializedEditorsSpy = vi.fn().mockImplementation( ( editors: any ) => {
 					expect( editors.editor1.instance.state ).to.be.equal( 'ready' );
 				} );
 
@@ -523,7 +523,7 @@ describe( '<CKEditorContext> Component', () => {
 					<CKEditorContext
 						context={ ClassicEditor.Context }
 						contextWatchdog={ ClassicEditor.ContextWatchdog }
-						onChangeEditorsMap={ onChangeEditorsMapSpy }
+						onWatchInitializedEditors={ onWatchInitializedEditorsSpy }
 					>
 						<CKEditor
 							editor={ ClassicEditor }
@@ -535,7 +535,7 @@ describe( '<CKEditorContext> Component', () => {
 				);
 
 				await waitFor( () => {
-					expect( onChangeEditorsMapSpy ).toHaveBeenCalledOnce();
+					expect( onWatchInitializedEditorsSpy ).toHaveBeenCalledOnce();
 				} );
 			} );
 		} );

@@ -19,12 +19,12 @@ import {
  *
  * @param config The configuration of the hook.
  * @param config.currentContextWatchdog The current context watchdog value.
- * @param config.onChangeEditorsMap The function that updates the editors map.
+ * @param config.onWatchInitializedEditors The function that updates the editors map.
  * @example
  * ```ts
  * useInitializedCKEditorsMap( {
  * 	currentContextWatchdog,
- * 	onChangeEditorsMap: ( editors, context ) => {
+ * 	onWatchInitializedEditors: ( editors, context ) => {
  * 		console.log( 'Editors:', editors );
  * 	}
  * } );
@@ -33,11 +33,11 @@ import {
 export const useInitializedCKEditorsMap = <TContext extends Context>(
 	{
 		currentContextWatchdog,
-		onChangeEditorsMap
+		onWatchInitializedEditors
 	}: InitializedContextEditorsConfig<TContext>
 ): void => {
 	// We need to use the safe callback to prevent the stale closure problem.
-	const onChangeEditorsMapSafe = useRefSafeCallback( onChangeEditorsMap || ( () => {} ) );
+	const onWatchInitializedEditorsSafe = useRefSafeCallback( onWatchInitializedEditors || ( () => {} ) );
 
 	useEffect( () => {
 		if ( currentContextWatchdog.status !== 'initialized' ) {
@@ -73,7 +73,7 @@ export const useInitializedCKEditorsMap = <TContext extends Context>(
 
 		// The function that is called when the editor status changes.
 		const onEditorStatusChange = () => {
-			onChangeEditorsMapSafe(
+			onWatchInitializedEditorsSafe(
 				getInitializedContextEditors(),
 				watchdog
 			);
@@ -114,5 +114,8 @@ export type InitializedContextEditorsConfig<TContext extends Context> = {
 	/**
 	 * The callback called when the editors map changes.
 	 */
-	onChangeEditorsMap?: ( editors: InitializedEditorsMap, watchdog: ContextWatchdog<TContext> ) => void;
+	onWatchInitializedEditors?: (
+		editors: InitializedEditorsMap,
+		watchdog: ContextWatchdog<TContext>
+	) => void;
 };

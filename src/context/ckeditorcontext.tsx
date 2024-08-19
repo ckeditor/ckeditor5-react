@@ -40,7 +40,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		children, config, onReady,
 		contextWatchdog: ContextWatchdogConstructor,
 		isLayoutReady = true,
-		onChangeEditorsMap,
+		onWatchInitializedEditors,
 		onError = ( error, details ) => console.error( error, details )
 	} = props;
 
@@ -71,10 +71,10 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		}
 	}, [ currentContextWatchdog ] );
 
-	// Listen for the editor initialization and destruction events and call the onChangeEditorsMap function.
+	// Listen for the editor initialization and destruction events and call the onWatchInitializedEditors function.
 	useInitializedCKEditorsMap( {
 		currentContextWatchdog,
-		onChangeEditorsMap
+		onWatchInitializedEditors
 	} );
 
 	/**
@@ -239,7 +239,7 @@ export type ExtractContextWatchdogValueByStatus<S extends ContextWatchdogValueSt
  */
 export type Props<TContext extends Context> =
 	& PropsWithChildren
-	& Pick<InitializedContextEditorsConfig<TContext>, 'onChangeEditorsMap'>
+	& Pick<InitializedContextEditorsConfig<TContext>, 'onWatchInitializedEditors'>
 	& {
 		id?: string;
 		isLayoutReady?: boolean;
