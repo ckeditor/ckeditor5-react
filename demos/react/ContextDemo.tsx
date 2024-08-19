@@ -40,7 +40,7 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 			<CKEditorContext
 				context={ ClassicEditor.Context as any }
 				contextWatchdog={ ClassicEditor.ContextWatchdog as any }
-				onWatchInitializedEditors={ editors => {
+				onChangeInitializedEditors={ editors => {
 					setState( editors as any );
 				} }
 			>
@@ -54,7 +54,7 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 				</div>
 
 				<CKEditor
-					context={{
+					contextItemMetadata={{
 						editorName: 'editor1'
 					}}
 					editor={ ClassicEditor as any }
@@ -71,7 +71,7 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 				</div>
 
 				<CKEditor
-					context={{
+					contextItemMetadata={{
 						editorName: 'editor2'
 					}}
 					editor={ ClassicEditor as any }
