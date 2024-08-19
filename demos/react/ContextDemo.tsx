@@ -19,7 +19,7 @@ type ContextDemoProps = {
 };
 
 export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
-	const [ state, setState ] = useState<Record<string, { editor: ClassicEditor }>>( {} );
+	const [ state, setState ] = useState<Record<string, { instance: ClassicEditor }>>( {} );
 
 	const simulateError = ( editor: ClassicEditor ) => {
 		setTimeout( () => {
@@ -46,7 +46,7 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 			>
 				<div className="buttons">
 					<button
-						onClick={ () => simulateError( state.editor1!.editor ) }
+						onClick={ () => simulateError( state.editor1!.instance ) }
 						disabled={ !state.editor1 }
 					>
 						Simulate an error in the first editor
@@ -55,7 +55,7 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 
 				<CKEditor
 					contextItemMetadata={{
-						editorName: 'editor1'
+						name: 'editor1'
 					}}
 					editor={ ClassicEditor as any }
 					data={ props.content }
@@ -63,7 +63,7 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 
 				<div className="buttons">
 					<button
-						onClick={ () => simulateError( state.editor2!.editor ) }
+						onClick={ () => simulateError( state.editor2!.instance ) }
 						disabled={ !state.editor2 }
 					>
 						Simulate an error in the second editor
@@ -72,7 +72,7 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 
 				<CKEditor
 					contextItemMetadata={{
-						editorName: 'editor2'
+						name: 'editor2'
 					}}
 					editor={ ClassicEditor as any }
 					data="<h2>Another Editor</h2><p>... in common Context</p>"
