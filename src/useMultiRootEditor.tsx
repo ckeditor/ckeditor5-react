@@ -21,7 +21,7 @@ import type {
 	EventInfo
 } from 'ckeditor5';
 
-import { ContextWatchdogContext, isContextWatchdogReadyToUse } from './ckeditorcontext';
+import { ContextWatchdogContext, isContextWatchdogReadyToUse } from './context/ckeditorcontext';
 import { EditorWatchdogAdapter } from './ckeditor';
 
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';

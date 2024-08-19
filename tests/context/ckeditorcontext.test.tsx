@@ -4,22 +4,22 @@
  */
 
 import { describe, afterEach, it, expect, vi } from 'vitest';
-import React, { createRef } from 'react';
+import React, { createRef, StrictMode } from 'react';
 import { render, waitFor, type RenderResult } from '@testing-library/react';
 import CKEditorContext, {
 	useCKEditorWatchdogContext,
 	type Props,
 	type ContextWatchdogValue,
 	type ExtractContextWatchdogValueByStatus
-} from '../src/ckeditorcontext.tsx';
+} from '../../src/context/ckeditorcontext.tsx';
 
-import CKEditor from '../src/ckeditor.tsx';
-import MockedEditor from './_utils/editor.js';
-import { ContextWatchdog, CKEditorError } from 'ckeditor5';
-import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
-import ContextMock, { DeferredContextMock } from './_utils/context.js';
-import { timeout } from './_utils/timeout.js';
-import { PromiseManager } from './_utils/promisemanager.js';
+import CKEditor from '../../src/ckeditor.tsx';
+import MockedEditor from '../_utils/editor.js';
+import { ClassicEditor, ContextWatchdog, CKEditorError } from 'ckeditor5';
+import turnOffDefaultErrorCatching from '../_utils/turnoffdefaulterrorcatching.js';
+import ContextMock, { DeferredContextMock } from '../_utils/context.js';
+import { timeout } from '../_utils/timeout.js';
+import { PromiseManager } from '../_utils/promisemanager.js';
 
 const MockEditor = MockedEditor as any;
 
@@ -371,6 +371,172 @@ describe( '<CKEditorContext> Component', () => {
 				await new Promise( res => setTimeout( res ) );
 
 				expect( editorReadySpy ).toHaveBeenCalledTimes( 2 );
+			} );
+		} );
+
+		describe( '#onChangeInitializedEditors', () => {
+			it( 'should call the callback once in strict mode', async () => {
+				const onChangeInitializedEditorsSpy = vi.fn();
+
+				component = render(
+					<StrictMode>
+						<CKEditorContext
+							context={ ClassicEditor.Context }
+							contextWatchdog={ ClassicEditor.ContextWatchdog }
+							onChangeInitializedEditors={ onChangeInitializedEditorsSpy }
+						>
+							<CKEditor editor={ ClassicEditor } />
+						</CKEditorContext>
+					</StrictMode>
+				);
+
+				await timeout( 200 );
+				await waitFor( () => {
+					expect( onChangeInitializedEditorsSpy ).toHaveBeenCalledOnce();
+				} );
+			} );
+
+			it( 'should use editor uuid as key in the editors map', async () => {
+				const onChangeInitializedEditorsSpy = vi.fn();
+
+				component = render(
+					<CKEditorContext
+						context={ ClassicEditor.Context }
+						contextWatchdog={ ClassicEditor.ContextWatchdog }
+						onChangeInitializedEditors={ onChangeInitializedEditorsSpy }
+					>
+						<CKEditor editor={ ClassicEditor } />
+					</CKEditorContext>
+				);
+
+				await waitFor( () => {
+					expect( onChangeInitializedEditorsSpy ).toHaveBeenCalledOnce();
+
+					const [ editors, watchdog ] = onChangeInitializedEditorsSpy.mock.lastCall!;
+					const [ editorId ] = Object.keys( editors );
+
+					// Ensure that the editor UUID is returned.
+					expect( editorId ).to.have.length( 33 );
+					expect( editors[ editorId ].instance ).to.be.instanceOf( ClassicEditor );
+
+					// Expect that watchdog is an instance of the ContextWatchdog.
+					expect( watchdog ).to.be.instanceOf( ClassicEditor.ContextWatchdog );
+				} );
+			} );
+
+			it( 'should use editorName property passed to the CKEditor component as key in the editors map', async () => {
+				const onChangeInitializedEditorsSpy = vi.fn();
+
+				component = render(
+					<CKEditorContext
+						context={ ClassicEditor.Context }
+						contextWatchdog={ ClassicEditor.ContextWatchdog }
+						onChangeInitializedEditors={ onChangeInitializedEditorsSpy }
+					>
+						<CKEditor
+							editor={ ClassicEditor }
+							contextItemMetadata={ { name: 'my-editor' } }
+						/>
+					</CKEditorContext>
+				);
+
+				await waitFor( () => {
+					expect( onChangeInitializedEditorsSpy ).toHaveBeenCalledOnce();
+
+					const [ editors ] = onChangeInitializedEditorsSpy.mock.lastCall!;
+					const editorId = 'my-editor';
+
+					expect( editors ).to.have.property( editorId );
+					expect( editors[ editorId ].instance ).to.be.instanceOf( ClassicEditor );
+				} );
+			} );
+
+			it( 'should initialized multiple editors and track them', async () => {
+				const onChangeInitializedEditorsSpy = vi.fn();
+
+				component = render(
+					<CKEditorContext
+						context={ ClassicEditor.Context }
+						contextWatchdog={ ClassicEditor.ContextWatchdog }
+						onChangeInitializedEditors={ onChangeInitializedEditorsSpy }
+					>
+						<CKEditor
+							editor={ ClassicEditor }
+							contextItemMetadata={ { name: 'editor1' } }
+						/>
+						<CKEditor
+							editor={ ClassicEditor }
+							contextItemMetadata={ { name: 'editor2' } }
+						/>
+					</CKEditorContext>
+				);
+
+				await waitFor( () => {
+					expect( onChangeInitializedEditorsSpy ).toHaveBeenCalledTimes( 2 );
+
+					const [ editors ] = onChangeInitializedEditorsSpy.mock.lastCall!;
+
+					expect( Object.keys( editors ) ).to.have.length( 2 );
+					expect( editors ).to.have.property( 'editor1' );
+					expect( editors ).to.have.property( 'editor2' );
+				} );
+			} );
+
+			it( 'should be possible to forward metadata to the editors map', async () => {
+				const onChangeInitializedEditorsSpy = vi.fn();
+
+				component = render(
+					<CKEditorContext
+						context={ ClassicEditor.Context }
+						contextWatchdog={ ClassicEditor.ContextWatchdog }
+						onChangeInitializedEditors={ onChangeInitializedEditorsSpy }
+					>
+						<CKEditor
+							editor={ ClassicEditor }
+							contextItemMetadata={ {
+								name: 'editor1',
+								stuff: 2
+							} }
+						/>
+					</CKEditorContext>
+				);
+
+				await waitFor( () => {
+					expect( onChangeInitializedEditorsSpy ).toHaveBeenCalledOnce();
+
+					const [ editors ] = onChangeInitializedEditorsSpy.mock.lastCall!;
+					const editorId = 'editor1';
+
+					expect( editors[ editorId ].metadata ).to.deep.equal( {
+						name: 'editor1',
+						stuff: 2
+					} );
+				} );
+			} );
+
+			it( 'should track only initialized editors', async () => {
+				const onChangeInitializedEditorsSpy = vi.fn().mockImplementation( ( editors: any ) => {
+					expect( editors.editor1.instance.state ).to.be.equal( 'ready' );
+				} );
+
+				component = render(
+					<CKEditorContext
+						context={ ClassicEditor.Context }
+						contextWatchdog={ ClassicEditor.ContextWatchdog }
+						onChangeInitializedEditors={ onChangeInitializedEditorsSpy }
+					>
+						<CKEditor
+							editor={ ClassicEditor }
+							contextItemMetadata={ {
+								name: 'editor1'
+							} }
+						/>
+					</CKEditorContext>
+				);
+
+				await waitFor( () => {
+					expect( onChangeInitializedEditorsSpy ).toHaveBeenCalledOnce();
+				} );
 			} );
 		} );
 	} );

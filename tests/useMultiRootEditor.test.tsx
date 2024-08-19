@@ -10,7 +10,7 @@ import React, { useEffect } from 'react';
 import { CKEditorError } from 'ckeditor5';
 import { render, waitFor, renderHook, act } from '@testing-library/react';
 import useMultiRootEditor, { EditorEditable, EditorToolbarWrapper } from '../src/useMultiRootEditor.tsx';
-import { ContextWatchdogContext } from '../src/ckeditorcontext.tsx';
+import { ContextWatchdogContext } from '../src/context/ckeditorcontext.tsx';
 import { timeout } from './_utils/timeout.js';
 import { createDefer } from './_utils/defer.js';
 import { createTestMultiRootWatchdog, TestMultiRootEditor } from './_utils/multirooteditor.js';

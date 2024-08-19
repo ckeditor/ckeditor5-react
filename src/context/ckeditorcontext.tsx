@@ -5,11 +5,16 @@
 
 import React, {
 	useRef, useContext, useState, useEffect,
-	type ReactNode, type ReactElement
+	type PropsWithChildren,
+	type ReactElement
 } from 'react';
 
-import { useIsMountedRef } from './hooks/useIsMountedRef';
-import { uid } from './utils/uid';
+import { useIsMountedRef } from '../hooks/useIsMountedRef';
+import { uid } from '../utils/uid';
+import {
+	useInitializedCKEditorsMap,
+	type InitializedContextEditorsConfig
+} from './useInitializedCKEditorsMap';
 
 import type {
 	ContextWatchdog,
@@ -35,6 +40,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		children, config, onReady,
 		contextWatchdog: ContextWatchdogConstructor,
 		isLayoutReady = true,
+		onChangeInitializedEditors,
 		onError = ( error, details ) => console.error( error, details )
 	} = props;
 
@@ -43,10 +49,11 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 
 	// The currentContextWatchdog state is set to 'initializing' because it is checked later in the CKEditor component
 	// which is waiting for the full initialization of the context watchdog.
-	const [ currentContextWatchdog, setCurrentContextWatchdog ] = useState<ContextWatchdogValue>( {
+	const [ currentContextWatchdog, setCurrentContextWatchdog ] = useState<ContextWatchdogValue<TContext>>( {
 		status: 'initializing'
 	} );
 
+	// Lets initialize the context watchdog when the layout is ready.
 	useEffect( () => {
 		if ( isLayoutReady ) {
 			initializeContextWatchdog();
@@ -57,11 +64,18 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		}
 	}, [ id, isLayoutReady ] );
 
+	// Cleanup the context watchdog when the component is unmounted. Abort if the watchdog is not initialized.
 	useEffect( () => () => {
 		if ( currentContextWatchdog.status === 'initialized' ) {
 			currentContextWatchdog.watchdog.destroy();
 		}
 	}, [ currentContextWatchdog ] );
+
+	// Listen for the editor initialization and destruction events and call the onChangeInitializedEditors function.
+	useInitializedCKEditorsMap( {
+		currentContextWatchdog,
+		onChangeInitializedEditors
+	} );
 
 	/**
 	 * Regenerates the initialization ID by generating a random ID and updating the previous watchdog initialization ID.
@@ -194,19 +208,22 @@ export const isContextWatchdogReadyToUse = ( obj: any ): obj is ExtractContextWa
 /**
  * Represents the value of the ContextWatchdog in the CKEditor context.
  */
-export type ContextWatchdogValue =
+export type ContextWatchdogValue<TContext extends Context = Context> =
 	| {
 		status: 'initializing';
 	}
 	| {
 		status: 'initialized';
-		watchdog: ContextWatchdog;
+		watchdog: ContextWatchdog<TContext>;
 	}
 	| {
 		status: 'error';
 		error: ErrorDetails;
 	};
 
+/**
+ * Represents the status of the ContextWatchdogValue.
+ */
 export type ContextWatchdogValueStatus = ContextWatchdogValue[ 'status' ];
 
 /**
@@ -220,17 +237,19 @@ export type ExtractContextWatchdogValueByStatus<S extends ContextWatchdogValueSt
 /**
  * Props for the CKEditorContext component.
  */
-export type Props<TContext extends Context> = {
-	id?: string;
-	isLayoutReady?: boolean;
-	context?: { create( ...args: any ): Promise<TContext> };
-	contextWatchdog: typeof ContextWatchdog<TContext>;
-	watchdogConfig?: WatchdogConfig;
-	config?: ContextConfig;
-	onReady?: ( context: TContext, watchdog: ContextWatchdog<TContext> ) => void;
-	onError?: ( error: Error, details: ErrorDetails ) => void;
-	children?: ReactNode;
-};
+export type Props<TContext extends Context> =
+	& PropsWithChildren
+	& Pick<InitializedContextEditorsConfig<TContext>, 'onChangeInitializedEditors'>
+	& {
+		id?: string;
+		isLayoutReady?: boolean;
+		context?: { create( ...args: any ): Promise<TContext> };
+		contextWatchdog: typeof ContextWatchdog<TContext>;
+		watchdogConfig?: WatchdogConfig;
+		config?: ContextConfig;
+		onReady?: ( context: TContext, watchdog: ContextWatchdog<TContext> ) => void;
+		onError?: ( error: Error, details: ErrorDetails ) => void;
+	};
 
 type ErrorDetails = {
 	phase: 'initialization' | 'runtime';

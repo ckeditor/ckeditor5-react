@@ -8,7 +8,7 @@ import React from 'react';
 import { Context, ContextWatchdog } from 'ckeditor5';
 import { render, waitFor } from '@testing-library/react';
 import CKEditor from '../../src/ckeditor.tsx';
-import CKEditorContext from '../../src/ckeditorcontext.tsx';
+import CKEditorContext from '../../src/context/ckeditorcontext.tsx';
 import { TestClassicEditor } from '../_utils/classiceditor.js';
 import { PromiseManager } from '../_utils/promisemanager.tsx';
 

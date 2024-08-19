@@ -23,11 +23,17 @@ import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSema
 
 import { uid } from './utils/uid';
 import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
+
+import {
+	withCKEditorReactContextMetadata,
+	type CKEditorConfigContextMetadata
+} from './context/setCKEditorReactContextMetadata';
+
 import {
 	ContextWatchdogContext,
 	isContextWatchdogInitializing,
 	isContextWatchdogReadyToUse
-} from './ckeditorcontext';
+} from './context/ckeditorcontext';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -295,6 +301,12 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * @param config CKEditor 5 editor configuration.
 	 */
 	private _createEditor( element: HTMLElement | string | Record<string, string>, config: EditorConfig ): Promise<TEditor> {
+		const { contextItemMetadata } = this.props;
+
+		if ( contextItemMetadata ) {
+			config = withCKEditorReactContextMetadata( contextItemMetadata, config );
+		}
+
 		return this.props.editor.create( element as HTMLElement, config )
 			.then( editor => {
 				if ( 'disabled' in this.props ) {
@@ -440,6 +452,7 @@ export interface Props<TEditor extends Editor> extends InferProps<typeof CKEdito
 		EditorWatchdog: typeof EditorWatchdog;
 		ContextWatchdog: typeof ContextWatchdog;
 	};
+	contextItemMetadata?: CKEditorConfigContextMetadata;
 	config?: EditorConfig;
 	watchdogConfig?: WatchdogConfig;
 	disableWatchdog?: boolean;
