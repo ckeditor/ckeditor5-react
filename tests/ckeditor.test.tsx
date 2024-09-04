@@ -20,12 +20,6 @@ import { expectToBeTruthy } from './_utils/expectToBeTruthy.js';
 import type { LifeCycleElementSemaphore } from '../src/lifecycle/LifeCycleElementSemaphore.js';
 import type { EditorSemaphoreMountResult } from '../src/lifecycle/LifeCycleEditorSemaphore.js';
 
-declare global {
-	interface Window {
-		CKEDITOR_VERSION: any;
-	}
-}
-
 const MockEditor = MockedEditor as any;
 
 describe( '<CKEditor> Component', () => {
@@ -59,7 +53,7 @@ describe( '<CKEditor> Component', () => {
 
 	describe( 'initialization', async () => {
 		it( 'should print a warning if the "window.CKEDITOR_VERSION" variable is not available', async () => {
-			delete window.CKEDITOR_VERSION;
+			window.CKEDITOR_VERSION = '';
 			const warnStub = vi.spyOn( console, 'warn' ).mockImplementation( () => {} );
 
 			component = render(

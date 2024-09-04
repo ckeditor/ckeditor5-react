@@ -5,6 +5,7 @@
 
 import type { DependencyList } from 'react';
 import type { LifeCycleElementSemaphore } from '../lifecycle/LifeCycleElementSemaphore';
+
 import { useInstantEffect } from './useInstantEffect';
 
 /**

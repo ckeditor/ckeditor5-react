@@ -1,0 +1,13 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"types": [
+			"@testing-library/jest-dom/vitest",
+			"../vite-env.d.ts"
+		]
+	},
+	"include": [
+		"./",
+		"../src"
+	]
+}

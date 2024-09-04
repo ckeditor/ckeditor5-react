@@ -8,6 +8,8 @@ import React, {
 	type Dispatch, type SetStateAction, type RefObject
 } from 'react';
 
+import { overwriteArray, overwriteObject, uniq } from '@ckeditor/ckeditor5-integrations-common';
+
 import type {
 	InlineEditableUIView,
 	EditorConfig,
@@ -29,10 +31,7 @@ import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSema
 import { useLifeCycleSemaphoreSyncRef, type LifeCycleSemaphoreSyncRefResult } from './lifecycle/useLifeCycleSemaphoreSyncRef';
 import { mergeRefs } from './utils/mergeRefs';
 import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
-import { overwriteObject } from './utils/overwriteObject';
 import { useRefSafeCallback } from './hooks/useRefSafeCallback';
-import { uniq } from './utils/uniq';
-import { overwriteArray } from './utils/overwriteArray';
 import { useInstantEditorEffect } from './hooks/useInstantEditorEffect';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
