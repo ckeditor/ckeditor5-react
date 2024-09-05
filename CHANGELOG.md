@@ -3,6 +3,44 @@ Changelog
 
 ## [9.1.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.0.0...v9.1.0) (2024-09-05)
 
+We added an `onChangeInitializedEditors` callback to `CKEditorContext` component to allow tracking newly initialized editors within the JSX React tree. 
+
+**Example**
+
+```tsx
+<CKEditorContext
+  context={ ClassicEditor.Context }
+  contextWatchdog={ ClassicEditor.ContextWatchdog }
+  onChangeInitializedEditors={ editors => {
+    console.log( editors );
+  }}
+>
+  <CKEditor
+    editor={ ClassicEditor }
+    data="<h2>Editor</h2>"
+    contextItemMetadata={{
+      name: 'editor1',
+      user: { id: '2' }
+    }}
+  />
+
+  <CKEditor
+    editor={ ClassicEditor }
+    data="<h2>Another Editor</h2><p>... in a common Context</p>"
+    contextItemMetadata={{
+      name: 'editor2'
+    }}
+  />
+</CKEditorContext>
+```
+
+`onChangeInitializedEditors` will be called twice in the example above:
+
+1. First log: `{ editor1: ... }`
+2. Second log: `{ editor1: ..., editor2: ... }`
+
+⚠️ Order of initialization is not guaranteed. `editor2` might be initialized before `editor1`.
+
 ### Features
 
 * Add an onChangeInitializedEditors callback to CKEditorContext to allow tracking of newly initialized editors within the JSX React tree. Closes [#513](https://github.com/ckeditor/ckeditor5-react/issues/513). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/530656316356ee9bc915710d1cf16ea6519b9e99))
