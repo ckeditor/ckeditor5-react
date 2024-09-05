@@ -5,9 +5,9 @@ Changelog
 
 ### Features
 
-* Add an onChangeInitializedEditors callback to CKEditorContext to allow tracking of newly initialized editors within the JSX React tree. Closes [#513](https://github.com/ckeditor/ckeditor5-react/issues/513). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/530656316356ee9bc915710d1cf16ea6519b9e99))
-* Added `useCKEditorCloud` hook for managing asynchronous loading of CKEditor from a CDN. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/ec8e603d409776374c89be623030f8467fc1cf92))
-* Added withCKEditorCloud HOC to simplify CKEditor integration with CDN in React components. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/ec8e603d409776374c89be623030f8467fc1cf92))
+* Add an `onChangeInitializedEditors` callback to CKEditorContext to allow tracking of newly initialized editors within the JSX React tree. Closes [#513](https://github.com/ckeditor/ckeditor5-react/issues/513). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/530656316356ee9bc915710d1cf16ea6519b9e99))
+* Added `useCKEditorCloud` hook for asynchronous loading of CKEditor from a CDN. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/ec8e603d409776374c89be623030f8467fc1cf92))
+* Added `withCKEditorCloud` HOC to simplify CKEditor integration with CDN in React components. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/ec8e603d409776374c89be623030f8467fc1cf92))
 
 ### Bug fixes
 
