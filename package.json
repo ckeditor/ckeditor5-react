@@ -1,6 +1,6 @@
 {
   "name": "@ckeditor/ckeditor5-react",
-  "version": "9.0.0",
+  "version": "9.1.0",
   "description": "Official React component for CKEditor 5 – the best browser-based rich text editor.",
   "keywords": [
     "wysiwyg",
@@ -78,7 +78,7 @@
     "wrap-ansi": "7.0.0",
     "string-width": "4.1.0",
     "semver": "^7.0.0",
-    "ws":  "^8"
+    "ws": "^8"
   },
   "engines": {
     "node": ">=18.0.0"
