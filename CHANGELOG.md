@@ -1,6 +1,21 @@
 Changelog
 =========
 
+## [9.1.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.0.0...v9.1.0) (2024-09-05)
+
+### Features
+
+* Add an onChangeInitializedEditors callback to CKEditorContext to allow tracking of newly initialized editors within the JSX React tree. Closes [#513](https://github.com/ckeditor/ckeditor5-react/issues/513). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/530656316356ee9bc915710d1cf16ea6519b9e99))
+* Added `useCKEditorCloud` hook for managing asynchronous loading of CKEditor from a CDN. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/ec8e603d409776374c89be623030f8467fc1cf92))
+* Added withCKEditorCloud HOC to simplify CKEditor integration with CDN in React components. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/ec8e603d409776374c89be623030f8467fc1cf92))
+
+### Bug fixes
+
+* Image upload should be now possible in demos. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/54e362cf0fb5c034e51fbe290db8df794e9ca452))
+* Indent button is no longer disabled in manual demos. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/54e362cf0fb5c034e51fbe290db8df794e9ca452))
+* Manual demos should point to existing documentation links. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/54e362cf0fb5c034e51fbe290db8df794e9ca452))
+
+
 ## [9.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v8.0.0...v9.0.0) (2024-08-07)
 
 We are excited to announce a new major release of the React integration.
