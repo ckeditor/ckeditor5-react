@@ -4,13 +4,16 @@
  */
 
 import React, { useState } from 'react';
+
+import type { Editor } from 'ckeditor5';
+
 import ClassicEditor from './ClassicEditor';
 import { CKEditor, CKEditorContext } from '../../src/index.js';
 
 declare global {
 	interface Window {
-		editor1: ClassicEditor | null;
-		editor2: ClassicEditor | null;
+		editor1: Editor | null;
+		editor2: Editor | null;
 	}
 }
 

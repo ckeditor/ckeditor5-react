@@ -47,7 +47,6 @@ function ContextEditorDemo(): JSX.Element {
 		},
 
 		onReady: editor => {
-			// @ts-expect-error: Caused by linking to parent project and conflicting react types
 			window.editor1 = editor;
 
 			console.log( 'event: onChange', { editor } );
@@ -64,7 +63,6 @@ function ContextEditorDemo(): JSX.Element {
 		},
 
 		onReady: editor => {
-			// @ts-expect-error: Caused by linking to parent project and conflicting react types
 			window.editor2 = editor;
 
 			console.log( 'event: onChange', { editor } );

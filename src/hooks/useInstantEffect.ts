@@ -4,7 +4,7 @@
  */
 
 import { useRef, type DependencyList } from 'react';
-import { shallowCompareArrays } from '../utils/shallowCompareArrays';
+import { shallowCompareArrays } from '@ckeditor/ckeditor5-integrations-common';
 
 /**
  * Triggers an effect immediately if the dependencies change (during rendering of component).

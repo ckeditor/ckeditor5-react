@@ -9,8 +9,8 @@ import React, {
 	type ReactElement
 } from 'react';
 
+import { uid } from '@ckeditor/ckeditor5-integrations-common';
 import { useIsMountedRef } from '../hooks/useIsMountedRef';
-import { uid } from '../utils/uid';
 import {
 	useInitializedCKEditorsMap,
 	type InitializedContextEditorsConfig

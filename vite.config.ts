@@ -41,7 +41,8 @@ export default defineConfig( {
 			output: {
 				globals: {
 					'react': 'React',
-					'prop-types': 'PropTypes'
+					'prop-types': 'PropTypes',
+					'@ckeditor/ckeditor5-integrations-common': 'CKEDITOR_INTEGRATIONS_COMMON'
 				}
 			}
 		}
@@ -49,6 +50,7 @@ export default defineConfig( {
 
 	// https://vitest.dev/config/
 	test: {
+		setupFiles: [ './vitest-setup.ts' ],
 		include: [
 			'tests/**/*.test.[j|t]sx'
 		],

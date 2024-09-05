@@ -28,13 +28,16 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "prop-types": "^15.7.2"
+    "prop-types": "^15.7.2",
+    "@ckeditor/ckeditor5-integrations-common": "^1.0.0"
   },
   "peerDependencies": {
     "ckeditor5": ">=42.0.0 || ^0.0.0-nightly",
+    "ckeditor5-premium-features": ">=42.0.0 || ^0.0.0-nightly",
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.4.8",
     "@ckeditor/ckeditor5-dev-bump-year": "^40.0.0",
     "@ckeditor/ckeditor5-dev-ci": "^40.0.0",
     "@ckeditor/ckeditor5-dev-release-tools": "^40.0.0",
@@ -48,6 +51,7 @@
     "@vitest/coverage-istanbul": "^2.0.0",
     "@vitest/ui": "^2.0.0",
     "ckeditor5": "^42.0.0",
+    "ckeditor5-premium-features": "^42.0.0",
     "coveralls": "^3.1.1",
     "eslint": "^7.19.0",
     "eslint-config-ckeditor5": "^5.3.2",

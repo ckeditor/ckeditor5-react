@@ -21,7 +21,7 @@ import type {
 
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
 
-import { uid } from './utils/uid';
+import { uid } from '@ckeditor/ckeditor5-integrations-common';
 import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
 
 import {

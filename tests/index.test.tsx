@@ -10,7 +10,7 @@ import { render, type RenderResult } from '@testing-library/react';
 import ContextMock from './_utils/context.js';
 import Editor from './_utils/editor.js';
 import { PromiseManager } from './_utils/promisemanager.js';
-import { CKEditor, CKEditorContext } from '../src/index';
+import { CKEditor, CKEditorContext } from '../src/index.js';
 
 const MockEditor = Editor as any;
 
