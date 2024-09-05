@@ -18,6 +18,7 @@ import useCKEditorCloud from './useCKEditorCloud';
  * @template A The type of the additional resources to load.
  * @param config The configuration of the CKEditor Cloud integration.
  * @returns A function that injects the CKEditor Cloud integration into a component.
+ * @experimental
  * @example
 
  * ```tsx

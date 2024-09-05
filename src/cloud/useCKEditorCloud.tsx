@@ -18,6 +18,7 @@ import { useAsyncValue, type AsyncValueHookResult } from '../hooks/useAsyncValue
  * @template A The type of the additional resources to load.
  * @param config The configuration of the hook.
  * @returns The state of async operation that resolves to the CKEditor bundles.
+ * @experimental
  * @example
  *
  * ```ts
