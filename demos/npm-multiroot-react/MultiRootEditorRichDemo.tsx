@@ -6,7 +6,7 @@
 import React, { useState, type ChangeEvent } from 'react';
 
 import { useMultiRootEditor, type MultiRootHookProps } from '../../src/index.js';
-import MultiRootEditor from './MultiRootEditor';
+import MultiRootEditor from './MultiRootEditor.js';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 

@@ -6,11 +6,10 @@
 import React, { type ReactNode, type ComponentType } from 'react';
 import type {
 	CKEditorCloudConfig,
-	CKEditorCloudResult,
-	CdnPluginsPacks
+	CKEditorCloudResult
 } from '@ckeditor/ckeditor5-integrations-common';
 
-import useCKEditorCloud from './useCKEditorCloud';
+import useCKEditorCloud from './useCKEditorCloud.js';
 
 /**
  * HOC that injects the CKEditor Cloud integration into a component.
@@ -24,7 +23,7 @@ import useCKEditorCloud from './useCKEditorCloud';
  * const withCKCloud = withCKEditorCloud( {
  * 	cloud: {
  * 		version: '42.0.0',
- * 		languages: [ 'en', 'de' ],
+ * 		translations: [ 'en', 'de' ],
  * 		premium: true
  * 	}
  * } );
@@ -38,11 +37,11 @@ import useCKEditorCloud from './useCKEditorCloud';
  * } );
  * ```
  */
-const withCKEditorCloud = <A extends CdnPluginsPacks>( config: CKEditorCloudHocConfig<A> ) =>
+const withCKEditorCloud = <Config extends CKEditorCloudConfig>( config: CKEditorCloudHocConfig<Config> ) =>
 	<P extends object>(
-		WrappedComponent: ComponentType<WithCKEditorCloudHocProps<A> & P>
-	): ComponentType<Omit<P, keyof WithCKEditorCloudHocProps>> => {
-		const ComponentWithCKEditorCloud = ( props: Omit<P, keyof WithCKEditorCloudHocProps> ) => {
+		WrappedComponent: ComponentType<WithCKEditorCloudHocProps<Config> & P>
+	): ComponentType<Omit<P, keyof WithCKEditorCloudHocProps<Config>>> => {
+		const ComponentWithCKEditorCloud = ( props: Omit<P, keyof WithCKEditorCloudHocProps<Config>> ) => {
 			const ckeditorCloudResult = useCKEditorCloud( config.cloud );
 
 			switch ( ckeditorCloudResult.status ) {
@@ -74,27 +73,27 @@ export default withCKEditorCloud;
 /**
  * Props injected by the `withCKEditorCloud` HOC.
  *
- * @template A The type of the additional resources to load.
+ * @template Config The configuration of the CKEditor Cloud integration.
  */
-export type WithCKEditorCloudHocProps<A extends CdnPluginsPacks = any> = {
+export type WithCKEditorCloudHocProps<Config extends CKEditorCloudConfig = CKEditorCloudConfig> = {
 
 	/**
 	 * The result of the CKEditor Cloud integration.
 	 */
-	cloud: CKEditorCloudResult<A>;
+	cloud: CKEditorCloudResult<Config>;
 };
 
 /**
  * The configuration of the CKEditor Cloud integration.
  *
- * @template A The type of the additional resources to load.
+ * @template Config The configuration of the CKEditor Cloud integration.
  */
-type CKEditorCloudHocConfig<A extends CdnPluginsPacks> = {
+type CKEditorCloudHocConfig<Config extends CKEditorCloudConfig> = {
 
 	/**
 	 * The configuration of the CKEditor Cloud integration.
 	 */
-	cloud: CKEditorCloudConfig<A>;
+	cloud: Config;
 
 	/**
 	 * Component to render while the cloud information is being fetched.

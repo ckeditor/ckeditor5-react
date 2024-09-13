@@ -10,11 +10,11 @@ import React, { createRef } from 'react';
 import ReactDOM from 'react-dom';
 import { render, type RenderResult } from '@testing-library/react';
 
-import CKEditor from '../../src/ckeditor.tsx';
+import CKEditor from '../../src/ckeditor';
 
-import { timeout } from '../_utils/timeout.js';
+import { timeout } from '../_utils/timeout';
 import { TestClassicEditor } from '../_utils/classiceditor.js';
-import { PromiseManager } from '../_utils/promisemanager.tsx';
+import { PromiseManager } from '../_utils/promisemanager.js';
 
 describe( 'CKEditor Component + ClassicEditor Build', () => {
 	let component: RenderResult | null = null;
@@ -44,7 +44,6 @@ describe( 'CKEditor Component + ClassicEditor Build', () => {
 
 // The memory test based on: https://github.com/ckeditor/ckeditor5/blob/master/packages/ckeditor5-core/tests/_utils/memory.js.
 // It's the simplified, adjusted version that allows checking whether the <CKEditor> component destroys all references.
-const TEST_RETRIES = 2;
 const TEST_TIMEOUT = 5000;
 const GARBAGE_COLLECTOR_TIMEOUT = 500;
 
@@ -71,11 +70,8 @@ describe.skipIf( !window.gc || isWindows() )( '<CKEditor> memory usage', () => {
 	// 3. Mount and unmount the <CKEditor> component 5 times.
 	// 4. Record the heap size and compare with the previous result.
 	// 5. Fail when exceeded a 1MB treshold (see code comments for why 1MB).
-	it( 'should not grow on multiple component creations', function() {
-		this.timeout( TEST_TIMEOUT );
-
-		// Unfortunately the tests fails from time to time so retry a failed tests.
-		this.retries( TEST_RETRIES );
+	it( 'should not grow on multiple component creations', async () => {
+		await timeout( TEST_TIMEOUT );
 
 		function createEditor() {
 			div = document.createElement( 'div' );

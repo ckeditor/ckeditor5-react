@@ -4,9 +4,9 @@
  */
 
 import type { DependencyList } from 'react';
-import type { LifeCycleElementSemaphore } from '../lifecycle/LifeCycleElementSemaphore';
+import type { LifeCycleElementSemaphore } from '../lifecycle/LifeCycleElementSemaphore.js';
 
-import { useInstantEffect } from './useInstantEffect';
+import { useInstantEffect } from './useInstantEffect.js';
 
 /**
  * `useEffect` alternative but executed after mounting of editor.

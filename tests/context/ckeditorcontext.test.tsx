@@ -11,9 +11,9 @@ import CKEditorContext, {
 	type Props,
 	type ContextWatchdogValue,
 	type ExtractContextWatchdogValueByStatus
-} from '../../src/context/ckeditorcontext.tsx';
+} from '../../src/context/ckeditorcontext.js';
 
-import CKEditor from '../../src/ckeditor.tsx';
+import CKEditor from '../../src/ckeditor.js';
 import MockedEditor from '../_utils/editor.js';
 import { ClassicEditor, ContextWatchdog, CKEditorError } from 'ckeditor5';
 import turnOffDefaultErrorCatching from '../_utils/turnoffdefaulterrorcatching.js';

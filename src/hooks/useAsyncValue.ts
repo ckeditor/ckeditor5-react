@@ -5,8 +5,8 @@
 
 import type { DependencyList } from 'react';
 
-import { useInstantEffect } from './useInstantEffect';
-import { useAsyncCallback, type AsyncCallbackState } from './useAsyncCallback';
+import { useInstantEffect } from './useInstantEffect.js';
+import { useAsyncCallback, type AsyncCallbackState } from './useAsyncCallback.js';
 
 /**
  * A hook that allows to execute an asynchronous function and provides the state of the execution.

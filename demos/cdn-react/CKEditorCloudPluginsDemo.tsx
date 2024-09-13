@@ -23,7 +23,7 @@ declare global {
 export const CKEditorCloudPluginsDemo = ( { content }: CKEditorCloudPluginsDemoProps ): ReactNode => {
 	const cloud = useCKEditorCloud( {
 		version: '43.0.0',
-		languages: [ 'pl', 'de' ],
+		translations: [ 'pl', 'de' ],
 		premium: true,
 		plugins: {
 			Wiris: {

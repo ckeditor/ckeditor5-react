@@ -10,7 +10,7 @@ import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import CKEditor from '../../src/ckeditor.tsx';
+import CKEditor from '../../src/ckeditor.js';
 
 import { TestClassicEditor } from '../_utils/classiceditor.js';
 
@@ -39,7 +39,7 @@ class AppUsingState extends React.Component {
 		return (
 			<Editor
 				data={ this.state.content }
-				onChange={ ( evt, editor ) => this.setState( { content: editor.getData() } ) }
+				onChange={ ( _, editor ) => this.setState( { content: editor.getData() } ) }
 				onReady={ editor => {
 					this.editor = editor;
 					this.props.onReady();
@@ -68,7 +68,7 @@ class AppUsingStaticString extends React.Component {
 		return (
 			<Editor
 				data={ '<p>Initial data.</p>' }
-				onChange={ ( evt, editor ) => this.setState( { content: editor.getData() } ) }
+				onChange={ ( _, editor ) => this.setState( { content: editor.getData() } ) }
 				onReady={ editor => {
 					this.editor = editor;
 					this.props.onReady();

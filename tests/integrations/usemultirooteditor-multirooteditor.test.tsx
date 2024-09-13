@@ -6,7 +6,7 @@
 import { describe, beforeEach, it, expect } from 'vitest';
 import React from 'react';
 import { render, type RenderResult } from '@testing-library/react';
-import useMultiRootEditor from '../../src/useMultiRootEditor.tsx';
+import useMultiRootEditor from '../../src/useMultiRootEditor.js';
 import { TestMultiRootEditor } from '../_utils/multirooteditor.js';
 
 const AppUsingHooks = props => {

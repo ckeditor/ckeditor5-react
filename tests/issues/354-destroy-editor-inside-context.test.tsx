@@ -7,10 +7,10 @@ import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { Context, ContextWatchdog } from 'ckeditor5';
 import { render, waitFor } from '@testing-library/react';
-import CKEditor from '../../src/ckeditor.tsx';
-import CKEditorContext from '../../src/context/ckeditorcontext.tsx';
+import CKEditor from '../../src/ckeditor.js';
+import CKEditorContext from '../../src/context/ckeditorcontext.js';
 import { TestClassicEditor } from '../_utils/classiceditor.js';
-import { PromiseManager } from '../_utils/promisemanager.tsx';
+import { PromiseManager } from '../_utils/promisemanager.js';
 
 class CustomContext extends Context {}
 

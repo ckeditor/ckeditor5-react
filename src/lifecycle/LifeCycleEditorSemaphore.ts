@@ -6,7 +6,7 @@
 import type { Editor, EditorWatchdog } from 'ckeditor5';
 
 import type { EditorWatchdogAdapter } from '../ckeditor';
-import type { LifeCycleElementSemaphore } from './LifeCycleElementSemaphore';
+import type { LifeCycleElementSemaphore } from './LifeCycleElementSemaphore.js';
 
 export type EditorSemaphoreMountResult<TEditor extends Editor> = {
 

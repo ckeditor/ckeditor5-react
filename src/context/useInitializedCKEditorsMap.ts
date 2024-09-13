@@ -4,15 +4,15 @@
  */
 
 import { useEffect } from 'react';
-import { useRefSafeCallback } from '../hooks/useRefSafeCallback';
+import { useRefSafeCallback } from '../hooks/useRefSafeCallback.js';
 
 import type { CollectionAddEvent, Context, ContextWatchdog, Editor } from 'ckeditor5';
-import type { ContextWatchdogValue } from './ckeditorcontext';
+import type { ContextWatchdogValue } from './ckeditorcontext.js';
 
 import {
 	tryExtractCKEditorReactContextMetadata,
 	type CKEditorConfigContextMetadata
-} from './setCKEditorReactContextMetadata';
+} from './setCKEditorReactContextMetadata.js';
 
 /**
  * A hook that listens for the editor initialization and destruction events and updates the editors map.

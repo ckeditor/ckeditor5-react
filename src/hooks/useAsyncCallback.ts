@@ -6,8 +6,8 @@
 import { useState, useRef } from 'react';
 import { uid, isSSR } from '@ckeditor/ckeditor5-integrations-common';
 
-import { useIsUnmountedRef } from './useIsUnmountedRef';
-import { useRefSafeCallback } from './useRefSafeCallback';
+import { useIsUnmountedRef } from './useIsUnmountedRef.js';
+import { useRefSafeCallback } from './useRefSafeCallback.js';
 
 /**
  * A hook that allows to execute an asynchronous function and provides the state of the execution.
