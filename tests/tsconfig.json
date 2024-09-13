@@ -1,6 +1,8 @@
 {
 	"extends": "../tsconfig.json",
 	"compilerOptions": {
+		"emitDeclarationOnly": false,
+		"noImplicitAny": false,
 		"types": [
 			"@testing-library/jest-dom/vitest",
 			"../vite-env.d.ts"

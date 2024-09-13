@@ -10,8 +10,8 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Context, ContextWatchdog } from 'ckeditor5';
 
-import CKEditor from '../../src/ckeditor.tsx';
-import CKEditorContext from '../../src/context/ckeditorcontext.tsx';
+import CKEditor from '../../src/ckeditor.js';
+import CKEditorContext from '../../src/context/ckeditorcontext.js';
 
 import { TestClassicEditor } from '../_utils/classiceditor.js';
 

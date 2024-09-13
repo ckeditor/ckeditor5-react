@@ -6,16 +6,15 @@
 import {
 	loadCKEditorCloud,
 	type CKEditorCloudConfig,
-	type CKEditorCloudResult,
-	type CdnPluginsPacks
+	type CKEditorCloudResult
 } from '@ckeditor/ckeditor5-integrations-common';
 
-import { useAsyncValue, type AsyncValueHookResult } from '../hooks/useAsyncValue';
+import { useAsyncValue, type AsyncValueHookResult } from '../hooks/useAsyncValue.js';
 
 /**
  * Hook that loads CKEditor bundles from CDN.
  *
- * @template A The type of the additional resources to load.
+ * @template Config The type of the CKEditor Cloud configuration.
  * @param config The configuration of the hook.
  * @returns The state of async operation that resolves to the CKEditor bundles.
  * @example
@@ -23,7 +22,7 @@ import { useAsyncValue, type AsyncValueHookResult } from '../hooks/useAsyncValue
  * ```ts
  * const cloud = useCKEditorCloud( {
  * 	version: '42.0.0',
- * 	languages: [ 'en', 'de' ],
+ * 	translations: [ 'es', 'de' ],
  * 	premium: true
  * } );
  *
@@ -33,15 +32,15 @@ import { useAsyncValue, type AsyncValueHookResult } from '../hooks/useAsyncValue
  * }
  * ```
  */
-export default function useCKEditorCloud<A extends CdnPluginsPacks>(
-	config: CKEditorCloudConfig<A>
-): CKEditorCloudHookResult<A> {
+export default function useCKEditorCloud<Config extends CKEditorCloudConfig>(
+	config: Config
+): CKEditorCloudHookResult<Config> {
 	// Serialize the config to a string to fast compare if there was a change and re-render is needed.
 	const serializedConfigKey = JSON.stringify( config );
 
 	// Fetch the CKEditor Cloud Services bundles on every modification of config.
 	const result = useAsyncValue(
-		async (): Promise<CKEditorCloudResult<A>> => loadCKEditorCloud( config ),
+		async (): Promise<CKEditorCloudResult<Config>> => loadCKEditorCloud( config ),
 		[ serializedConfigKey ]
 	);
 
@@ -59,6 +58,6 @@ export default function useCKEditorCloud<A extends CdnPluginsPacks>(
 /**
  * The result of the `useCKEditorCloud` hook. It changes success state to be more intuitive.
  */
-type CKEditorCloudHookResult<A extends CdnPluginsPacks> =
-	| Exclude<AsyncValueHookResult<CKEditorCloudResult<A>>, { status: 'success' }>
-	| ( CKEditorCloudResult<A> & { status: 'success' } );
+type CKEditorCloudHookResult<Config extends CKEditorCloudConfig> =
+	| Exclude<AsyncValueHookResult<CKEditorCloudResult<Config>>, { status: 'success' }>
+	| ( CKEditorCloudResult<Config> & { status: 'success' } );

@@ -3,13 +3,13 @@
  * For licensing, see LICENSE.md.
  */
 
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, expectTypeOf, it } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 
 import type { CKEditorCloudConfig } from '@ckeditor/ckeditor5-integrations-common';
 import { removeAllCkCdnResources } from '@ckeditor/ckeditor5-integrations-common/test-utils';
 
-import useCKEditorCloud from '../../src/cloud/useCKEditorCloud';
+import useCKEditorCloud from '../../src/cloud/useCKEditorCloud.js';
 
 describe( 'useCKEditorCloud', () => {
 	beforeEach( removeAllCkCdnResources );
@@ -17,7 +17,7 @@ describe( 'useCKEditorCloud', () => {
 	it( 'should load CKEditor bundles from CDN', async () => {
 		const { result } = renderHook( () => useCKEditorCloud( {
 			version: '43.0.0',
-			languages: [ 'en', 'de' ]
+			translations: [ 'es', 'de' ]
 		} ) );
 
 		expect( result.current.status ).toBe( 'loading' );
@@ -66,6 +66,83 @@ describe( 'useCKEditorCloud', () => {
 			if ( result.current.status === 'success' ) {
 				expect( result.current.CKEditor ).toBeDefined();
 				expect( result.current.CKEditorPremiumFeatures ).toBeDefined();
+			}
+		} );
+	} );
+
+	describe( 'typings', () => {
+		it( 'should return non-nullable premium features entry type if premium is enabled', async () => {
+			const { result } = renderHook( () => useCKEditorCloud( {
+				version: '43.0.0',
+				premium: true
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.status ).toBe( 'success' );
+			} );
+
+			if ( result.current.status === 'success' ) {
+				expectTypeOf( result.current.CKEditorPremiumFeatures ).not.toBeNullable();
+			}
+		} );
+
+		it( 'should return nullable premium features entry type if premium is disabled', async () => {
+			const { result } = renderHook( () => useCKEditorCloud( {
+				version: '43.0.0',
+				premium: false
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.status ).toBe( 'success' );
+			} );
+
+			if ( result.current.status === 'success' ) {
+				expectTypeOf( result.current.CKEditorPremiumFeatures ).toBeNullable();
+			}
+		} );
+
+		it( 'should return nullable premium features entry type if premium is not provided', async () => {
+			const { result } = renderHook( () => useCKEditorCloud( {
+				version: '43.0.0'
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.status ).toBe( 'success' );
+			} );
+
+			if ( result.current.status === 'success' ) {
+				expectTypeOf( result.current.CKEditorPremiumFeatures ).toBeNullable();
+			}
+		} );
+
+		it( 'should return non-nullable ckbox entry type if ckbox enabled', async () => {
+			const { result } = renderHook( () => useCKEditorCloud( {
+				version: '43.0.0',
+				ckbox: {
+					version: '2.5.1'
+				}
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.status ).toBe( 'success' );
+			} );
+
+			if ( result.current.status === 'success' ) {
+				expectTypeOf( result.current.CKBox ).not.toBeNullable();
+			}
+		} );
+
+		it( 'should return a nullable ckbox entry type if ckbox is not configured', async () => {
+			const { result } = renderHook( () => useCKEditorCloud( {
+				version: '43.0.0'
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.status ).toBe( 'success' );
+			} );
+
+			if ( result.current.status === 'success' ) {
+				expectTypeOf( result.current.CKBox ).toBeNullable();
 			}
 		} );
 	} );

@@ -6,7 +6,7 @@
 import React from 'react';
 
 import { useMultiRootEditor, type MultiRootHookProps } from '../../src/index.js';
-import MultiRootEditor from './MultiRootEditor';
+import MultiRootEditor from './MultiRootEditor.js';
 
 type EditorDemoProps = {
 	data: Record<string, string>;

@@ -115,6 +115,9 @@ jobs:
           name: Run build
           command: yarn run build
       - run:
+          name: Check types of tests
+          command: yarn run test:check:types
+      - run:
           name: Run unit tests
           command: yarn run test
       - run:
@@ -205,7 +208,7 @@ jobs:
           name: Verify if a releaser triggered the job
           command: |
             #!/bin/bash
-            
+
             # Do not fail if the Node script ends with non-zero exit code.
             set +e
 

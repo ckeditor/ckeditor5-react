@@ -4,9 +4,9 @@
  */
 
 import type { MultiRootEditor } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
-import type { CKEditorCloudResult } from '../../src/index.js';
+import type { CKEditorCloudConfig, CKEditorCloudResult } from '../../src/index.js';
 
-export const useCKCdnMultiRootEditor = ( cloud: CKEditorCloudResult ): typeof MultiRootEditor => {
+export const useCKCdnMultiRootEditor = ( cloud: CKEditorCloudResult<CKEditorCloudConfig> ): typeof MultiRootEditor => {
 	const {
 		MultiRootEditor: MultiRootEditorBase,
 		CloudServices,
