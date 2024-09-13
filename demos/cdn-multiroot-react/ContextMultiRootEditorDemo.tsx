@@ -121,7 +121,7 @@ const ContextEditorDemo = ( { editor }: { editor: any } ): JSX.Element => {
 const withCKCloud = withCKEditorCloud( {
 	cloud: {
 		version: '43.0.0',
-		translations: [ 'en', 'de' ],
+		translations: [ 'es', 'de' ],
 		premium: true
 	}
 } );

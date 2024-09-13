@@ -23,7 +23,7 @@ import useCKEditorCloud from './useCKEditorCloud.js';
  * const withCKCloud = withCKEditorCloud( {
  * 	cloud: {
  * 		version: '42.0.0',
- * 		translations: [ 'en', 'de' ],
+ * 		translations: [ 'es', 'de' ],
  * 		premium: true
  * 	}
  * } );

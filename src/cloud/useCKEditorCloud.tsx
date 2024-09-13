@@ -22,7 +22,7 @@ import { useAsyncValue, type AsyncValueHookResult } from '../hooks/useAsyncValue
  * ```ts
  * const cloud = useCKEditorCloud( {
  * 	version: '42.0.0',
- * 	translations: [ 'en', 'de' ],
+ * 	translations: [ 'es', 'de' ],
  * 	premium: true
  * } );
  *

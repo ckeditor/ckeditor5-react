@@ -17,7 +17,7 @@ describe( 'useCKEditorCloud', () => {
 	it( 'should load CKEditor bundles from CDN', async () => {
 		const { result } = renderHook( () => useCKEditorCloud( {
 			version: '43.0.0',
-			translations: [ 'en', 'de' ]
+			translations: [ 'es', 'de' ]
 		} ) );
 
 		expect( result.current.status ).toBe( 'loading' );
