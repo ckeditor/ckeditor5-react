@@ -7,10 +7,10 @@ import { describe, afterEach, it, expect, vi } from 'vitest';
 import React from 'react';
 import { ContextWatchdog } from 'ckeditor5';
 import { render, type RenderResult } from '@testing-library/react';
-import ContextMock from './_utils/context';
-import Editor from './_utils/editor';
-import { PromiseManager } from './_utils/promisemanager';
-import { CKEditor, CKEditorContext } from '../src/index';
+import ContextMock from './_utils/context.js';
+import Editor from './_utils/editor.js';
+import { PromiseManager } from './_utils/promisemanager.js';
+import { CKEditor, CKEditorContext } from '../src/index.js';
 
 const MockEditor = Editor as any;
 
