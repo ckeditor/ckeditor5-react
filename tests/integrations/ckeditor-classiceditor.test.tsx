@@ -10,9 +10,9 @@ import React, { createRef } from 'react';
 import ReactDOM from 'react-dom';
 import { render, type RenderResult } from '@testing-library/react';
 
-import CKEditor from '../../src/ckeditor';
+import CKEditor from '../../src/ckeditor.js';
 
-import { timeout } from '../_utils/timeout';
+import { timeout } from '../_utils/timeout.js';
 import { TestClassicEditor } from '../_utils/classiceditor.js';
 import { PromiseManager } from '../_utils/promisemanager.js';
 
