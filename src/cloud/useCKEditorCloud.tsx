@@ -17,6 +17,7 @@ import { useAsyncValue, type AsyncValueHookResult } from '../hooks/useAsyncValue
  * @template Config The type of the CKEditor Cloud configuration.
  * @param config The configuration of the hook.
  * @returns The state of async operation that resolves to the CKEditor bundles.
+ * @experimental
  * @example
  *
  * ```ts
