@@ -1,11 +1,7 @@
 Changelog
 =========
 
-## [10.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.1.0...v10.0.0) (2024-09-17)
-
-### BREAKING CHANGES
-
-* The `languages` configuration property has been renamed to `translations` in `useCKEditorCloud`.
+## [9.2.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.1.0...v10.0.0) (2024-09-17)
 
 ### Features
 
