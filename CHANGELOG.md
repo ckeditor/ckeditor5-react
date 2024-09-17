@@ -1,6 +1,21 @@
 Changelog
 =========
 
+## [10.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.1.0...v10.0.0) (2024-09-17)
+
+### BREAKING CHANGES
+
+* The `languages` configuration property has been renamed to `translations` in `useCKEditorCloud`.
+
+### Features
+
+* Improve result type of `useCKEditorCloud` to make `CKEditorPremiumFeatures` and `CKBox` non-nullable when proper configuration is passed. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/1268d9efeeb5e34ee4f93e0e4d5e4e449ea59603))
+
+### Bug fixes
+
+* Rename the `languages` configuration property to `translations` in `useCKEditorCloud`. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/1268d9efeeb5e34ee4f93e0e4d5e4e449ea59603))
+
+
 ## [9.1.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.0.0...v9.1.0) (2024-09-05)
 
 We added an `onChangeInitializedEditors` callback to `CKEditorContext` component to allow tracking newly initialized editors within the JSX React tree.
