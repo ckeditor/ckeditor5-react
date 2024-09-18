@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## [9.2.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.1.0...v10.0.0) (2024-09-17)
+## [9.2.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.1.0...v10.0.0) (2024-09-19)
 
 ### Features
 
