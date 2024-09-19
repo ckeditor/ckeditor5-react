@@ -8,8 +8,7 @@
 /* eslint-env node */
 
 import { Listr } from 'listr2';
-import releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
-import releaseCliUtils from '@ckeditor/ckeditor5-dev-release-tools/lib/utils/cli.js';
+import * as releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
 import parseArguments from './utils/parsearguments.js';
 import getListrOptions from './utils/getlistroptions.js';
 
@@ -89,7 +88,7 @@ const tasks = new Listr( [
 		if ( process.env.CKE5_RELEASE_TOKEN ) {
 			githubToken = process.env.CKE5_RELEASE_TOKEN;
 		} else {
-			githubToken = await releaseCliUtils.provideToken();
+			githubToken = await releaseTools.provideToken();
 		}
 
 		await tasks.run();
