@@ -7,7 +7,7 @@ Changelog
 
 * **Experimental:** Improve result type of `useCKEditorCloud` to make `CKEditorPremiumFeatures` and `CKBox` non-nullable when proper configuration is passed. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/1268d9efeeb5e34ee4f93e0e4d5e4e449ea59603))
 
-### Bug fixes
+### Other changes
 
 * **Experimental:** Rename the `languages` configuration property to `translations` in `useCKEditorCloud`. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/1268d9efeeb5e34ee4f93e0e4d5e4e449ea59603))
 
