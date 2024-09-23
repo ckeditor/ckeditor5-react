@@ -111,7 +111,7 @@ export default class MockEditor {
 
 function createDocument() {
 	return {
-		on( _, __ ) {},
+		on() {},
 		off() {},
 		getRootNames() {
 			return [ 'main' ];

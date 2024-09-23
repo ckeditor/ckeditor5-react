@@ -248,12 +248,14 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 		if ( !props.disableTwoWayDataBinding ) {
 			setData( previousData => {
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const { [ rootName! ]: _, ...newData } = previousData;
 
 				return { ...newData };
 			} );
 
 			setAttributes( previousAttributes => {
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const { [ rootName! ]: _, ...newAttributes } = previousAttributes;
 
 				return { ...newAttributes };
