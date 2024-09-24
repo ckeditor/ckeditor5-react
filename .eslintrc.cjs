@@ -29,6 +29,7 @@ module.exports = {
 		'react/no-deprecated': 'off',
 		'no-console': 'off',
 		'no-trailing-spaces': 'error',
+		'ckeditor5-rules/prevent-license-key-leak': 'error',
 		'ckeditor5-rules/allow-imports-only-from-main-package-entry-point': 'off',
 		'ckeditor5-rules/license-header': [ 'error', { headerLines: [
 			'/**',

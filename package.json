@@ -54,7 +54,7 @@
     "ckeditor5-premium-features": "^42.0.0",
     "coveralls": "^3.1.1",
     "eslint": "^7.19.0",
-    "eslint-config-ckeditor5": "^5.3.2",
+    "eslint-config-ckeditor5": "^7.1.0",
     "eslint-plugin-react": "^7.32.2",
     "husky": "^8.0.2",
     "lint-staged": "^10.2.11",
