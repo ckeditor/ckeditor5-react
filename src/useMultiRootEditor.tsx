@@ -23,16 +23,16 @@ import type {
 	EventInfo
 } from 'ckeditor5';
 
-import { ContextWatchdogContext, isContextWatchdogReadyToUse } from './context/ckeditorcontext';
-import { EditorWatchdogAdapter } from './ckeditor';
+import { ContextWatchdogContext, isContextWatchdogReadyToUse } from './context/ckeditorcontext.js';
+import { EditorWatchdogAdapter } from './ckeditor.js';
 
-import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
+import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore.js';
 
-import { useLifeCycleSemaphoreSyncRef, type LifeCycleSemaphoreSyncRefResult } from './lifecycle/useLifeCycleSemaphoreSyncRef';
-import { mergeRefs } from './utils/mergeRefs';
-import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
-import { useRefSafeCallback } from './hooks/useRefSafeCallback';
-import { useInstantEditorEffect } from './hooks/useInstantEditorEffect';
+import { useLifeCycleSemaphoreSyncRef, type LifeCycleSemaphoreSyncRefResult } from './lifecycle/useLifeCycleSemaphoreSyncRef.js';
+import { mergeRefs } from './utils/mergeRefs.js';
+import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore.js';
+import { useRefSafeCallback } from './hooks/useRefSafeCallback.js';
+import { useInstantEditorEffect } from './hooks/useInstantEditorEffect.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 

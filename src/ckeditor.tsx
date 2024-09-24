@@ -19,21 +19,21 @@ import type {
 	EditorCreatorFunction
 } from 'ckeditor5';
 
-import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore';
+import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore.js';
 
 import { uid } from '@ckeditor/ckeditor5-integrations-common';
-import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore';
+import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore.js';
 
 import {
 	withCKEditorReactContextMetadata,
 	type CKEditorConfigContextMetadata
-} from './context/setCKEditorReactContextMetadata';
+} from './context/setCKEditorReactContextMetadata.js';
 
 import {
 	ContextWatchdogContext,
 	isContextWatchdogInitializing,
 	isContextWatchdogReadyToUse
-} from './context/ckeditorcontext';
+} from './context/ckeditorcontext.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 

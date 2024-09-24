@@ -10,11 +10,11 @@ import React, {
 } from 'react';
 
 import { uid } from '@ckeditor/ckeditor5-integrations-common';
-import { useIsMountedRef } from '../hooks/useIsMountedRef';
+import { useIsMountedRef } from '../hooks/useIsMountedRef.js';
 import {
 	useInitializedCKEditorsMap,
 	type InitializedContextEditorsConfig
-} from './useInitializedCKEditorsMap';
+} from './useInitializedCKEditorsMap.js';
 
 import type {
 	ContextWatchdog,
@@ -109,7 +109,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		// The prevWatchdogInitializationID variable is used to keep track of the previous initialization ID.
 		// It is used to ensure that the state update is performed only if the current initialization ID matches the previous one.
 		// This helps to avoid race conditions and ensures that the correct context watchdog is associated with the component.
-		const watchdogInitializationID = regenerateInitializationID();
+		const watchdogInitializationID = regenerateInitializationID()!;
 		const contextWatchdog = new ContextWatchdogConstructor( context!, watchdogConfig );
 
 		// Handle error event from context watchdog.
