@@ -33,7 +33,6 @@
   },
   "peerDependencies": {
     "ckeditor5": ">=42.0.0 || ^0.0.0-nightly",
-    "ckeditor5-premium-features": ">=42.0.0 || ^0.0.0-nightly",
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
