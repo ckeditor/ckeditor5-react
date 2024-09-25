@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { useAsyncValue } from '../../src/hooks/useAsyncValue';
+import { useAsyncValue } from '../../src/hooks/useAsyncValue.js';
 
 describe( 'useAsyncValue', () => {
 	it( 'should return a mutable ref object', async () => {

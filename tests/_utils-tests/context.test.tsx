@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import Context from '../_utils/context';
+import Context from '../_utils/context.js';
 
 describe( 'Context', () => {
 	describe( 'constructor()', () => {

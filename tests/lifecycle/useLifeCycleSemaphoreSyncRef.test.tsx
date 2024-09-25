@@ -6,8 +6,8 @@
 import { it, describe, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
-import { LifeCycleElementSemaphore } from '../../src/lifecycle/LifeCycleElementSemaphore';
-import { useLifeCycleSemaphoreSyncRef } from '../../src/lifecycle/useLifeCycleSemaphoreSyncRef';
+import { LifeCycleElementSemaphore } from '../../src/lifecycle/LifeCycleElementSemaphore.js';
+import { useLifeCycleSemaphoreSyncRef } from '../../src/lifecycle/useLifeCycleSemaphoreSyncRef.js';
 
 describe( 'useLifeCycleSemaphoreSyncRef', () => {
 	let semaphore: LifeCycleElementSemaphore<any>;

@@ -5,7 +5,7 @@
 
 import { expect, it, describe, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useRefSafeCallback } from '../../src/hooks/useRefSafeCallback';
+import { useRefSafeCallback } from '../../src/hooks/useRefSafeCallback.js';
 
 describe( 'useRefSafeCallback', () => {
 	it( 'should return a function', () => {

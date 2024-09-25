@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { App } from './App';
+import { App } from './App.js';
 
 const element = document.getElementById( 'root' ) as HTMLDivElement;
 

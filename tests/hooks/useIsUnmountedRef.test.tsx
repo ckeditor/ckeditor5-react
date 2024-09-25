@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useIsUnmountedRef } from '../../src/hooks/useIsUnmountedRef';
+import { useIsUnmountedRef } from '../../src/hooks/useIsUnmountedRef.js';
 
 describe( 'useIsUnmountedRef', () => {
 	it( 'should return a mutable ref object', () => {

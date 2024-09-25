@@ -5,10 +5,10 @@
 
 import React, { useState, type ReactNode } from 'react';
 
-import { CKEditorCloudDemo } from './CKEditorCloudDemo';
-import { CKEditorCloudPluginsDemo } from './CKEditorCloudPluginsDemo';
-import { CKEditorCKBoxCloudDemo } from './CKEditorCKBoxCloudDemo';
-import { CKEditorCloudContextDemo } from './CKEditorCloudContextDemo';
+import { CKEditorCloudDemo } from './CKEditorCloudDemo.js';
+import { CKEditorCloudPluginsDemo } from './CKEditorCloudPluginsDemo.js';
+import { CKEditorCKBoxCloudDemo } from './CKEditorCKBoxCloudDemo.js';
+import { CKEditorCloudContextDemo } from './CKEditorCloudContextDemo.js';
 
 const EDITOR_CONTENT = `
 	<h2>Sample</h2>
