@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useIsMountedRef } from '../../src/hooks/useIsMountedRef';
+import { useIsMountedRef } from '../../src/hooks/useIsMountedRef.js';
 
 describe( 'useIsMountedRef', () => {
 	it( 'should return a mutable ref object', () => {

@@ -4,7 +4,7 @@
  */
 
 import { useRef, useState, type RefObject } from 'react';
-import type { LifeCycleElementSemaphore, LifeCycleAfterMountCallback } from './LifeCycleElementSemaphore';
+import type { LifeCycleElementSemaphore, LifeCycleAfterMountCallback } from './LifeCycleElementSemaphore.js';
 
 /**
  * When using the `useState` approach, a new instance of the semaphore must be set based on the previous

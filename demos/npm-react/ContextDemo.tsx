@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 
 import type { Editor } from 'ckeditor5';
 
-import ClassicEditor from './ClassicEditor';
+import ClassicEditor from './ClassicEditor.js';
 import { CKEditor, CKEditorContext } from '../../src/index.js';
 
 declare global {

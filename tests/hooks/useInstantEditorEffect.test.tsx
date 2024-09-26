@@ -5,7 +5,7 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useInstantEditorEffect } from '../../src/hooks/useInstantEditorEffect';
+import { useInstantEditorEffect } from '../../src/hooks/useInstantEditorEffect.js';
 
 describe( 'useInstantEditorEffect', () => {
 	it( 'should execute the provided function after mounting of editor', () => {

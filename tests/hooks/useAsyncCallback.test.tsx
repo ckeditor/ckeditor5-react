@@ -5,8 +5,8 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useAsyncCallback } from '../../src/hooks/useAsyncCallback';
-import { timeout } from '../_utils/timeout';
+import { useAsyncCallback } from '../../src/hooks/useAsyncCallback.js';
+import { timeout } from '../_utils/timeout.js';
 
 describe( 'useAsyncCallback', () => {
 	it( 'should execute the callback and update the state correctly when the callback resolves', async () => {

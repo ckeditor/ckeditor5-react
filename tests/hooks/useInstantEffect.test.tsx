@@ -5,7 +5,7 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useInstantEffect } from '../../src/hooks/useInstantEffect';
+import { useInstantEffect } from '../../src/hooks/useInstantEffect.js';
 
 describe( 'useInstantEffect', () => {
 	it( 'should call the effect function when dependencies change', () => {

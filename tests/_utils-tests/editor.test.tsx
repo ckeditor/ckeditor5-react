@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import Editor from '../_utils/editor';
+import Editor from '../_utils/editor.js';
 
 describe( 'Editor', () => {
 	describe( 'constructor()', () => {

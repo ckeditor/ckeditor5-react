@@ -4,8 +4,8 @@
  */
 
 import React, { useState } from 'react';
-import EditorDemo from './EditorDemo';
-import ContextDemo from './ContextDemo';
+import EditorDemo from './EditorDemo.js';
+import ContextDemo from './ContextDemo.js';
 
 type Demo = 'editor' | 'context';
 
