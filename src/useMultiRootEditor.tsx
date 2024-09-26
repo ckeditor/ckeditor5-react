@@ -505,7 +505,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				data || /* istanbul ignore next -- @preserve: It should never happen, data should be always filled. */ {}
 			);
 
-			const hasModifiedData = dataKeys.filter( rootName =>
+			const modifiedRoots = dataKeys.filter( rootName =>
 				editorData[ rootName ] !== undefined &&
 				JSON.stringify( editorData[ rootName ] ) !== JSON.stringify( data[ rootName ] )
 			);
@@ -531,7 +531,10 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			};
 
 			const _updateEditorData = ( roots: Array<string> ) => {
-				const dataToUpdate = roots.reduce( ( result, rootName ) => ( { ...result, [ rootName ]: data[ rootName ] } ), {} );
+				const dataToUpdate = roots.reduce(
+					( result, rootName ) => ( { ...result, [ rootName ]: data[ rootName ] } ),
+					Object.create( null )
+				);
 				instance.data.set( dataToUpdate, { suppressErrorInCollaboration: true } as any );
 			};
 
@@ -552,8 +555,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 					_handleNewRoots( newRoots );
 					_handleRemovedRoots( removedRoots );
 
-					if ( hasModifiedData.length ) {
-						_updateEditorData( hasModifiedData );
+					if ( modifiedRoots.length ) {
+						_updateEditorData( modifiedRoots );
 					}
 
 					if ( rootsWithChangedAttributes.length ) {
