@@ -34,7 +34,7 @@ import { useRefSafeCallback } from './useRefSafeCallback.js';
  * ```
  */
 export const useAsyncCallback = <A extends Array<unknown>, R>(
-	callback: ( ...args: Array<A> ) => Promise<R>
+	callback: ( ...args: A ) => Promise<R>
 ): AsyncCallbackHookResult<A, R> => {
 	// The state of the asynchronous callback.
 	const [ asyncState, setAsyncState ] = useState<AsyncCallbackState<R>>( {
@@ -50,7 +50,7 @@ export const useAsyncCallback = <A extends Array<unknown>, R>(
 	const prevExecutionUIDRef = useRef<string | null>( null );
 
 	// The asynchronous executor function, which is a wrapped version of the original callback.
-	const asyncExecutor = useRefSafeCallback( async ( ...args: Array<any> ) => {
+	const asyncExecutor = useRefSafeCallback( async ( ...args: A ) => {
 		if ( unmountedRef.current || isSSR() ) {
 			return null;
 		}
@@ -101,7 +101,7 @@ export const useAsyncCallback = <A extends Array<unknown>, R>(
  * Represents the result of the `useAsyncCallback` hook.
  */
 export type AsyncCallbackHookResult<A extends Array<unknown>, R> = [
-	( ...args: Array<A> ) => Promise<R | null>,
+	( ...args: A ) => Promise<R | null>,
 	AsyncCallbackState<R>
 ];
 

@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
-import { useRef, type DependencyList } from 'react';
+import { useState, type DependencyList } from 'react';
 import { shallowCompareArrays } from '@ckeditor/ckeditor5-integrations-common';
 
 /**
@@ -13,10 +13,10 @@ import { shallowCompareArrays } from '@ckeditor/ckeditor5-integrations-common';
  * @param deps The dependency list.
  */
 export const useInstantEffect = ( fn: VoidFunction, deps: DependencyList ): void => {
-	const prevDeps = useRef<any>( null );
+	const [ prevDeps, setDeps ] = useState<any>( null );
 
-	if ( !shallowCompareArrays( prevDeps.current, deps ) ) {
-		prevDeps.current = [ ...deps ];
+	if ( !shallowCompareArrays( prevDeps, deps ) ) {
 		fn();
+		setDeps( [ ...deps ] );
 	}
 };
