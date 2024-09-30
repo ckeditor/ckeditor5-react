@@ -4,7 +4,7 @@
  */
 
 import React, { type MutableRefObject } from 'react';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render } from '@testing-library/react';
 
 import { createDefer } from '@ckeditor/ckeditor5-integrations-common';
@@ -17,9 +17,8 @@ describe( 'withCKEditorCloud', () => {
 		current: null
 	};
 
-	afterEach( cleanup );
-
-	beforeEach( () => {
+	afterEach( () => {
+		cleanup();
 		removeAllCkCdnResources();
 		lastRenderedMockProps.current = null;
 	} );

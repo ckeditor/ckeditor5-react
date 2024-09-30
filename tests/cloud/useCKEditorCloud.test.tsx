@@ -3,8 +3,8 @@
  * For licensing, see LICENSE.md.
  */
 
-import { beforeEach, describe, expect, expectTypeOf, it } from 'vitest';
-import { renderHook, waitFor, act } from '@testing-library/react';
+import { afterEach, describe, expect, expectTypeOf, it } from 'vitest';
+import { renderHook, waitFor, act, cleanup } from '@testing-library/react';
 
 import type { CKEditorCloudConfig } from '@ckeditor/ckeditor5-integrations-common';
 import { removeAllCkCdnResources } from '@ckeditor/ckeditor5-integrations-common/test-utils';
@@ -12,7 +12,10 @@ import { removeAllCkCdnResources } from '@ckeditor/ckeditor5-integrations-common
 import useCKEditorCloud from '../../src/cloud/useCKEditorCloud.js';
 
 describe( 'useCKEditorCloud', () => {
-	beforeEach( removeAllCkCdnResources );
+	afterEach( () => {
+		cleanup();
+		removeAllCkCdnResources();
+	} );
 
 	it( 'should load CKEditor bundles from CDN', async () => {
 		const { result } = renderHook( () => useCKEditorCloud( {
