@@ -19,7 +19,8 @@ import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js
 describe( 'useMultiRootEditor', () => {
 	const rootsContent = {
 		intro: '<h2>Sample</h2><p>This is an instance of the.</p>',
-		content: '<p>It is the custom content</p>'
+		content: '<p>It is the custom content</p>',
+		footer: '<p>Footer content</p>'
 	};
 
 	const rootsAttributes = {
@@ -30,6 +31,10 @@ describe( 'useMultiRootEditor', () => {
 		content: {
 			row: '1',
 			order: 20
+		},
+		footer: {
+			row: '2',
+			order: 30
 		}
 	};
 
@@ -232,7 +237,7 @@ describe( 'useMultiRootEditor', () => {
 			const { data, editableElements } = result.current;
 
 			expect( data ).to.deep.equal( rootsContent );
-			expect( editableElements.length ).to.equal( 2 );
+			expect( editableElements.length ).to.equal( 3 );
 		} );
 
 		it( 'should update the editor data when the state has been changed', async () => {
@@ -254,8 +259,64 @@ describe( 'useMultiRootEditor', () => {
 
 				expect( spy ).toHaveBeenCalledOnce();
 				expect( data.intro ).to.equal( '<p>New data</p>' );
-				expect( editableElements.length ).to.equal( 2 );
+				expect( data.content ).to.equal( rootsContent.content );
+				expect( data.footer ).to.equal( rootsContent.footer );
+				expect( spy.mock.calls[ 0 ][ 0 ] ).to.deep.equal( { 'intro': 'New data' } );
+				expect( editableElements.length ).to.equal( 3 );
 				expect( editor!.getFullData().intro ).to.equal( '<p>New data</p>' );
+				expect( editor!.getFullData().content ).to.equal( rootsContent.content );
+				expect( editor!.getFullData().footer ).to.equal( rootsContent.footer );
+			} );
+		} );
+
+		it( 'should update only editor roots which content have been changed', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( editorProps ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			const { editor, setData } = result.current;
+			const spy = vi.spyOn( editor!.data, 'set' );
+
+			act( () => {
+				setData( { ...rootsContent, 'intro': '<h2>Sample</h2>', 'footer': 'Text...' } );
+			} );
+
+			await waitFor( () => {
+				const { data, editableElements } = result.current;
+
+				expect( spy ).toHaveBeenCalledOnce();
+				expect( data.intro ).to.equal( '<h2>Sample</h2>' );
+				expect( data.footer ).to.equal( '<p>Text...</p>' );
+				expect( spy.mock.calls[ 0 ][ 0 ] ).to.deep.equal( { 'intro': '<h2>Sample</h2>', 'footer': 'Text...' } );
+				expect( editableElements.length ).to.equal( 3 );
+				expect( editor!.getFullData().intro ).to.equal( '<h2>Sample</h2>' );
+				expect( editor!.getFullData().footer ).to.equal( '<p>Text...</p>' );
+			} );
+		} );
+
+		it( 'should not update editor roots when no content have been changed', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( editorProps ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			const { editor, setData } = result.current;
+			const spy = vi.spyOn( editor!.data, 'set' );
+
+			act( () => {
+				setData( { ...rootsContent, 'intro': '<h2>Sample</h2><p>This is an instance of the.</p>' } );
+			} );
+
+			await waitFor( () => {
+				const { data, editableElements } = result.current;
+
+				expect( spy.mock.calls.length ).to.equal( 0 );
+				expect( data ).to.deep.equal( rootsContent );
+				expect( editableElements.length ).to.equal( 3 );
+				expect( editor!.getFullData() ).to.deep.equal( rootsContent );
 			} );
 		} );
 
@@ -281,7 +342,7 @@ describe( 'useMultiRootEditor', () => {
 
 				expect( spy ).toHaveBeenCalledOnce();
 				expect( data.intro ).to.be.undefined;
-				expect( editableElements.length ).to.equal( 1 );
+				expect( editableElements.length ).to.equal( 2 );
 				expect( editor!.getFullData().intro ).to.be.undefined;
 			} );
 		} );
@@ -306,7 +367,7 @@ describe( 'useMultiRootEditor', () => {
 
 				expect( spy ).toHaveBeenCalledOnce();
 				expect( data.outro ).to.be.equal( '<p>New data</p>' );
-				expect( editableElements.length ).to.equal( 3 );
+				expect( editableElements.length ).to.equal( 4 );
 				expect( editor!.getFullData().outro ).to.be.equal( '<p>New data</p>' );
 			} );
 		} );
@@ -328,7 +389,7 @@ describe( 'useMultiRootEditor', () => {
 				const { data, editableElements } = result.current;
 
 				expect( data.intro ).to.equal( '<p>New data</p>' );
-				expect( editableElements.length ).to.equal( 2 );
+				expect( editableElements.length ).to.equal( 3 );
 				expect( editor!.getFullData().intro ).to.equal( '<p>New data</p>' );
 			} );
 		} );
@@ -354,7 +415,7 @@ describe( 'useMultiRootEditor', () => {
 			expect( spy.mock.calls.length ).to.equal( editableElements.length );
 			expect( data.outro ).to.equal( '' );
 			expect( attributes.outro ).to.deep.equal( { order: null, row: null } );
-			expect( editableElements.length ).to.equal( 3 );
+			expect( editableElements.length ).to.equal( 4 );
 			expect( editor!.getFullData().outro ).to.equal( '' );
 		} );
 
@@ -396,7 +457,7 @@ describe( 'useMultiRootEditor', () => {
 
 			const { editor } = result.current;
 
-			expect( result.current.editableElements.length ).to.equal( 2 );
+			expect( result.current.editableElements.length ).to.equal( 3 );
 
 			act( () => {
 				editor!.detachRoot( 'intro' );
@@ -406,7 +467,7 @@ describe( 'useMultiRootEditor', () => {
 				const { data, editableElements } = result.current;
 
 				expect( data.intro ).to.be.undefined;
-				expect( editableElements.length ).to.equal( 1 );
+				expect( editableElements.length ).to.equal( 2 );
 				expect( editor!.getFullData().intro ).to.be.undefined;
 			} );
 		} );
@@ -718,7 +779,7 @@ describe( 'useMultiRootEditor', () => {
 			const { data, editableElements } = result.current;
 
 			expect( data.intro ).to.equal( rootsContent.intro );
-			expect( editableElements.length ).to.equal( 2 );
+			expect( editableElements.length ).to.equal( 3 );
 			expect( editor!.getFullData().intro ).to.equal( '<p>New data</p>' );
 			expect( getDataSpy ).not.toHaveBeenCalled();
 		} );
@@ -747,7 +808,7 @@ describe( 'useMultiRootEditor', () => {
 			expect( spy.mock.calls.length ).to.equal( editableElements.length );
 			expect( data.outro ).to.be.undefined;
 			expect( attributes.outro ).to.be.undefined;
-			expect( editableElements.length ).to.equal( 3 );
+			expect( editableElements.length ).to.equal( 4 );
 			expect( editor!.getFullData().outro ).to.equal( '' );
 		} );
 
@@ -763,7 +824,7 @@ describe( 'useMultiRootEditor', () => {
 
 			const { editor } = result.current;
 
-			expect( result.current.editableElements.length ).to.equal( 2 );
+			expect( result.current.editableElements.length ).to.equal( 3 );
 
 			act( () => {
 				editor!.detachRoot( 'intro' );
@@ -773,7 +834,7 @@ describe( 'useMultiRootEditor', () => {
 				const { data, editableElements } = result.current;
 
 				expect( data.intro ).to.be.equal( rootsContent.intro );
-				expect( editableElements.length ).to.equal( 1 );
+				expect( editableElements.length ).to.equal( 2 );
 				expect( editor!.getFullData().intro ).to.be.undefined;
 			} );
 		} );
@@ -1029,7 +1090,7 @@ describe( 'useMultiRootEditor', () => {
 
 			await waitFor( () => {
 				expect( renderedEditor.current ).not.to.be.null;
-				expect( container.getElementsByClassName( 'ck-editor__editable' ).length ).to.equal( 2 );
+				expect( container.getElementsByClassName( 'ck-editor__editable' ).length ).to.equal( 3 );
 			} );
 
 			renderedEditor.current!.model.document.roots.remove( 'intro' );
@@ -1104,7 +1165,7 @@ describe( 'useMultiRootEditor', () => {
 			const { container } = render( <Component /> );
 
 			await waitFor( () => {
-				expect( container.getElementsByClassName( 'ck-editor__editable' ).length ).to.equal( 2 );
+				expect( container.getElementsByClassName( 'ck-editor__editable' ).length ).to.equal( 3 );
 			} );
 		} );
 
