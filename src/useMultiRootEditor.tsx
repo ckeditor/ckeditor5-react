@@ -34,6 +34,8 @@ import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore
 import { useRefSafeCallback } from './hooks/useRefSafeCallback.js';
 import { useInstantEditorEffect } from './hooks/useInstantEditorEffect.js';
 
+import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
+
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
 /* eslint-disable @typescript-eslint/no-use-before-define */
@@ -279,7 +281,10 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		overwriteObject( { ...props.data }, data );
 		overwriteArray( Object.keys( props.data ), roots );
 
-		return props.editor.create( initialData, config )
+		return props.editor.create(
+			initialData,
+			appendAllIntegrationPluginsToConfig( config )
+		)
 			.then( ( editor: MultiRootEditor ) => {
 				const editorData = editor.getFullData();
 

@@ -15,6 +15,7 @@ import { createDefer } from './_utils/defer.js';
 import { PromiseManager } from './_utils/promisemanager.js';
 import CKEditor, { type Props } from '../src/ckeditor.js';
 import { expectToBeTruthy } from './_utils/expectToBeTruthy.js';
+import { ReactIntegrationUsageDataPlugin } from '../src/plugins/ReactIntegrationUsageDataPlugin.js';
 
 import type { LifeCycleElementSemaphore } from '../src/lifecycle/LifeCycleElementSemaphore.js';
 import type { EditorSemaphoreMountResult } from '../src/lifecycle/LifeCycleEditorSemaphore.js';
@@ -157,6 +158,154 @@ describe( '<CKEditor> Component', () => {
 				},
 				initialData: '',
 				context: undefined
+			} );
+		} );
+
+		describe( 'license v2', () => {
+			it( 'should not add usage data plugin on free', async () => {
+				window.CKEDITOR_VERSION = '41.0.0';
+
+				const createSpy = vi.spyOn( MockEditor, 'create' ).mockResolvedValue( new MockEditor() );
+
+				const editorConfig = {
+					plugins: [],
+					toolbar: {
+						items: [ 'bold' ]
+					}
+				};
+
+				component = render(
+					<CKEditor
+						editor={MockEditor}
+						config={editorConfig}
+						onReady={manager.resolveOnRun()}
+					/>
+				);
+
+				await manager.all();
+
+				expect( createSpy ).toHaveBeenCalledOnce();
+				expect( createSpy.mock.calls[ 0 ][ 1 ] ).to.deep.equal( {
+					toolbar: {
+						items: [ 'bold' ]
+					},
+					initialData: '',
+					plugins: [],
+					context: undefined
+				} );
+			} );
+
+			it( 'should add usage data plugin on commercial', async () => {
+				window.CKEDITOR_VERSION = '41.0.0';
+
+				const createSpy = vi.spyOn( MockEditor, 'create' ).mockResolvedValue( new MockEditor() );
+
+				const editorConfig = {
+					plugins: [],
+					licenseKey: '<YOUR_LICENSE_KEY>',
+					toolbar: {
+						items: [ 'bold' ]
+					}
+				};
+
+				component = render(
+					<CKEditor
+						editor={MockEditor}
+						config={editorConfig}
+						onReady={manager.resolveOnRun()}
+					/>
+				);
+
+				await manager.all();
+
+				expect( createSpy ).toHaveBeenCalledOnce();
+				expect( createSpy.mock.calls[ 0 ][ 1 ] ).to.deep.equal( {
+					extraPlugins: [
+						ReactIntegrationUsageDataPlugin
+					],
+					toolbar: {
+						items: [ 'bold' ]
+					},
+					initialData: '',
+					licenseKey: '<YOUR_LICENSE_KEY>',
+					plugins: [],
+					context: undefined
+				} );
+			} );
+		} );
+
+		describe( 'license v3', () => {
+			it( 'should not add usage data plugin on free', async () => {
+				window.CKEDITOR_VERSION = '44.0.0';
+
+				const createSpy = vi.spyOn( MockEditor, 'create' ).mockResolvedValue( new MockEditor() );
+
+				const editorConfig = {
+					plugins: [],
+					licenseKey: 'GPL',
+					toolbar: {
+						items: [ 'bold' ]
+					}
+				};
+
+				component = render(
+					<CKEditor
+						editor={MockEditor}
+						config={editorConfig}
+						onReady={manager.resolveOnRun()}
+					/>
+				);
+
+				await manager.all();
+
+				expect( createSpy ).toHaveBeenCalledOnce();
+				expect( createSpy.mock.calls[ 0 ][ 1 ] ).to.deep.equal( {
+					toolbar: {
+						items: [ 'bold' ]
+					},
+					initialData: '',
+					licenseKey: 'GPL',
+					plugins: [],
+					context: undefined
+				} );
+			} );
+
+			it( 'should add usage data plugin on commercial', async () => {
+				window.CKEDITOR_VERSION = '44.0.0';
+
+				const createSpy = vi.spyOn( MockEditor, 'create' ).mockResolvedValue( new MockEditor() );
+
+				const editorConfig = {
+					plugins: [],
+					licenseKey: '<YOUR_LICENSE_KEY>',
+					toolbar: {
+						items: [ 'bold' ]
+					}
+				};
+
+				component = render(
+					<CKEditor
+						editor={MockEditor}
+						config={editorConfig}
+						onReady={manager.resolveOnRun()}
+					/>
+				);
+
+				await manager.all();
+
+				expect( createSpy ).toHaveBeenCalledOnce();
+				expect( createSpy.mock.calls[ 0 ][ 1 ] ).to.deep.equal( {
+					extraPlugins: [
+						ReactIntegrationUsageDataPlugin
+					],
+					toolbar: {
+						items: [ 'bold' ]
+					},
+					initialData: '',
+					licenseKey: '<YOUR_LICENSE_KEY>',
+					plugins: [],
+					context: undefined
+				} );
 			} );
 		} );
 

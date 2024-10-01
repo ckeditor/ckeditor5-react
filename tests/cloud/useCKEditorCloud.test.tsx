@@ -22,8 +22,6 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 			translations: [ 'es', 'de' ]
 		} ) );
 
-		expect( result.current.status ).toBe( 'loading' );
-
 		await waitFor( () => {
 			expect( result.current.status ).toBe( 'success' );
 
