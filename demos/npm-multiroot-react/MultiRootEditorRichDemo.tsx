@@ -115,6 +115,7 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 
 	const removeRoot = ( rootName: string ) => {
 		setData( previousData => {
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const { [ rootName! ]: _, ...newData } = previousData;
 
 			return { ...newData };

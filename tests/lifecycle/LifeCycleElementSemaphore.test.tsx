@@ -5,11 +5,11 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createDefer } from '../_utils/defer';
+import { createDefer } from '../_utils/defer.js';
 import {
 	LifeCycleElementSemaphore,
 	type LifeCycleAsyncOperators
-} from '../../src/lifecycle/LifeCycleElementSemaphore';
+} from '../../src/lifecycle/LifeCycleElementSemaphore.js';
 
 describe( 'LifeCycleElementSemaphore', () => {
 	let element: HTMLElement;

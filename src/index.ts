@@ -3,15 +3,15 @@
  * For licensing, see LICENSE.md.
  */
 
-export { default as CKEditor } from './ckeditor';
-export { default as CKEditorContext } from './context/ckeditorcontext';
-export { default as useMultiRootEditor, type MultiRootHookProps, type MultiRootHookReturns } from './useMultiRootEditor';
+export { default as CKEditor } from './ckeditor.js';
+export { default as CKEditorContext } from './context/ckeditorcontext.js';
+export { default as useMultiRootEditor, type MultiRootHookProps, type MultiRootHookReturns } from './useMultiRootEditor.js';
 
-export { default as useCKEditorCloud } from './cloud/useCKEditorCloud';
+export { default as useCKEditorCloud } from './cloud/useCKEditorCloud.js';
 export {
 	default as withCKEditorCloud,
 	type WithCKEditorCloudHocProps
-} from './cloud/withCKEditorCloud';
+} from './cloud/withCKEditorCloud.js';
 
 export {
 	loadCKEditorCloud,

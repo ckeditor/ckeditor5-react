@@ -4,9 +4,9 @@
  */
 
 import React, { StrictMode, useState } from 'react';
-import MultiRootEditorDemo from './MultiRootEditorDemo';
-import MultiRootEditorRichDemo from './MultiRootEditorRichDemo';
-import ContextMultiRootEditorDemo from './ContextMultiRootEditorDemo';
+import MultiRootEditorDemo from './MultiRootEditorDemo.js';
+import MultiRootEditorRichDemo from './MultiRootEditorRichDemo.js';
+import ContextMultiRootEditorDemo from './ContextMultiRootEditorDemo.js';
 
 type Demo = 'editor' | 'rich' | 'context';
 

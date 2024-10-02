@@ -38,7 +38,7 @@ import { useAsyncCallback, type AsyncCallbackState } from './useAsyncCallback.js
  * ```
  */
 export const useAsyncValue = <A extends Array<unknown>, R>(
-	callback: ( ...args: Array<A> ) => Promise<R>,
+	callback: ( ...args: A ) => Promise<R>,
 	deps: DependencyList
 ): AsyncValueHookResult<R> => {
 	const [ asyncCallback, asyncState ] = useAsyncCallback( callback );

@@ -3,11 +3,13 @@
  * For licensing, see LICENSE.md.
  */
 
-import { describe, expect, it } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
-import { useAsyncValue } from '../../src/hooks/useAsyncValue';
+import { afterEach, describe, expect, it } from 'vitest';
+import { cleanup, renderHook, waitFor } from '@testing-library/react';
+import { useAsyncValue } from '../../src/hooks/useAsyncValue.js';
 
 describe( 'useAsyncValue', () => {
+	afterEach( cleanup );
+
 	it( 'should return a mutable ref object', async () => {
 		const { result } = renderHook( () => useAsyncValue( async () => 123, [] ) );
 

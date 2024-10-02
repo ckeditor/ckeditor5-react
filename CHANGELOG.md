@@ -1,6 +1,18 @@
 Changelog
 =========
 
+## [9.3.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.2.0...v9.3.0) (2024-09-26)
+
+### Features
+
+* **Experimental:** Better error messages in `useCKEditorCloud`. It now detects existing editor installations and gives migration info from NPM to CDN. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/6c4bd647532901b4ee51cea88e3016cc420199ce))
+
+
+### Other changes
+
+* Remove `ckeditor5-premium-features` from `peerDependencies`. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/9b9ebe2a263c482d55e4db7526903fb5a8f9fb42))
+
+
 ## [9.2.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.1.0...v10.0.0) (2024-09-19)
 
 ### Features

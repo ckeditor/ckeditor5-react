@@ -29,13 +29,20 @@ module.exports = {
 		'react/no-deprecated': 'off',
 		'no-console': 'off',
 		'no-trailing-spaces': 'error',
+		'ckeditor5-rules/prevent-license-key-leak': 'error',
 		'ckeditor5-rules/allow-imports-only-from-main-package-entry-point': 'off',
 		'ckeditor5-rules/license-header': [ 'error', { headerLines: [
 			'/**',
 			' * @license Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.',
 			' * For licensing, see LICENSE.md.',
 			' */'
-		] } ]
+		] } ],
+		'ckeditor5-rules/require-file-extensions-in-imports': [
+			'error',
+			{
+				extensions: [ '.ts', '.js', '.json' ]
+			}
+		],
 	},
 	'settings': {
 		'react': {

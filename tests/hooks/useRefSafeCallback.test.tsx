@@ -3,11 +3,13 @@
  * For licensing, see LICENSE.md.
  */
 
-import { expect, it, describe, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { useRefSafeCallback } from '../../src/hooks/useRefSafeCallback';
+import { expect, it, describe, vi, afterEach } from 'vitest';
+import { renderHook, act, cleanup } from '@testing-library/react';
+import { useRefSafeCallback } from '../../src/hooks/useRefSafeCallback.js';
 
 describe( 'useRefSafeCallback', () => {
+	afterEach( cleanup );
+
 	it( 'should return a function', () => {
 		const { result } = renderHook( () => useRefSafeCallback( () => {} ) );
 

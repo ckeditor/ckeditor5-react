@@ -4,7 +4,7 @@
  */
 
 import type { ClassicEditor, Plugin, ContextPlugin, EditorConfig } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
-import type { CKEditorCloudResult } from '../../src';
+import type { CKEditorCloudResult } from '../../src/index.js';
 
 type ClassicEditorCreatorConfig = {
 	cloud: CKEditorCloudResult;

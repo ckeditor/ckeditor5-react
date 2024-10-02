@@ -6,7 +6,7 @@
 import type { MutableRefObject } from 'react';
 
 import { describe, expect, it, vi } from 'vitest';
-import { mergeRefs } from '../../src/utils/mergeRefs';
+import { mergeRefs } from '../../src/utils/mergeRefs.js';
 
 describe( 'mergeRefs', () => {
 	it( 'should call the callback ref with the provided value', () => {

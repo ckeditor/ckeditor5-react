@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import ClassicEditor from './ClassicEditor';
+import ClassicEditor from './ClassicEditor.js';
 import { CKEditor } from '../../src/index.js';
 
 declare global {

@@ -3,11 +3,13 @@
  * For licensing, see LICENSE.md.
  */
 
-import { describe, expect, it } from 'vitest';
-import { renderHook } from '@testing-library/react';
-import { useIsUnmountedRef } from '../../src/hooks/useIsUnmountedRef';
+import { afterEach, describe, expect, it } from 'vitest';
+import { cleanup, renderHook } from '@testing-library/react';
+import { useIsUnmountedRef } from '../../src/hooks/useIsUnmountedRef.js';
 
 describe( 'useIsUnmountedRef', () => {
+	afterEach( cleanup );
+
 	it( 'should return a mutable ref object', () => {
 		const { result } = renderHook( () => useIsUnmountedRef() );
 
