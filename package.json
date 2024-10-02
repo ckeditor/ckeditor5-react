@@ -38,10 +38,10 @@
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.8",
-    "@ckeditor/ckeditor5-dev-bump-year": "^44.0.0-alpha.0",
-    "@ckeditor/ckeditor5-dev-ci": "^44.0.0-alpha.0",
-    "@ckeditor/ckeditor5-dev-release-tools": "^44.0.0-alpha.0",
-    "@ckeditor/ckeditor5-dev-utils": "^44.0.0-alpha.0",
+    "@ckeditor/ckeditor5-dev-bump-year": "^44.0.0",
+    "@ckeditor/ckeditor5-dev-ci": "^44.0.0",
+    "@ckeditor/ckeditor5-dev-release-tools": "^44.0.0",
+    "@ckeditor/ckeditor5-dev-utils": "^44.0.0",
     "@testing-library/dom": "^10.3.1",
     "@testing-library/react": "^16.0.0",
     "@types/react": "^18.0.0",
@@ -75,9 +75,6 @@
     "webdriverio": "^8.39.0"
   },
   "resolutions": {
-    "wrap-ansi": "7.0.0",
-    "string-width": "4.1.0",
-    "semver": "^7.0.0",
     "ws": "^8"
   },
   "engines": {
