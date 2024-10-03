@@ -9,8 +9,8 @@
 
 import { createRequire } from 'module';
 import { Listr } from 'listr2';
-import releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
-import utils from '@ckeditor/ckeditor5-dev-utils';
+import * as releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
+import * as devUtils from '@ckeditor/ckeditor5-dev-utils';
 import parseArguments from './utils/parsearguments.js';
 import getListrOptions from './utils/getlistroptions.js';
 
@@ -65,7 +65,7 @@ const tasks = new Listr( [
 	{
 		title: 'Running build command.',
 		task: () => {
-			return utils.tools.shExec( 'yarn run build', { async: true, verbosity: 'silent' } );
+			return devUtils.tools.shExec( 'yarn run build', { async: true, verbosity: 'silent' } );
 		}
 	},
 	{
