@@ -598,8 +598,10 @@ describe( 'useMultiRootEditor', () => {
 			const newRootsAttributes: Record<string, any> = { ...rootsAttributes };
 			delete newRootsAttributes.intro;
 
-			act( () => {
-				setAttributes( { ...newRootsAttributes } );
+			await turnOffErrors( () => {
+				act( () => {
+					setAttributes( { ...newRootsAttributes } );
+				} );
 			} );
 
 			expect( console.error ).toHaveBeenCalledWith( '`data` and `attributes` objects must have the same keys (roots).' );
