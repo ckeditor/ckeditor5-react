@@ -16,10 +16,10 @@ import CKEditorContext, {
 import CKEditor from '../../src/ckeditor.js';
 import MockedEditor from '../_utils/editor.js';
 import { ClassicEditor, ContextWatchdog, CKEditorError } from 'ckeditor5';
-import turnOffDefaultErrorCatching from '../_utils/turnoffdefaulterrorcatching.js';
 import ContextMock, { DeferredContextMock } from '../_utils/context.js';
 import { timeout } from '../_utils/timeout.js';
 import { PromiseManager } from '../_utils/promisemanager.js';
+import { turnOffErrors } from '../_utils/turnOffErrors.js';
 
 const MockEditor = MockedEditor as any;
 
@@ -303,26 +303,27 @@ describe( '<CKEditorContext> Component', () => {
 				} );
 
 				const { watchdog } = contextRef.current as ExtractContextWatchdogValueByStatus<'initialized'>;
-				const error = new CKEditorError( 'foo', watchdog.context );
 
-				await turnOffDefaultErrorCatching( async () => {
+				await turnOffErrors( async () => {
+					const error = new CKEditorError( 'foo', watchdog.context );
+
 					setTimeout( () => {
 						throw error;
 					} );
 
 					await timeout( 150 );
+
+					expect( onErrorSpy ).toHaveBeenCalledOnce();
+					const errorEventArgs = onErrorSpy.mock.calls[ 0 ];
+
+					expect( errorEventArgs[ 0 ] ).to.equal( error );
+					expect( errorEventArgs[ 1 ] ).to.deep.equal( {
+						phase: 'runtime',
+						willContextRestart: true
+					} );
+
+					expect( contextRef.current!.status ).to.be.equal( 'initialized' );
 				} );
-
-				expect( onErrorSpy ).toHaveBeenCalledOnce();
-				const errorEventArgs = onErrorSpy.mock.calls[ 0 ];
-
-				expect( errorEventArgs[ 0 ] ).to.equal( error );
-				expect( errorEventArgs[ 1 ] ).to.deep.equal( {
-					phase: 'runtime',
-					willContextRestart: true
-				} );
-
-				expect( contextRef.current!.status ).to.be.equal( 'initialized' );
 			} );
 
 			it( 'displays an error if something went wrong and "onError" callback was not specified', async () => {

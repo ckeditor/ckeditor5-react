@@ -12,7 +12,7 @@ import { removeAllCkCdnResources } from '@ckeditor/ckeditor5-integrations-common
 
 import withCKEditorCloud, { type WithCKEditorCloudHocProps } from '../../src/cloud/withCKEditorCloud.js';
 
-describe( 'withCKEditorCloud', () => {
+describe( 'withCKEditorCloud', { timeout: 5000 }, () => {
 	const lastRenderedMockProps: MutableRefObject<WithCKEditorCloudHocProps | null> = {
 		current: null
 	};

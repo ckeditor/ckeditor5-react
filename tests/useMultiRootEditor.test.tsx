@@ -14,7 +14,7 @@ import { ContextWatchdogContext } from '../src/context/ckeditorcontext.js';
 import { timeout } from './_utils/timeout.js';
 import { createDefer } from './_utils/defer.js';
 import { createTestMultiRootWatchdog, TestMultiRootEditor } from './_utils/multirooteditor.js';
-import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
+import { turnOffErrors } from './_utils/turnOffErrors.js';
 
 describe( 'useMultiRootEditor', () => {
 	const rootsContent = {
@@ -120,16 +120,16 @@ describe( 'useMultiRootEditor', () => {
 
 			// Mock the error.
 			vi.spyOn( editor!, 'focus' ).mockImplementation( async () => {
-				await turnOffDefaultErrorCatching( () => {
-					return new Promise( () => {
-						setTimeout( () => {
-							throw new CKEditorError( 'a-custom-error', editor );
-						} );
-					} );
+				setTimeout( () => {
+					throw new CKEditorError( 'a-custom-error', editor );
 				} );
 			} );
 
-			// Throw the error.
+			const handler = ( evt: ErrorEvent ) => {
+				evt.preventDefault();
+			};
+
+			window.addEventListener( 'error', handler, { capture: true, once: true } );
 			editor!.focus();
 
 			await waitFor( () => {
@@ -208,24 +208,23 @@ describe( 'useMultiRootEditor', () => {
 
 			const { editor, toolbarElement } = result.current;
 
+			// Mock the error.
 			vi.spyOn( editor!, 'focus' ).mockImplementation( async () => {
-				await turnOffDefaultErrorCatching( () => {
-					return new Promise( () => {
-						setTimeout( () => {
-							throw new CKEditorError( 'a-custom-error', editor );
-						} );
-					} );
+				setTimeout( () => {
+					throw new CKEditorError( 'a-custom-error', editor );
 				} );
 			} );
 
-			// Throw the error.
-			editor!.focus();
+			await turnOffErrors( async () => {
+				editor!.focus();
 
-			await waitFor( () => {
-				const { toolbarElement: newToolbarElement } = result.current;
+				await timeout( 10 );
+				await waitFor( () => {
+					const { toolbarElement: newToolbarElement } = result.current;
 
-				expect( newToolbarElement ).to.be.exist;
-				expect( newToolbarElement ).to.not.be.equal( toolbarElement );
+					expect( newToolbarElement ).to.be.exist;
+					expect( newToolbarElement ).to.not.be.equal( toolbarElement );
+				} );
 			} );
 		} );
 	} );
@@ -724,24 +723,21 @@ describe( 'useMultiRootEditor', () => {
 				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
-			const { editor } = result.current;
-
 			// Mock the error.
-			vi.spyOn( editor!, 'focus' ).mockImplementation( async () => {
-				await turnOffDefaultErrorCatching( () => {
-					return new Promise( () => {
-						setTimeout( () => {
-							throw new CKEditorError( 'a-custom-error', editor );
-						} );
+			await turnOffErrors( async () => {
+				const { editor } = result.current;
+
+				vi.spyOn( editor!, 'focus' ).mockImplementation( async () => {
+					setTimeout( () => {
+						throw new CKEditorError( 'a-custom-error', editor );
 					} );
 				} );
-			} );
 
-			// Throw the error.
-			editor!.focus();
+				editor!.focus();
 
-			await waitFor( () => {
-				expect( onAfterDestroyMock ).toHaveBeenCalledOnce();
+				await waitFor( () => {
+					expect( onAfterDestroyMock ).toHaveBeenCalledOnce();
+				} );
 			} );
 		} );
 
