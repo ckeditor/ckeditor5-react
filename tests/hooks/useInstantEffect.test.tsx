@@ -3,13 +3,11 @@
  * For licensing, see LICENSE.md.
  */
 
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, renderHook } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { renderHook } from '@testing-library/react';
 import { useInstantEffect } from '../../src/hooks/useInstantEffect.js';
 
 describe( 'useInstantEffect', () => {
-	afterEach( cleanup );
-
 	it( 'should call the effect function when dependencies change', () => {
 		const effectFn = vi.fn();
 		const { rerender } = renderHook( deps => useInstantEffect( effectFn, deps ), {

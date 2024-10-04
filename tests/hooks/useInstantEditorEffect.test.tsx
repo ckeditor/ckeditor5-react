@@ -3,13 +3,11 @@
  * For licensing, see LICENSE.md.
  */
 
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, renderHook } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { renderHook } from '@testing-library/react';
 import { useInstantEditorEffect } from '../../src/hooks/useInstantEditorEffect.js';
 
 describe( 'useInstantEditorEffect', () => {
-	afterEach( cleanup );
-
 	it( 'should execute the provided function after mounting of editor', () => {
 		const semaphore = {
 			runAfterMount: vi.fn()

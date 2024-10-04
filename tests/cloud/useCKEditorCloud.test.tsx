@@ -4,7 +4,7 @@
  */
 
 import { afterEach, describe, expect, expectTypeOf, it } from 'vitest';
-import { renderHook, waitFor, act, cleanup } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 
 import type { CKEditorCloudConfig } from '@ckeditor/ckeditor5-integrations-common';
 import { removeAllCkCdnResources } from '@ckeditor/ckeditor5-integrations-common/test-utils';
@@ -13,7 +13,6 @@ import useCKEditorCloud from '../../src/cloud/useCKEditorCloud.js';
 
 describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 	afterEach( () => {
-		cleanup();
 		removeAllCkCdnResources();
 	} );
 
