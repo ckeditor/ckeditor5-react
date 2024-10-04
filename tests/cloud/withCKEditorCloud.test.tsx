@@ -5,20 +5,19 @@
 
 import React, { type MutableRefObject } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, render } from '@testing-library/react';
+import { render } from '@testing-library/react';
 
 import { createDefer } from '@ckeditor/ckeditor5-integrations-common';
 import { removeAllCkCdnResources } from '@ckeditor/ckeditor5-integrations-common/test-utils';
 
 import withCKEditorCloud, { type WithCKEditorCloudHocProps } from '../../src/cloud/withCKEditorCloud.js';
 
-describe( 'withCKEditorCloud', () => {
+describe( 'withCKEditorCloud', { timeout: 5000 }, () => {
 	const lastRenderedMockProps: MutableRefObject<WithCKEditorCloudHocProps | null> = {
 		current: null
 	};
 
 	afterEach( () => {
-		cleanup();
 		removeAllCkCdnResources();
 		lastRenderedMockProps.current = null;
 	} );

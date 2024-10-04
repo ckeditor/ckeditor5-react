@@ -14,7 +14,7 @@ import { ContextWatchdogContext } from '../src/context/ckeditorcontext.js';
 import { timeout } from './_utils/timeout.js';
 import { createDefer } from './_utils/defer.js';
 import { createTestMultiRootWatchdog, TestMultiRootEditor } from './_utils/multirooteditor.js';
-import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
+import { turnOffErrors } from './_utils/turnOffErrors.js';
 
 describe( 'useMultiRootEditor', () => {
 	const rootsContent = {
@@ -120,17 +120,14 @@ describe( 'useMultiRootEditor', () => {
 
 			// Mock the error.
 			vi.spyOn( editor!, 'focus' ).mockImplementation( async () => {
-				await turnOffDefaultErrorCatching( () => {
-					return new Promise( () => {
-						setTimeout( () => {
-							throw new CKEditorError( 'a-custom-error', editor );
-						} );
-					} );
+				setTimeout( () => {
+					throw new CKEditorError( 'a-custom-error', editor );
 				} );
 			} );
 
-			// Throw the error.
-			editor!.focus();
+			await turnOffErrors( async () => {
+				editor!.focus();
+			} );
 
 			await waitFor( () => {
 				const { editor: newEditor, data: newData, attributes: newAttributes } = result.current;
@@ -208,18 +205,16 @@ describe( 'useMultiRootEditor', () => {
 
 			const { editor, toolbarElement } = result.current;
 
+			// Mock the error.
 			vi.spyOn( editor!, 'focus' ).mockImplementation( async () => {
-				await turnOffDefaultErrorCatching( () => {
-					return new Promise( () => {
-						setTimeout( () => {
-							throw new CKEditorError( 'a-custom-error', editor );
-						} );
-					} );
+				setTimeout( () => {
+					throw new CKEditorError( 'a-custom-error', editor );
 				} );
 			} );
 
-			// Throw the error.
-			editor!.focus();
+			await turnOffErrors( async () => {
+				editor!.focus();
+			} );
 
 			await waitFor( () => {
 				const { toolbarElement: newToolbarElement } = result.current;
@@ -603,8 +598,10 @@ describe( 'useMultiRootEditor', () => {
 			const newRootsAttributes: Record<string, any> = { ...rootsAttributes };
 			delete newRootsAttributes.intro;
 
-			act( () => {
-				setAttributes( { ...newRootsAttributes } );
+			await turnOffErrors( () => {
+				act( () => {
+					setAttributes( { ...newRootsAttributes } );
+				} );
 			} );
 
 			expect( console.error ).toHaveBeenCalledWith( '`data` and `attributes` objects must have the same keys (roots).' );
@@ -724,21 +721,18 @@ describe( 'useMultiRootEditor', () => {
 				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
-			const { editor } = result.current;
-
 			// Mock the error.
-			vi.spyOn( editor!, 'focus' ).mockImplementation( async () => {
-				await turnOffDefaultErrorCatching( () => {
-					return new Promise( () => {
-						setTimeout( () => {
-							throw new CKEditorError( 'a-custom-error', editor );
-						} );
+			await turnOffErrors( async () => {
+				const { editor } = result.current;
+
+				vi.spyOn( editor!, 'focus' ).mockImplementation( async () => {
+					setTimeout( () => {
+						throw new CKEditorError( 'a-custom-error', editor );
 					} );
 				} );
-			} );
 
-			// Throw the error.
-			editor!.focus();
+				editor!.focus();
+			} );
 
 			await waitFor( () => {
 				expect( onAfterDestroyMock ).toHaveBeenCalledOnce();
