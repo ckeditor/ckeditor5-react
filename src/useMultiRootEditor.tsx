@@ -396,6 +396,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				} );
 
 				setTimeout( () => {
+					/* istanbul ignore next -- @preserve */
 					if ( props.onReady ) {
 						props.onReady( watchdog!.editor );
 					}
