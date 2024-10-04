@@ -125,12 +125,9 @@ describe( 'useMultiRootEditor', () => {
 				} );
 			} );
 
-			const handler = ( evt: ErrorEvent ) => {
-				evt.preventDefault();
-			};
-
-			window.addEventListener( 'error', handler, { capture: true, once: true } );
-			editor!.focus();
+			await turnOffErrors( async () => {
+				editor!.focus();
+			} );
 
 			await waitFor( () => {
 				const { editor: newEditor, data: newData, attributes: newAttributes } = result.current;
@@ -217,14 +214,13 @@ describe( 'useMultiRootEditor', () => {
 
 			await turnOffErrors( async () => {
 				editor!.focus();
+			} );
 
-				await timeout( 10 );
-				await waitFor( () => {
-					const { toolbarElement: newToolbarElement } = result.current;
+			await waitFor( () => {
+				const { toolbarElement: newToolbarElement } = result.current;
 
-					expect( newToolbarElement ).to.be.exist;
-					expect( newToolbarElement ).to.not.be.equal( toolbarElement );
-				} );
+				expect( newToolbarElement ).to.be.exist;
+				expect( newToolbarElement ).to.not.be.equal( toolbarElement );
 			} );
 		} );
 	} );
@@ -734,10 +730,10 @@ describe( 'useMultiRootEditor', () => {
 				} );
 
 				editor!.focus();
+			} );
 
-				await waitFor( () => {
-					expect( onAfterDestroyMock ).toHaveBeenCalledOnce();
-				} );
+			await waitFor( () => {
+				expect( onAfterDestroyMock ).toHaveBeenCalledOnce();
 			} );
 		} );
 

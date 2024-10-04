@@ -4,6 +4,7 @@
  */
 
 import type { Awaitable } from '@ckeditor/ckeditor5-integrations-common';
+import { timeout } from './timeout.js';
 
 export async function turnOffErrors( callback: () => Awaitable<void> ): Promise<void> {
 	const handler = ( evt: ErrorEvent ) => {
@@ -14,6 +15,7 @@ export async function turnOffErrors( callback: () => Awaitable<void> ): Promise<
 
 	try {
 		await callback();
+		await timeout( 150 );
 	} finally {
 		window.removeEventListener( 'error', handler );
 	}

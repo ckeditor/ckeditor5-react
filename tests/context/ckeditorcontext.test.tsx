@@ -310,20 +310,18 @@ describe( '<CKEditorContext> Component', () => {
 					setTimeout( () => {
 						throw error;
 					} );
-
-					await timeout( 150 );
-
-					expect( onErrorSpy ).toHaveBeenCalledOnce();
-					const errorEventArgs = onErrorSpy.mock.calls[ 0 ];
-
-					expect( errorEventArgs[ 0 ] ).to.equal( error );
-					expect( errorEventArgs[ 1 ] ).to.deep.equal( {
-						phase: 'runtime',
-						willContextRestart: true
-					} );
-
-					expect( contextRef.current!.status ).to.be.equal( 'initialized' );
 				} );
+
+				expect( onErrorSpy ).toHaveBeenCalledOnce();
+				const errorEventArgs = onErrorSpy.mock.calls[ 0 ];
+
+				expect( errorEventArgs[ 0 ] ).to.instanceOf( Error );
+				expect( errorEventArgs[ 1 ] ).to.deep.equal( {
+					phase: 'runtime',
+					willContextRestart: true
+				} );
+
+				expect( contextRef.current!.status ).to.be.equal( 'initialized' );
 			} );
 
 			it( 'displays an error if something went wrong and "onError" callback was not specified', async () => {

@@ -1057,18 +1057,28 @@ describe( '<CKEditor> Component', () => {
 
 			await manager.all();
 			await turnOffErrors( async () => {
-				setTimeout( () => {
-					throw new CKEditorError( 'foo', firstEditor );
-				} );
+				await new Promise( resolve => {
+					component?.rerender(
+						<CKEditor
+							ref={instanceRef}
+							editor={MockEditor}
+							onReady={resolve}
+							onAfterDestroy={onAfterDestroySpy}
+						/>
+					);
 
-				await timeout( 10 );
-				await waitFor( () => {
-					const { editor } = instanceRef.current!;
-
-					expect( editor ).to.be.instanceOf( MockEditor );
-					expect( firstEditor ).to.not.equal( editor );
-					expect( onAfterDestroySpy ).toHaveBeenCalledOnce();
+					setTimeout( () => {
+						throw new CKEditorError( 'foo', firstEditor );
+					} );
 				} );
+			} );
+
+			await waitFor( () => {
+				const { editor } = instanceRef.current!;
+
+				expect( editor ).to.be.instanceOf( MockEditor );
+				expect( firstEditor ).to.not.equal( editor );
+				expect( onAfterDestroySpy ).toHaveBeenCalledOnce();
 			} );
 		} );
 	} );
