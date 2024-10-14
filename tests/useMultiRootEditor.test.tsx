@@ -19,7 +19,8 @@ import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js
 describe( 'useMultiRootEditor', () => {
 	const rootsContent = {
 		intro: '<h2>Sample</h2><p>This is an instance of the.</p>',
-		content: '<p>It is the custom content</p>'
+		content: '<p>It is the custom content</p>',
+		footer: '<p>Footer content</p>'
 	};
 
 	const rootsAttributes = {
@@ -30,6 +31,10 @@ describe( 'useMultiRootEditor', () => {
 		content: {
 			row: '1',
 			order: 20
+		},
+		footer: {
+			row: '2',
+			order: 30
 		}
 	};
 
