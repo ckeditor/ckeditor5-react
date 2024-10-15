@@ -3,14 +3,12 @@
  * For licensing, see LICENSE.md.
  */
 
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { renderHook, act, waitFor, cleanup } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useAsyncCallback } from '../../src/hooks/useAsyncCallback.js';
 import { timeout } from '../_utils/timeout.js';
 
 describe( 'useAsyncCallback', () => {
-	afterEach( cleanup );
-
 	it( 'should execute the callback and update the state correctly when the callback resolves', async () => {
 		const fetchData = vi.fn().mockResolvedValue( 'data' );
 

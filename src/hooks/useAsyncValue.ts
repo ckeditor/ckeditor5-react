@@ -5,8 +5,8 @@
 
 import type { DependencyList } from 'react';
 
-import { useInstantEffect } from './useInstantEffect.js';
 import { useAsyncCallback, type AsyncCallbackState } from './useAsyncCallback.js';
+import { useInstantEffect } from './useInstantEffect.js';
 
 /**
  * A hook that allows to execute an asynchronous function and provides the state of the execution.
@@ -37,8 +37,8 @@ import { useAsyncCallback, type AsyncCallbackState } from './useAsyncCallback.js
  * }
  * ```
  */
-export const useAsyncValue = <A extends Array<unknown>, R>(
-	callback: ( ...args: A ) => Promise<R>,
+export const useAsyncValue = <R>(
+	callback: () => Promise<R>,
 	deps: DependencyList
 ): AsyncValueHookResult<R> => {
 	const [ asyncCallback, asyncState ] = useAsyncCallback( callback );

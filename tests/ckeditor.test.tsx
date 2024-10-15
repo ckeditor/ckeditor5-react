@@ -13,12 +13,12 @@ import MockedEditor from './_utils/editor.js';
 import { timeout } from './_utils/timeout.js';
 import { createDefer } from './_utils/defer.js';
 import { PromiseManager } from './_utils/promisemanager.js';
-import turnOffDefaultErrorCatching from './_utils/turnoffdefaulterrorcatching.js';
 import CKEditor, { type Props } from '../src/ckeditor.js';
 import { expectToBeTruthy } from './_utils/expectToBeTruthy.js';
 
 import type { LifeCycleElementSemaphore } from '../src/lifecycle/LifeCycleElementSemaphore.js';
 import type { EditorSemaphoreMountResult } from '../src/lifecycle/LifeCycleEditorSemaphore.js';
+import { turnOffErrors } from './_utils/turnOffErrors.js';
 
 const MockEditor = MockedEditor as any;
 
@@ -1055,13 +1055,14 @@ describe( '<CKEditor> Component', () => {
 
 			expect( firstEditor ).to.be.instanceOf( MockEditor );
 
-			await turnOffDefaultErrorCatching( () => {
-				return new Promise( res => {
+			await manager.all();
+			await turnOffErrors( async () => {
+				await new Promise( resolve => {
 					component?.rerender(
 						<CKEditor
 							ref={instanceRef}
 							editor={MockEditor}
-							onReady={res}
+							onReady={resolve}
 							onAfterDestroy={onAfterDestroySpy}
 						/>
 					);
