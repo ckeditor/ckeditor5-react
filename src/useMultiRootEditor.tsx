@@ -380,7 +380,13 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			current: 0
 		};
 
-		watchdog.setCreator( async ( data, config ) => {
+		// Keeping using `data` from creator function callback seems to be a good idea in theory,
+		// but in practice, it leads to instability. The `data` object can be changed during the editor
+		// initialization, which can lead to unexpected reset of value in the editor, that do not match
+		// with the current react state. To prevent this, we are using the `data` from the hook state.
+		// It's not super optimal, but it's the most stable solution at this moment.
+		// See more: https://github.com/ckeditor/ckeditor5-react/issues/542
+		watchdog.setCreator( async ( _, config ) => {
 			const { onAfterDestroy } = props;
 
 			if ( totalRestartsRef.current > 0 && onAfterDestroy && editorRefs.instance.current ) {
