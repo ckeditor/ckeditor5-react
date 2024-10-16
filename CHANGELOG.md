@@ -1,6 +1,15 @@
 Changelog
 =========
 
+## [9.3.1](https://github.com/ckeditor/ckeditor5-react/compare/v9.3.0...v9.3.1) (2024-10-16)
+
+### Bug fixes
+
+* Behavior of `useCKEditorCloud` hook is now consistent with `Vite` and `Next` runtimes while changing properties. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/8886ca37769cd5145e6c6249ea5859a60ee9120b))
+* Prevent potential crashes of `useMultiRootEditor` during the initialization phase when setting the new state of the multi-root editor with an attached watchdog. Closes [#542](https://github.com/ckeditor/ckeditor5-react/issues/542). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/4df6509d5e167d4e94891782e6aa04a00d1673e0))
+* Update roots with modified content only. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/8f5232c7a1af57aac249e4f9f4567f8c3828bfc1))
+
+
 ## [9.3.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.2.0...v9.3.0) (2024-09-26)
 
 ### Features
