@@ -4,10 +4,10 @@
  */
 
 import type { ClassicEditor, Plugin, ContextPlugin, EditorConfig } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
-import type { CKEditorCloudResult } from '../../src/index.js';
+import type { CKEditorCloudConfig, CKEditorCloudResult } from '../../src/index.js';
 
 type ClassicEditorCreatorConfig = {
-	cloud: CKEditorCloudResult;
+	cloud: CKEditorCloudResult<CKEditorCloudConfig>;
 	additionalPlugins?: Array<typeof Plugin | typeof ContextPlugin>;
 	overrideConfig?: EditorConfig;
 };
