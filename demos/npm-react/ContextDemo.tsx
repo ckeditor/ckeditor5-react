@@ -44,6 +44,7 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 				context={ ClassicEditor.Context as any }
 				contextWatchdog={ ClassicEditor.ContextWatchdog as any }
 				onChangeInitializedEditors={ editors => {
+					console.log( 'Initialized editors:', editors );
 					setState( editors as any );
 				} }
 			>
