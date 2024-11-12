@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "prop-types": "^15.7.2",
-    "@ckeditor/ckeditor5-integrations-common": "^2.1.0"
+    "@ckeditor/ckeditor5-integrations-common": "^2.2.0"
   },
   "peerDependencies": {
     "ckeditor5": ">=42.0.0 || ^0.0.0-nightly",

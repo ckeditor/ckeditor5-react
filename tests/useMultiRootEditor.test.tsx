@@ -15,6 +15,7 @@ import { timeout } from './_utils/timeout.js';
 import { createDefer } from './_utils/defer.js';
 import { createTestMultiRootWatchdog, TestMultiRootEditor } from './_utils/multirooteditor.js';
 import { turnOffErrors } from './_utils/turnOffErrors.js';
+import { ReactIntegrationUsageDataPlugin } from '../src/plugins/ReactIntegrationUsageDataPlugin.js';
 
 describe( 'useMultiRootEditor', () => {
 	const rootsContent = {
@@ -106,6 +107,7 @@ describe( 'useMultiRootEditor', () => {
 
 			await waitFor( () => {
 				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+				expect( result.current.editor?.plugins ).to.include( ReactIntegrationUsageDataPlugin );
 			} );
 		} );
 

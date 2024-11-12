@@ -35,6 +35,8 @@ import {
 	isContextWatchdogReadyToUse
 } from './context/ckeditorcontext.js';
 
+import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
+
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -307,7 +309,10 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			config = withCKEditorReactContextMetadata( contextItemMetadata, config );
 		}
 
-		return this.props.editor.create( element as HTMLElement, config )
+		return this.props.editor.create(
+			element as HTMLElement,
+			appendAllIntegrationPluginsToConfig( config )
+		)
 			.then( editor => {
 				if ( 'disabled' in this.props ) {
 					// Switch to the read-only mode if the `[disabled]` attribute is specified.

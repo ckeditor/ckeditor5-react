@@ -1225,10 +1225,10 @@
     "@ckeditor/ckeditor5-utils" "43.2.0"
     ckeditor5 "43.2.0"
 
-"@ckeditor/ckeditor5-integrations-common@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-integrations-common/-/ckeditor5-integrations-common-2.1.0.tgz#5e1423ff764c421d8181a35f73677610038f1fb8"
-  integrity sha512-vn6qMb36sl6eSCc27dvThk6xISif59MxnxZmRBC440TyP7S9ZcS0ai4yHd5QyaH70ZIe0lhS7DWdLaiKtBggVQ==
+"@ckeditor/ckeditor5-integrations-common@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-integrations-common/-/ckeditor5-integrations-common-2.2.0.tgz#3eb75e21eddc880c87a675125ec3fcfe0c258847"
+  integrity sha512-qH68tqgyMibuejo+VAJ+iSH3ZmZweqBEzaawv9hZb4zzSMkBityWBjSc2hKXMtmJgCNsbSK84cyHpa5J/MNyLg==
 
 "@ckeditor/ckeditor5-language@43.2.0":
   version "43.2.0"
