@@ -18,6 +18,7 @@ export default class MockEditor {
 
 	// In order to tests events, we need to somehow mock those properties.
 	public static _on = (): void => {};
+	public static _once = (): void => {};
 
 	public static _model = {
 		document: createDocument(),
@@ -30,11 +31,13 @@ export default class MockEditor {
 		}
 	};
 
+	public declare state?: string;
 	public declare element?: HTMLElement;
 	public declare config?: Record<string, any>;
 	public declare model: any;
 	public declare editing: any;
 	public declare on: any;
+	public declare once: any;
 	public declare data: any;
 	public declare createEditable: any;
 	public declare ui: any;
@@ -52,6 +55,7 @@ export default class MockEditor {
 		this.model = MockEditor._model;
 		this.editing = MockEditor._editing;
 		this.on = MockEditor._on;
+		this.once = MockEditor._once;
 		this.data = {
 			get() {
 				return '';

@@ -6,7 +6,7 @@
 import { useEffect } from 'react';
 import { useRefSafeCallback } from '../hooks/useRefSafeCallback.js';
 
-import type { CollectionAddEvent, Context, ContextWatchdog, Editor } from 'ckeditor5';
+import type { CollectionAddEvent, Context, ContextWatchdog, Editor, GetCallback } from 'ckeditor5';
 import type { ContextWatchdogValue } from './ckeditorcontext.js';
 
 import {
@@ -80,15 +80,25 @@ export const useInitializedCKEditorsMap = <TContext extends Context>(
 		};
 
 		// Add the existing editors to the map.
-		const onAddEditor = ( _: unknown, editor: Editor ) => {
+		const trackEditorLifecycle = ( editor: Editor ) => {
 			editor.once( 'ready', onEditorStatusChange, { priority: 'lowest' } );
 			editor.once( 'destroy', onEditorStatusChange, { priority: 'lowest' } );
 		};
 
-		editors.on<CollectionAddEvent<Editor>>( 'add', onAddEditor );
+		const onAddEditorToCollection: GetCallback<CollectionAddEvent<Editor>> = ( _, editor ) => {
+			trackEditorLifecycle( editor );
+		};
+
+		editors.forEach( trackEditorLifecycle );
+		editors.on<CollectionAddEvent<Editor>>( 'add', onAddEditorToCollection );
+
+		// Fire the initial change event if there is at least one editor ready, otherwise wait for the first ready editor.
+		if ( Array.from( editors ).some( editor => editor.state === 'ready' ) ) {
+			onEditorStatusChange();
+		}
 
 		return () => {
-			editors.off( 'add', onAddEditor );
+			editors.off( 'add', onAddEditorToCollection );
 		};
 	}, [ currentContextWatchdog ] );
 };

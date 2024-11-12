@@ -93,7 +93,7 @@ export default defineConfig( {
 	resolve: {
 		alias: {
 			'react': resolve( __dirname, `node_modules/react${ REACT_VERSION }` ),
-			'react-dom/client': resolve( __dirname, `node_modules/react${ REACT_VERSION }-dom${ REACT_VERSION === 16 ? '' : '/client' }` ),
+			'react-dom/client': resolve( __dirname, `node_modules/react${ REACT_VERSION }-dom${ REACT_VERSION <= 17 ? '' : '/client' }` ),
 			'react-dom': resolve( __dirname, `node_modules/react${ REACT_VERSION }-dom` )
 		}
 	},
