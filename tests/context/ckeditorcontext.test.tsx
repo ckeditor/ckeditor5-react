@@ -366,8 +366,8 @@ describe( '<CKEditorContext> Component', () => {
 
 				await manager.all();
 
-				// A small hack - currently editors are ready one cycle after the context is ready.
-				await new Promise( res => setTimeout( res ) );
+				// Wait until `onReady()` callbacks have been executed.
+				await new Promise( res => setTimeout( res, 1 ) );
 
 				expect( editorReadySpy ).toHaveBeenCalledTimes( 2 );
 			} );
