@@ -183,8 +183,14 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			afterMount: ( { mountResult } ) => {
 				const { onReady } = this.props;
 
-				if ( onReady && this.domContainer.current !== null ) {
+				if ( !onReady || this.domContainer.current === null ) {
+					return;
+				}
+
+				try {
 					onReady( mountResult.instance );
+				} catch ( err ) {
+					console.error( err );
 				}
 			},
 			unmount: async ( { element, mountResult } ) => {
