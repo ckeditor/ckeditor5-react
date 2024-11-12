@@ -85,7 +85,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "dev": "echo \"Use 'dev:16', 'dev:17, 'dev:18', or 'dev:19' depending on the version of React you want to test\"",
+    "dev": "echo \"Use 'dev:16', 'dev:17', 'dev:18', or 'dev:19' depending on the version of React you want to test\"",
     "dev:16": "REACT_VERSION=16 vite",
     "dev:17": "REACT_VERSION=17 vite",
     "dev:18": "REACT_VERSION=18 vite",
