@@ -66,6 +66,7 @@ export default defineConfig( {
 			},
 			reporter: [
 				'text-summary',
+				'text',
 				'html',
 				'lcovonly',
 				'json'
