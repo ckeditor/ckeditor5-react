@@ -931,7 +931,7 @@ describe( 'useMultiRootEditor', () => {
 					editor: SlowEditor
 				} ) );
 
-				await timeout( 100 );
+				await timeout( 500 );
 
 				// Depending on the execution order on the event loop this `setData` might be delayed by the React engine.
 				// It happens only if event loop is busy and React has to wait for the next tick a little bit longer than usual.
@@ -942,9 +942,9 @@ describe( 'useMultiRootEditor', () => {
 					content: ''
 				} );
 
-				await timeout( 200 );
+				await timeout( 500 );
 
-				deferInitialization.resolve();
+				await deferInitialization.resolve();
 
 				await waitFor( () => {
 					expect( result.current.editor ).to.be.instanceof( SlowEditor );

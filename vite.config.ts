@@ -54,6 +54,9 @@ export default defineConfig( {
 		include: [
 			'tests/**/*.test.[j|t]sx'
 		],
+		sequence: {
+			shuffle: true
+		},
 		coverage: {
 			provider: 'istanbul',
 			include: [ 'src/*' ],
