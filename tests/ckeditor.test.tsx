@@ -549,6 +549,51 @@ describe( '<CKEditor> Component', () => {
 
 				expect( editor ).to.equal( editorInstance );
 			} );
+
+			it( 'should catch and log errors thrown in onReady callback', async () => {
+				const error = new Error( 'Test error' );
+				const consoleErrorSpy = vi.spyOn( console, 'error' ).mockImplementation( () => {} );
+				const editorInstance = new MockEditor();
+
+				const defer = createDefer();
+
+				vi.spyOn( MockEditor, 'create' ).mockResolvedValue( editorInstance );
+
+				component = render(
+					<CKEditor
+						editor={MockEditor}
+						onReady={() => {
+							defer.resolve();
+							throw error;
+						}}
+					/>
+				);
+
+				await defer.promise;
+
+				expect( consoleErrorSpy ).toHaveBeenCalledOnce();
+				expect( consoleErrorSpy ).toHaveBeenCalledWith( error );
+			} );
+
+			it( 'should not log errors when onReady callback executes successfully', async () => {
+				const consoleErrorSpy = vi.spyOn( console, 'error' ).mockImplementation( () => {} );
+				const editorInstance = new MockEditor();
+
+				vi.spyOn( MockEditor, 'create' ).mockResolvedValue( editorInstance );
+
+				component = render(
+					<CKEditor
+						editor={MockEditor}
+						onReady={manager.resolveOnRun( () => {
+							// Successful callback
+						} )}
+					/>
+				);
+
+				await manager.all();
+
+				expect( consoleErrorSpy ).not.toHaveBeenCalled();
+			} );
 		} );
 
 		describe( '#onChange', () => {
