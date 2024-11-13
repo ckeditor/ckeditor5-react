@@ -5,7 +5,7 @@ Changelog
 
 ### Features
 
-* Align integration to work with self-service premium features. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/506c297e1e3529d27aa33e79414599629da73edd))
+* Align integration to work with the future self-service plan. Read more in the [CKEditor 5 repository](https://github.com/ckeditor/ckeditor5/issues/17317). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/506c297e1e3529d27aa33e79414599629da73edd))
 
 ### Bug fixes
 
