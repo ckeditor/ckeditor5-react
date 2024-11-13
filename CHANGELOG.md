@@ -1,6 +1,17 @@
 Changelog
 =========
 
+## [9.4.0-alpha.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.3.1...v9.4.0-alpha.0) (2024-11-13)
+
+### Features
+
+* Align integration to work with the future self-service plan. Read more in the [CKEditor 5 repository](https://github.com/ckeditor/ckeditor5/issues/17317). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/506c297e1e3529d27aa33e79414599629da73edd))
+
+### Bug fixes
+
+* Call `onChangeInitializedEditors` on startup of `CKEditorContext` if there are ready editors. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/130010f0dd9eb90a6cd9b93d0428c6e9732240f5))
+
+
 ## [9.3.1](https://github.com/ckeditor/ckeditor5-react/compare/v9.3.0...v9.3.1) (2024-10-16)
 
 ### Bug fixes
