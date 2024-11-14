@@ -54,6 +54,9 @@ export default defineConfig( {
 		include: [
 			'tests/**/*.test.[j|t]sx'
 		],
+		sequence: {
+			shuffle: true
+		},
 		coverage: {
 			provider: 'istanbul',
 			include: [ 'src/*' ],
@@ -63,6 +66,7 @@ export default defineConfig( {
 			},
 			reporter: [
 				'text-summary',
+				'text',
 				'html',
 				'lcovonly',
 				'json'

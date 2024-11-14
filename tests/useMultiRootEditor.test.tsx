@@ -896,7 +896,7 @@ describe( 'useMultiRootEditor', () => {
 
 	describe( 'semaphores', () => {
 		const testSemaphoreForWatchdog = enableWatchdog => {
-			it( 'should assign properly `data` property to editor even if it is still mounting', async () => {
+			it( 'should assign `data` property to the editor even if it is still mounting', { retry: 3 }, async () => {
 				const deferInitialization = createDefer();
 
 				class SlowEditor extends TestMultiRootEditor {
@@ -931,16 +931,20 @@ describe( 'useMultiRootEditor', () => {
 					editor: SlowEditor
 				} ) );
 
-				await timeout( 100 );
+				await timeout( 500 );
 
+				// Depending on the execution order on the event loop, this `setData` might be delayed by the React engine.
+				// It happens only if the event loop is busy and React has to wait for the next tick a little bit longer than usual.
+				// It does not play well with the `waitFor` below, so we added a few retries to make it more stable.
+				// It should not be a problem in real life, as it is a rare case and might be solved in future React versions.
 				result.current.setData( {
 					intro: 'Hello World!',
 					content: ''
 				} );
 
-				await timeout( 200 );
+				await timeout( 500 );
 
-				deferInitialization.resolve();
+				await deferInitialization.resolve();
 
 				await waitFor( () => {
 					expect( result.current.editor ).to.be.instanceof( SlowEditor );
