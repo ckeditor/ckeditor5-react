@@ -4,7 +4,12 @@ Software License Agreement
 **CKEditor 5 component for React** – https://github.com/ckeditor/ckeditor5-react <br>
 Copyright (c) 2003-2024, [CKSource](http://cksource.com) Holding sp. z o.o. All rights reserved.
 
-Licensed under the terms of [GNU General Public License Version 2 or later](http://www.gnu.org/licenses/gpl.html).
+Licensed under a dual-license model, this software is available under:
+
+* the [GNU General Public License Version 2 or later](http://www.gnu.org/licenses/gpl.html),
+* or commercial license terms from CKSource Holding sp. z o.o.
+
+For more information, see: [https://ckeditor.com/legal/ckeditor-licensing-options](https://ckeditor.com/legal/ckeditor-licensing-options).
 
 Sources of Intellectual Property Included in CKEditor
 -----------------------------------------------------
