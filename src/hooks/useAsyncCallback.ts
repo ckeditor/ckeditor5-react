@@ -80,8 +80,6 @@ export const useAsyncCallback = <A extends Array<unknown>, R>(
 
 			return result;
 		} catch ( error: any ) {
-			console.error( error );
-
 			// Update the state if the component is still mounted and the execution UUID matches the previous one, otherwise
 			if ( !unmountedRef.current && prevExecutionUIDRef.current === currentExecutionUUID ) {
 				setAsyncState( {

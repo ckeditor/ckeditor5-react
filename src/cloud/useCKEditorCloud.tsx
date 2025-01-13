@@ -4,6 +4,7 @@
  */
 
 import {
+	isCKEditorCloudLoaderError,
 	loadCKEditorCloud,
 	type CKEditorCloudConfig,
 	type CKEditorCloudResult
@@ -50,6 +51,15 @@ export default function useCKEditorCloud<Config extends CKEditorCloudConfig>(
 			...result.data,
 			status: 'success'
 		};
+	}
+
+	// Expose the error in a more user-friendly way.
+	if ( result.status === 'error' ) {
+		if ( isCKEditorCloudLoaderError( result.error ) ) {
+			result.error.dump();
+		} else {
+			console.error( result.error );
+		}
 	}
 
 	return result;
