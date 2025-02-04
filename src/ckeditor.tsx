@@ -6,7 +6,6 @@
 /* globals window */
 
 import React from 'react';
-import PropTypes, { type InferProps, type Validator } from 'prop-types';
 
 import type {
 	EventInfo,
@@ -430,28 +429,12 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	}
 
 	public static override contextType = ContextWatchdogContext;
-
-	// Properties definition.
-	public static propTypes = {
-		editor: PropTypes.func.isRequired as unknown as Validator<{ create( ...args: any ): Promise<any> }>,
-		data: PropTypes.string,
-		config: PropTypes.object,
-		disableWatchdog: PropTypes.bool,
-		watchdogConfig: PropTypes.object,
-		onChange: PropTypes.func,
-		onReady: PropTypes.func,
-		onFocus: PropTypes.func,
-		onBlur: PropTypes.func,
-		onError: PropTypes.func,
-		disabled: PropTypes.bool,
-		id: PropTypes.any
-	};
 }
 
 /**
  * TODO this is type space definition for props, the CKEditor.propTypes is a run-time props validation that should match.
  */
-export interface Props<TEditor extends Editor> extends InferProps<typeof CKEditor.propTypes> {
+export interface Props<TEditor extends Editor> {
 	editor: {
 		create( ...args: any ): Promise<TEditor>;
 		EditorWatchdog: typeof EditorWatchdog;
@@ -467,6 +450,9 @@ export interface Props<TEditor extends Editor> extends InferProps<typeof CKEdito
 	onChange?: ( event: EventInfo, editor: TEditor ) => void;
 	onFocus?: ( event: EventInfo, editor: TEditor ) => void;
 	onBlur?: ( event: EventInfo, editor: TEditor ) => void;
+	data?: string;
+	disabled?: boolean;
+	id?: any;
 }
 
 interface ErrorDetails {

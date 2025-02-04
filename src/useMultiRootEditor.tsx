@@ -5,7 +5,7 @@
 
 import React, {
 	forwardRef, useState, useEffect, useRef, useContext, useCallback, memo,
-	type Dispatch, type SetStateAction, type RefObject
+	type Dispatch, type SetStateAction, type RefObject, type JSX
 } from 'react';
 
 import { overwriteArray, overwriteObject, uniq } from '@ckeditor/ckeditor5-integrations-common';

@@ -41,7 +41,6 @@ export default defineConfig( {
 			output: {
 				globals: {
 					'react': 'React',
-					'prop-types': 'PropTypes',
 					'@ckeditor/ckeditor5-integrations-common': 'CKEDITOR_INTEGRATIONS_COMMON'
 				}
 			}

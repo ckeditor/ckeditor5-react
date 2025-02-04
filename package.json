@@ -28,7 +28,6 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "prop-types": "^15.7.2",
     "@ckeditor/ckeditor5-integrations-common": "^2.2.2"
   },
   "peerDependencies": {
@@ -36,12 +35,12 @@
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.4.8",
     "@ckeditor/ckeditor5-dev-bump-year": "^44.0.0",
     "@ckeditor/ckeditor5-dev-ci": "^44.0.0",
     "@ckeditor/ckeditor5-dev-release-tools": "^44.0.0",
     "@ckeditor/ckeditor5-dev-utils": "^44.0.0",
     "@testing-library/dom": "^10.3.1",
+    "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
@@ -59,6 +58,7 @@
     "lint-staged": "^10.2.11",
     "listr2": "^6.5.0",
     "minimist": "^1.2.5",
+    "prop-types": "^15.8.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react16": "npm:react@^16.0.0",
@@ -67,8 +67,8 @@
     "react17-dom": "npm:react-dom@^17.0.0",
     "react18": "npm:react@^18.0.0",
     "react18-dom": "npm:react-dom@^18.0.0",
-    "react19": "npm:react@19.0.0-beta-26f2496093-20240514",
-    "react19-dom": "npm:react-dom@19.0.0-beta-26f2496093-20240514",
+    "react19": "npm:react@19.0.0",
+    "react19-dom": "npm:react-dom@19.0.0",
     "semver": "^7.0.0",
     "typescript": "^5.0.0",
     "vite": "^5.3.1",
