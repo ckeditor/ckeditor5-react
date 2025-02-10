@@ -5,11 +5,11 @@ Changelog
 
 ### Bug fixes
 
-* data prop is no longer unavailable in Next.js related integrations. Closes [#567](https://github.com/ckeditor/ckeditor5-react/issues/567). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/2a7d0153a19c7b25d9c8f257686ed6858b0a75cd))
+* The `[data]` property is now available in Next.js-related integrations. Closes [#567](https://github.com/ckeditor/ckeditor5-react/issues/567). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/2a7d0153a19c7b25d9c8f257686ed6858b0a75cd))
 
 ### Other changes
 
-* Remove prop-types from dependencies of package. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/2a7d0153a19c7b25d9c8f257686ed6858b0a75cd))
+* Removed the `prop-types` package from dependencies. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/2a7d0153a19c7b25d9c8f257686ed6858b0a75cd))
 
 
 ## [9.4.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.3.1...v9.4.0) (2024-11-25)
