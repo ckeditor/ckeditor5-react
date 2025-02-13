@@ -1,6 +1,17 @@
 Changelog
 =========
 
+## [9.5.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.4.0...v9.5.0) (2025-02-13)
+
+### Bug fixes
+
+* The `[data]` property is now available in Next.js-related integrations. Closes [#567](https://github.com/ckeditor/ckeditor5-react/issues/567). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/2a7d0153a19c7b25d9c8f257686ed6858b0a75cd))
+
+### Other changes
+
+* Removed the `prop-types` package from dependencies. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/2a7d0153a19c7b25d9c8f257686ed6858b0a75cd))
+
+
 ## [9.5.0-alpha.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.4.0...v9.5.0-alpha.0) (2025-02-10)
 
 ### Bug fixes
