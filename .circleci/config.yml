@@ -43,14 +43,27 @@ commands:
           name: Login to the npm registry using '.npmrc' file
           command: echo "//registry.npmjs.org/:_authToken=\${CKE5_NPM_TOKEN}" > ~/.npmrc
 
+  gpg_credentials_command:
+    description: "Setup GPG configuration"
+    steps:
+      - run:
+          name: Setup GPG configuration
+          command: |
+            #!/bin/bash
+
+            echo "$CKE5_GPG_KEY" | base64 --decode | gpg --import --quiet
+
   git_credentials_command:
     description: "Setup git configuration"
     steps:
+      - gpg_credentials_command
       - run:
           name: Setup git configuration
           command: |
             git config --global user.email "ckeditor-bot@cksource.com"
             git config --global user.name "CKEditorBot"
+            git config --global user.signingkey 3F615B600F38B27B
+            git config --global commit.gpgsign true
 
   prepare_environment_variables_commands:
     description: "Prepare non-secret environment variables"
