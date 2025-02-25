@@ -49,7 +49,7 @@
     "@vitest/coverage-istanbul": "^2.1.4",
     "@vitest/ui": "^2.1.4",
     "ckeditor5": "^43.1.0",
-    "ckeditor5-premium-features": "^43.1.0",
+    "ckeditor5-premium-features": "^44.2.0",
     "coveralls": "^3.1.1",
     "eslint": "^7.19.0",
     "eslint-config-ckeditor5": "^7.1.0",
