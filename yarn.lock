@@ -3426,7 +3426,7 @@
     tinyrainbow "^1.2.0"
     ws "^8.18.0"
 
-"@vitest/coverage-istanbul@^2.1.9":
+"@vitest/coverage-istanbul@^2.1.4":
   version "2.1.9"
   resolved "https://registry.yarnpkg.com/@vitest/coverage-istanbul/-/coverage-istanbul-2.1.9.tgz#064b50346fe3804e29c11792a3931090e0663151"
   integrity sha512-vdYE4FkC/y2lxcN3Dcj54Bw+ericmDwiex0B8LV5F/YNYEYP1mgVwhPnHwWGAXu38qizkjOuyczKbFTALfzFKw==
