@@ -64,6 +64,7 @@ commands:
             git config --global user.name "CKEditorBot"
             git config --global user.signingkey 3F615B600F38B27B
             git config --global commit.gpgsign true
+            git config --global tag.gpgSign true
 
   prepare_environment_variables_commands:
     description: "Prepare non-secret environment variables"
