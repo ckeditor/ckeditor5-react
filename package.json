@@ -82,7 +82,7 @@
     "ws": "^8"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "dev": "echo \"Use 'dev:16', 'dev:17', 'dev:18', or 'dev:19' depending on the version of React you want to test\"",
