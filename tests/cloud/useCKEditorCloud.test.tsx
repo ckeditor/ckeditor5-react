@@ -18,7 +18,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 	it( 'should load CKEditor bundles from CDN', async () => {
 		const { result } = renderHook( () => useCKEditorCloud( {
-			version: '43.0.0',
+			version: '44.3.0',
 			translations: [ 'es', 'de' ]
 		} ) );
 
@@ -36,7 +36,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 			( config: CKEditorCloudConfig<any> ) => useCKEditorCloud( config ),
 			{
 				initialProps: {
-					version: '43.0.0',
+					version: '44.3.0',
 					premium: false
 				}
 			}
@@ -52,7 +52,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 		}, { timeout: 5000 } );
 
 		rerender( {
-			version: '43.0.0',
+			version: '44.3.0',
 			premium: true
 		} );
 
@@ -73,7 +73,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 	describe( 'typings', () => {
 		it( 'should return non-nullable premium features entry type if premium is enabled', async () => {
 			const { result } = renderHook( () => useCKEditorCloud( {
-				version: '43.0.0',
+				version: '44.3.0',
 				premium: true
 			} ) );
 
@@ -88,7 +88,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 		it( 'should return nullable premium features entry type if premium is disabled', async () => {
 			const { result } = renderHook( () => useCKEditorCloud( {
-				version: '43.0.0',
+				version: '44.3.0',
 				premium: false
 			} ) );
 
@@ -103,7 +103,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 		it( 'should return nullable premium features entry type if premium is not provided', async () => {
 			const { result } = renderHook( () => useCKEditorCloud( {
-				version: '43.0.0'
+				version: '44.3.0'
 			} ) );
 
 			await waitFor( () => {
@@ -117,7 +117,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 		it( 'should return non-nullable ckbox entry type if ckbox enabled', async () => {
 			const { result } = renderHook( () => useCKEditorCloud( {
-				version: '43.0.0',
+				version: '44.3.0',
 				ckbox: {
 					version: '2.5.1'
 				}
@@ -134,7 +134,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 		it( 'should return a nullable ckbox entry type if ckbox is not configured', async () => {
 			const { result } = renderHook( () => useCKEditorCloud( {
-				version: '43.0.0'
+				version: '44.3.0'
 			} ) );
 
 			await waitFor( () => {
