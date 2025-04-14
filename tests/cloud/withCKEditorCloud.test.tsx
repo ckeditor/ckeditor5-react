@@ -35,7 +35,7 @@ describe( 'withCKEditorCloud', { timeout: 5000 }, () => {
 	it( 'should inject cloud integration to the wrapped component', async () => {
 		const WrappedComponent = withCKEditorCloud( {
 			cloud: {
-				version: '44.3.0'
+				version: '45.0.0'
 			}
 		} )( MockComponent );
 
@@ -57,7 +57,7 @@ describe( 'withCKEditorCloud', { timeout: 5000 }, () => {
 		const WrappedComponent = withCKEditorCloud( {
 			renderLoader: () => <div>Loading...</div>,
 			cloud: {
-				version: '44.3.0',
+				version: '45.0.0',
 				plugins: {
 					Plugin: {
 						checkPluginLoaded: () => deferredPlugin.promise
@@ -80,7 +80,7 @@ describe( 'withCKEditorCloud', { timeout: 5000 }, () => {
 		const WrappedComponent = withCKEditorCloud( {
 			renderError: error => <div>Error: { error.message }</div>,
 			cloud: {
-				version: '44.3.0',
+				version: '45.0.0',
 				plugins: {
 					Plugin: {
 						checkPluginLoaded: () => {
@@ -99,7 +99,7 @@ describe( 'withCKEditorCloud', { timeout: 5000 }, () => {
 	it( 'should render default error message when cloud loading fails and there is no error handler specified', async () => {
 		const WrappedComponent = withCKEditorCloud( {
 			cloud: {
-				version: '44.3.0',
+				version: '45.0.0',
 				plugins: {
 					Plugin: {
 						checkPluginLoaded: () => {
