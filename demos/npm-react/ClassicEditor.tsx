@@ -70,6 +70,7 @@ export default class ClassicEditor extends ClassicEditorBase {
 	];
 
 	public static override defaultConfig = {
+		licenseKey: 'GPL',
 		toolbar: {
 			items: [
 				'undo', 'redo',

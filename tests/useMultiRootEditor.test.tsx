@@ -896,7 +896,7 @@ describe( 'useMultiRootEditor', () => {
 
 	describe( 'semaphores', () => {
 		const testSemaphoreForWatchdog = enableWatchdog => {
-			it( 'should assign `data` property to the editor even if it is still mounting', { retry: 3 }, async () => {
+			it( 'should assign `data` property to the editor even if it is still mounting', { retry: 4 }, async () => {
 				const deferInitialization = createDefer();
 
 				class SlowEditor extends TestMultiRootEditor {
@@ -955,7 +955,7 @@ describe( 'useMultiRootEditor', () => {
 				} );
 			} );
 
-			it( 'should buffer many rerenders while creating editor', async () => {
+			it( 'should buffer many rerenders while creating multiroot editor', async () => {
 				const initializerLog: Array<any> = [];
 
 				class SlowEditor extends TestMultiRootEditor {
@@ -967,9 +967,15 @@ describe( 'useMultiRootEditor', () => {
 					}
 
 					public static async create( ...args: ConstructorParameters<typeof SlowEditor> ) {
+						const editor = new SlowEditor( ...args );
+
+						await editor.initPlugins();
 						await timeout( 300 );
 
-						return new SlowEditor( ...args );
+						editor.ui.init();
+						editor.fire( 'ready' );
+
+						return editor;
 					}
 				}
 

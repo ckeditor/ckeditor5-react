@@ -68,6 +68,7 @@ export default class MultiRootEditor extends MultiRootEditorBase {
 	];
 
 	public static override defaultConfig = {
+		licenseKey: 'GPL',
 		toolbar: {
 			items: [
 				'undo', 'redo',
