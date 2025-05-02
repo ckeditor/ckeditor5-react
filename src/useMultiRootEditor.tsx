@@ -631,6 +631,7 @@ export const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 		} );
 
 		return () => {
+			/* istanbul ignore next -- @preserve: It depends on the version of the React and may not happen all of the times. */
 			if ( editor && editor.state !== 'destroyed' && innerRef.current ) {
 				const root = editor.model.document.getRoot( rootName );
 

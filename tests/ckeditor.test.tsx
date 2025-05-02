@@ -798,6 +798,31 @@ describe( '<CKEditor> Component', () => {
 				expect( details.willEditorRestart ).to.equal( false );
 			} );
 
+			it( 'calls the callback if specified when an error occurs (disabledWatchdog)', async () => {
+				let error;
+				let details;
+				const originalError = new Error( 'Error was thrown.' );
+
+				vi.spyOn( MockEditor, 'create' ).mockRejectedValue( originalError );
+
+				component = render(
+					<CKEditor
+						disableWatchdog
+						editor={MockEditor}
+						onError={manager.resolveOnRun( ( err, dets ) => {
+							error = err;
+							details = dets;
+						} )}
+					/>
+				);
+
+				await manager.all();
+
+				expect( error ).to.equal( error );
+				expect( details.phase ).to.equal( 'initialization' );
+				expect( details.willEditorRestart ).to.equal( false );
+			} );
+
 			it( 'calls the callback if the runtime error occurs', async () => {
 				component = render(
 					<CKEditor
