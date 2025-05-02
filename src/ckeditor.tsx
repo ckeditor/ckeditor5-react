@@ -178,7 +178,17 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	private _initLifeCycleSemaphore() {
 		this._unlockLifeCycleSemaphore();
 		this.editorSemaphore = new LifeCycleElementSemaphore( this.domContainer.current!, {
-			mount: async () => this._initializeEditor(),
+			isValueValid: value => value && !!value.instance,
+			mount: async () => {
+				try {
+					return await this._initializeEditor();
+				} catch ( error: any ) {
+					this.props.onError?.( error, { phase: 'initialization', willEditorRestart: false } );
+
+					// Rethrow, let's semaphore handle it.
+					throw error;
+				}
+			},
 			afterMount: ( { mountResult } ) => {
 				const { onReady } = this.props;
 
@@ -282,12 +292,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
 		} );
 
-		await watchdog
-			.create( this.domContainer.current!, this._getConfig() )
-			.catch( error => {
-				const onError = this.props.onError || console.error;
-				onError( error, { phase: 'initialization', willEditorRestart: false } );
-			} );
+		await watchdog.create( this.domContainer.current!, this._getConfig() );
 
 		return {
 			watchdog,

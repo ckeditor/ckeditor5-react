@@ -120,6 +120,19 @@ export class LifeCycleElementSemaphore<R> {
 	}
 
 	/**
+	 * Getter for {@link #_releaseLock}.
+	 */
+	public discard(): void {
+		this._value = null;
+		this._releaseLock = null;
+		this._afterMountCallbacks = [];
+		this._state = {
+			destroyedBeforeInitialization: false,
+			mountingInProgress: null
+		};
+	}
+
+	/**
 	 * Occasionally, the Watchdog restarts the editor instance, resulting in a new instance being assigned to the semaphore.
 	 * In terms of race conditions, it's generally safer to simply override the semaphore value rather than recreating it
 	 * with a different one.
@@ -127,7 +140,15 @@ export class LifeCycleElementSemaphore<R> {
 	public unsafeSetValue( value: R ): void {
 		this._value = value;
 
-		this._afterMountCallbacks.forEach( callback => callback( value ) );
+		this._afterMountCallbacks.forEach( callback => {
+			// Check if value is valid before executing callback.
+			if ( this._lifecycle.isValueValid && !this._lifecycle.isValueValid( value ) ) {
+				return;
+			}
+
+			callback( value );
+		} );
+
 		this._afterMountCallbacks = [];
 	}
 
@@ -138,11 +159,17 @@ export class LifeCycleElementSemaphore<R> {
 	 *	* If the editor is in the process of mounting, the callback will be executed upon successful mounting.
 	* 	* If the editor is never mounted, the passed callback will not be executed.
 	* 	* If an exception is thrown within the callback, it will be re-thrown in the semaphore.
+	* 	* If the value is not valid (determined by isValueValid), the callback will not be executed.
 	*/
 	public runAfterMount( callback: LifeCycleAfterMountCallback<R> ): void {
 		const { _value, _afterMountCallbacks } = this;
 
 		if ( _value ) {
+			// Check if value is valid before executing callback.
+			if ( this._lifecycle.isValueValid && !this._lifecycle.isValueValid( _value ) ) {
+				return;
+			}
+
 			callback( _value );
 		} else {
 			_afterMountCallbacks.push( callback );
@@ -219,7 +246,7 @@ export class LifeCycleElementSemaphore<R> {
 
 			// Prevent hanging of semaphore during mount, just assume that everything is fine
 			.catch( error => {
-				console.error( 'Semaphore mounting error:', error );
+				console.error( 'CKEditor mounting error:', error );
 			} )
 
 			// Remove semaphore from map if released.
@@ -260,7 +287,7 @@ export class LifeCycleElementSemaphore<R> {
 
 				// Prevent hanging of semaphore during unmount, just assume that everything is fine
 				.catch( error => {
-					console.error( 'Semaphore unmounting error:', error );
+					console.error( 'CKEditor unmounting error:', error );
 				} )
 
 				.then( _releaseLock!.resolve )
@@ -288,6 +315,23 @@ type LifeCyclePostMountAttrs<R> = {
 
 export type LifeCycleAsyncOperators<R> = {
 	mount: () => Promise<R>;
+
+	/**
+	 * Optional method that is called after the editor is mounted.
+	 * It is passed the result of the mount method as an argument.
+	 */
 	afterMount?: ( result: LifeCyclePostMountAttrs<R> ) => Promise<void> | void;
+
+	/**
+	 * Unmount method that is called when the editor is destroyed.
+	 * It is passed the result of the mount method as an argument.
+	 */
 	unmount: ( result: LifeCyclePostMountAttrs<R> ) => Promise<void>;
+
+	/**
+	 * Optional method to check if the editor value is valid.
+	 * If this method returns false, callbacks registered with runAfterMount will not be executed.
+	 * This helps prevent errors in race conditions where the editor was destroyed during initialization.
+	 */
+	isValueValid?: ( value: R ) => boolean;
 };

@@ -441,9 +441,8 @@ describe( '<CKEditor> Component', () => {
 			await new Promise( res => setTimeout( res ) );
 
 			expect( consoleErrorStub ).toHaveBeenCalledOnce();
-			expect( consoleErrorStub.mock.calls[ 0 ][ 0 ] ).to.equal( error );
-			expect( consoleErrorStub.mock.calls[ 0 ][ 1 ].phase ).to.equal( 'initialization' );
-			expect( consoleErrorStub.mock.calls[ 0 ][ 1 ].willEditorRestart ).to.equal( false );
+			expect( consoleErrorStub.mock.calls[ 0 ][ 0 ] ).to.equal( 'CKEditor mounting error:' );
+			expect( consoleErrorStub.mock.calls[ 0 ][ 1 ] ).to.equal( error );
 		} );
 
 		it( 'passes the specified editor class to the watchdog feature', async () => {
@@ -785,11 +784,10 @@ describe( '<CKEditor> Component', () => {
 				component = render(
 					<CKEditor
 						editor={MockEditor}
-						onError={( err, dets ) => {
+						onError={manager.resolveOnRun( ( err, dets ) => {
 							error = err;
 							details = dets;
-						}}
-						onReady={manager.resolveOnRun()}
+						} )}
 					/>
 				);
 
