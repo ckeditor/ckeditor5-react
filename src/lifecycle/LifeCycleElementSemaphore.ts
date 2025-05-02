@@ -120,7 +120,7 @@ export class LifeCycleElementSemaphore<R> {
 	}
 
 	/**
-	 * Getter for {@link #_releaseLock}.
+	 * Resets the semaphore to its initial state.
 	 */
 	public discard(): void {
 		this._value = null;
