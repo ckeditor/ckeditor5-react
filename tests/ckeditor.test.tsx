@@ -441,9 +441,8 @@ describe( '<CKEditor> Component', () => {
 			await new Promise( res => setTimeout( res ) );
 
 			expect( consoleErrorStub ).toHaveBeenCalledOnce();
-			expect( consoleErrorStub.mock.calls[ 0 ][ 0 ] ).to.equal( error );
-			expect( consoleErrorStub.mock.calls[ 0 ][ 1 ].phase ).to.equal( 'initialization' );
-			expect( consoleErrorStub.mock.calls[ 0 ][ 1 ].willEditorRestart ).to.equal( false );
+			expect( consoleErrorStub.mock.calls[ 0 ][ 0 ] ).to.equal( 'CKEditor mounting error:' );
+			expect( consoleErrorStub.mock.calls[ 0 ][ 1 ] ).to.equal( error );
 		} );
 
 		it( 'passes the specified editor class to the watchdog feature', async () => {
@@ -785,11 +784,35 @@ describe( '<CKEditor> Component', () => {
 				component = render(
 					<CKEditor
 						editor={MockEditor}
-						onError={( err, dets ) => {
+						onError={manager.resolveOnRun( ( err, dets ) => {
 							error = err;
 							details = dets;
-						}}
-						onReady={manager.resolveOnRun()}
+						} )}
+					/>
+				);
+
+				await manager.all();
+
+				expect( error ).to.equal( error );
+				expect( details.phase ).to.equal( 'initialization' );
+				expect( details.willEditorRestart ).to.equal( false );
+			} );
+
+			it( 'calls the callback if specified when an error occurs (disabledWatchdog)', async () => {
+				let error;
+				let details;
+				const originalError = new Error( 'Error was thrown.' );
+
+				vi.spyOn( MockEditor, 'create' ).mockRejectedValue( originalError );
+
+				component = render(
+					<CKEditor
+						disableWatchdog
+						editor={MockEditor}
+						onError={manager.resolveOnRun( ( err, dets ) => {
+							error = err;
+							details = dets;
+						} )}
 					/>
 				);
 

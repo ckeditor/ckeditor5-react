@@ -193,7 +193,7 @@ describe( 'LifeCycleElementSemaphore', () => {
 		semaphore.release();
 
 		await vi.waitFor( () => {
-			expect( consoleError ).toBeCalledWith( 'Semaphore unmounting error:', error );
+			expect( consoleError ).toBeCalledWith( 'CKEditor unmounting error:', error );
 		} );
 	} );
 
@@ -210,7 +210,7 @@ describe( 'LifeCycleElementSemaphore', () => {
 		} );
 
 		await vi.waitFor( () => {
-			expect( consoleError ).toBeCalledWith( 'Semaphore mounting error:', error );
+			expect( consoleError ).toBeCalledWith( 'CKEditor mounting error:', error );
 		} );
 	} );
 
@@ -263,5 +263,38 @@ describe( 'LifeCycleElementSemaphore', () => {
 	it( 'should release semaphore', () => {
 		semaphore.release();
 		expect( semaphore.value ).toBeNull();
+	} );
+
+	it( 'should discard callbacks if value is invalid', async () => {
+		const value = { valid: true };
+		const callback = vi.fn();
+
+		const lifecycleWithValidityCheck: LifeCycleAsyncOperators<any> = {
+			mount: async () => value,
+			unmount: async () => {},
+			isValueValid: val => val.valid
+		};
+
+		const semaphore = new LifeCycleElementSemaphore( document.createElement( 'div' ), lifecycleWithValidityCheck );
+
+		// Register callback before value is set
+		semaphore.runAfterMount( callback );
+		semaphore.unsafeSetValue( { valid: false } );
+		expect( callback ).not.toHaveBeenCalled();
+
+		// Reset mock and internal state of semaphore.
+		callback.mockClear();
+		semaphore.discard();
+
+		// Register a new callback and reset value
+		semaphore.runAfterMount( callback );
+		semaphore.unsafeSetValue( { valid: true } );
+		expect( callback ).toHaveBeenCalledWith( { valid: true } );
+
+		// Let's set invalid value again and check if the callback is not called immediately.
+		callback.mockClear();
+		semaphore.unsafeSetValue( { valid: false } );
+		semaphore.runAfterMount( callback );
+		expect( callback ).not.toHaveBeenCalled();
 	} );
 } );
