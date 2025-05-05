@@ -317,19 +317,19 @@ export type LifeCycleAsyncOperators<R> = {
 	mount: () => Promise<R>;
 
 	/**
-	 * Optional method that is called after the editor is mounted.
-	 * It is passed the result of the mount method as an argument.
+	 * The optional method is called after the editor is mounted.
+	 * The result of the mount method is passed on as an argument.
 	 */
 	afterMount?: ( result: LifeCyclePostMountAttrs<R> ) => Promise<void> | void;
 
 	/**
-	 * Unmount method that is called when the editor is destroyed.
-	 * It is passed the result of the mount method as an argument.
+	 * The unmount method is called when the editor is destroyed.
+	 * The result of the mount method is passed on as an argument.
 	 */
 	unmount: ( result: LifeCyclePostMountAttrs<R> ) => Promise<void>;
 
 	/**
-	 * Optional method to check if the editor value is valid.
+	 * The optional method is used to check if the editor value is valid.
 	 * If this method returns false, callbacks registered with runAfterMount will not be executed.
 	 * This helps prevent errors in race conditions where the editor was destroyed during initialization.
 	 */
