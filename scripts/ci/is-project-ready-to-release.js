@@ -8,12 +8,12 @@
 'use strict';
 
 import * as releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
-import { name as packageName } from '../../package.json' with { type: 'json' };
+import pkg from '../../package.json' with { type: 'json' };
 
 const changelogVersion = releaseTools.getLastFromChangelog();
 const npmTag = releaseTools.getNpmTagFromVersion( changelogVersion );
 
-releaseTools.isVersionPublishableForTag( packageName, changelogVersion, npmTag )
+releaseTools.isVersionPublishableForTag( pkg.name, changelogVersion, npmTag )
 	.then( result => {
 		if ( !result ) {
 			console.error( `The proposed changelog (${ changelogVersion }) version is not higher than the already published one.` );
