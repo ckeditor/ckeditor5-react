@@ -3,8 +3,6 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-/* global document, window */
-
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import React, { useEffect } from 'react';
 import { CKEditorError } from 'ckeditor5';

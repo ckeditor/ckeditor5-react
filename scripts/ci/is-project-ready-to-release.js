@@ -5,15 +5,10 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-/* eslint-env node */
-
 'use strict';
 
-import { createRequire } from 'module';
 import * as releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
-
-const require = createRequire( import.meta.url );
-const { name: packageName } = require( '../../package.json' );
+import { name as packageName } from '../../package.json' with { type: 'json' };
 
 const changelogVersion = releaseTools.getLastFromChangelog();
 const npmTag = releaseTools.getNpmTagFromVersion( changelogVersion );

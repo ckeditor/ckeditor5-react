@@ -3,8 +3,6 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-/* global document */
-
 import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -54,7 +52,7 @@ describe( 'issue #37: the browser is being frozen', () => {
 		document.body.appendChild( div );
 
 		return new Promise( resolve => {
-			component = ReactDOM.render( <App onReady={ resolve } />, div ); // eslint-disable-line react/no-render-return-value
+			component = ReactDOM.render( <App onReady={ resolve } />, div );
 		} );
 	} );
 

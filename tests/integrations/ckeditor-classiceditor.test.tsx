@@ -3,8 +3,6 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-/* global window, document */
-
 import { describe, afterEach, it, expect } from 'vitest';
 import React, { createRef } from 'react';
 import ReactDOM from 'react-dom';
