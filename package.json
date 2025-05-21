@@ -55,6 +55,7 @@
     "eslint-config-ckeditor5": "^10.0.0-alpha.0",
     "eslint-plugin-ckeditor5-rules": "^10.0.0-alpha.0",
     "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.1.0",
     "husky": "^8.0.2",
     "lint-staged": "^10.2.11",
     "listr2": "^6.5.0",
@@ -72,6 +73,7 @@
     "react19-dom": "npm:react-dom@19.0.0",
     "semver": "^7.0.0",
     "typescript": "^5.0.0",
+    "typescript-eslint": "^8.32.1",
     "vite": "^5.3.1",
     "vitest": "^2.1.9",
     "webdriverio": "^9.12.7"

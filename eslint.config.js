@@ -21,7 +21,10 @@ export default defineConfig( [
 	},
 
 	{
-		extends: ckeditor5Config,
+		extends: [
+			ckeditor5Config,
+			pluginReact.configs.flat.recommended
+		],
 
 		languageOptions: {
 			ecmaVersion: 'latest',
@@ -37,12 +40,15 @@ export default defineConfig( [
 		},
 
 		plugins: {
-			'ckeditor5-rules': ckeditor5Rules
+			'ckeditor5-rules': ckeditor5Rules,
+			'@typescript-eslint': ts.plugin
 		},
 
 		rules: {
+			'react/prop-types': 'off',
+			'react/no-deprecated': 'off',
 			'no-console': 'off',
-			'no-trailing-spaces': 'error',
+			'@stylistic/no-trailing-spaces': 'error',
 			'ckeditor5-rules/prevent-license-key-leak': 'error',
 			'ckeditor5-rules/allow-imports-only-from-main-package-entry-point': 'off',
 			'ckeditor5-rules/license-header': [ 'error', { headerLines: [
@@ -60,34 +66,20 @@ export default defineConfig( [
 		}
 	},
 
-	{
-		...pluginReact.configs.flat.recommended,
-
-		rules: {
-			'react/prop-types': 'off',
-			'react/no-deprecated': 'off'
-		}
-	},
-
 	// Rules specific to `tests` folder.
 	{
 		files: [ 'tests/**' ],
 
-		languageOptions: {
-			parserOptions: {
-				parser: ts.parser
-			}
-		},
-
 		'rules': {
+			'react/no-render-return-value': 'off',
 			'no-unused-expressions': 'off',
 			'@typescript-eslint/no-unused-expressions': 'off'
 		}
 	},
 
-	// Rules specific to `demo` folder.
+	// Rules specific to `demos` folder.
 	{
-		'files': [ 'demo*/**' ],
+		'files': [ 'demos/**' ],
 		'rules': {
 			'ckeditor5-rules/license-header': 'off'
 		}
