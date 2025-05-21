@@ -44,6 +44,12 @@ export default defineConfig( [
 			'@typescript-eslint': ts.plugin
 		},
 
+		settings: {
+			react: {
+				version: 'detect'
+			}
+		},
+
 		rules: {
 			'react/prop-types': 'off',
 			'react/no-deprecated': 'off',
