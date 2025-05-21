@@ -51,9 +51,11 @@
     "ckeditor5": "^45.0.0",
     "ckeditor5-premium-features": "^45.0.0",
     "coveralls": "^3.1.1",
-    "eslint": "^7.19.0",
-    "eslint-config-ckeditor5": "^7.1.0",
-    "eslint-plugin-react": "^7.32.2",
+    "eslint": "^9.26.0",
+    "eslint-config-ckeditor5": "^10.0.0-alpha.0",
+    "eslint-plugin-ckeditor5-rules": "^10.0.0-alpha.0",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.1.0",
     "husky": "^8.0.2",
     "lint-staged": "^10.2.11",
     "listr2": "^6.5.0",
@@ -71,6 +73,7 @@
     "react19-dom": "npm:react-dom@19.0.0",
     "semver": "^7.0.0",
     "typescript": "^5.0.0",
+    "typescript-eslint": "^8.32.1",
     "vite": "^5.3.1",
     "vitest": "^2.1.9",
     "webdriverio": "^9.12.7"
@@ -82,7 +85,7 @@
     "ws": "^8"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "dev": "echo \"Use 'dev:16', 'dev:17', 'dev:18', or 'dev:19' depending on the version of React you want to test\"",
@@ -94,7 +97,7 @@
     "test": "vitest run --coverage",
     "test:watch": "vitest --ui --watch",
     "test:check:types": "tsc --noEmit -p ./tests/tsconfig.json",
-    "lint": "eslint --quiet \"**/*.{ts,tsx}\"",
+    "lint": "eslint",
     "postinstall": "node ./scripts/postinstall.js",
     "changelog": "node ./scripts/changelog.js",
     "release:prepare-packages": "node ./scripts/preparepackages.js",
@@ -117,13 +120,8 @@
     "LICENSE.md"
   ],
   "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": [
+    "**/*": [
       "eslint --quiet"
     ]
-  },
-  "eslintIgnore": [
-    "**/*.d.ts",
-    "dist/**",
-    "coverage/**"
-  ]
+  }
 }

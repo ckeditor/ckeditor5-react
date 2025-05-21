@@ -5,20 +5,15 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-/* eslint-env node */
-
-import { createRequire } from 'module';
 import { Listr } from 'listr2';
 import * as releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
 import * as devUtils from '@ckeditor/ckeditor5-dev-utils';
 import parseArguments from './utils/parsearguments.js';
 import getListrOptions from './utils/getlistroptions.js';
-
-const require = createRequire( import.meta.url );
+import { preparePackageJson } from './utils/preparepackagejson.js';
 
 const latestVersion = releaseTools.getLastFromChangelog();
 const versionChangelog = releaseTools.getChangesForVersion( latestVersion );
-
 const cliArguments = parseArguments( process.argv.slice( 2 ) );
 
 const tasks = new Listr( [
@@ -73,7 +68,7 @@ const tasks = new Listr( [
 		task: () => {
 			return releaseTools.prepareRepository( {
 				outputDirectory: 'release',
-				rootPackageJson: require( '../package.json' )
+				rootPackageJson: preparePackageJson()
 			} );
 		}
 	},
