@@ -35,10 +35,10 @@
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@ckeditor/ckeditor5-dev-bump-year": "^48.0.0",
-    "@ckeditor/ckeditor5-dev-ci": "^48.0.0",
-    "@ckeditor/ckeditor5-dev-release-tools": "^48.0.0",
-    "@ckeditor/ckeditor5-dev-utils": "^48.0.0",
+    "@ckeditor/ckeditor5-dev-bump-year": "^49.0.0",
+    "@ckeditor/ckeditor5-dev-ci": "^49.0.0",
+    "@ckeditor/ckeditor5-dev-release-tools": "^49.0.0",
+    "@ckeditor/ckeditor5-dev-utils": "^49.0.0",
     "@testing-library/dom": "^10.3.1",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
@@ -52,8 +52,8 @@
     "ckeditor5-premium-features": "^45.0.0",
     "coveralls": "^3.1.1",
     "eslint": "^9.26.0",
-    "eslint-config-ckeditor5": "^10.0.0-alpha.0",
-    "eslint-plugin-ckeditor5-rules": "^10.0.0-alpha.0",
+    "eslint-config-ckeditor5": "^10.0.0",
+    "eslint-plugin-ckeditor5-rules": "^10.0.0",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.1.0",
     "husky": "^8.0.2",
@@ -121,7 +121,7 @@
   ],
   "lint-staged": {
     "**/*": [
-      "eslint --quiet"
+      "eslint"
     ]
   }
 }
