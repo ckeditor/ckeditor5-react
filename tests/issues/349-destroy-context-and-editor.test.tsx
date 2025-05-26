@@ -3,8 +3,6 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-/* global window, document */
-
 import { describe, beforeEach, afterEach, expect, it, vi } from 'vitest';
 import React from 'react';
 import { createRoot } from 'react-dom/client';

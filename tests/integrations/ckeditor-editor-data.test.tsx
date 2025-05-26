@@ -3,9 +3,6 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-/* global document */
-/* eslint-disable react/no-render-return-value */
-
 import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import React from 'react';
 import ReactDOM from 'react-dom';

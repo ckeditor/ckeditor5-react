@@ -3,8 +3,6 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-/* global window, HTMLDivElement */
-
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import React, { createRef, type RefObject } from 'react';
 import { CKEditorError, EditorWatchdog } from 'ckeditor5';

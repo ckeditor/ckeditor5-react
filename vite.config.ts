@@ -4,12 +4,9 @@
  */
 
 import { resolve } from 'path';
-import { createRequire } from 'module';
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-
-const require = createRequire( import.meta.url );
-const pkg = require( './package.json' );
+import pkg from './package.json' with { type: 'json' };
 
 const REACT_VERSION = Number( process.env.REACT_VERSION ) || 18;
 

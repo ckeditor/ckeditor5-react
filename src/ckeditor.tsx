@@ -3,8 +3,6 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-/* globals window */
-
 import React from 'react';
 
 import type {
@@ -38,7 +36,6 @@ import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrat
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export default class CKEditor<TEditor extends Editor> extends React.Component<Props<TEditor>> {
 	/**
 	 * After mounting the editor, the variable will contain a reference to the created editor.
