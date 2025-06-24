@@ -11,7 +11,8 @@ import type {
 	EditorConfig,
 	EditorWatchdog,
 	ContextWatchdog,
-	WatchdogConfig
+	WatchdogConfig,
+	EditorWatchdogCreatorFunction
 } from 'ckeditor5';
 
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore.js';
@@ -477,7 +478,7 @@ export class EditorWatchdogAdapter<TEditor extends Editor> {
 	/**
 	 * A watchdog's editor creator function.
 	 */
-	private _creator?: AdapterEditorCreatorFunction;
+	private _creator?: EditorWatchdogCreatorFunction;
 
 	/**
 	 * @param contextWatchdog The context watchdog instance that will be wrapped into editor watchdog API.
@@ -490,7 +491,7 @@ export class EditorWatchdogAdapter<TEditor extends Editor> {
 	/**
 	 *  @param creator A watchdog's editor creator function.
 	 */
-	public setCreator( creator: AdapterEditorCreatorFunction ): void {
+	public setCreator( creator: EditorWatchdogCreatorFunction ): void {
 		this._creator = creator;
 	}
 
@@ -548,8 +549,3 @@ export class EditorWatchdogAdapter<TEditor extends Editor> {
 		return this._contextWatchdog.getItem( this._id ) as TEditor;
 	}
 }
-
-type AdapterEditorCreatorFunction<TEditor = Editor> = (
-	elementOrData: HTMLElement | string | Record<string, string> | Record<string, HTMLElement>,
-	config: EditorConfig
-) => Promise<TEditor>;
