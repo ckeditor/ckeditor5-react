@@ -9,11 +9,10 @@ import type {
 	EventInfo,
 	Editor,
 	EditorConfig,
-	DocumentChangeEvent,
 	EditorWatchdog,
 	ContextWatchdog,
 	WatchdogConfig,
-	EditorCreatorFunction
+	EditorWatchdogCreatorFunction
 } from 'ckeditor5';
 
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore.js';
@@ -326,7 +325,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 				const modelDocument = editor.model.document;
 				const viewDocument = editor.editing.view.document;
 
-				modelDocument.on<DocumentChangeEvent>( 'change:data', event => {
+				modelDocument.on( 'change:data', event => {
 					/* istanbul ignore else -- @preserve */
 					if ( this.props.onChange ) {
 						this.props.onChange( event, editor );
@@ -479,7 +478,7 @@ export class EditorWatchdogAdapter<TEditor extends Editor> {
 	/**
 	 * A watchdog's editor creator function.
 	 */
-	private _creator?: EditorCreatorFunction;
+	private _creator?: EditorWatchdogCreatorFunction;
 
 	/**
 	 * @param contextWatchdog The context watchdog instance that will be wrapped into editor watchdog API.
@@ -492,7 +491,7 @@ export class EditorWatchdogAdapter<TEditor extends Editor> {
 	/**
 	 *  @param creator A watchdog's editor creator function.
 	 */
-	public setCreator( creator: EditorCreatorFunction ): void {
+	public setCreator( creator: EditorWatchdogCreatorFunction ): void {
 		this._creator = creator;
 	}
 
