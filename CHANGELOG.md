@@ -1,11 +1,11 @@
 Changelog
 =========
 
-## [11.0.0-alpha.0](https://github.com/ckeditor/ckeditor5-react/compare/v10.0.0...v11.0.0-alpha.0) (2025-07-01)
+## [11.0.0-alpha.0](https://github.com/ckeditor/ckeditor5-react/compare/v10.0.0...v11.0.0-alpha.0) (2025-07-02)
 
 ### BREAKING CHANGES
 
-* Switched to new type import names introduced in CKEditor 5 v46. Older versions are no longer supported.
+* Aligned the component with the latest CKEditor 5 release (`v46.0.0`), adopting the type import names. Starting from this version, previous CKEditor 5 releases are no longer compatible due to breaking changes in definitions and package structure. See [ckeditor/ckeditor5#18583](https://github.com/ckeditor/ckeditor5/issues/18583)
 
 ### Features
 
