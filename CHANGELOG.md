@@ -5,7 +5,7 @@ Changelog
 
 ### BREAKING CHANGES
 
-* Switched to new import names introduced in CKEditor 5 v46. Older versions are no longer supported.
+* Switched to new type import names introduced in CKEditor 5 v46. Older versions are no longer supported.
 
 ### Features
 
