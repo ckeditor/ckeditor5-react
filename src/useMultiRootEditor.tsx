@@ -13,9 +13,8 @@ import { overwriteArray, overwriteObject, uniq } from '@ckeditor/ckeditor5-integ
 import type {
 	InlineEditableUIView,
 	EditorConfig,
-	DocumentChangeEvent,
-	Writer,
-	RootElement,
+	ModelWriter,
+	ModelRootElement,
 	WatchdogConfig,
 	AddRootEvent,
 	DetachRootEvent,
@@ -170,14 +169,14 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 			modelDocument.differ.getChanges()
 				.forEach( change => {
-					let root: RootElement;
+					let root: ModelRootElement;
 
 					/* istanbul ignore else -- @preserve */
 					if ( change.type == 'insert' || change.type == 'remove' ) {
-						root = change.position.root as RootElement;
+						root = change.position.root as ModelRootElement;
 					} else {
 						// Must be `attribute` diff item.
-						root = change.range.root as RootElement;
+						root = change.range.root as ModelRootElement;
 					}
 
 					// Getting data from a not attached root will trigger a warning.
@@ -226,7 +225,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	/**
 	 * Callback function for handling an added root.
 	 */
-	const onAddRoot = useRefSafeCallback( ( editor: MultiRootEditor, _evt: EventInfo, root: RootElement ): void => {
+	const onAddRoot = useRefSafeCallback( ( editor: MultiRootEditor, _evt: EventInfo, root: ModelRootElement ): void => {
 		const rootName = root.rootName;
 
 		if ( !props.disableTwoWayDataBinding ) {
@@ -245,7 +244,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	/**
 	 * Callback function for handling a detached root.
 	 */
-	const onDetachRoot = useRefSafeCallback( ( _editor: MultiRootEditor, _evt: EventInfo, root: RootElement ): void => {
+	const onDetachRoot = useRefSafeCallback( ( _editor: MultiRootEditor, _evt: EventInfo, root: ModelRootElement ): void => {
 		const rootName = root.rootName;
 
 		if ( !props.disableTwoWayDataBinding ) {
@@ -302,7 +301,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				const modelDocument = editor.model.document;
 				const viewDocument = editor.editing.view.document;
 
-				modelDocument.on<DocumentChangeEvent>( 'change:data', evt => onChangeData( editor, evt ) );
+				modelDocument.on( 'change:data', evt => onChangeData( editor, evt ) );
 
 				editor.on<AddRootEvent>( 'addRoot', ( evt, root ) => onAddRoot( editor, evt, root ) );
 				editor.on<DetachRootEvent>( 'detachRoot', ( evt, root ) => onDetachRoot( editor, evt, root ) );
@@ -550,7 +549,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				instance.data.set( dataToUpdate, { suppressErrorInCollaboration: true } as any );
 			};
 
-			const _updateEditorAttributes = ( writer: Writer, roots: Array<string> ) => {
+			const _updateEditorAttributes = ( writer: ModelWriter, roots: Array<string> ) => {
 				roots.forEach( rootName => {
 					Object.keys( attributes![ rootName ] ).forEach( attr => {
 						instance.registerRootAttribute( attr );
