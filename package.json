@@ -35,10 +35,11 @@
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@ckeditor/ckeditor5-dev-bump-year": "^49.0.0",
-    "@ckeditor/ckeditor5-dev-ci": "^49.0.0",
-    "@ckeditor/ckeditor5-dev-release-tools": "^49.0.0",
-    "@ckeditor/ckeditor5-dev-utils": "^49.0.0",
+    "@ckeditor/ckeditor5-dev-bump-year": "^50.0.0",
+    "@ckeditor/ckeditor5-dev-changelog": "^50.0.0",
+    "@ckeditor/ckeditor5-dev-ci": "^50.0.0",
+    "@ckeditor/ckeditor5-dev-release-tools": "^50.0.0",
+    "@ckeditor/ckeditor5-dev-utils": "^50.0.0",
     "@testing-library/dom": "^10.3.1",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
@@ -56,7 +57,7 @@
     "eslint-plugin-ckeditor5-rules": "^10.0.0",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.1.0",
-    "husky": "^8.0.2",
+    "husky": "^9.1.7",
     "lint-staged": "^10.2.11",
     "listr2": "^6.5.0",
     "minimist": "^1.2.5",
@@ -74,6 +75,7 @@
     "semver": "^7.0.0",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.32.1",
+    "upath": "^2.0.1",
     "vite": "^5.3.1",
     "vitest": "^2.1.9",
     "webdriverio": "^9.12.7"
@@ -88,6 +90,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "nice": "ckeditor5-dev-changelog-create-entry",
     "dev": "echo \"Use 'dev:16', 'dev:17', 'dev:18', or 'dev:19' depending on the version of React you want to test\"",
     "dev:16": "REACT_VERSION=16 vite",
     "dev:17": "REACT_VERSION=17 vite",
@@ -98,8 +101,8 @@
     "test:watch": "vitest --ui --watch",
     "test:check:types": "tsc --noEmit -p ./tests/tsconfig.json",
     "lint": "eslint",
-    "postinstall": "node ./scripts/postinstall.js",
-    "changelog": "node ./scripts/changelog.js",
+    "postinstall": "node ./scripts/postinstall.mjs",
+    "release:prepare-changelog": "node ./scripts/preparechangelog.mjs",
     "release:prepare-packages": "node ./scripts/preparepackages.js",
     "release:publish-packages": "node ./scripts/publishpackages.js"
   },

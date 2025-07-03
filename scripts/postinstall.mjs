@@ -3,14 +3,9 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-import { fileURLToPath } from 'url';
-import { join, dirname } from 'path';
+import upath from 'upath';
 import { existsSync } from 'fs';
-
-const ROOT_DIRECTORY = join(
-	dirname( fileURLToPath( import.meta.url ) ),
-	'..'
-);
+import { ROOT_DIRECTORY } from './utils/constants.mjs';
 
 main()
 	.catch( err => {
@@ -20,9 +15,9 @@ main()
 async function main() {
 	// When installing a repository as a dependency, the `.git` directory does not exist.
 	// In such a case, husky should not attach its hooks as npm treats it as a package, not a git repository.
-	if ( existsSync( join( ROOT_DIRECTORY, '.git' ) ) ) {
-		const { install } = await import( 'husky' );
+	if ( existsSync( upath.join( ROOT_DIRECTORY, '.git' ) ) ) {
+		const { default: husky } = await import( 'husky' );
 
-		install();
+		husky();
 	}
 }
