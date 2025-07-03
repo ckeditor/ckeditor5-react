@@ -7,7 +7,7 @@
 
 import { Listr } from 'listr2';
 import * as releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
-import parseArguments from './utils/parsearguments.js';
+import parseArguments from './utils/parsearguments.mjs';
 import getListrOptions from './utils/getlistroptions.js';
 
 const cliArguments = parseArguments( process.argv.slice( 2 ) );

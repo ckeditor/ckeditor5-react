@@ -8,7 +8,7 @@
 import { Listr } from 'listr2';
 import * as releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
 import * as devUtils from '@ckeditor/ckeditor5-dev-utils';
-import parseArguments from './utils/parsearguments.js';
+import parseArguments from './utils/parsearguments.mjs';
 import getListrOptions from './utils/getlistroptions.js';
 import { preparePackageJson } from './utils/preparepackagejson.js';
 
