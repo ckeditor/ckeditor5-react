@@ -5,7 +5,7 @@
 
 import upath from 'upath';
 import { existsSync } from 'fs';
-import { ROOT_DIRECTORY } from './utils/constants.mjs';
+import { ROOT_DIRECTORY } from './utils/constants.js';
 
 main()
 	.catch( err => {

@@ -101,8 +101,8 @@
     "test:watch": "vitest --ui --watch",
     "test:check:types": "tsc --noEmit -p ./tests/tsconfig.json",
     "lint": "eslint",
-    "postinstall": "node ./scripts/postinstall.mjs",
-    "release:prepare-changelog": "node ./scripts/preparechangelog.mjs",
+    "postinstall": "node ./scripts/postinstall.js",
+    "release:prepare-changelog": "node ./scripts/preparechangelog.js",
     "release:prepare-packages": "node ./scripts/preparepackages.js",
     "release:publish-packages": "node ./scripts/publishpackages.js"
   },

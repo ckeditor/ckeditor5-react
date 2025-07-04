@@ -4,8 +4,8 @@
  */
 
 import { generateChangelogForSingleRepository } from '@ckeditor/ckeditor5-dev-changelog';
-import { ROOT_DIRECTORY } from './utils/constants.mjs';
-import parseArguments from './utils/parsearguments.mjs';
+import { ROOT_DIRECTORY } from './utils/constants.js';
+import parseArguments from './utils/parsearguments.js';
 
 const cliOptions = parseArguments( process.argv.slice( 2 ) );
 
