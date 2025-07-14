@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  browser-tools: circleci/browser-tools@2.1.2
+
 parameters:
   triggerCommitHash:
     type: string
@@ -12,14 +15,6 @@ parameters:
     default: false
 
 commands:
-  prepare_environment_command:
-    description: "Prepare environment (RAM, browsers, hosts, etc.)"
-    steps:
-      # CircleCI does not use the latest Chrome. Hence, we must install it manually.
-      - run:
-          name: Install the latest Chrome
-          command: yarn ckeditor5-dev-ci-install-latest-chrome
-
   bootstrap_repository_command:
     description: "Bootstrap the repository"
     steps:
@@ -89,7 +84,8 @@ commands:
 
 jobs:
   notify_ci_failure:
-    machine: true
+    docker:
+      - image: cimg/node:22.12.0
     parameters:
       hideAuthor:
         type: string
@@ -117,11 +113,12 @@ jobs:
           no_output_timeout: 1h
 
   validate_and_tests:
-    machine: true
+    docker:
+      - image: cimg/node:22.12.0-browsers
     steps:
       - checkout
       - bootstrap_repository_command
-      - prepare_environment_command
+      - browser-tools/install_chrome
       - run:
           name: Execute ESLint
           command: yarn run lint
@@ -167,7 +164,8 @@ jobs:
                 command: cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
 
   release_prepare:
-    machine: true
+    docker:
+      - image: cimg/node:22.12.0
     steps:
       - checkout
       - bootstrap_repository_command
@@ -176,7 +174,8 @@ jobs:
           command: npm run release:prepare-packages -- --verbose --compile-only
 
   trigger_release_process:
-    machine: true
+    docker:
+      - image: cimg/node:22.12.0
     steps:
       - checkout
       - bootstrap_repository_command
@@ -200,7 +199,8 @@ jobs:
           command: yarn ckeditor5-dev-ci-trigger-circle-build
 
   release_project:
-    machine: true
+    docker:
+      - image: cimg/node:22.12.0
     steps:
       - checkout
       - bootstrap_repository_command
