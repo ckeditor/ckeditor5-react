@@ -81,9 +81,10 @@
     "webdriverio": "^9.12.7"
   },
   "resolutions": {
-    "wrap-ansi": "7.0.0",
-    "string-width": "4.1.0",
+    "form-data": "^4.0.4",
     "semver": "^7.0.0",
+    "string-width": "4.1.0",
+    "wrap-ansi": "7.0.0",
     "ws": "^8"
   },
   "engines": {
