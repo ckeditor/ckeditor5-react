@@ -51,6 +51,9 @@ export default defineConfig( [
 		},
 
 		rules: {
+			'@stylistic/func-call-spacing': 'off',
+			'@stylistic/function-call-spacing': [ 'error', 'never' ],
+			'@stylistic/operator-linebreak': 'off',
 			'react/prop-types': 'off',
 			'react/no-deprecated': 'off',
 			'no-console': 'off',

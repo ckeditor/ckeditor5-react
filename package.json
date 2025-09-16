@@ -80,12 +80,14 @@
     "vitest": "^2.1.9",
     "webdriverio": "^9.12.7"
   },
-  "overrides": {
-    "form-data": "^4.0.4",
-    "semver": "^7.0.0",
-    "string-width": "4.1.0",
-    "wrap-ansi": "7.0.0",
-    "ws": "^8"
+  "pnpm": {
+    "overrides": {
+      "form-data": "^4.0.4",
+      "semver": "^7.0.0",
+      "string-width": "4.1.0",
+      "wrap-ansi": "7.0.0",
+      "@stylistic/eslint-plugin": "^5.3.1"
+    }
   },
   "engines": {
     "node": ">=22.0.0",
