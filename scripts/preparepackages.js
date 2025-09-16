@@ -60,7 +60,7 @@ const tasks = new Listr( [
 	{
 		title: 'Running build command.',
 		task: () => {
-			return devUtils.tools.shExec( 'yarn run build', { async: true, verbosity: 'silent' } );
+			return devUtils.tools.shExec( 'pnpm run build', { async: true, verbosity: 'silent' } );
 		}
 	},
 	{

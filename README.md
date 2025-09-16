@@ -21,10 +21,11 @@ See the ["Rich text editor component for React"](https://ckeditor.com/docs/ckedi
 After cloning this repository, install necessary dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
-You can also use [Yarn](https://yarnpkg.com/).
+> [!NOTE]
+> This project requires **pnpm v10** or higher. You can check your version with `pnpm --version` and update if needed with `npm install -g pnpm@latest`.
 
 ### Running the development server
 
@@ -66,7 +67,7 @@ Before you start, you need to prepare the changelog entries.
 
 1. Make sure the `#master` branch is up-to-date: `git fetch && git checkout master && git pull`.
 1. Prepare a release branch: `git checkout -b release-[YYYYMMDD]` where `YYYYMMDD` is the current day.
-1. Generate the changelog entries: `yarn run release:prepare-changelog`.
+1. Generate the changelog entries: `pnpm run release:prepare-changelog`.
 	* You can specify the release date by passing the `--date` option, e.g., `--date=2025-06-11`.
 	* By passing the `--dry-run` option, you can check what the script will do without actually modifying the files.
 	* Read all the entries, correct poor wording and other issues, wrap code names in backticks to format them, etc.

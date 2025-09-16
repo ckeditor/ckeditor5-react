@@ -35,11 +35,11 @@
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@ckeditor/ckeditor5-dev-bump-year": "^50.0.0",
-    "@ckeditor/ckeditor5-dev-changelog": "^50.0.0",
-    "@ckeditor/ckeditor5-dev-ci": "^50.0.0",
-    "@ckeditor/ckeditor5-dev-release-tools": "^50.0.0",
-    "@ckeditor/ckeditor5-dev-utils": "^50.0.0",
+    "@ckeditor/ckeditor5-dev-bump-year": "^53.0.0",
+    "@ckeditor/ckeditor5-dev-changelog": "^53.0.0",
+    "@ckeditor/ckeditor5-dev-ci": "^53.0.0",
+    "@ckeditor/ckeditor5-dev-release-tools": "^53.0.0",
+    "@ckeditor/ckeditor5-dev-utils": "^53.0.0",
     "@testing-library/dom": "^10.3.1",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
@@ -80,7 +80,7 @@
     "vitest": "^2.1.9",
     "webdriverio": "^9.12.7"
   },
-  "resolutions": {
+  "overrides": {
     "form-data": "^4.0.4",
     "semver": "^7.0.0",
     "string-width": "4.1.0",
@@ -88,7 +88,9 @@
     "ws": "^8"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.0.0",
+    "pnpm": ">=10.14.0",
+    "yarn": "\n\n┌─────────────────────────┐\n│  Hey, we use pnpm now!  │\n└─────────────────────────┘\n\n"
   },
   "scripts": {
     "nice": "ckeditor5-dev-changelog-create-entry",
