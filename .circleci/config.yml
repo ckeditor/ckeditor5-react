@@ -165,8 +165,12 @@ jobs:
                     circleci-agent step halt
                   fi
             - run:
-                name: Upload code coverage
-                command: cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+                name: Upload code coverage (non-fatal)
+                command: |
+                  #!/bin/bash
+                  set -eo pipefail
+                  cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js \
+                    || echo "Coveralls upload failed (e.g., 504). Continuing without failing CI."
 
   release_prepare:
     docker:
