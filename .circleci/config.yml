@@ -28,6 +28,7 @@ commands:
       - run:
           name: Install dependencies
           command: pnpm install
+      - prepare_environment_variables_commands
 
   install_ssh_keys_command:
     description: "Install SSH keys"
