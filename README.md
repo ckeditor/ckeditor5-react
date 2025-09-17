@@ -32,9 +32,9 @@ pnpm install
 To manually test the editor integration with different versions of React, you can start the development server using one of the commands below:
 
 ```bash
-npm run dev:16 # Open the demo projects using React 16.
-npm run dev:18 # Open the demo projects using React 18.
-npm run dev:19 # Open the demo projects using React 19.
+pnpm run dev:16 # Open the demo projects using React 16.
+pnpm run dev:18 # Open the demo projects using React 18.
+pnpm run dev:19 # Open the demo projects using React 19.
 ```
 
 ### Executing tests
@@ -42,13 +42,13 @@ npm run dev:19 # Open the demo projects using React 19.
 To test the editor integration against a set of automated tests, run the following command:
 
 ```bash
-npm run test
+pnpm run test
 ```
 
 If you want to run the tests in watch mode, use the following command:
 
 ```bash
-npm run test:watch
+pnpm run test:watch
 ```
 
 ### Building the package
@@ -56,7 +56,7 @@ npm run test:watch
 To build the package that is ready to publish, use the following command:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 ## Releasing package
