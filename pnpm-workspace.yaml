@@ -1,0 +1,10 @@
+shellEmulator: true
+shamefullyHoist: true
+preferFrozenLockfile: true
+
+onlyBuiltDependencies:
+  - edgedriver
+  - esbuild
+  - geckodriver
+  - msw
+  - protobufjs
