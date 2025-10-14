@@ -72,8 +72,10 @@ export default defineConfig( {
 			enabled: true,
 			headless: true,
 			provider: 'webdriverio',
-			name: 'chrome',
-			screenshotFailures: false
+			screenshotFailures: false,
+			instances: [
+				{ browser: 'chrome' }
+			]
 		}
 	},
 
