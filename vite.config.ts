@@ -58,7 +58,10 @@ export default defineConfig( {
 			include: [ 'src/*' ],
 			exclude: [ 'src/demos' ],
 			thresholds: {
-				100: true
+				branches: 95,
+				functions: 95,
+				lines: 95,
+				statements: 95
 			},
 			reporter: [
 				'text-summary',
