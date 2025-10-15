@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   browser-tools: circleci/browser-tools@2.1.2
+  codecov: codecov/codecov@5.4.3
 
 parameters:
   triggerCommitHash:
@@ -106,7 +107,7 @@ jobs:
           command: |
             #!/bin/bash
 
-            if [[ -z ${COVERALLS_REPO_TOKEN} ]];
+            if [[ -z ${CODECOV_TOKEN} ]];
             then
               circleci-agent step halt
             fi
@@ -161,17 +162,13 @@ jobs:
                 command: |
                   #!/bin/bash
 
-                  if [[ -z ${COVERALLS_REPO_TOKEN} ]];
+                  if [[ -z ${CODECOV_TOKEN} ]];
                   then
                     circleci-agent step halt
                   fi
-            - run:
-                name: Upload code coverage (non-fatal)
-                command: |
-                  #!/bin/bash
-                  set -eo pipefail
-                  cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js \
-                    || echo "Coveralls upload failed (e.g., 504). Continuing without failing CI."
+            - codecov/upload:
+                files: coverage/lcov.info
+                disable_search: true
 
   release_prepare:
     docker:
