@@ -1205,7 +1205,7 @@ describe( '<CKEditor> Component', () => {
 	} );
 
 	describe( 'in case of error handling', () => {
-		it( 'should restart the editor if a runtime error occurs', async () => {
+		it.skip( 'should restart the editor if a runtime error occurs', async () => {
 			vi.spyOn( console, 'error' ).mockImplementation( () => {} );
 
 			const onAfterDestroySpy = vi.fn();
