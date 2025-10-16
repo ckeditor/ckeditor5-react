@@ -894,7 +894,7 @@ describe( 'useMultiRootEditor', () => {
 
 	describe( 'semaphores', () => {
 		const testSemaphoreForWatchdog = enableWatchdog => {
-			it.skip( 'should assign `data` property to the editor even if it is still mounting', { retry: 4 }, async () => {
+			it( 'should assign `data` property to the editor even if it is still mounting', { retry: 4 }, async () => {
 				const deferInitialization = createDefer();
 
 				class SlowEditor extends TestMultiRootEditor {
