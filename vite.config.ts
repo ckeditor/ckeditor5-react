@@ -50,15 +50,15 @@ export default defineConfig( {
 		include: [
 			'tests/**/*.test.[j|t]sx'
 		],
-		sequence: {
-			shuffle: true
-		},
 		coverage: {
 			provider: 'istanbul',
 			include: [ 'src/*' ],
 			exclude: [ 'src/demos' ],
 			thresholds: {
-				100: true
+				branches: 100,
+				functions: 100,
+				lines: 100,
+				statements: 100
 			},
 			reporter: [
 				'text-summary',
@@ -72,8 +72,10 @@ export default defineConfig( {
 			enabled: true,
 			headless: true,
 			provider: 'webdriverio',
-			name: 'chrome',
-			screenshotFailures: false
+			screenshotFailures: false,
+			instances: [
+				{ browser: 'chrome' }
+			]
 		}
 	},
 

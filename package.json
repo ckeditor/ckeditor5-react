@@ -45,10 +45,10 @@
     "@testing-library/react": "^16.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "@vitest/browser": "^2.1.9",
-    "@vitest/coverage-istanbul": "^2.1.4",
-    "@vitest/ui": "^2.1.4",
+    "@vitejs/plugin-react": "^5.0.4",
+    "@vitest/browser": "^3.2.4",
+    "@vitest/coverage-istanbul": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
     "ckeditor5": "^46.0.0",
     "ckeditor5-premium-features": "^46.0.0",
     "eslint": "^9.26.0",
@@ -75,15 +75,16 @@
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.32.1",
     "upath": "^2.0.1",
-    "vite": "^5.3.1",
-    "vitest": "^2.1.9",
+    "vite": "^7.1.9",
+    "vitest": "^3.2.4",
     "webdriverio": "^9.12.7"
   },
   "pnpm": {
     "overrides": {
       "form-data": "^4.0.4",
       "semver": "^7.0.0",
-      "@stylistic/eslint-plugin": "^5.3.1"
+      "@stylistic/eslint-plugin": "^5.3.1",
+      "tar-fs@3.1.0": "^3.1.1"
     }
   },
   "engines": {
