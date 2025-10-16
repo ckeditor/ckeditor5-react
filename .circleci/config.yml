@@ -150,7 +150,7 @@ jobs:
             cp coverage/coverage-final.json .nyc_output
 
             # Verify results.
-            npx nyc check-coverage --branches 95 --functions 95 --lines 95 --statements 95
+            npx nyc check-coverage --branches 100 --functions 100 --lines 100 --statements 100
       - unless:
           # Upload the code coverage results for non-nightly builds only.
           condition: << pipeline.parameters.isNightly >>
