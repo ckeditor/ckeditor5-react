@@ -50,18 +50,18 @@ export default defineConfig( {
 		include: [
 			'tests/**/*.test.[j|t]sx'
 		],
-		sequence: {
-			shuffle: true
-		},
+		// sequence: {
+		// 	shuffle: true
+		// },
 		coverage: {
 			provider: 'istanbul',
 			include: [ 'src/*' ],
 			exclude: [ 'src/demos' ],
 			thresholds: {
-				branches: 95,
-				functions: 95,
-				lines: 95,
-				statements: 95
+				branches: 100,
+				functions: 100,
+				lines: 100,
+				statements: 100
 			},
 			reporter: [
 				'text-summary',
