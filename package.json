@@ -51,9 +51,9 @@
     "@vitest/ui": "^3.2.4",
     "ckeditor5": "^46.0.0",
     "ckeditor5-premium-features": "^46.0.0",
-    "eslint": "^9.26.0",
-    "eslint-config-ckeditor5": "^10.0.0",
-    "eslint-plugin-ckeditor5-rules": "^10.0.0",
+    "eslint": "^9.38.0",
+    "eslint-config-ckeditor5": "^12.2.0",
+    "eslint-plugin-ckeditor5-rules": "^12.2.0",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.1.0",
     "husky": "^9.1.7",
@@ -72,8 +72,8 @@
     "react19": "npm:react@19.0.0",
     "react19-dom": "npm:react-dom@19.0.0",
     "semver": "^7.0.0",
-    "typescript": "^5.0.0",
-    "typescript-eslint": "^8.32.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.2",
     "upath": "^2.0.1",
     "vite": "^7.1.9",
     "vitest": "^3.2.4",
@@ -83,7 +83,6 @@
     "overrides": {
       "form-data": "^4.0.4",
       "semver": "^7.0.0",
-      "@stylistic/eslint-plugin": "^5.3.1",
       "tar-fs@3.1.0": "^3.1.1"
     }
   },

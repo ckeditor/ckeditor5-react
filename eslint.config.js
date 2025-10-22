@@ -50,6 +50,11 @@ export default defineConfig( [
 			}
 		},
 
+		files: [
+			'**/*.ts',
+			'**/*.tsx'
+		],
+
 		rules: {
 			'@stylistic/func-call-spacing': 'off',
 			'@stylistic/function-call-spacing': [ 'error', 'never' ],
@@ -102,6 +107,23 @@ export default defineConfig( [
 			globals: {
 				...globals.node
 			}
+		}
+	},
+
+	// Rules specific to changelog files.
+	{
+		extends: ckeditor5Config,
+
+		files: [ '.changelog/**/*.md' ],
+
+		plugins: {
+			'ckeditor5-rules': ckeditor5Rules
+		},
+
+		rules: {
+			'ckeditor5-rules/validate-changelog-entry': [ 'error', {
+				repositoryType: 'single'
+			} ]
 		}
 	}
 ] );
