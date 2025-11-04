@@ -1,10 +1,16 @@
-shellEmulator: true
-shamefullyHoist: true
-preferFrozenLockfile: true
-
 onlyBuiltDependencies:
   - edgedriver
   - esbuild
   - geckodriver
   - msw
   - protobufjs
+
+minimumReleaseAge: 4320 # 3 days
+minimumReleaseAgeExclude:
+  - '@ckeditor/*'
+  - '@cksource/*'
+  - '*ckeditor5*'
+
+shellEmulator: true
+shamefullyHoist: true
+preferFrozenLockfile: true
