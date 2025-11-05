@@ -92,7 +92,7 @@ commands:
 jobs:
   notify_ci_failure:
     docker:
-      - image: cimg/node:22.12.0
+      - image: cimg/node:24.11.0
     parameters:
       hideAuthor:
         type: string
@@ -121,7 +121,7 @@ jobs:
 
   validate_and_tests:
     docker:
-      - image: cimg/node:22.12.0-browsers
+      - image: cimg/node:24.11.0-browsers
     steps:
       - checkout
       - bootstrap_repository_command
@@ -172,7 +172,7 @@ jobs:
 
   release_prepare:
     docker:
-      - image: cimg/node:22.12.0
+      - image: cimg/node:24.11.0
     steps:
       - checkout
       - bootstrap_repository_command
@@ -182,7 +182,7 @@ jobs:
 
   trigger_release_process:
     docker:
-      - image: cimg/node:22.12.0
+      - image: cimg/node:24.11.0
     steps:
       - checkout
       - bootstrap_repository_command
@@ -207,7 +207,7 @@ jobs:
 
   release_project:
     docker:
-      - image: cimg/node:22.12.0
+      - image: cimg/node:24.11.0
     steps:
       - checkout
       - bootstrap_repository_command
