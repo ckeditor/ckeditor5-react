@@ -5,6 +5,10 @@ onlyBuiltDependencies:
   - msw
   - protobufjs
 
+overrides:
+  semver: ^7.0.0
+  'vite@^7.0.0': ^7.1.12
+
 minimumReleaseAge: 4320 # 3 days
 minimumReleaseAgeExclude:
   - '@ckeditor/*'
