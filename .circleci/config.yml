@@ -29,7 +29,6 @@ commands:
       - run:
           name: Install dependencies
           command: pnpm install
-      - prepare_environment_variables_commands
 
   install_ssh_keys_command:
     description: "Install SSH keys"
@@ -68,27 +67,6 @@ commands:
             git config --global commit.gpgsign true
             git config --global tag.gpgSign true
 
-  prepare_environment_variables_commands:
-    description: "Prepare non-secret environment variables"
-    steps:
-      - run:
-          name: Prepare environment variables
-          command: |
-            #!/bin/bash
-
-            # Non-secret environment variables needed for the pipeline scripts.
-            CKE5_GITHUB_ORGANIZATION="ckeditor"
-            CKE5_GITHUB_REPOSITORY="ckeditor5-react"
-            CKE5_CIRCLE_APPROVAL_JOB_NAME="release_approval"
-            CKE5_GITHUB_RELEASE_BRANCH="master"
-
-            echo export CKE5_CIRCLE_APPROVAL_JOB_NAME=$CKE5_CIRCLE_APPROVAL_JOB_NAME >> $BASH_ENV
-            echo export CKE5_GITHUB_RELEASE_BRANCH=$CKE5_GITHUB_RELEASE_BRANCH >> $BASH_ENV
-            echo export CKE5_GITHUB_ORGANIZATION=$CKE5_GITHUB_ORGANIZATION >> $BASH_ENV
-            echo export CKE5_GITHUB_REPOSITORY=$CKE5_GITHUB_REPOSITORY >> $BASH_ENV
-            echo export CKE5_GITHUB_REPOSITORY_SLUG="$CKE5_GITHUB_ORGANIZATION/$CKE5_GITHUB_REPOSITORY" >> $BASH_ENV
-            echo export CKE5_COMMIT_SHA1=$CIRCLE_SHA1 >> $BASH_ENV
-
 jobs:
   notify_ci_failure:
     docker:
@@ -112,11 +90,8 @@ jobs:
               circleci-agent step halt
             fi
       - run:
-          environment:
-            CKE5_SLACK_NOTIFY_HIDE_AUTHOR: << parameters.hideAuthor >>
-            CKE5_PIPELINE_NUMBER: << pipeline.number >>
           name: Waiting for other jobs to finish and sending notification on failure
-          command: pnpm ckeditor5-dev-ci-circle-workflow-notifier
+          command: pnpm ckeditor5-dev-ci-circle-workflow-notifier --task "pnpm ckeditor5-dev-ci-notify-circle-status --pipeline-id << pipeline.number >> --hide-author << parameters.hideAuthor >>"
           no_output_timeout: 1h
 
   validate_and_tests:
@@ -203,7 +178,7 @@ jobs:
             fi
       - run:
           name: Trigger the release pipeline
-          command: pnpm ckeditor5-dev-ci-trigger-circle-build
+          command: pnpm ckeditor5-dev-ci-trigger-circle-build --slug ckeditor/ckeditor5-react --release-branch master
 
   release_project:
     docker:
@@ -233,7 +208,7 @@ jobs:
             # Do not fail if the Node script ends with non-zero exit code.
             set +e
 
-            pnpm ckeditor5-dev-ci-is-job-triggered-by-member
+            pnpm ckeditor5-dev-ci-is-job-triggered-by-member --job release_approval --organization ckeditor --team ckeditor-5-publishers
             EXIT_CODE=$( echo $? )
 
             if [ ${EXIT_CODE} -ne 0 ];
@@ -243,7 +218,7 @@ jobs:
             fi
       - run:
           name: Disable the redundant workflows option
-          command: pnpm ckeditor5-dev-ci-circle-disable-auto-cancel-builds
+          command: pnpm ckeditor5-dev-ci-circle-disable-auto-cancel-builds --organization ckeditor --repository ckeditor5-react
       - run:
           name: Prepare the new version to release
           command: npm run release:prepare-packages -- --verbose
@@ -252,7 +227,7 @@ jobs:
           command: npm run release:publish-packages -- --verbose
       - run:
           name: Enable the redundant workflows option
-          command: pnpm ckeditor5-dev-ci-circle-enable-auto-cancel-builds
+          command: pnpm ckeditor5-dev-ci-circle-enable-auto-cancel-builds --organization ckeditor --repository ckeditor5-react
           when: always
       - run:
           name: Pack the "release/" directory (in case of failure)
