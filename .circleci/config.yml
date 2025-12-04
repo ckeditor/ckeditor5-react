@@ -108,6 +108,9 @@ jobs:
           name: Run build
           command: pnpm run build
       - run:
+          name: Execute tests for internal scripts
+          command: pnpm run test:scripts
+      - run:
           name: Check types of tests
           command: pnpm run test:check:types
       - run:

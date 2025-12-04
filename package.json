@@ -95,6 +95,7 @@
     "test": "vitest run --coverage",
     "test:watch": "vitest --ui --watch",
     "test:check:types": "tsc --noEmit -p ./tests/tsconfig.json",
+    "test:scripts": "vitest --config ./scripts-tests/vitest.config.mjs --run",
     "lint": "eslint",
     "postinstall": "node ./scripts/postinstall.js",
     "release:prepare-changelog": "node ./scripts/preparechangelog.js",
