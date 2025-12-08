@@ -51,6 +51,8 @@ export default defineConfig( [
 		},
 
 		files: [
+			'**/*.js',
+			'**/*.mjs',
 			'**/*.ts',
 			'**/*.tsx'
 		],

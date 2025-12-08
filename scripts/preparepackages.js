@@ -5,6 +5,8 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
+import fs from 'node:fs';
+import upath from 'upath';
 import { Listr } from 'listr2';
 import * as releaseTools from '@ckeditor/ckeditor5-dev-release-tools';
 import * as devUtils from '@ckeditor/ckeditor5-dev-utils';
@@ -78,6 +80,19 @@ const tasks = new Listr( [
 			return releaseTools.cleanUpPackages( {
 				packagesDirectory: 'release'
 			} );
+		}
+	},
+	{
+		title: 'Verify release directory.',
+		task: async () => {
+			const RELEASE_DIRECTORY = upath.join( import.meta.dirname, '..', 'release' );
+			const isEmpty = fs.readdirSync( RELEASE_DIRECTORY ).length === 0;
+
+			if ( !isEmpty ) {
+				return;
+			}
+
+			return Promise.reject( 'Release directory is empty, aborting.' );
 		}
 	},
 	{
