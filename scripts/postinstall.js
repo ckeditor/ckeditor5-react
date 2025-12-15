@@ -4,7 +4,7 @@
  */
 
 import upath from 'upath';
-import { existsSync } from 'fs';
+import { existsSync } from 'node:fs';
 import { ROOT_DIRECTORY } from './utils/constants.js';
 
 main()

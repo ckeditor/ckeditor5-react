@@ -71,11 +71,11 @@ importers:
         specifier: ^9.38.0
         version: 9.38.0(jiti@2.5.1)
       eslint-config-ckeditor5:
-        specifier: ^12.2.0
-        version: 12.2.0(eslint@9.38.0(jiti@2.5.1))(typescript@5.9.3)
+        specifier: ^13.0.0
+        version: 13.0.0(eslint@9.38.0(jiti@2.5.1))(typescript@5.9.3)
       eslint-plugin-ckeditor5-rules:
-        specifier: ^12.2.0
-        version: 12.2.0
+        specifier: ^13.0.0
+        version: 13.0.0
       eslint-plugin-react:
         specifier: ^7.37.5
         version: 7.37.5(eslint@9.38.0(jiti@2.5.1))
@@ -2874,14 +2874,16 @@ packages:
     engines: {node: '>=6.0'}
     hasBin: true
 
-  eslint-config-ckeditor5@12.2.0:
-    resolution: {integrity: sha512-/TQsJuSkTZDVK8srm29tt0kicMEqAyusad1aH6EIXhBjNiQnsagYRNBZjAKiBGdofhjXy4sAD4g+gNa2igO9NA==}
+  eslint-config-ckeditor5@13.0.0:
+    resolution: {integrity: sha512-kJfQ+UJBWrBKGEmfkWlqP6RSEeIn7ursIzZx1E0F/J7fdz0ItKFIKZXZxxqETDQAWnZWKmzj5tx1wbnMkRBFlw==}
+    engines: {node: '>=24.11.0'}
     peerDependencies:
       eslint: ^9.0.0
       typescript: ^5.0.0
 
-  eslint-plugin-ckeditor5-rules@12.2.0:
-    resolution: {integrity: sha512-WgQP9aZo1N7bIDwwf2Wsnd0RpL20MAVxEehhYoFWy7HAMAnV3IliKuU3dsFA35O8cK4q7eKz7FiObwSRAfttQA==}
+  eslint-plugin-ckeditor5-rules@13.0.0:
+    resolution: {integrity: sha512-flXURsHYkTlPIHWlxt6BB40DRkdl8l1+qp9rFEi5ruF9ZW6hPRPN3Z4fvalrUAy/JuxmmwrcYKpiv+5keOHuPw==}
+    engines: {node: '>=24.11.0'}
 
   eslint-plugin-mocha@11.1.0:
     resolution: {integrity: sha512-rKntVWRsQFPbf8OkSgVNRVRrcVAPaGTyEgWCEyXaPDJkTl0v5/lwu1vTk5sWiUJU8l2sxwvGUZzSNrEKdVMeQw==}
@@ -3090,10 +3092,6 @@ packages:
   formdata-polyfill@4.0.10:
     resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==}
     engines: {node: '>=12.20.0'}
-
-  fs-extra@11.3.2:
-    resolution: {integrity: sha512-Xr9F6z6up6Ws+NjzMCZc6WXg2YFRlrLP9NQDO3VQrWrfiojdhS56TzueT88ze0uBdCTwEIhQ3ptnmKeWGFAe0A==}
-    engines: {node: '>=14.14'}
 
   fs-minipass@3.0.3:
     resolution: {integrity: sha512-XUBA9XClHbnJWSfBzjkm6RvPsyg3sryZt06BEQoXcF7EK/xpGaQYJgQKDJSUH5SGZ76Y7pFx1QBnXz09rU5Fbw==}
@@ -3663,9 +3661,6 @@ packages:
     resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
     engines: {node: '>=6'}
     hasBin: true
-
-  jsonfile@6.2.0:
-    resolution: {integrity: sha512-FGuPw30AdOIUTRMC2OMRtQV+jkVj2cfPqSeWXv1NEAJ1qZ5zb1X6z1mFhbfOB/iy3ssJCD+3KuZ8r8C3uVFlAg==}
 
   jsonparse@1.3.1:
     resolution: {integrity: sha512-POQXvpdL69+CluYsillJ7SUhKvytYjW9vG/GKpnf+xP8UWgYEM/RaMzHHofbALDiKbbP1W8UEYmgGl39WkPZsg==}
@@ -5416,10 +5411,6 @@ packages:
   universal-user-agent@7.0.3:
     resolution: {integrity: sha512-TmnEAEAsBJVZM/AADELsK76llnwcf9vMKuPz8JflO1frO8Lchitr0fNaN9d+Ap0BjKtqWqd/J17qeDnXh8CL2A==}
 
-  universalify@2.0.1:
-    resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
-    engines: {node: '>= 10.0.0'}
-
   upath@2.0.1:
     resolution: {integrity: sha512-1uEe95xksV1O0CYKXo8vQvN1JEbtJp7lb7C5U9HMsIp6IVwntkH/oNUzyVNQSd4S1sYk2FpSSW44FqMc8qee5w==}
     engines: {node: '>=4'}
@@ -6394,8 +6385,6 @@ snapshots:
       '@ckeditor/ckeditor5-utils': 46.1.1
       '@ckeditor/ckeditor5-widget': 46.1.1
       es-toolkit: 1.39.5
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-cloud-services@46.1.1':
     dependencies:
@@ -6688,6 +6677,8 @@ snapshots:
       '@ckeditor/ckeditor5-core': 46.1.1
       '@ckeditor/ckeditor5-engine': 46.1.1
       '@ckeditor/ckeditor5-utils': 46.1.1
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-essentials@46.1.1':
     dependencies:
@@ -10051,13 +10042,13 @@ snapshots:
     optionalDependencies:
       source-map: 0.6.1
 
-  eslint-config-ckeditor5@12.2.0(eslint@9.38.0(jiti@2.5.1))(typescript@5.9.3):
+  eslint-config-ckeditor5@13.0.0(eslint@9.38.0(jiti@2.5.1))(typescript@5.9.3):
     dependencies:
       '@eslint/js': 9.38.0
       '@eslint/markdown': 6.6.0
       '@stylistic/eslint-plugin': 4.4.1(eslint@9.38.0(jiti@2.5.1))(typescript@5.9.3)
       eslint: 9.38.0(jiti@2.5.1)
-      eslint-plugin-ckeditor5-rules: 12.2.0
+      eslint-plugin-ckeditor5-rules: 13.0.0
       eslint-plugin-mocha: 11.1.0(eslint@9.38.0(jiti@2.5.1))
       globals: 16.4.0
       typescript: 5.9.3
@@ -10065,11 +10056,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-ckeditor5-rules@12.2.0:
+  eslint-plugin-ckeditor5-rules@13.0.0:
     dependencies:
       '@es-joy/jsdoccomment': 0.50.2
       enhanced-resolve: 5.18.3
-      fs-extra: 11.3.2
       resolve.exports: 2.0.3
       upath: 2.0.1
       validate-npm-package-name: 6.0.2
@@ -10331,12 +10321,6 @@ snapshots:
   formdata-polyfill@4.0.10:
     dependencies:
       fetch-blob: 3.2.0
-
-  fs-extra@11.3.2:
-    dependencies:
-      graceful-fs: 4.2.11
-      jsonfile: 6.2.0
-      universalify: 2.0.1
 
   fs-minipass@3.0.3:
     dependencies:
@@ -10946,12 +10930,6 @@ snapshots:
   json-stable-stringify-without-jsonify@1.0.1: {}
 
   json5@2.2.3: {}
-
-  jsonfile@6.2.0:
-    dependencies:
-      universalify: 2.0.1
-    optionalDependencies:
-      graceful-fs: 4.2.11
 
   jsonparse@1.3.1: {}
 
@@ -13174,8 +13152,6 @@ snapshots:
       unist-util-visit-parents: 6.0.1
 
   universal-user-agent@7.0.3: {}
-
-  universalify@2.0.1: {}
 
   upath@2.0.1: {}
 
