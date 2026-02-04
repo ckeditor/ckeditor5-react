@@ -28,11 +28,6 @@ describe( '<CKEditorContext> Component', () => {
 	let component: RenderResult | null = null;
 
 	afterEach( () => {
-		vi.restoreAllMocks();
-		vi.clearAllTimers();
-		vi.unstubAllEnvs();
-		vi.unstubAllGlobals();
-
 		component?.unmount();
 		manager.clear();
 	} );
@@ -889,11 +884,6 @@ describe( 'EditorWatchdogAdapter', () => {
 	let component: RenderResult | null = null;
 
 	afterEach( () => {
-		vi.restoreAllMocks();
-		vi.clearAllTimers();
-		vi.unstubAllEnvs();
-		vi.unstubAllGlobals();
-
 		component?.unmount();
 		manager.clear();
 	} );

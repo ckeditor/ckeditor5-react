@@ -39,11 +39,6 @@ describe( '<CKEditor> Component', () => {
 	} );
 
 	afterEach( () => {
-		vi.restoreAllMocks();
-		vi.clearAllTimers();
-		vi.unstubAllEnvs();
-		vi.unstubAllGlobals();
-
 		component?.unmount();
 		manager.clear();
 
