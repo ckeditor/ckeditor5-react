@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-import { it, describe, expect, vi, beforeEach, afterEach } from 'vitest';
+import { it, describe, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
 import { LifeCycleElementSemaphore } from '../../src/lifecycle/LifeCycleElementSemaphore.js';
@@ -17,11 +17,6 @@ describe( 'useLifeCycleSemaphoreSyncRef', () => {
 			mount: async () => {},
 			unmount: async () => {}
 		} );
-	} );
-
-	afterEach( () => {
-		vi.restoreAllMocks();
-		vi.clearAllTimers();
 	} );
 
 	it( 'should initialize with null semaphore', () => {

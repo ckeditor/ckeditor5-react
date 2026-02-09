@@ -8,8 +8,11 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig( {
 	test: {
 		testTimeout: 10000,
-		mockReset: true,
 		restoreMocks: true,
+		clearMocks: true,
+		mockReset: true,
+		unstubEnvs: true,
+		unstubGlobals: true,
 		include: [
 			'scripts-tests/**/*.@(js|mjs|cjs)'
 		],

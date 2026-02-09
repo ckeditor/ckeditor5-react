@@ -28,8 +28,6 @@ describe( 'LifeCycleElementSemaphore', () => {
 
 	afterEach( () => {
 		semaphore.release();
-		vi.restoreAllMocks();
-		vi.clearAllTimers();
 	} );
 
 	it( 'should initialize with correct values', () => {

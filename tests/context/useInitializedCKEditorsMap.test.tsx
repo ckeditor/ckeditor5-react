@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { Collection } from 'ckeditor5';
 
@@ -15,10 +15,6 @@ import type { CKEditorConfigContextMetadata } from '../../src/context/setCKEdito
 import MockEditor from '../_utils/editor.js';
 
 describe( 'useInitializedCKEditorsMap', () => {
-	afterEach( () => {
-		vi.clearAllMocks();
-	} );
-
 	it( 'should not call onChangeInitializedEditors when context is not initialized', () => {
 		const onChangeInitializedEditors = vi.fn();
 		const mockWatchdog = {

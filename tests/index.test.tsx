@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-import { describe, afterEach, it, expect, vi } from 'vitest';
+import { describe, afterEach, it, expect } from 'vitest';
 import React from 'react';
 import { ContextWatchdog } from 'ckeditor5';
 import { render, type RenderResult } from '@testing-library/react';
@@ -19,11 +19,6 @@ describe( 'index.js', () => {
 	let component: RenderResult | null = null;
 
 	afterEach( () => {
-		vi.restoreAllMocks();
-		vi.clearAllTimers();
-		vi.unstubAllEnvs();
-		vi.unstubAllGlobals();
-
 		component?.unmount();
 		manager.clear();
 	} );

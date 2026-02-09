@@ -55,11 +55,6 @@ describe( 'useMultiRootEditor', () => {
 	} );
 
 	afterEach( () => {
-		vi.restoreAllMocks();
-		vi.clearAllTimers();
-		vi.unstubAllEnvs();
-		vi.unstubAllGlobals();
-
 		editorProps.semaphoreElement = null;
 	} );
 
