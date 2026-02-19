@@ -106,6 +106,13 @@ export default defineConfig( {
 		}
 	},
 
+	preview: {
+		port: 8080,
+		strictPort: true,
+		cors: true,
+		host: true
+	},
+
 	define: {
 		__REACT_VERSION__: REACT_VERSION,
 		__REACT_INTEGRATION_VERSION__: JSON.stringify( pkg.version )
