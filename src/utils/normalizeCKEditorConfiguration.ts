@@ -29,11 +29,11 @@ export function normalizeConfiguration( config: EditorConfig, data?: string | Re
 	let normalizedConfig: any = { ...config };
 
 	if ( isRootsMapConfigurationSupported() ) {
-		const initialData = normalizedConfig.roots?.main?.initialData || normalizedConfig.root?.initialData || data || '';
+		const configInitialData = normalizedConfig.roots?.main?.initialData || normalizedConfig.root?.initialData;
 
-		if ( data && initialData ) {
+		if ( data && configInitialData ) {
 			console.warn(
-				'Editor data should be provided either using `root.initialData` config or `data` property. ' +
+				'Editor data should be provided either using `config.root.initialData` or `data` property. ' +
 				'The config value takes precedence over `data` property and will be used when both are specified.'
 			);
 		}
@@ -47,21 +47,24 @@ export function normalizeConfiguration( config: EditorConfig, data?: string | Re
 				...normalizedConfig.roots,
 				main: {
 					...normalizedConfig.roots.main,
-					initialData
+					initialData: configInitialData || data || ''
 				}
 			}
 		};
 	} else {
-		const initialData = normalizedConfig.initialData || data || '';
+		const configInitialData = normalizedConfig.initialData;
 
-		if ( data && initialData ) {
+		if ( data && configInitialData ) {
 			console.warn(
-				'Editor data should be provided either using `initialData` config or `data` property. ' +
+				'Editor data should be provided either using `config.initialData` or `data` property. ' +
 				'The config value takes precedence over `data` property and will be used when both are specified.'
 			);
 		}
 
-		normalizedConfig = { ...normalizedConfig, initialData };
+		normalizedConfig = {
+			...normalizedConfig,
+			initialData: configInitialData || data || ''
+		};
 	}
 
 	return normalizedConfig;
@@ -81,5 +84,9 @@ export function isRootsMapConfigurationSupported(): boolean {
 	// If it's nightly, internal, or any other version, assume it's compatible with all newest features.
 	// Versions >= 48 prefer to use `root.initialData` instead of `initialData` field, so we need to normalize
 	// the configuration object to make it work with all versions.
-	return !isSemanticVersion( bundleInfo?.version ) || destructureSemanticVersion( bundleInfo.version ).major >= 48;
+	return (
+		!bundleInfo ||
+		!isSemanticVersion( bundleInfo.version ) ||
+		destructureSemanticVersion( bundleInfo.version ).major >= 48
+	);
 }
