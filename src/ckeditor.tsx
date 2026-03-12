@@ -17,6 +17,7 @@ import type {
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore.js';
 
 import { uid } from '@ckeditor/ckeditor5-integrations-common';
+
 import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore.js';
 
 import {
@@ -31,6 +32,7 @@ import {
 } from './context/ckeditorcontext.js';
 
 import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
+import { normalizeConfiguration } from './utils/normalizeCKEditorConfiguration.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -412,20 +414,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Returns the editor configuration.
 	 */
 	private _getConfig(): EditorConfig {
-		const config = this.props.config || {};
-
-		if ( this.props.data && config.initialData ) {
-			console.warn(
-				'Editor data should be provided either using `config.initialData` or `content` property. ' +
-				'The config value takes precedence over `content` property and will be used when both are specified.'
-			);
-		}
-
-		// Merge two possible ways of providing data into the `config.initialData` field.
-		return {
-			...config,
-			initialData: config.initialData || this.props.data || ''
-		};
+		return normalizeConfiguration( this.props.config || {}, this.props.data );
 	}
 
 	public static override contextType = ContextWatchdogContext;
