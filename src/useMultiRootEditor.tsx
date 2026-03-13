@@ -34,6 +34,7 @@ import { useRefSafeCallback } from './hooks/useRefSafeCallback.js';
 import { useInstantEditorEffect } from './hooks/useInstantEditorEffect.js';
 
 import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
+import { useExecuteAfterRender } from './hooks/useExecuteAfterRender.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -603,17 +604,15 @@ export const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 	rootName: string;
 	semaphore: LifeCycleSemaphoreSyncRefResult<LifeCycleMountResult>;
 }, ref ) => {
+	const [ TagName, setTagName ] = useState<any>( null );
 	const innerRef = useRef<HTMLDivElement>( null );
+	const enqueueRender = useExecuteAfterRender();
 
 	useEffect( () => {
 		let editable: InlineEditableUIView | null;
 		let editor: MultiRootEditor | null;
 
 		semaphore.runAfterMount( ( { instance } ) => {
-			if ( !innerRef.current ) {
-				return;
-			}
-
 			editor = instance;
 
 			const { ui, model } = editor;
@@ -623,10 +622,20 @@ export const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 				editor.detachEditable( root );
 			}
 
-			editable = ui.view.createEditable( rootName, innerRef.current );
-			ui.addEditable( editable );
+			const NewTagName = root?.getAttribute( 'htmlElementName' ) ?? 'div';
 
-			instance.editing.view.forceRender();
+			setTagName( NewTagName );
+
+			enqueueRender( () => {
+				if ( !innerRef.current ) {
+					return;
+				}
+
+				editable = ui.view.createEditable( rootName, innerRef.current );
+				ui.addEditable( editable );
+
+				instance.editing.view.forceRender();
+			} );
 		} );
 
 		return () => {
@@ -642,8 +651,12 @@ export const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
 		};
 	}, [ semaphore.revision ] );
 
+	if ( !TagName ) {
+		return null;
+	}
+
 	return (
-		<div
+		<TagName
 			key={semaphore.revision}
 			id={id}
 			ref={ mergeRefs( ref, innerRef ) }
