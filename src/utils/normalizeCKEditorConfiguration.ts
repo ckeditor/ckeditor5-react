@@ -29,7 +29,11 @@ export function normalizeConfiguration( config: EditorConfig, data?: string | Re
 	let normalizedConfig: any = { ...config };
 
 	if ( isRootsMapConfigurationSupported() ) {
-		const configInitialData = normalizedConfig.roots?.main?.initialData || normalizedConfig.root?.initialData;
+		// For >= 48.x versions, the `data` property should be assigned to `root.initialData` field in the configuration object.
+		const configInitialData =
+			normalizedConfig.roots?.main?.initialData ||
+			normalizedConfig.root?.initialData ||
+			/* legacy */ normalizedConfig.initialData;
 
 		if ( data && configInitialData ) {
 			console.warn(
@@ -46,12 +50,13 @@ export function normalizeConfiguration( config: EditorConfig, data?: string | Re
 			roots: {
 				...normalizedConfig.roots,
 				main: {
-					...normalizedConfig.roots.main,
+					...normalizedConfig.roots?.main,
 					initialData: configInitialData || data || ''
 				}
 			}
 		};
 	} else {
+		// Fallback for <= 47.x versions which do not support per-root configuration and use `initialData` field.
 		const configInitialData = normalizedConfig.initialData;
 
 		if ( data && configInitialData ) {

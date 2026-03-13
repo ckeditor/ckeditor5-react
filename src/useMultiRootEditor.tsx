@@ -168,13 +168,10 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 				acc[ rootName ] = {
 					...configRootValue,
-					initialData: configRootValue?.modelElement?.initialData || data?.[ rootName ] || '',
+					initialData: configRootValue?.initialData || data?.[ rootName ] || '',
 					modelElement: {
 						...configRootValue?.modelElement,
-						attributes: {
-							...configRootValue?.modelElement?.attributes,
-							...attributes?.[ rootName ]
-						}
+						attributes: attributes?.[ rootName ] || configRootValue?.modelElement?.attributes || {}
 					}
 				};
 
