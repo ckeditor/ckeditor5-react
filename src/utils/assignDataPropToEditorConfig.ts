@@ -46,6 +46,7 @@ export function assignDataPropToEditorConfig( config: Record<string, any>, data:
 			roots: {
 				...config.roots,
 				main: {
+					...config.root,
 					...config.roots?.main,
 					initialData: configInitialData || data || ''
 				}
