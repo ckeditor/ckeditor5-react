@@ -34,7 +34,7 @@ import { useRefSafeCallback } from './hooks/useRefSafeCallback.js';
 import { useInstantEditorEffect } from './hooks/useInstantEditorEffect.js';
 
 import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
-import { isRootsMapConfigurationSupported } from './utils/assignDataPropToEditorConfig.js';
+import { assignMultiRootDataPropToEditorConfig } from './utils/assignDataPropToEditorConfig.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -143,58 +143,9 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 * Returns the editor configuration.
 	 */
 	const _getConfig = (): EditorConfig => {
-		const { config = {}, data } = props;
+		const { config = {}, data, rootsAttributes } = props;
 
-		if ( isRootsMapConfigurationSupported() ) {
-			const hasDefinedRootsInitialData = !!config.roots && Object
-				.values( config.roots )
-				.some( val => typeof val?.initialData === 'string' );
-
-			if ( data && hasDefinedRootsInitialData ) {
-				console.warn(
-					'Editor data should be provided either using `config.roots.<root name>.initialData` or `data` property. ' +
-					'The config value takes precedence over `data` property and will be used when both are specified.'
-				);
-			}
-
-			const knownRootsKeys = uniq( [
-				...Object.keys( attributes || {} ),
-				...Object.keys( data || {} ),
-				...Object.keys( config.roots || {} )
-			] );
-
-			const roots = knownRootsKeys.reduce( ( acc, rootName ) => {
-				const configRootValue = ( config as any ).roots?.[ rootName ];
-
-				acc[ rootName ] = {
-					...configRootValue,
-					initialData: configRootValue?.initialData || data?.[ rootName ] || '',
-					modelElement: {
-						...configRootValue?.modelElement,
-						attributes: attributes?.[ rootName ] || configRootValue?.modelElement?.attributes || {}
-					}
-				};
-
-				return acc;
-			}, Object.create( null ) );
-
-			return {
-				...config,
-				roots
-			} as any;
-		}
-
-		if ( data && config.initialData ) {
-			console.warn(
-				'Editor data should be provided either using `config.initialData` or `data` property. ' +
-				'The config value takes precedence over `data` property and will be used when both are specified.'
-			);
-		}
-
-		return {
-			...config,
-			rootsAttributes: attributes
-		};
+		return assignMultiRootDataPropToEditorConfig( config, data, rootsAttributes );
 	};
 
 	/**
