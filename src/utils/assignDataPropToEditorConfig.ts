@@ -26,7 +26,7 @@ import {
  * @param config The editor configuration.
  * @param data The editor data. It is used to log warnings when both `data` and `initialData` are specified.
  */
-export function assignDataPropToEditorConfig( config: Record<string, any>, data: string | undefined ): EditorConfig {
+export function assignDataPropToSingleRootEditorConfig( config: Record<string, any>, data: string | undefined ): EditorConfig {
 	if ( isRootsMapConfigurationSupported() ) {
 		// For >= 48.x versions, the `data` property should be assigned to `root.initialData` field in the configuration object.
 		const configInitialData =
@@ -41,7 +41,7 @@ export function assignDataPropToEditorConfig( config: Record<string, any>, data:
 			);
 		}
 
-		const normalizedConfig = {
+		const normalizedConfig: any = {
 			...config,
 			roots: {
 				...config.roots,
@@ -53,8 +53,8 @@ export function assignDataPropToEditorConfig( config: Record<string, any>, data:
 			}
 		};
 
-		delete config.root;
-		delete config.initialData;
+		delete normalizedConfig.root;
+		delete normalizedConfig.initialData;
 
 		return normalizedConfig as unknown as EditorConfig;
 	}
