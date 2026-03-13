@@ -122,10 +122,7 @@ export function assignMultiRootDataPropToEditorConfig(
 			acc[ rootName ] = {
 				...configRootValue,
 				initialData: configRootValue?.initialData || data?.[ rootName ] || '',
-				modelElement: {
-					...configRootValue?.modelElement,
-					attributes: attributes?.[ rootName ] || configRootValue?.modelElement?.attributes || {}
-				}
+				modelAttributes: attributes?.[ rootName ] || configRootValue?.modelAttributes || {}
 			};
 
 			return acc;

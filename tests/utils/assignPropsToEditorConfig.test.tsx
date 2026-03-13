@@ -132,8 +132,8 @@ describe( 'assignPropsToEditorConfig', () => {
 			it( 'should assign data to roots.<root name>.initialData', () => {
 				expect( assignMultiRootDataPropToEditorConfig( {}, { root1: 'foo', root2: 'bar' } ) ).toEqual( {
 					roots: {
-						root1: { initialData: 'foo', modelElement: { attributes: {} } },
-						root2: { initialData: 'bar', modelElement: { attributes: {} } }
+						root1: { initialData: 'foo', modelAttributes: {} },
+						root2: { initialData: 'bar', modelAttributes: {} }
 					}
 				} );
 			} );
@@ -141,7 +141,7 @@ describe( 'assignPropsToEditorConfig', () => {
 			it( 'should fallback to empty string if no data is provided for a root defined only via attributes', () => {
 				expect( assignMultiRootDataPropToEditorConfig( {}, {}, { root1: { class: 'my-class' } } ) ).toEqual( {
 					roots: {
-						root1: { initialData: '', modelElement: { attributes: { class: 'my-class' } } }
+						root1: { initialData: '', modelAttributes: { class: 'my-class' } }
 					}
 				} );
 			} );
@@ -155,7 +155,7 @@ describe( 'assignPropsToEditorConfig', () => {
 
 				expect( result ).toEqual( {
 					roots: {
-						root1: { initialData: 'config-data', modelElement: { attributes: {} } }
+						root1: { initialData: 'config-data', modelAttributes: {} }
 					}
 				} );
 
