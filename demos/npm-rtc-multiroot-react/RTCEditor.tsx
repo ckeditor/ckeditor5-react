@@ -56,7 +56,11 @@ interface RTCEditorProps {
 }
 
 export function RTCEditor( { initialData = INITIAL_DATA }: RTCEditorProps ): JSX.Element {
-	const initialRootsAttributes = useMemo( () => Object.fromEntries( Object.keys( initialData ).map( name => [ name, {} ] ) ), [] );
+	const cachedInitialData = useMemo( () => initialData, [] );
+	const cachedInitialRoots = useMemo(
+		() => Object.fromEntries( Object.keys( cachedInitialData ).map( name => [ name, {} ] ) ),
+		[ cachedInitialData ]
+	);
 
 	const presenceListRef = useRef<HTMLDivElement>( null );
 	const sidebarRef = useRef<HTMLDivElement>( null );
@@ -69,9 +73,9 @@ export function RTCEditor( { initialData = INITIAL_DATA }: RTCEditorProps ): JSX
 		isLayoutReady,
 
 		editor: MultiRootEditor,
-		data: initialData,
-		rootsAttributes: initialRootsAttributes,
-		disableTwoWayDataBinding: true,
+		data: cachedInitialData,
+		rootsAttributes: cachedInitialRoots,
+		disableTwoWayDataBinding: false,
 
 		config: {
 			licenseKey: credentials.licenseKey,
