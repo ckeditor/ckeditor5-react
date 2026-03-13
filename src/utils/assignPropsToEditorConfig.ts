@@ -112,7 +112,7 @@ export function assignMultiRootDataPropToEditorConfig(
 
 		const knownRootsKeys = uniq( [
 			...Object.keys( attributes || {} ),
-			...Object.keys( data || {} ),
+			...Object.keys( data ),
 			...Object.keys( config.roots || {} )
 		] );
 

@@ -32,7 +32,7 @@ import {
 } from './context/ckeditorcontext.js';
 
 import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
-import { assignDataPropToSingleRootEditorConfig } from './utils/assignDataPropToEditorConfig.js';
+import { assignDataPropToSingleRootEditorConfig } from './utils/assignPropsToEditorConfig.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
