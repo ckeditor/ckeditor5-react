@@ -12,7 +12,7 @@ import {
 import type { EditorConfig } from 'ckeditor5';
 
 /**
- * Normalizes the editor configuration to make it compatible with all CKEditor 5 versions.
+ * Assigns the `data` property to the correct field in the editor configuration object, depending on the loaded CKEditor version.
  *
  * At this moment, CKEditor 5 might be loaded in three different versions:
  *
@@ -25,7 +25,7 @@ import type { EditorConfig } from 'ckeditor5';
  * @param config The editor configuration.
  * @param data The editor data. It is used to log warnings when both `data` and `initialData` are specified.
  */
-export function normalizeConfiguration( config: EditorConfig, data?: string | Record<string, string> | undefined ): any {
+export function assignDataPropToEditorConfig( config: EditorConfig, data: string | Record<string, string> | undefined ): any {
 	let normalizedConfig: any = { ...config };
 
 	if ( isRootsMapConfigurationSupported() ) {

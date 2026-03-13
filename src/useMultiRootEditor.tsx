@@ -34,7 +34,7 @@ import { useRefSafeCallback } from './hooks/useRefSafeCallback.js';
 import { useInstantEditorEffect } from './hooks/useInstantEditorEffect.js';
 
 import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
-import { isRootsMapConfigurationSupported } from './utils/normalizeCKEditorConfiguration.js';
+import { isRootsMapConfigurationSupported } from './utils/assignDataPropToEditorConfig.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 

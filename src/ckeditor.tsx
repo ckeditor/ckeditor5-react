@@ -32,7 +32,7 @@ import {
 } from './context/ckeditorcontext.js';
 
 import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
-import { normalizeConfiguration } from './utils/normalizeCKEditorConfiguration.js';
+import { assignDataPropToEditorConfig } from './utils/assignDataPropToEditorConfig.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -414,7 +414,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Returns the editor configuration.
 	 */
 	private _getConfig(): EditorConfig {
-		return normalizeConfiguration( this.props.config || {}, this.props.data );
+		return assignDataPropToEditorConfig( this.props.config || {}, this.props.data );
 	}
 
 	public static override contextType = ContextWatchdogContext;
