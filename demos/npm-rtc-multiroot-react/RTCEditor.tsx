@@ -42,9 +42,11 @@ import {
 	TrackChangesData
 } from 'ckeditor5-premium-features';
 
-import { useIsMounted } from '../shared/hooks/useIsMounted.js';
-import { useCollaborationChannelId } from '../shared/hooks/useCollaborationChannelId.js';
-import { useCollaborationCredentials } from '../shared/hooks/useCollaborationCredentials.js';
+import {
+	useIsMounted,
+	useCollaborationChannelId,
+	useCollaborationCredentials
+} from '../shared/hooks/index.js';
 
 const INITIAL_DATA = {
 	intro: '<h2>Introduction</h2><p>Start collaborating in real time.</p>',
