@@ -28,7 +28,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-integrations-common": "^2.2.2"
+    "@ckeditor/ckeditor5-integrations-common": "^2.2.4"
   },
   "peerDependencies": {
     "ckeditor5": ">=46.0.0 || ^0.0.0-nightly || ^0.0.0-internal",
