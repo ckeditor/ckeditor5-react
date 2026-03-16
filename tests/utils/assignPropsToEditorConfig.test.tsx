@@ -24,9 +24,9 @@ describe( 'assignPropsToEditorConfig', () => {
 	} );
 
 	describe( 'isRootsMapConfigurationSupported()', () => {
-		it( 'should return true if window.CKEDITOR_VERSION is not defined', () => {
+		it( 'should return false if window.CKEDITOR_VERSION is not defined', () => {
 			delete ( window as any ).CKEDITOR_VERSION;
-			expect( isRootsMapConfigurationSupported() ).toBe( true );
+			expect( isRootsMapConfigurationSupported() ).toBe( false );
 		} );
 
 		it.each( [ 'nightly', '48.0.0', '49.0.0' ] )(

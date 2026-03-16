@@ -365,7 +365,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		// Ignore coverage for this condition, because it's really hard to test it in the automated way.
 		// It requires testing with different CKEditor 5 versions, which is not possible at the moment.
 		// istanbul ignore next -- @preserve
-		const sourceDataOrElement: Record<string, string | HTMLElement> = isRootsMapConfigurationSupported() ? {} : data;
+		const sourceDataOrElement = isRootsMapConfigurationSupported() ? {} : data;
 
 		if ( props.disableWatchdog ) {
 			const instance = await _createEditor( sourceDataOrElement as any, _getConfig() );
