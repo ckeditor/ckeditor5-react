@@ -34,7 +34,7 @@ import { useRefSafeCallback } from './hooks/useRefSafeCallback.js';
 import { useInstantEditorEffect } from './hooks/useInstantEditorEffect.js';
 
 import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
-import { assignMultiRootDataPropToEditorConfig } from './utils/assignPropsToEditorConfig.js';
+import { assignMultiRootDataPropToEditorConfig, isRootsMapConfigurationSupported } from './utils/assignPropsToEditorConfig.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -388,7 +388,19 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				onAfterDestroy( editorRefs.instance.current );
 			}
 
-			const instance = await _createEditor( data as any, config );
+			// For the >= 48.x versions, the first argument of `MultirootEditor.create()` accepts only
+			// object with map of HTML elements that points to the editables. The initial data is passed into
+			// `roots.<root name>.initialData` field in the configuration object. We pass root attributes in
+			// `roots.<root name>.modelAttributes` field in the configuration object.
+			//
+			// For the <= 47.x versions, the first argument accepts both HTML elements and initial data. We use it
+			// as initial data and pass root attributes in `rootsAttributes` field in the configuration object.
+			//
+			// Ignore coverage for this condition, because it's really hard to test it in the automated way.
+			// It requires testing with different CKEditor 5 versions, which is not possible at the moment.
+			// istanbul ignore next -- @preserve
+			const sourceDataOrElement: Record<string, string | HTMLElement> = isRootsMapConfigurationSupported() ? {} : data;
+			const instance = await _createEditor( sourceDataOrElement as any, config );
 
 			if ( totalRestartsRef.current > 0 ) {
 				semaphore.unsafeSetValue( {
