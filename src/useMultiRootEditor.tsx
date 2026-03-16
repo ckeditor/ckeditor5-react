@@ -358,7 +358,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	/**
 	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
 	 */
-	const _initializeEditor = useRefSafeCallback( async (): Promise<LifeCycleMountResult> => {
+	const _initializeEditor = async (): Promise<LifeCycleMountResult> => {
 		if ( props.disableWatchdog ) {
 			const instance = await _createEditor( props.data as any, _getConfig() );
 
@@ -430,7 +430,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			watchdog,
 			instance: watchdog!.editor
 		};
-	} );
+	};
 
 	const _getStateDiff = (
 		previousState: Record<string, unknown>,
