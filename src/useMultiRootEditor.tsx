@@ -354,8 +354,21 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
 	 */
 	const _initializeEditor = async (): Promise<LifeCycleMountResult> => {
+		// For the >= 48.x versions, the first argument of `MultirootEditor.create()` accepts only
+		// object with map of HTML elements that points to the editables. The initial data is passed into
+		// `roots.<root name>.initialData` field in the configuration object. We pass root attributes in
+		// `roots.<root name>.modelAttributes` field in the configuration object.
+		//
+		// For the <= 47.x versions, the first argument accepts both HTML elements and initial data. We use it
+		// as initial data and pass root attributes in `rootsAttributes` field in the configuration object.
+		//
+		// Ignore coverage for this condition, because it's really hard to test it in the automated way.
+		// It requires testing with different CKEditor 5 versions, which is not possible at the moment.
+		// istanbul ignore next -- @preserve
+		const sourceDataOrElement: Record<string, string | HTMLElement> = isRootsMapConfigurationSupported() ? {} : data;
+
 		if ( props.disableWatchdog ) {
-			const instance = await _createEditor( props.data as any, _getConfig() );
+			const instance = await _createEditor( sourceDataOrElement as any, _getConfig() );
 
 			return {
 				instance: instance as MultiRootEditor,
@@ -388,18 +401,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				onAfterDestroy( editorRefs.instance.current );
 			}
 
-			// For the >= 48.x versions, the first argument of `MultirootEditor.create()` accepts only
-			// object with map of HTML elements that points to the editables. The initial data is passed into
-			// `roots.<root name>.initialData` field in the configuration object. We pass root attributes in
-			// `roots.<root name>.modelAttributes` field in the configuration object.
-			//
-			// For the <= 47.x versions, the first argument accepts both HTML elements and initial data. We use it
-			// as initial data and pass root attributes in `rootsAttributes` field in the configuration object.
-			//
-			// Ignore coverage for this condition, because it's really hard to test it in the automated way.
-			// It requires testing with different CKEditor 5 versions, which is not possible at the moment.
-			// istanbul ignore next -- @preserve
-			const sourceDataOrElement: Record<string, string | HTMLElement> = isRootsMapConfigurationSupported() ? {} : data;
 			const instance = await _createEditor( sourceDataOrElement as any, config );
 
 			if ( totalRestartsRef.current > 0 ) {
