@@ -81,8 +81,7 @@ export function assignDataPropToSingleRootEditorConfig( config: Record<string, a
  * The version compatibility matrix is the same as in `assignDataPropToSingleRootEditorConfig`.
  *
  * @param config The editor configuration.
- * @param attributes The editor roots attributes. It is used to log warnings when both `attributes`
- * and `config.roots[<root name>].modelElement.attributes` are specified.
+ * @param attributes The editor roots attributes.
  * @returns The editor configuration with assigned `attributes` property.
  */
 export function assignMultiRootAttributesPropToEditorConfig(
