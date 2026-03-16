@@ -134,9 +134,8 @@ export function isRootsMapConfigurationSupported(): boolean {
 		return false;
 	}
 
-	// If it's nightly, internal, or any other version, assume it's compatible with all newest features.
-	// Versions >= 48 prefer to use `root.initialData` instead of `initialData` field, so we need to normalize
-	// the configuration object to make it work with all versions.
+	// The per-root configuration is supported in CKEditor 5 version 48.x and newer.
+	// The nightly versions may not have a valid semantic version, so we will assume that they are compatible with per-root configuration.
 	return (
 		!isSemanticVersion( bundleInfo.version ) ||
 		destructureSemanticVersion( bundleInfo.version ).major >= 48
