@@ -15,7 +15,7 @@ import {
 /**
  * Assigns the `data` property to the correct field in the editor configuration object, depending on the loaded CKEditor version.
  *
- * At this moment, CKEditor 5 might be loaded in three different versions:
+ * At this moment, CKEditor 5 might be loaded in two different versions:
  *
  * 1. LTS-one 47.x - It supports both `initialData` and does not support `root.initialData`. It means
  *    that the `data` property should be assigned to `initialData` field in the configuration object.
