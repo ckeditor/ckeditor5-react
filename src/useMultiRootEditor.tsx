@@ -427,7 +427,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} );
 
 		await watchdog
-			.create( data as any, _getConfig() )
+			.create( sourceDataOrElement as any, _getConfig() )
 			.catch( error => {
 				const onError = props.onError || console.error;
 				onError( error, { phase: 'initialization', willEditorRestart: false } );
