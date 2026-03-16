@@ -353,7 +353,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	/**
 	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
 	 */
-	const _initializeEditor = async (): Promise<LifeCycleMountResult> => {
+	const _initializeEditor = useRefSafeCallback( async (): Promise<LifeCycleMountResult> => {
 		// For the >= 48.x versions, the first argument of `MultirootEditor.create()` accepts only
 		// object with map of HTML elements that points to the editables. The initial data is passed into
 		// `roots.<root name>.initialData` field in the configuration object. We pass root attributes in
@@ -365,10 +365,10 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		// Ignore coverage for this condition, because it's really hard to test it in the automated way.
 		// It requires testing with different CKEditor 5 versions, which is not possible at the moment.
 		// istanbul ignore next -- @preserve
-		const sourceDataOrElement = isRootsMapConfigurationSupported() ? {} : data;
+		const getSourceDataOrElement = () => isRootsMapConfigurationSupported() ? {} : data;
 
 		if ( props.disableWatchdog ) {
-			const instance = await _createEditor( sourceDataOrElement as any, _getConfig() );
+			const instance = await _createEditor( getSourceDataOrElement() as any, _getConfig() );
 
 			return {
 				instance: instance as MultiRootEditor,
@@ -401,7 +401,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				onAfterDestroy( editorRefs.instance.current );
 			}
 
-			const instance = await _createEditor( sourceDataOrElement as any, config );
+			const instance = await _createEditor( getSourceDataOrElement() as any, config );
 
 			if ( totalRestartsRef.current > 0 ) {
 				semaphore.unsafeSetValue( {
@@ -427,7 +427,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} );
 
 		await watchdog
-			.create( sourceDataOrElement as any, _getConfig() )
+			.create( getSourceDataOrElement() as any, _getConfig() )
 			.catch( error => {
 				const onError = props.onError || console.error;
 				onError( error, { phase: 'initialization', willEditorRestart: false } );
@@ -438,7 +438,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			watchdog,
 			instance: watchdog!.editor
 		};
-	};
+	} );
 
 	const _getStateDiff = (
 		previousState: Record<string, unknown>,
