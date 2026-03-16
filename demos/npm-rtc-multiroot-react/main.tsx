@@ -1,16 +1,25 @@
-import React, { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
+/**
+ * @license Copyright (c) 2003-2026, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
+ */
 
+import React from 'react';
 import App from './App.js';
 
-const container = document.getElementById( 'app' );
+const element = document.getElementById( 'root' ) as HTMLDivElement;
 
-if ( !container ) {
-	throw new Error( 'Root element #app not found.' );
+if ( __REACT_VERSION__ <= 17 ) {
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
+	const ReactDOM = await import( 'react-dom' );
+
+	ReactDOM.render( React.createElement( App ), element );
+} else {
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
+	const { createRoot } = await import( 'react-dom/client' );
+
+	createRoot( element ).render( <App /> );
 }
 
-createRoot( container ).render(
-	<StrictMode>
-		<App />
-	</StrictMode>
-);
+console.log( `%cVersion of React used: ${ React.version }`, 'color:red;font-weight:bold;' );
