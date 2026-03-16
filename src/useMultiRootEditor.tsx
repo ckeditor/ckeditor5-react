@@ -143,9 +143,9 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 * Returns the editor configuration.
 	 */
 	const _getConfig = (): EditorConfig => {
-		const { config = {}, data, rootsAttributes } = props;
+		const { config = {}, data } = props;
 
-		return assignMultiRootDataPropToEditorConfig( config, data, rootsAttributes );
+		return assignMultiRootDataPropToEditorConfig( config, data, attributes );
 	};
 
 	/**
