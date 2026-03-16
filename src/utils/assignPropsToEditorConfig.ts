@@ -76,18 +76,14 @@ export function assignDataPropToSingleRootEditorConfig( config: Record<string, a
 }
 
 /**
- * Assigns the `data` property to the correct field in the editor configuration object, depending on the loaded CKEditor version.
+ * Assigns the `data` property to the correct field in the editor configuration object for multi-root editors,
+ * depending on the loaded CKEditor version.
  *
- * At this moment, CKEditor 5 might be loaded in two different versions:
- *
- * 1. LTS-one 47.x - It supports both `initialData` and does not support `root.initialData`. It means
- *    that the `data` property should be assigned to `initialData` field in the configuration object.
- *
- * 2. Latest 48.x and newer - It supports `root.initialData` and deprecates `initialData` (which'll be removed in the future).
- *    It means that the `data` property should be assigned to `root.initialData` field in the configuration object.
+ * The version compatibility matrix is the same as in `assignDataPropToSingleRootEditorConfig`.
  *
  * @param config The editor configuration.
- * @param data The editor data. It is used to log warnings when both `data` and `initialData` are specified.
+ * @param data The editor data. It is used to log warnings when both `data`
+ * and `config.roots[<root name>].initialData` are specified.
  * @param attributes The editor roots attributes. It is used to log warnings when both `attributes`
  * and `config.roots[<root name>].modelElement.attributes` are specified.
  * @returns The editor configuration with assigned `data` property.
