@@ -76,39 +76,23 @@ export function assignDataPropToSingleRootEditorConfig( config: Record<string, a
 }
 
 /**
- * Assigns the `data` property to the correct field in the editor configuration object for multi-root editors,
- * depending on the loaded CKEditor version.
+ * Assigns the `attributes` property to the correct field in the editor configuration object, depending on the loaded CKEditor version.
  *
  * The version compatibility matrix is the same as in `assignDataPropToSingleRootEditorConfig`.
  *
  * @param config The editor configuration.
- * @param data The editor data. It is used to log warnings when both `data`
- * and `config.roots[<root name>].initialData` are specified.
  * @param attributes The editor roots attributes. It is used to log warnings when both `attributes`
  * and `config.roots[<root name>].modelElement.attributes` are specified.
- * @returns The editor configuration with assigned `data` property.
+ * @returns The editor configuration with assigned `attributes` property.
  */
-export function assignMultiRootDataPropToEditorConfig(
+export function assignMultiRootAttributesPropToEditorConfig(
 	config: Record<string, any>,
-	data: Record<string, string>,
 	attributes?: Record<string, Record<string, any>> | undefined
 ): EditorConfig {
-	// For >= 48.x versions, the `data` property should be assigned to `root.initialData` field in the configuration object.
+	// For >= 48.x versions, the `attributes` property should be assigned to `root.modelAttributes` field in the configuration object.
 	if ( isRootsMapConfigurationSupported() ) {
-		const hasDefinedRootsInitialData = !!config.roots && Object
-			.values( config.roots )
-			.some( ( val: any ) => typeof val?.initialData === 'string' );
-
-		if ( data && hasDefinedRootsInitialData ) {
-			console.warn(
-				'Editor data should be provided either using `config.roots.<root name>.initialData` or `data` property. ' +
-				'The config value takes precedence over `data` property and will be used when both are specified.'
-			);
-		}
-
 		const knownRootsKeys = uniq( [
 			...Object.keys( attributes || {} ),
-			...Object.keys( data ),
 			...Object.keys( config.roots || {} )
 		] );
 
@@ -117,7 +101,6 @@ export function assignMultiRootDataPropToEditorConfig(
 
 			acc[ rootName ] = {
 				...configRootValue,
-				initialData: configRootValue?.initialData || data?.[ rootName ] || '',
 				modelAttributes: attributes?.[ rootName ] || configRootValue?.modelAttributes || {}
 			};
 
@@ -130,14 +113,7 @@ export function assignMultiRootDataPropToEditorConfig(
 		} as unknown as EditorConfig;
 	}
 
-	// Fallback for <= 47.x versions which do not support per-root configuration and use `initialData` field.
-	if ( data && config.initialData ) {
-		console.warn(
-			'Editor data should be provided either using `config.initialData` or `data` property. ' +
-			'The config value takes precedence over `data` property and will be used when both are specified.'
-		);
-	}
-
+	// Fallback for <= 47.x versions which uses `rootsAttributes` field in the configuration object.
 	return {
 		...config,
 		rootsAttributes: attributes
@@ -147,8 +123,8 @@ export function assignMultiRootDataPropToEditorConfig(
 /**
  * Retrieve information about the base CKEditor bundle installation and checks if it supports per-root configuration.
  * It may return `null` if the editor is not loaded yet, or something else removed global editor versions variable.
- * In such case, we will assume that the loaded CKEditor version is compatible with all newest features
- * and use `root.initialData` field.
+ * In such case, we will assume that the loaded CKEditor version is not compatible with per-root configuration
+ * and use the fallback configuration.
  *
  * @returns `true` if the loaded CKEditor version supports per-root configuration, `false` otherwise.
  */

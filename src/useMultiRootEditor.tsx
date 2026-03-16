@@ -34,7 +34,7 @@ import { useRefSafeCallback } from './hooks/useRefSafeCallback.js';
 import { useInstantEditorEffect } from './hooks/useInstantEditorEffect.js';
 
 import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
-import { assignMultiRootDataPropToEditorConfig, isRootsMapConfigurationSupported } from './utils/assignPropsToEditorConfig.js';
+import { assignMultiRootAttributesPropToEditorConfig, isRootsMapConfigurationSupported } from './utils/assignPropsToEditorConfig.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -142,11 +142,16 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	/**
 	 * Returns the editor configuration.
 	 */
-	const _getConfig = (): EditorConfig => {
-		const { config = {}, data } = props;
+	const _getConfig = useRefSafeCallback( () => {
+		if ( props.data && props.config?.initialData && !isRootsMapConfigurationSupported() ) {
+			console.warn(
+				'Editor data should be provided either using `config.initialData` or `data` property. ' +
+				'The config value takes precedence over `data` property and will be used when both are specified.'
+			);
+		}
 
-		return assignMultiRootDataPropToEditorConfig( config, data, attributes );
-	};
+		return assignMultiRootAttributesPropToEditorConfig( props.config || {}, attributes );
+	} );
 
 	/**
 	 * Callback function for handling changed data and attributes in the editor.
@@ -354,21 +359,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
 	 */
 	const _initializeEditor = useRefSafeCallback( async (): Promise<LifeCycleMountResult> => {
-		// For the >= 48.x versions, the first argument of `MultirootEditor.create()` accepts only
-		// object with map of HTML elements that points to the editables. The initial data is passed into
-		// `roots.<root name>.initialData` field in the configuration object. We pass root attributes in
-		// `roots.<root name>.modelAttributes` field in the configuration object.
-		//
-		// For the <= 47.x versions, the first argument accepts both HTML elements and initial data. We use it
-		// as initial data and pass root attributes in `rootsAttributes` field in the configuration object.
-		//
-		// Ignore coverage for this condition, because it's really hard to test it in the automated way.
-		// It requires testing with different CKEditor 5 versions, which is not possible at the moment.
-		// istanbul ignore next -- @preserve
-		const getSourceDataOrElement = () => isRootsMapConfigurationSupported() ? {} : data;
-
 		if ( props.disableWatchdog ) {
-			const instance = await _createEditor( getSourceDataOrElement() as any, _getConfig() );
+			const instance = await _createEditor( props.data as any, _getConfig() );
 
 			return {
 				instance: instance as MultiRootEditor,
@@ -401,7 +393,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				onAfterDestroy( editorRefs.instance.current );
 			}
 
-			const instance = await _createEditor( getSourceDataOrElement() as any, config );
+			const instance = await _createEditor( data as any, config );
 
 			if ( totalRestartsRef.current > 0 ) {
 				semaphore.unsafeSetValue( {
@@ -427,7 +419,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		} );
 
 		await watchdog
-			.create( getSourceDataOrElement() as any, _getConfig() )
+			.create( data as any, _getConfig() )
 			.catch( error => {
 				const onError = props.onError || console.error;
 				onError( error, { phase: 'initialization', willEditorRestart: false } );
