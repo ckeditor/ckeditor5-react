@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## [11.1.0-alpha.0](https://github.com/ckeditor/ckeditor5-react/compare/v11.0.1...v11.1.0-alpha.0) (March 17, 2026)
+
+### Features
+
+* Added support for CKEditor 5 `48.0.0` and the new `roots` editor configuration. Closes [#653](https://github.com/ckeditor/ckeditor5-react/issues/653).
+
+
 ## [11.0.1](https://github.com/ckeditor/ckeditor5-react/compare/v11.0.0...v11.0.1) (December 18, 2025)
 
 ### Other changes
@@ -31,22 +38,6 @@ Changelog
 * Update imports to match CKEditor 5 v46. Closes [#602](https://github.com/ckeditor/ckeditor5-react/issues/602). ([commit](https://github.com/ckeditor/ckeditor5-react/commit/8bfcfa65593af622190fed284d44132e4060fc28))
 
 ## [10.0.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.5.0...v10.0.0) (2025-06-25)
-
-### BREAKING CHANGES
-
-* Upgraded the minimal version of Node.js to 20.0.0 due to the end of LTS.
-
-### Bug fixes
-
-* Ensured `onError` callback is invoked correctly when `disableWatchdog` is true or during watchdog initialization failure. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/284579cad663924e812cf3f931c0ad310ab47445))
-* Prevented editor crash when the `disabled` prop changes during initialization. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/284579cad663924e812cf3f931c0ad310ab47445))
-
-### Other changes
-
-* Upgraded the minimal version of Node.js to 20.0.0 due to the end of LTS. ([commit](https://github.com/ckeditor/ckeditor5-react/commit/06ce665af5dc1b158c6d06fdbb0ac664cbad1c86))
-
-
-## [10.0.0-alpha.0](https://github.com/ckeditor/ckeditor5-react/compare/v9.5.0...v10.0.0-alpha.0) (2025-05-05)
 
 ### BREAKING CHANGES
 
