@@ -34,6 +34,7 @@ import { useRefSafeCallback } from './hooks/useRefSafeCallback.js';
 import { useInstantEditorEffect } from './hooks/useInstantEditorEffect.js';
 
 import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
+import { assignMultiRootAttributesPropToEditorConfig, isRootsMapConfigurationSupported } from './utils/assignPropsToEditorConfig.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -141,21 +142,16 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	/**
 	 * Returns the editor configuration.
 	 */
-	const _getConfig = (): EditorConfig => {
-		const config = props.config || {};
-
-		if ( props.data && config.initialData ) {
+	const _getConfig = useRefSafeCallback( () => {
+		if ( props.data && props.config?.initialData && !isRootsMapConfigurationSupported() ) {
 			console.warn(
 				'Editor data should be provided either using `config.initialData` or `data` property. ' +
 				'The config value takes precedence over `data` property and will be used when both are specified.'
 			);
 		}
 
-		return {
-			...config,
-			rootsAttributes: attributes
-		};
-	};
+		return assignMultiRootAttributesPropToEditorConfig( props.config || {}, attributes );
+	} );
 
 	/**
 	 * Callback function for handling changed data and attributes in the editor.
