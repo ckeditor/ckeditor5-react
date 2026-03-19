@@ -9,6 +9,7 @@ import {
 	destructureSemanticVersion,
 	getCKBaseBundleInstallationInfo,
 	isSemanticVersion,
+	isCKTestingVersion,
 	uniq
 } from '@ckeditor/ckeditor5-integrations-common';
 
@@ -138,6 +139,7 @@ export function isRootsMapConfigurationSupported(): boolean {
 	// The nightly versions may not have a valid semantic version, so we will assume that they are compatible with per-root configuration.
 	return (
 		!isSemanticVersion( bundleInfo.version ) ||
+		isCKTestingVersion( bundleInfo.version ) ||
 		destructureSemanticVersion( bundleInfo.version ).major >= 48
 	);
 }
