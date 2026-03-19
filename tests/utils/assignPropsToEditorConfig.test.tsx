@@ -29,7 +29,7 @@ describe( 'assignPropsToEditorConfig', () => {
 			expect( isRootsMapConfigurationSupported() ).toBe( false );
 		} );
 
-		it.each( [ 'nightly', '48.0.0', '49.0.0' ] )(
+		it.each( [ 'nightly', '0.0.0-nightly-20260319.0', '48.0.0', '49.0.0' ] )(
 			'should return true if window.CKEDITOR_VERSION is "%s"',
 			version => {
 				window.CKEDITOR_VERSION = version as any;
