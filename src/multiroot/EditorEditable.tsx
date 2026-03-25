@@ -11,6 +11,11 @@ import type { LifeCycleSemaphoreSyncRefResult } from '../lifecycle/useLifeCycleS
 import type { EditorSemaphoreMountResult } from '../lifecycle/LifeCycleEditorSemaphore.js';
 import type { InlineEditableUIView, MultiRootEditor } from 'ckeditor5';
 
+/**
+ * A React component that renders a single editable area (root) for the `MultiRootEditor`.
+ * It handles the lifecycle of the editable element by attaching it to the editor
+ * instance once mounted and safely detaching it during cleanup.
+ */
 export const EditorEditable = memo( forwardRef<HTMLDivElement, Props>( ( { id, semaphore, rootName }, ref ) => {
 	const innerRef = useRef<HTMLDivElement>( null );
 

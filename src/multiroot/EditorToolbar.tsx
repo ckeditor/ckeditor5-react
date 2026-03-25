@@ -6,6 +6,11 @@
 import React, { forwardRef, useEffect, useRef } from 'react';
 import { mergeRefs } from '../utils/mergeRefs.js';
 
+/**
+ * A React component that wraps and renders the CKEditor toolbar.
+ * It extracts the toolbar DOM element from the provided editor instance
+ * and safely appends it to a local `div` container, handling cleanup on unmount.
+ */
 export const EditorToolbarWrapper = forwardRef( ( { editor }: any, ref ) => {
 	const toolbarRef = useRef<HTMLDivElement>( null );
 
