@@ -4,11 +4,16 @@
  */
 
 import React, {
-	forwardRef, useState, useEffect, useRef, useContext, useCallback, memo,
+	useState, useEffect, useRef, useContext, useCallback,
 	type Dispatch, type SetStateAction, type RefObject, type JSX
 } from 'react';
 
-import { overwriteArray, overwriteObject, uniq } from '@ckeditor/ckeditor5-integrations-common';
+import {
+	overwriteArray,
+	overwriteObject,
+	uniq,
+	getInstalledCKBaseFeatures
+} from '@ckeditor/ckeditor5-integrations-common';
 
 import type {
 	InlineEditableUIView,
@@ -22,24 +27,25 @@ import type {
 	EventInfo
 } from 'ckeditor5';
 
-import { ContextWatchdogContext, isContextWatchdogReadyToUse } from './context/ckeditorcontext.js';
-import { EditorWatchdogAdapter } from './ckeditor.js';
+import { ContextWatchdogContext, isContextWatchdogReadyToUse } from '../context/ckeditorcontext.js';
+import { EditorWatchdogAdapter } from '../ckeditor.js';
 
-import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore.js';
+import type { EditorSemaphoreMountResult } from '../lifecycle/LifeCycleEditorSemaphore.js';
 
-import { useLifeCycleSemaphoreSyncRef, type LifeCycleSemaphoreSyncRefResult } from './lifecycle/useLifeCycleSemaphoreSyncRef.js';
-import { mergeRefs } from './utils/mergeRefs.js';
-import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore.js';
-import { useRefSafeCallback } from './hooks/useRefSafeCallback.js';
-import { useInstantEditorEffect } from './hooks/useInstantEditorEffect.js';
+import { useLifeCycleSemaphoreSyncRef } from '../lifecycle/useLifeCycleSemaphoreSyncRef.js';
+import { LifeCycleElementSemaphore } from '../lifecycle/LifeCycleElementSemaphore.js';
+import { useRefSafeCallback } from '../hooks/useRefSafeCallback.js';
+import { useInstantEditorEffect } from '../hooks/useInstantEditorEffect.js';
 
-import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
-import { assignMultiRootAttributesPropToEditorConfig, isRootsMapConfigurationSupported } from './utils/assignPropsToEditorConfig.js';
+import { appendAllIntegrationPluginsToConfig } from '../plugins/appendAllIntegrationPluginsToConfig.js';
+import { assignMultiRootAttributesPropToEditorConfig } from '../compatibility/assignPropsToEditorConfig.js';
+import { EditorEditable } from './EditorEditable.js';
+import { EditorToolbarWrapper } from './EditorToolbar.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
 /* eslint-disable @typescript-eslint/no-use-before-define */
-const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns => {
+export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns => {
 	const semaphoreElementRef = useRef<HTMLElement>( props.semaphoreElement || null );
 	const semaphore = useLifeCycleSemaphoreSyncRef<LifeCycleMountResult>();
 
@@ -143,7 +149,9 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 * Returns the editor configuration.
 	 */
 	const _getConfig = useRefSafeCallback( () => {
-		if ( props.data && props.config?.initialData && !isRootsMapConfigurationSupported() ) {
+		const supports = getInstalledCKBaseFeatures();
+
+		if ( props.data && props.config?.initialData && !supports.rootsConfigEntry ) {
 			console.warn(
 				'Editor data should be provided either using `config.initialData` or `data` property. ' +
 				'The config value takes precedence over `data` property and will be used when both are specified.'
@@ -269,7 +277,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 * @param config CKEditor 5 editor configuration.
 	 */
 	const _createEditor = useRefSafeCallback( (
-		initialData: Record<string, string> | Record<string, HTMLElement>,
+		initialData: Record<string, string>,
 		config: EditorConfig
 	): Promise<MultiRootEditor> => {
 		overwriteObject( { ...props.rootsAttributes }, attributes );
@@ -593,89 +601,6 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		attributes, setAttributes: _externalSetAttributes
 	};
 };
-
-export const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
-	id: string;
-	rootName: string;
-	semaphore: LifeCycleSemaphoreSyncRefResult<LifeCycleMountResult>;
-}, ref ) => {
-	const innerRef = useRef<HTMLDivElement>( null );
-
-	useEffect( () => {
-		let editable: InlineEditableUIView | null;
-		let editor: MultiRootEditor | null;
-
-		semaphore.runAfterMount( ( { instance } ) => {
-			if ( !innerRef.current ) {
-				return;
-			}
-
-			editor = instance;
-
-			const { ui, model } = editor;
-			const root = model.document.getRoot( rootName );
-
-			if ( root && editor.ui.getEditableElement( rootName ) ) {
-				editor.detachEditable( root );
-			}
-
-			editable = ui.view.createEditable( rootName, innerRef.current );
-			ui.addEditable( editable );
-
-			instance.editing.view.forceRender();
-		} );
-
-		return () => {
-			/* istanbul ignore next -- @preserve: It depends on the version of the React and may not happen all of the times. */
-			if ( editor && editor.state !== 'destroyed' && innerRef.current ) {
-				const root = editor.model.document.getRoot( rootName );
-
-				/* istanbul ignore else -- @preserve */
-				if ( root ) {
-					editor.detachEditable( root );
-				}
-			}
-		};
-	}, [ semaphore.revision ] );
-
-	return (
-		<div
-			key={semaphore.revision}
-			id={id}
-			ref={ mergeRefs( ref, innerRef ) }
-		/>
-	);
-} ) );
-
-EditorEditable.displayName = 'EditorEditable';
-
-export const EditorToolbarWrapper = forwardRef( ( { editor }: any, ref ) => {
-	const toolbarRef = useRef<HTMLDivElement>( null );
-
-	useEffect( () => {
-		const toolbarContainer = toolbarRef.current;
-
-		if ( !editor || !toolbarContainer ) {
-			return undefined;
-		}
-
-		const element = editor.ui.view.toolbar.element!;
-
-		toolbarContainer.appendChild( element! );
-
-		return () => {
-			if ( toolbarContainer.contains( element ) ) {
-				toolbarContainer.removeChild( element! );
-			}
-		};
-	}, [ editor && editor.id ] );
-
-	return <div ref={mergeRefs( toolbarRef, ref )}></div>;
-} );
-
-EditorToolbarWrapper.displayName = 'EditorToolbarWrapper';
-
-export default useMultiRootEditor;
 
 type LifeCycleMountResult = EditorSemaphoreMountResult<MultiRootEditor>;
 

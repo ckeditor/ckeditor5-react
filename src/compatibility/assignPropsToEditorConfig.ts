@@ -5,13 +5,7 @@
 
 import type { EditorConfig } from 'ckeditor5';
 
-import {
-	destructureSemanticVersion,
-	getCKBaseBundleInstallationInfo,
-	isSemanticVersion,
-	isCKTestingVersion,
-	uniq
-} from '@ckeditor/ckeditor5-integrations-common';
+import { uniq, getInstalledCKBaseFeatures } from '@ckeditor/ckeditor5-integrations-common';
 
 /**
  * Assigns the `data` property to the correct field in the editor configuration object, depending on the loaded CKEditor version.
@@ -28,7 +22,9 @@ import {
  * @param data The editor data. It is used to log warnings when both `data` and `initialData` are specified.
  */
 export function assignDataPropToSingleRootEditorConfig( config: Record<string, any>, data: string | undefined ): EditorConfig {
-	if ( isRootsMapConfigurationSupported() ) {
+	const supports = getInstalledCKBaseFeatures();
+
+	if ( supports.rootsConfigEntry ) {
 		// For >= 48.x versions, the `data` property should be assigned to `root.initialData` field in the configuration object.
 		const configInitialData =
 			config.roots?.main?.initialData ||
@@ -89,8 +85,10 @@ export function assignMultiRootAttributesPropToEditorConfig(
 	config: Record<string, any>,
 	attributes?: Record<string, Record<string, any>> | undefined
 ): EditorConfig {
+	const supports = getInstalledCKBaseFeatures();
+
 	// For >= 48.x versions, the `attributes` property should be assigned to `root.modelAttributes` field in the configuration object.
-	if ( isRootsMapConfigurationSupported() ) {
+	if ( supports.rootsConfigEntry ) {
 		const knownRootsKeys = uniq( [
 			...Object.keys( attributes || {} ),
 			...Object.keys( config.roots || {} )
@@ -118,28 +116,4 @@ export function assignMultiRootAttributesPropToEditorConfig(
 		...config,
 		rootsAttributes: attributes
 	} as unknown as EditorConfig;
-}
-
-/**
- * Retrieve information about the base CKEditor bundle installation and checks if it supports per-root configuration.
- * It may return `null` if the editor is not loaded yet, or something else removed global editor versions variable.
- * In such case, we will assume that the loaded CKEditor version is not compatible with per-root configuration
- * and use the fallback configuration.
- *
- * @returns `true` if the loaded CKEditor version supports per-root configuration, `false` otherwise.
- */
-export function isRootsMapConfigurationSupported(): boolean {
-	const bundleInfo = getCKBaseBundleInstallationInfo();
-
-	if ( !bundleInfo ) {
-		return false;
-	}
-
-	// The per-root configuration is supported in CKEditor 5 version 48.x and newer.
-	// The nightly versions may not have a valid semantic version, so we will assume that they are compatible with per-root configuration.
-	return (
-		!isSemanticVersion( bundleInfo.version ) ||
-		isCKTestingVersion( bundleInfo.version ) ||
-		destructureSemanticVersion( bundleInfo.version ).major >= 48
-	);
 }

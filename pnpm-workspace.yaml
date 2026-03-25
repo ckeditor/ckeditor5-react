@@ -1,3 +1,10 @@
+minimumReleaseAge: 4320
+
+minimumReleaseAgeExclude:
+  - '@ckeditor/*'
+  - '@cksource/*'
+  - '*ckeditor5*'
+
 onlyBuiltDependencies:
   - edgedriver
   - esbuild
@@ -6,16 +13,13 @@ onlyBuiltDependencies:
   - protobufjs
 
 overrides:
-  'diff@^7': '^8.0.3'
-  'semver': '^7.0.0' # https://github.com/ckeditor/ckeditor5-react/commit/a227541a86c4529fcfb19dd791fe6560e06991dd
-  'serialize-javascript@^6': '^7.0.3'
+  '@ckeditor/ckeditor5-integrations-common': link:../../../.local/share/pnpm/global/5/node_modules/@ckeditor/ckeditor5-integrations-common
+  diff@^7: ^8.0.3
+  semver: ^7.0.0
+  serialize-javascript@^6: ^7.0.3
 
-minimumReleaseAge: 4320 # 3 days
-minimumReleaseAgeExclude:
-  - '@ckeditor/*'
-  - '@cksource/*'
-  - '*ckeditor5*'
+preferFrozenLockfile: true
+
+shamefullyHoist: true
 
 shellEmulator: true
-shamefullyHoist: true
-preferFrozenLockfile: true

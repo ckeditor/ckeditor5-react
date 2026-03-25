@@ -32,7 +32,7 @@ import {
 } from './context/ckeditorcontext.js';
 
 import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
-import { assignDataPropToSingleRootEditorConfig } from './utils/assignPropsToEditorConfig.js';
+import { assignDataPropToSingleRootEditorConfig } from './compatibility/assignPropsToEditorConfig.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -428,7 +428,9 @@ export interface Props<TEditor extends Editor> {
 		create( ...args: any ): Promise<TEditor>;
 		EditorWatchdog: typeof EditorWatchdog;
 		ContextWatchdog: typeof ContextWatchdog;
+		editorName?: string;
 	};
+
 	contextItemMetadata?: CKEditorConfigContextMetadata;
 	config?: EditorConfig;
 	watchdogConfig?: WatchdogConfig;

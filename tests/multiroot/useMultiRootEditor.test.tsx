@@ -7,13 +7,17 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import React, { useEffect } from 'react';
 import { CKEditorError } from 'ckeditor5';
 import { render, waitFor, renderHook, act } from '@testing-library/react';
-import useMultiRootEditor, { EditorEditable, EditorToolbarWrapper } from '../src/useMultiRootEditor.js';
-import { ContextWatchdogContext } from '../src/context/ckeditorcontext.js';
-import { timeout } from './_utils/timeout.js';
-import { createDefer } from './_utils/defer.js';
-import { createTestMultiRootWatchdog, TestMultiRootEditor } from './_utils/multirooteditor.js';
-import { turnOffErrors } from './_utils/turnOffErrors.js';
-import { ReactIntegrationUsageDataPlugin } from '../src/plugins/ReactIntegrationUsageDataPlugin.js';
+
+import { useMultiRootEditor } from '../../src/multiroot/useMultiRootEditor.js';
+import { EditorToolbarWrapper } from '../../src/multiroot/EditorToolbar.js';
+import { EditorEditable } from '../../src/multiroot/EditorEditable.js';
+
+import { ContextWatchdogContext } from '../../src/context/ckeditorcontext.js';
+import { timeout } from '../_utils/timeout.js';
+import { createDefer } from '../_utils/defer.js';
+import { createTestMultiRootWatchdog, TestMultiRootEditor } from '../_utils/multirooteditor.js';
+import { turnOffErrors } from '../_utils/turnOffErrors.js';
+import { ReactIntegrationUsageDataPlugin } from '../../src/plugins/ReactIntegrationUsageDataPlugin.js';
 
 describe( 'useMultiRootEditor', () => {
 	const rootsContent = {

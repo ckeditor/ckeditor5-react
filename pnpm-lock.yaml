@@ -8,14 +8,15 @@ overrides:
   diff@^7: ^8.0.3
   semver: ^7.0.0
   serialize-javascript@^6: ^7.0.3
+  '@ckeditor/ckeditor5-integrations-common': link:../../../.local/share/pnpm/global/5/node_modules/@ckeditor/ckeditor5-integrations-common
 
 importers:
 
   .:
     dependencies:
       '@ckeditor/ckeditor5-integrations-common':
-        specifier: ^2.2.5
-        version: 2.2.5(ckeditor5@47.6.1)
+        specifier: link:../../../.local/share/pnpm/global/5/node_modules/@ckeditor/ckeditor5-integrations-common
+        version: link:../../../.local/share/pnpm/global/5/node_modules/@ckeditor/ckeditor5-integrations-common
     devDependencies:
       '@ckeditor/ckeditor5-dev-bump-year':
         specifier: ^54.3.4
@@ -572,11 +573,6 @@ packages:
 
   '@ckeditor/ckeditor5-indent@47.6.1':
     resolution: {integrity: sha512-SaokgxUJevRrYfu5PKEMvVrUliybmxpb3Cx/f/JtOnPbyJSFrt05+/mt3XsqsSB0g8LaHH2PXQfD4vncGzE6DQ==}
-
-  '@ckeditor/ckeditor5-integrations-common@2.2.5':
-    resolution: {integrity: sha512-CWBlHPfHL+0bfSmdIyfDZ8XLXOar+g55mY74sAFg11twMc5gve4leMHDwDU3My65Wrg7vDj3s35TvYc7sKtnEQ==}
-    peerDependencies:
-      ckeditor5: '>=42.0.0 || ^0.0.0-nightly'
 
   '@ckeditor/ckeditor5-language@47.6.1':
     resolution: {integrity: sha512-YZpySDIa4Y40T9wwKIFsAlDujELkgUtoKw/+4Wl8BHlDnq/40VxXFbOSSXu4TnnVeqVFcnzTjp6Zv8CHtmY3yw==}
@@ -6850,6 +6846,8 @@ snapshots:
       '@ckeditor/ckeditor5-core': 47.6.1
       '@ckeditor/ckeditor5-engine': 47.6.1
       '@ckeditor/ckeditor5-utils': 47.6.1
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-essentials@47.6.1':
     dependencies:
@@ -7056,10 +7054,6 @@ snapshots:
       ckeditor5: 47.6.1
     transitivePeerDependencies:
       - supports-color
-
-  '@ckeditor/ckeditor5-integrations-common@2.2.5(ckeditor5@47.6.1)':
-    dependencies:
-      ckeditor5: 47.6.1
 
   '@ckeditor/ckeditor5-language@47.6.1':
     dependencies:
