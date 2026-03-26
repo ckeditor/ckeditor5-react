@@ -218,8 +218,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		const {
 			editor: Editor,
 			disableWatchdog,
-			watchdogConfig,
-			onError = console.error
+			watchdogConfig
 		} = this.props;
 
 		const mergedConfig = this._getMergedConfig( true );
@@ -244,6 +243,8 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		} )() as EditorWatchdogAdapter<TEditor>;
 
 		watchdog.on( 'error', ( _, { error, causesRestart } ) => {
+			const onError = this.props.onError ?? console.error;
+
 			onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
 		} );
 
