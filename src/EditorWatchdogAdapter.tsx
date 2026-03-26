@@ -58,7 +58,9 @@ export class EditorWatchdogAdapter<TEditor extends Editor> {
 			type: 'editor'
 		};
 
-		if ( typeof sourceElementOrDataOrConfig === 'string' || sourceElementOrDataOrConfig instanceof HTMLElement ) {
+		// Newer versions of the editor deprecated passing both source element and config at the same time.
+		// So, if the second argument (config) is present, the older version of the editor is being initialized.
+		if ( config ) {
 			// <= 47 legacy config approach to watchdog configuration.
 			watchdogItemConfiguration = {
 				...watchdogItemConfiguration,
