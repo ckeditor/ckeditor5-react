@@ -28,7 +28,6 @@ import type {
 } from 'ckeditor5';
 
 import { ContextWatchdogContext, isContextWatchdogReadyToUse } from '../context/ckeditorcontext.js';
-import { EditorWatchdogAdapter } from '../ckeditor.js';
 
 import type { EditorSemaphoreMountResult } from '../lifecycle/LifeCycleEditorSemaphore.js';
 
@@ -38,9 +37,10 @@ import { useRefSafeCallback } from '../hooks/useRefSafeCallback.js';
 import { useInstantEditorEffect } from '../hooks/useInstantEditorEffect.js';
 
 import { appendAllIntegrationPluginsToConfig } from '../plugins/appendAllIntegrationPluginsToConfig.js';
-import { assignMultiRootAttributesPropToEditorConfig } from '../compatibility/assignPropsToEditorConfig.js';
+import { assignMultiRootAttributesPropToEditorConfig } from '../compatibility/assignMultiRootAttributesPropToEditorConfig.js';
 import { EditorEditable } from './EditorEditable.js';
 import { EditorToolbarWrapper } from './EditorToolbar.js';
+import { EditorWatchdogAdapter } from '../EditorWatchdogAdapter.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -49,7 +49,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 	const semaphoreElementRef = useRef<HTMLElement>( props.semaphoreElement || null );
 	const semaphore = useLifeCycleSemaphoreSyncRef<LifeCycleMountResult>();
 
-	const editorRefs: LifeCycleSemaphoreRefs<MultiRootEditor> = {
+	const editorRefs: LifeCycleSemaphoreRefs = {
 		watchdog: semaphore.createAttributeRef( 'watchdog' ),
 		instance: semaphore.createAttributeRef( 'instance' )
 	};
@@ -158,7 +158,11 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 			);
 		}
 
-		return assignMultiRootAttributesPropToEditorConfig( props.config || {}, attributes );
+		let mappedConfig = assignMultiRootAttributesPropToEditorConfig( attributes, props.config || {} );
+
+		mappedConfig = appendAllIntegrationPluginsToConfig( mappedConfig );
+
+		return mappedConfig;
 	} );
 
 	/**
@@ -276,56 +280,62 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 	 * @param initialData The initial data.
 	 * @param config CKEditor 5 editor configuration.
 	 */
-	const _createEditor = useRefSafeCallback( (
+	const _createEditor = useRefSafeCallback( async (
 		initialData: Record<string, string>,
 		config: EditorConfig
 	): Promise<MultiRootEditor> => {
+		const supports = getInstalledCKBaseFeatures();
+		const Editor = props.editor as unknown as {
+			create( initialData: Record<string, string>, config: EditorConfig ): Promise<MultiRootEditor>;
+			create( config: EditorConfig ): Promise<MultiRootEditor>;
+		};
+
 		overwriteObject( { ...props.rootsAttributes }, attributes );
 		overwriteObject( { ...props.data }, data );
 		overwriteArray( Object.keys( props.data ), roots );
 
-		return props.editor.create(
-			initialData,
-			appendAllIntegrationPluginsToConfig( config )
-		)
-			.then( ( editor: MultiRootEditor ) => {
-				const editorData = editor.getFullData();
+		const editor = await (
+			supports.elementConfigAttachment
+				? Editor.create( config )
+				: Editor.create( initialData, config )
+		);
 
-				// Rerender will be called anyway.
-				overwriteObject( { ...editorData }, data );
-				overwriteObject( { ...editor.getRootsAttributes() }, attributes );
-				overwriteArray( Object.keys( editorData ), roots );
+		const editorData = editor.getFullData();
 
-				if ( props.disabled ) {
-					// Switch to the read-only mode if the `[disabled]` attribute is specified.
-					/* istanbul ignore else -- @preserve */
-					editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
-				}
+		// Rerender will be called anyway.
+		overwriteObject( { ...editorData }, data );
+		overwriteObject( { ...editor.getRootsAttributes() }, attributes );
+		overwriteArray( Object.keys( editorData ), roots );
 
-				const modelDocument = editor.model.document;
-				const viewDocument = editor.editing.view.document;
+		if ( props.disabled ) {
+			// Switch to the read-only mode if the `[disabled]` attribute is specified.
+			/* istanbul ignore else -- @preserve */
+			editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+		}
 
-				modelDocument.on( 'change:data', evt => onChangeData( editor, evt ) );
+		const modelDocument = editor.model.document;
+		const viewDocument = editor.editing.view.document;
 
-				editor.on<AddRootEvent>( 'addRoot', ( evt, root ) => onAddRoot( editor, evt, root ) );
-				editor.on<DetachRootEvent>( 'detachRoot', ( evt, root ) => onDetachRoot( editor, evt, root ) );
+		modelDocument.on( 'change:data', evt => onChangeData( editor, evt ) );
 
-				viewDocument.on( 'focus', event => {
-					/* istanbul ignore else -- @preserve */
-					if ( props.onFocus ) {
-						props.onFocus( event, editor );
-					}
-				} );
+		editor.on<AddRootEvent>( 'addRoot', ( evt, root ) => onAddRoot( editor, evt, root ) );
+		editor.on<DetachRootEvent>( 'detachRoot', ( evt, root ) => onDetachRoot( editor, evt, root ) );
 
-				viewDocument.on( 'blur', event => {
-					/* istanbul ignore else -- @preserve */
-					if ( props.onBlur ) {
-						props.onBlur( event, editor );
-					}
-				} );
+		viewDocument.on( 'focus', event => {
+			/* istanbul ignore else -- @preserve */
+			if ( props.onFocus ) {
+				props.onFocus( event, editor );
+			}
+		} );
 
-				return editor;
-			} );
+		viewDocument.on( 'blur', event => {
+			/* istanbul ignore else -- @preserve */
+			if ( props.onBlur ) {
+				props.onBlur( event, editor );
+			}
+		} );
+
+		return editor;
 	} );
 
 	/**
@@ -367,6 +377,8 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
 	 */
 	const _initializeEditor = async (): Promise<LifeCycleMountResult> => {
+		const supports = getInstalledCKBaseFeatures();
+
 		if ( props.disableWatchdog ) {
 			const instance = await _createEditor( props.data as any, _getConfig() );
 
@@ -394,7 +406,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		// with the current react state. To prevent this, we are using the `data` from the hook state.
 		// It's not super optimal, but it's the most stable solution at this moment.
 		// See more: https://github.com/ckeditor/ckeditor5-react/issues/542
-		watchdog.setCreator( async ( _, config ) => {
+		const watchdogEditorCreator = async ( config: EditorConfig ) => {
 			const { onAfterDestroy } = props;
 
 			if ( totalRestartsRef.current > 0 && onAfterDestroy && editorRefs.instance.current ) {
@@ -419,20 +431,28 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 
 			totalRestartsRef.current++;
 			return instance;
-		} );
+		};
 
 		watchdog.on( 'error', ( _, { error, causesRestart } ) => {
 			const onError = props.onError || console.error;
 			onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
 		} );
 
-		await watchdog
-			.create( data as any, _getConfig() )
-			.catch( error => {
-				const onError = props.onError || console.error;
-				onError( error, { phase: 'initialization', willEditorRestart: false } );
-				throw error;
-			} );
+		try {
+			if ( supports.elementConfigAttachment ) {
+				watchdog.setCreator( watchdogEditorCreator );
+				await watchdog.create( _getConfig() );
+			} else {
+				watchdog.setCreator( async ( _, config ) => watchdogEditorCreator( config ) );
+				await watchdog.create( data as any, _getConfig() );
+			}
+		} catch ( error ) {
+			const onError = props.onError || console.error;
+
+			onError( error, { phase: 'initialization', willEditorRestart: false } );
+
+			throw error;
+		}
 
 		return {
 			watchdog,
@@ -604,8 +624,8 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 
 type LifeCycleMountResult = EditorSemaphoreMountResult<MultiRootEditor>;
 
-type LifeCycleSemaphoreRefs<TEditor extends MultiRootEditor> = {
-	[ K in keyof EditorSemaphoreMountResult<TEditor> ]: RefObject<EditorSemaphoreMountResult<TEditor>[ K ]>
+type LifeCycleSemaphoreRefs = {
+	[ K in keyof EditorSemaphoreMountResult<MultiRootEditor> ]: RefObject<EditorSemaphoreMountResult<MultiRootEditor>[ K ]>
 };
 
 interface ErrorDetails {

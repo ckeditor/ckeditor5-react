@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	assignDataPropToSingleRootEditorConfig,
 	assignMultiRootAttributesPropToEditorConfig
-} from '../../src/compatibility/assignPropsToEditorConfig.js';
+} from '../../src/compatibility/assignDataPropToSingleRootEditorConfig.js';
 
 describe( 'assignPropsToEditorConfig', () => {
 	let originalVersion: string | undefined;
@@ -29,13 +29,13 @@ describe( 'assignPropsToEditorConfig', () => {
 			} );
 
 			it( 'should assign data to roots.main.initialData', () => {
-				expect( assignDataPropToSingleRootEditorConfig( {}, 'foo' ) ).toEqual( {
+				expect( assignDataPropToSingleRootEditorConfig( 'foo', {} ) ).toEqual( {
 					roots: { main: { initialData: 'foo' } }
 				} );
 			} );
 
 			it( 'should fallback to empty string if no data is provided', () => {
-				expect( assignDataPropToSingleRootEditorConfig( {}, undefined ) ).toEqual( {
+				expect( assignDataPropToSingleRootEditorConfig( undefined, {} ) ).toEqual( {
 					roots: { main: { initialData: '' } }
 				} );
 			} );
@@ -43,7 +43,7 @@ describe( 'assignPropsToEditorConfig', () => {
 			it( 'should prefer config.roots.main.initialData over data and show a warning', () => {
 				const warnSpy = vi.spyOn( console, 'warn' ).mockImplementation( () => {} );
 
-				expect( assignDataPropToSingleRootEditorConfig( { roots: { main: { initialData: 'config-data' } } }, 'foo' ) ).toEqual( {
+				expect( assignDataPropToSingleRootEditorConfig( 'foo', { roots: { main: { initialData: 'config-data' } } } ) ).toEqual( {
 					roots: { main: { initialData: 'config-data' } }
 				} );
 
@@ -53,7 +53,7 @@ describe( 'assignPropsToEditorConfig', () => {
 			it( 'should prefer config.root.initialData over data and show a warning', () => {
 				const warnSpy = vi.spyOn( console, 'warn' ).mockImplementation( () => {} );
 
-				expect( assignDataPropToSingleRootEditorConfig( { root: { initialData: 'config-data' } }, 'foo' ) ).toEqual( {
+				expect( assignDataPropToSingleRootEditorConfig( 'foo', { root: { initialData: 'config-data' } } ) ).toEqual( {
 					roots: { main: { initialData: 'config-data' } }
 				} );
 
@@ -61,10 +61,12 @@ describe( 'assignPropsToEditorConfig', () => {
 			} );
 
 			it( 'should prefer config.roots.main.initialData over config.root.initialData', () => {
-				expect( assignDataPropToSingleRootEditorConfig(
-					{ root: { initialData: 'root-data' }, roots: { main: { initialData: 'main-root-data' } } },
-					'foo'
-				) ).toEqual( {
+				const config = assignDataPropToSingleRootEditorConfig(
+					'foo',
+					{ root: { initialData: 'root-data' }, roots: { main: { initialData: 'main-root-data' } } }
+				);
+
+				expect( config ).toEqual( {
 					roots: { main: { initialData: 'main-root-data' } }
 				} );
 			} );
@@ -76,13 +78,13 @@ describe( 'assignPropsToEditorConfig', () => {
 			} );
 
 			it( 'should assign data to initialData', () => {
-				expect( assignDataPropToSingleRootEditorConfig( {}, 'foo' ) ).toEqual( {
+				expect( assignDataPropToSingleRootEditorConfig( 'foo', {} ) ).toEqual( {
 					initialData: 'foo'
 				} );
 			} );
 
 			it( 'should fallback to empty string if no data is provided', () => {
-				expect( assignDataPropToSingleRootEditorConfig( {}, undefined ) ).toEqual( {
+				expect( assignDataPropToSingleRootEditorConfig( undefined, {} ) ).toEqual( {
 					initialData: ''
 				} );
 			} );
@@ -90,7 +92,7 @@ describe( 'assignPropsToEditorConfig', () => {
 			it( 'should prefer config.initialData over data and show a warning', () => {
 				const warnSpy = vi.spyOn( console, 'warn' ).mockImplementation( () => {} );
 
-				expect( assignDataPropToSingleRootEditorConfig( { initialData: 'config-data' }, 'foo' ) ).toEqual( {
+				expect( assignDataPropToSingleRootEditorConfig( 'foo', { initialData: 'config-data' } ) ).toEqual( {
 					initialData: 'config-data'
 				} );
 
@@ -106,10 +108,12 @@ describe( 'assignPropsToEditorConfig', () => {
 			} );
 
 			it( 'should assign attributes to roots[rootName].modelAttributes', () => {
-				expect( assignMultiRootAttributesPropToEditorConfig( {}, {
+				const config = assignMultiRootAttributesPropToEditorConfig( {
 					intro: { order: 1 },
 					outro: { order: 2 }
-				} ) ).toEqual( {
+				}, {} );
+
+				expect( config ).toEqual( {
 					roots: {
 						intro: { modelAttributes: { order: 1 } },
 						outro: { modelAttributes: { order: 2 } }
@@ -118,9 +122,11 @@ describe( 'assignPropsToEditorConfig', () => {
 			} );
 
 			it( 'should set modelAttributes to empty object when no attributes are provided', () => {
-				expect( assignMultiRootAttributesPropToEditorConfig( {
+				const config = assignMultiRootAttributesPropToEditorConfig( undefined, {
 					roots: { intro: { initialData: 'hello' } }
-				}, undefined ) ).toEqual( {
+				} );
+
+				expect( config ).toEqual( {
 					roots: {
 						intro: { initialData: 'hello', modelAttributes: {} }
 					}
@@ -128,11 +134,13 @@ describe( 'assignPropsToEditorConfig', () => {
 			} );
 
 			it( 'should merge attributes with existing config.roots properties', () => {
-				expect( assignMultiRootAttributesPropToEditorConfig( {
-					roots: { intro: { initialData: 'hello' } }
-				}, {
+				const config = assignMultiRootAttributesPropToEditorConfig( {
 					intro: { order: 1 }
-				} ) ).toEqual( {
+				}, {
+					roots: { intro: { initialData: 'hello' } }
+				} );
+
+				expect( config ).toEqual( {
 					roots: {
 						intro: { initialData: 'hello', modelAttributes: { order: 1 } }
 					}
@@ -140,11 +148,13 @@ describe( 'assignPropsToEditorConfig', () => {
 			} );
 
 			it( 'should prefer passed attributes over config.roots[rootName].modelAttributes', () => {
-				expect( assignMultiRootAttributesPropToEditorConfig( {
-					roots: { intro: { modelAttributes: { order: 99 } } }
-				}, {
+				const config = assignMultiRootAttributesPropToEditorConfig( {
 					intro: { order: 1 }
-				} ) ).toEqual( {
+				}, {
+					roots: { intro: { modelAttributes: { order: 99 } } }
+				} );
+
+				expect( config ).toEqual( {
 					roots: {
 						intro: { modelAttributes: { order: 1 } }
 					}
@@ -152,9 +162,11 @@ describe( 'assignPropsToEditorConfig', () => {
 			} );
 
 			it( 'should fall back to config.roots[rootName].modelAttributes when no attributes entry for that root', () => {
-				expect( assignMultiRootAttributesPropToEditorConfig( {
+				const config = assignMultiRootAttributesPropToEditorConfig( {}, {
 					roots: { intro: { modelAttributes: { order: 5 } } }
-				}, {} ) ).toEqual( {
+				} );
+
+				expect( config ).toEqual( {
 					roots: {
 						intro: { modelAttributes: { order: 5 } }
 					}
@@ -162,40 +174,40 @@ describe( 'assignPropsToEditorConfig', () => {
 			} );
 
 			it( 'should include roots from attributes that are absent in config.roots', () => {
-				const result = assignMultiRootAttributesPropToEditorConfig( {
-					roots: { intro: { initialData: 'a' } }
-				}, {
+				const config = assignMultiRootAttributesPropToEditorConfig( {
 					intro: { order: 1 },
 					outro: { order: 2 }
+				}, {
+					roots: { intro: { initialData: 'a' } }
 				} ) as any;
 
-				expect( result.roots ).toHaveProperty( 'intro' );
-				expect( result.roots ).toHaveProperty( 'outro' );
-				expect( result.roots.outro ).toEqual( { modelAttributes: { order: 2 } } );
+				expect( config.roots ).toHaveProperty( 'intro' );
+				expect( config.roots ).toHaveProperty( 'outro' );
+				expect( config.roots.outro ).toEqual( { modelAttributes: { order: 2 } } );
 			} );
 
 			it( 'should include roots from config.roots that are absent in attributes', () => {
-				const result = assignMultiRootAttributesPropToEditorConfig( {
+				const config = assignMultiRootAttributesPropToEditorConfig( {
+					intro: { order: 1 }
+				}, {
 					roots: {
 						intro: { initialData: 'a' },
 						outro: { initialData: 'b' }
 					}
-				}, {
-					intro: { order: 1 }
 				} ) as any;
 
-				expect( result.roots ).toHaveProperty( 'intro' );
-				expect( result.roots ).toHaveProperty( 'outro' );
-				expect( result.roots.outro ).toEqual( { initialData: 'b', modelAttributes: {} } );
+				expect( config.roots ).toHaveProperty( 'intro' );
+				expect( config.roots ).toHaveProperty( 'outro' );
+				expect( config.roots.outro ).toEqual( { initialData: 'b', modelAttributes: {} } );
 			} );
 
 			it( 'should preserve other config properties alongside roots', () => {
-				const result = assignMultiRootAttributesPropToEditorConfig( {
+				const config = assignMultiRootAttributesPropToEditorConfig( { intro: { order: 1 } }, {
 					language: 'pl',
 					roots: { intro: {} }
-				}, { intro: { order: 1 } } ) as any;
+				} ) as any;
 
-				expect( result.language ).toBe( 'pl' );
+				expect( config.language ).toBe( 'pl' );
 			} );
 		} );
 
@@ -210,24 +222,24 @@ describe( 'assignPropsToEditorConfig', () => {
 					outro: { order: 2 }
 				};
 
-				expect( assignMultiRootAttributesPropToEditorConfig( {}, attributes ) ).toEqual( {
+				expect( assignMultiRootAttributesPropToEditorConfig( attributes, {} ) ).toEqual( {
 					rootsAttributes: attributes
 				} );
 			} );
 
 			it( 'should assign undefined to rootsAttributes when no attributes are provided', () => {
-				expect( assignMultiRootAttributesPropToEditorConfig( {} ) ).toEqual( {
+				expect( assignMultiRootAttributesPropToEditorConfig( undefined, {} ) ).toEqual( {
 					rootsAttributes: undefined
 				} );
 			} );
 
 			it( 'should preserve other config properties alongside rootsAttributes', () => {
-				const result = assignMultiRootAttributesPropToEditorConfig( {
+				const config = assignMultiRootAttributesPropToEditorConfig( { intro: { order: 1 } }, {
 					language: 'pl'
-				}, { intro: { order: 1 } } ) as any;
+				} ) as any;
 
-				expect( result.language ).toBe( 'pl' );
-				expect( result.rootsAttributes ).toEqual( { intro: { order: 1 } } );
+				expect( config.language ).toBe( 'pl' );
+				expect( config.rootsAttributes ).toEqual( { intro: { order: 1 } } );
 			} );
 		} );
 	} );

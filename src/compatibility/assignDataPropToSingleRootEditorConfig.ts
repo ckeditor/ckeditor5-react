@@ -5,7 +5,7 @@
 
 import type { EditorConfig } from 'ckeditor5';
 
-import { uniq, getInstalledCKBaseFeatures } from '@ckeditor/ckeditor5-integrations-common';
+import { getInstalledCKBaseFeatures } from '@ckeditor/ckeditor5-integrations-common';
 
 /**
  * Assigns the `data` property to the correct field in the editor configuration object, depending on the loaded CKEditor version.
@@ -18,10 +18,11 @@ import { uniq, getInstalledCKBaseFeatures } from '@ckeditor/ckeditor5-integratio
  * 2. Latest 48.x and newer - It supports `root.initialData` and deprecates `initialData` (which'll be removed in the future).
  *    It means that the `data` property should be assigned to `root.initialData` field in the configuration object.
  *
- * @param config The editor configuration.
  * @param data The editor data. It is used to log warnings when both `data` and `initialData` are specified.
+ * @param config The editor configuration.
+ * @returns Editor config.
  */
-export function assignDataPropToSingleRootEditorConfig( config: Record<string, any>, data: string | undefined ): EditorConfig {
+export function assignDataPropToSingleRootEditorConfig( data: string | undefined, config: Record<string, any> ): EditorConfig {
 	const supports = getInstalledCKBaseFeatures();
 
 	if ( supports.rootsConfigEntry ) {
@@ -69,51 +70,5 @@ export function assignDataPropToSingleRootEditorConfig( config: Record<string, a
 	return {
 		...config,
 		initialData: configInitialData || data || ''
-	} as unknown as EditorConfig;
-}
-
-/**
- * Assigns the `attributes` property to the correct field in the editor configuration object, depending on the loaded CKEditor version.
- *
- * The version compatibility matrix is the same as in `assignDataPropToSingleRootEditorConfig`.
- *
- * @param config The editor configuration.
- * @param attributes The editor roots attributes.
- * @returns The editor configuration with assigned `attributes` property.
- */
-export function assignMultiRootAttributesPropToEditorConfig(
-	config: Record<string, any>,
-	attributes?: Record<string, Record<string, any>> | undefined
-): EditorConfig {
-	const supports = getInstalledCKBaseFeatures();
-
-	// For >= 48.x versions, the `attributes` property should be assigned to `root.modelAttributes` field in the configuration object.
-	if ( supports.rootsConfigEntry ) {
-		const knownRootsKeys = uniq( [
-			...Object.keys( attributes || {} ),
-			...Object.keys( config.roots || {} )
-		] );
-
-		const roots = knownRootsKeys.reduce( ( acc, rootName ) => {
-			const configRootValue = ( config as any ).roots?.[ rootName ];
-
-			acc[ rootName ] = {
-				...configRootValue,
-				modelAttributes: attributes?.[ rootName ] || configRootValue?.modelAttributes || {}
-			};
-
-			return acc;
-		}, Object.create( null ) );
-
-		return {
-			...config,
-			roots
-		} as unknown as EditorConfig;
-	}
-
-	// Fallback for <= 47.x versions which uses `rootsAttributes` field in the configuration object.
-	return {
-		...config,
-		rootsAttributes: attributes
 	} as unknown as EditorConfig;
 }

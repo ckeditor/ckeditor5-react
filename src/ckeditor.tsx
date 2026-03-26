@@ -10,13 +10,11 @@ import type {
 	Editor,
 	EditorConfig,
 	EditorWatchdog,
-	ContextWatchdog,
 	WatchdogConfig
 } from 'ckeditor5';
 
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore.js';
-
-import { uid } from '@ckeditor/ckeditor5-integrations-common';
+import type { EditorConstructor } from './types/EditorConstructor.js';
 
 import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore.js';
 
@@ -32,7 +30,10 @@ import {
 } from './context/ckeditorcontext.js';
 
 import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
-import { assignDataPropToSingleRootEditorConfig } from './compatibility/assignPropsToEditorConfig.js';
+import { assignDataPropToSingleRootEditorConfig } from './compatibility/assignDataPropToSingleRootEditorConfig.js';
+import { EditorWatchdogAdapter } from './EditorWatchdogAdapter.js';
+import { compareInstalledCKBaseVersion, getInstalledCKBaseFeatures } from '@ckeditor/ckeditor5-integrations-common';
+import { assignElementToEditorConfig } from './compatibility/assignElementToEditorConfig.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -48,29 +49,11 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 */
 	private editorSemaphore: LifeCycleElementSemaphore<EditorSemaphoreMountResult<TEditor>> | null = null;
 
+	public static override contextType = ContextWatchdogContext;
+
 	constructor( props: Props<TEditor> ) {
 		super( props );
-
-		this._checkVersion();
-	}
-
-	/**
-	 * Checks if the CKEditor version used in the application is compatible with the component.
-	 */
-	private _checkVersion(): void {
-		const { CKEDITOR_VERSION } = window;
-
-		if ( !CKEDITOR_VERSION ) {
-			return console.warn( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
-		}
-
-		const [ major ] = CKEDITOR_VERSION.split( '.' ).map( Number );
-
-		if ( major >= 42 || CKEDITOR_VERSION.startsWith( '0.0.0' ) ) {
-			return;
-		}
-
-		console.warn( 'The <CKEditor> component requires using CKEditor 5 in version 42+ or nightly build.' );
+		assertMinimumSupportedVersion();
 	}
 
 	private get _semaphoreValue(): EditorSemaphoreMountResult<TEditor> | null {
@@ -115,7 +98,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 		if ( editorSemaphore ) {
 			editorSemaphore.runAfterMount( ( { instance } ) => {
-				if ( this._shouldUpdateEditorData( props, nextProps, instance ) ) {
+				if ( shouldUpdateEditorData( props, nextProps, instance ) ) {
 					instance.data.set( nextProps.data! );
 				}
 			} );
@@ -231,11 +214,21 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
 	 */
 	private async _initializeEditor(): Promise<EditorSemaphoreMountResult<TEditor>> {
-		if ( this.props.disableWatchdog ) {
-			const instance = await this._createEditor( this.domContainer.current!, this._getConfig() );
+		const supports = getInstalledCKBaseFeatures();
+		const {
+			editor: Editor,
+			disableWatchdog,
+			watchdogConfig,
+			onError = console.error
+		} = this.props;
+
+		const mergedConfig = this._getMergedConfig( true );
+
+		if ( disableWatchdog ) {
+			const instance = await this._createEditor( mergedConfig );
 
 			return {
-				instance: instance as TEditor,
+				instance,
 				watchdog: null
 			};
 		}
@@ -247,49 +240,20 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 				return new EditorWatchdogAdapter( this.context.watchdog );
 			}
 
-			return new this.props.editor.EditorWatchdog( this.props.editor, this.props.watchdogConfig );
+			return new Editor.EditorWatchdog( Editor, watchdogConfig );
 		} )() as EditorWatchdogAdapter<TEditor>;
 
-		const totalRestartsRef = {
-			current: 0
-		};
-
-		watchdog.setCreator( async ( el, config ) => {
-			const { editorSemaphore } = this;
-			const { onAfterDestroy } = this.props;
-
-			if ( totalRestartsRef.current > 0 && onAfterDestroy && editorSemaphore?.value?.instance ) {
-				onAfterDestroy( editorSemaphore.value.instance );
-			}
-
-			const instance = await this._createEditor( el as any, config );
-
-			// The editor semaphore can be unavailable at this stage. There is a small chance that the component
-			// was destroyed while watchdog was initializing new instance of editor. In such case, we should not
-			// call any callbacks or set any values to the semaphore.
-			if ( editorSemaphore && totalRestartsRef.current > 0 ) {
-				editorSemaphore.unsafeSetValue( {
-					instance,
-					watchdog
-				} );
-
-				setTimeout( () => {
-					if ( this.props.onReady ) {
-						this.props.onReady( watchdog!.editor as TEditor );
-					}
-				} );
-			}
-
-			totalRestartsRef.current++;
-			return instance;
-		} );
-
 		watchdog.on( 'error', ( _, { error, causesRestart } ) => {
-			const onError = this.props.onError || console.error;
 			onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
 		} );
 
-		await watchdog.create( this.domContainer.current!, this._getConfig() );
+		if ( supports.elementConfigAttachment ) {
+			watchdog.setCreator( async ( config: EditorConfig ) => this._watchdogCreateEditor( watchdog, config ) );
+			await watchdog.create( mergedConfig );
+		} else {
+			watchdog.setCreator( async ( _, config ) => this._watchdogCreateEditor( watchdog, config ) );
+			await watchdog.create( this.domContainer.current!, mergedConfig );
+		}
 
 		return {
 			watchdog,
@@ -298,57 +262,110 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	}
 
 	/**
-	 * Creates an editor from the element and configuration.
+	 * Creates editor in watchdog context.
 	 *
-	 * @param element The source element.
-	 * @param config CKEditor 5 editor configuration.
+	 * @param watchdog Watchdog adapter.
+	 * @param config Editor configuration.
+	 * @returns Editor instance.
 	 */
-	private _createEditor( element: HTMLElement | string | Record<string, string>, config: EditorConfig ): Promise<TEditor> {
-		const { contextItemMetadata } = this.props;
+	private async _watchdogCreateEditor( watchdog: EditorWatchdogAdapter<TEditor>, config: EditorConfig ): Promise<TEditor> {
+		const { editorSemaphore } = this;
+		const { onAfterDestroy, onReady } = this.props;
 
-		if ( contextItemMetadata ) {
-			config = withCKEditorReactContextMetadata( contextItemMetadata, config );
+		const nonFirstCreate = !!editorSemaphore?.value;
+
+		if ( nonFirstCreate && onAfterDestroy ) {
+			onAfterDestroy( editorSemaphore.value.instance );
 		}
 
-		return this.props.editor.create(
-			element as HTMLElement,
-			appendAllIntegrationPluginsToConfig( config )
-		)
-			.then( editor => {
-				if ( 'disabled' in this.props ) {
-					// Switch to the read-only mode if the `[disabled]` attribute is specified.
-					/* istanbul ignore else -- @preserve */
-					if ( this.props.disabled ) {
-						editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
-					}
-				}
+		const instance = await this._createEditor( config );
 
-				const modelDocument = editor.model.document;
-				const viewDocument = editor.editing.view.document;
-
-				modelDocument.on( 'change:data', event => {
-					/* istanbul ignore else -- @preserve */
-					if ( this.props.onChange ) {
-						this.props.onChange( event, editor );
-					}
-				} );
-
-				viewDocument.on( 'focus', event => {
-					/* istanbul ignore else -- @preserve */
-					if ( this.props.onFocus ) {
-						this.props.onFocus( event, editor );
-					}
-				} );
-
-				viewDocument.on( 'blur', event => {
-					/* istanbul ignore else -- @preserve */
-					if ( this.props.onBlur ) {
-						this.props.onBlur( event, editor );
-					}
-				} );
-
-				return editor;
+		// The editor semaphore can be unavailable at this stage. There is a small chance that the component
+		// was destroyed while watchdog was initializing new instance of editor. In such case, we should not
+		// call any callbacks or set any values to the semaphore.
+		if ( nonFirstCreate && editorSemaphore ) {
+			editorSemaphore.unsafeSetValue( {
+				instance,
+				watchdog
 			} );
+
+			setTimeout( () => {
+				onReady?.( watchdog!.editor as TEditor );
+			} );
+		}
+
+		return instance;
+	}
+
+	/**
+	 * Creates an editor from the element and configuration.
+	 *
+	 * @param config CKEditor 5 editor configuration.
+	 * @returns Editor instance.
+	 */
+	private async _createEditor( config: EditorConfig ): Promise<TEditor> {
+		const { editor: Editor } = this.props;
+		const supports = getInstalledCKBaseFeatures();
+
+		const mergedConfig = this._getMergedConfig( false, config );
+		const editor = await (
+			supports.elementConfigAttachment ?
+				Editor.create( mergedConfig ) :
+				Editor.create( this.domContainer.current! as HTMLElement, mergedConfig )
+		);
+
+		// Switch to the read-only mode if the `[disabled]` attribute is specified.
+		/* istanbul ignore else -- @preserve */
+		if ( this.props.disabled ) {
+			editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+		}
+
+		const modelDocument = editor.model.document;
+		const viewDocument = editor.editing.view.document;
+
+		modelDocument.on( 'change:data', event => {
+			this.props.onChange?.( event, editor );
+		} );
+
+		viewDocument.on( 'focus', event => {
+			this.props.onFocus?.( event, editor );
+		} );
+
+		viewDocument.on( 'blur', event => {
+			this.props.onBlur?.( event, editor );
+		} );
+
+		return editor;
+	}
+
+	/**
+	 * It gets an extended configuration containing the entries required for the integration configuration.
+	 *
+	 * @param resetData Assigns `data` prop value to the configuration if true.
+	 * @param config The configuration of the editor.
+	 * @returns Shallow copy of config.
+	 */
+	private _getMergedConfig( resetData?: boolean, config?: EditorConfig ): EditorConfig {
+		const { contextItemMetadata, editor: Editor } = this.props;
+		const supports = getInstalledCKBaseFeatures();
+
+		let mappedConfig = { ...config ?? this.props.config };
+
+		if ( contextItemMetadata ) {
+			mappedConfig = withCKEditorReactContextMetadata( contextItemMetadata, mappedConfig );
+		}
+
+		mappedConfig = appendAllIntegrationPluginsToConfig( mappedConfig );
+
+		if ( supports.elementConfigAttachment ) {
+			mappedConfig = assignElementToEditorConfig( Editor, this.domContainer.current!, mappedConfig );
+		}
+
+		if ( resetData ) {
+			mappedConfig = assignDataPropToSingleRootEditorConfig( this.props.data, mappedConfig );
+		}
+
+		return mappedConfig;
 	}
 
 	/**
@@ -385,52 +402,53 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			} );
 		} );
 	}
-
-	/**
-	 * Returns true when the editor should be updated.
-	 *
-	 * @param prevProps Previous react's properties.
-	 * @param nextProps React's properties.
-	 * @param editor Current editor instance.
-	 */
-	private _shouldUpdateEditorData( prevProps: Readonly<Props<TEditor>>, nextProps: Readonly<Props<TEditor>>, editor: TEditor ): boolean {
-		// Check whether `nextProps.data` is equal to `this.props.data` is required if somebody defined the `#data`
-		// property as a static string and updated a state of component when the editor's content has been changed.
-		// If we avoid checking those properties, the editor's content will back to the initial value because
-		// the state has been changed and React will call this method.
-		if ( prevProps.data === nextProps.data ) {
-			return false;
-		}
-
-		// We should not change data if the editor's content is equal to the `#data` property.
-		if ( editor.data.get() === nextProps.data ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Returns the editor configuration.
-	 */
-	private _getConfig(): EditorConfig {
-		return assignDataPropToSingleRootEditorConfig( this.props.config || {}, this.props.data );
-	}
-
-	public static override contextType = ContextWatchdogContext;
 }
 
 /**
- * TODO this is type space definition for props, the CKEditor.propTypes is a run-time props validation that should match.
+ * Returns true when the editor should be updated.
+ *
+ * @param prevProps Previous react's properties.
+ * @param nextProps React's properties.
+ * @param editor Current editor instance.
  */
-export interface Props<TEditor extends Editor> {
-	editor: {
-		create( ...args: any ): Promise<TEditor>;
-		EditorWatchdog: typeof EditorWatchdog;
-		ContextWatchdog: typeof ContextWatchdog;
-		editorName?: string;
-	};
+function shouldUpdateEditorData<TEditor extends Editor>(
+	prevProps: Readonly<Props<TEditor>>,
+	nextProps: Readonly<Props<TEditor>>,
+	editor: TEditor
+): boolean {
+	// Check whether `nextProps.data` is equal to `this.props.data` is required if somebody defined the `#data`
+	// property as a static string and updated a state of component when the editor's content has been changed.
+	// If we avoid checking those properties, the editor's content will back to the initial value because
+	// the state has been changed and React will call this method.
+	if ( prevProps.data === nextProps.data ) {
+		return false;
+	}
 
+	// We should not change data if the editor's content is equal to the `#data` property.
+	if ( editor.data.get() === nextProps.data ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Checks if currently installed version of the editor is supported by the integration.
+ */
+function assertMinimumSupportedVersion(): void {
+	switch ( compareInstalledCKBaseVersion( '42.0.0' ) ) {
+		case null:
+			console.warn( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
+			break;
+
+		case -1:
+			console.warn( 'The <CKEditor> component requires using CKEditor 5 in version 42+ or nightly build.' );
+			break;
+	}
+}
+
+export interface Props<TEditor extends Editor> {
+	editor: EditorConstructor<TEditor>;
 	contextItemMetadata?: CKEditorConfigContextMetadata;
 	config?: EditorConfig;
 	watchdogConfig?: WatchdogConfig;
@@ -450,97 +468,3 @@ interface ErrorDetails {
 	phase: 'initialization' | 'runtime';
 	willEditorRestart?: boolean;
 }
-
-/**
- * An adapter aligning the context watchdog API to the editor watchdog API for easier usage.
- */
-export class EditorWatchdogAdapter<TEditor extends Editor> {
-	/**
-	 * The context watchdog instance that will be wrapped into editor watchdog API.
-	 */
-	private readonly _contextWatchdog: ContextWatchdog;
-
-	/**
-	 * A unique id for the adapter to distinguish editor items when using the context watchdog API.
-	 */
-	private readonly _id: string;
-
-	/**
-	 * A watchdog's editor creator function.
-	 */
-	private _creator?: AdapterEditorCreatorFunction;
-
-	/**
-	 * @param contextWatchdog The context watchdog instance that will be wrapped into editor watchdog API.
-	 */
-	constructor( contextWatchdog: ContextWatchdog ) {
-		this._contextWatchdog = contextWatchdog;
-		this._id = uid();
-	}
-
-	/**
-	 *  @param creator A watchdog's editor creator function.
-	 */
-	public setCreator( creator: AdapterEditorCreatorFunction ): void {
-		this._creator = creator;
-	}
-
-	/**
-	 * Adds an editor configuration to the context watchdog registry. Creates an instance of it.
-	 *
-	 * @param sourceElementOrData A source element or data for the new editor.
-	 * @param config CKEditor 5 editor config.
-	 */
-	public create( sourceElementOrData: HTMLElement | string, config: EditorConfig ): Promise<unknown> {
-		return this._contextWatchdog.add( {
-			sourceElementOrData,
-			config,
-			creator: this._creator!,
-			id: this._id,
-			type: 'editor'
-		} );
-	}
-
-	/**
-	 * Creates a listener that is attached to context watchdog's item and run when the context watchdog fires.
-	 * Currently works only for the `error` event.
-	 */
-	public on( _: string, callback: ( _: null, data: { error: Error; causesRestart?: boolean } ) => void ): void {
-		// Assume that the event name was error.
-		this._contextWatchdog.on( 'itemError', ( _, { itemId, error } ) => {
-			if ( itemId === this._id ) {
-				callback( null, { error, causesRestart: undefined } );
-			}
-		} );
-	}
-
-	public destroy(): Promise<unknown> {
-		// Destroying an editor instance after destroying the Context is handled in the `ContextWatchdog` class.
-		// As `EditorWatchdogAdapter` is an adapter, we should not destroy the editor manually.
-		// Otherwise, it causes that the editor is destroyed twice. However, there is a case, when the editor
-		// needs to be removed from the context, without destroying the context itself. We may assume the following
-		// relations with `ContextWatchdog#state`:
-		//
-		// a) `ContextWatchdog#state` === 'ready' - context is not destroyed; it's safe to destroy the editor manually.
-		// b) `ContextWatchdog#state` === 'destroyed' - context is destroyed; let `ContextWatchdog` handle the whole process.
-		//
-		// See #354 for more information.
-		if ( this._contextWatchdog.state === 'ready' ) {
-			return this._contextWatchdog.remove( this._id );
-		}
-
-		return Promise.resolve();
-	}
-
-	/**
-	 * An editor instance.
-	 */
-	public get editor(): TEditor {
-		return this._contextWatchdog.getItem( this._id ) as TEditor;
-	}
-}
-
-type AdapterEditorCreatorFunction<TEditor = Editor> = (
-	elementOrData: HTMLElement | string | Record<string, string> | Record<string, HTMLElement>,
-	config: EditorConfig
-) => Promise<TEditor>;
