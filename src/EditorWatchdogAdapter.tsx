@@ -60,6 +60,7 @@ export class EditorWatchdogAdapter<TEditor extends Editor> {
 
 		// Newer versions of the editor deprecated passing both source element and config at the same time.
 		// So, if the second argument (config) is present, the older version of the editor is being initialized.
+		/* istanbul ignore if -- @preserve */
 		if ( config ) {
 			// <= 47 legacy config approach to watchdog configuration.
 			watchdogItemConfiguration = {

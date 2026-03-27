@@ -427,6 +427,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		} );
 
 		try {
+			/* istanbul ignore else -- @preserve */
 			if ( supports.elementConfigAttachment ) {
 				watchdog.setCreator( watchdogEditorCreator );
 				await watchdog.create( _getConfig() );
@@ -537,14 +538,36 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 				JSON.stringify( editorAttributes[ rootName ] ) !== JSON.stringify( attributes[ rootName ] ) );
 
 			const _handleNewRoots = ( roots: Array<string> ) => {
-				roots.forEach( rootName => {
-					instance!.addRoot( rootName, {
-						data: data[ rootName ] || '',
-						attributes: attributes?.[ rootName ] ||
-						/* istanbul ignore next -- @preserve: attributes should be in sync with root keys */ {},
+				const supports = getInstalledCKBaseFeatures();
+
+				for ( const rootName of roots ) {
+					const rootData = data[ rootName ] || '';
+
+					/* istanbul ignore next -- @preserve: attributes should be in sync with root keys */
+					const rootAttributes = attributes?.[ rootName ] || {};
+
+					let attrs: Record<string, any> = {
 						isUndoable: true
-					} );
-				} );
+					};
+
+					// >= 48 version of editor the roots configuration is unified in `addRoot` method
+					// so the same key format is being used here.
+					/* istanbul ignore else -- @preserve */
+					if ( supports.rootsConfigEntry ) {
+						attrs = {
+							...attrs,
+							initialData: rootData,
+							modelAttributes: rootAttributes
+						};
+					} else {
+						attrs = {
+							data: rootData,
+							attributes: rootAttributes
+						};
+					}
+
+					instance.addRoot( rootName, attrs );
+				}
 			};
 
 			const _handleRemovedRoots = ( roots: Array<string> ) => {

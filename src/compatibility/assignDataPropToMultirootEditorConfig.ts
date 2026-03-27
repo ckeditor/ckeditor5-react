@@ -63,6 +63,6 @@ export function assignDataPropToMultiRootEditorConfig(
 
 	return {
 		...config,
-		initialData: data
+		initialData: config?.initialData || data
 	} as unknown as EditorConfig;
 }

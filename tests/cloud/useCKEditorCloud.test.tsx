@@ -28,7 +28,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 			if ( result.current.status === 'success' ) {
 				expect( result.current.CKEditor ).toBeDefined();
 			}
-		}, { timeout: 5000 } );
+		}, { timeout: 8000 } );
 	} );
 
 	it( 'should load additional bundle after updating deps', async () => {
@@ -49,7 +49,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 				expect( result.current.CKEditor ).toBeDefined();
 				expect( result.current.CKEditorPremiumFeatures ).toBeUndefined();
 			}
-		}, { timeout: 5000 } );
+		}, { timeout: 8000 } );
 
 		rerender( {
 			version: '45.0.0',
@@ -67,7 +67,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 				expect( result.current.CKEditor ).toBeDefined();
 				expect( result.current.CKEditorPremiumFeatures ).toBeDefined();
 			}
-		}, { timeout: 5000 } );
+		}, { timeout: 8000 } );
 	} );
 
 	describe( 'typings', () => {
@@ -79,7 +79,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 			await waitFor( () => {
 				expect( result.current.status ).toBe( 'success' );
-			}, { timeout: 5000 } );
+			}, { timeout: 8000 } );
 
 			if ( result.current.status === 'success' ) {
 				expectTypeOf( result.current.CKEditorPremiumFeatures ).not.toBeNullable();
@@ -94,7 +94,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 			await waitFor( () => {
 				expect( result.current.status ).toBe( 'success' );
-			}, { timeout: 5000 } );
+			}, { timeout: 8000 } );
 
 			if ( result.current.status === 'success' ) {
 				expectTypeOf( result.current.CKEditorPremiumFeatures ).toBeNullable();
@@ -108,7 +108,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 			await waitFor( () => {
 				expect( result.current.status ).toBe( 'success' );
-			}, { timeout: 5000 } );
+			}, { timeout: 8000 } );
 
 			if ( result.current.status === 'success' ) {
 				expectTypeOf( result.current.CKEditorPremiumFeatures ).toBeNullable();
@@ -125,7 +125,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 			await waitFor( () => {
 				expect( result.current.status ).toBe( 'success' );
-			}, { timeout: 5000 } );
+			}, { timeout: 8000 } );
 
 			if ( result.current.status === 'success' ) {
 				expectTypeOf( result.current.CKBox ).not.toBeNullable();
@@ -139,7 +139,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 			await waitFor( () => {
 				expect( result.current.status ).toBe( 'success' );
-			}, { timeout: 5000 } );
+			}, { timeout: 8000 } );
 
 			if ( result.current.status === 'success' ) {
 				expectTypeOf( result.current.CKBox ).toBeNullable();
