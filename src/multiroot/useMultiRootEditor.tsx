@@ -568,6 +568,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 						};
 					} else {
 						attrs = {
+							...attrs,
 							data: rootData,
 							attributes: rootAttributes
 						};
