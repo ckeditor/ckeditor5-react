@@ -548,17 +548,14 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 				const supports = getInstalledCKBaseFeatures();
 
 				for ( const rootName of roots ) {
-					const rootData = data[ rootName ] || '';
-
 					/* istanbul ignore next -- @preserve: attributes should be in sync with root keys */
 					const rootAttributes = attributes?.[ rootName ] || {};
+					const rootData = data[ rootName ] || '';
 
 					let attrs: Record<string, any> = {
 						isUndoable: true
 					};
 
-					// >= 48 version of editor the roots configuration is unified in `addRoot` method
-					// so the same key format is being used here.
 					/* istanbul ignore else -- @preserve */
 					if ( supports.rootsConfigEntry ) {
 						attrs = {
