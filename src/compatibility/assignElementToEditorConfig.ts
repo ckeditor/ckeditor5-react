@@ -4,6 +4,7 @@
  */
 
 import type { EditorConstructor } from '../types/EditorConstructor.js';
+import type { EditorRelaxedConfig } from '../types/EditorRelaxedConfig.js';
 
 /**
  * Assigns a DOM element to the editor configuration in a way that is compatible with the specific editor type.
@@ -13,7 +14,11 @@ import type { EditorConstructor } from '../types/EditorConstructor.js';
  * @param config Config of the editor.
  * @returns The updated configuration object.
  */
-export function assignElementToEditorConfig( Editor: EditorConstructor, element: HTMLElement, config: RelaxedConfig ): RelaxedConfig {
+export function assignElementToEditorConfig(
+	Editor: EditorConstructor,
+	element: HTMLElement,
+	config: EditorRelaxedConfig
+): EditorRelaxedConfig {
 	if ( !Editor.editorName || Editor.editorName === 'ClassicEditor' ) {
 		return {
 			...config,
@@ -21,7 +26,7 @@ export function assignElementToEditorConfig( Editor: EditorConstructor, element:
 		};
 	}
 
-	const mappedConfig: RelaxedConfig = {
+	const mappedConfig: EditorRelaxedConfig = {
 		...config,
 		roots: {
 			...config.roots,
@@ -37,5 +42,3 @@ export function assignElementToEditorConfig( Editor: EditorConstructor, element:
 
 	return mappedConfig;
 }
-
-type RelaxedConfig = Record<string, any>;

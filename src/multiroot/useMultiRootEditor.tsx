@@ -37,10 +37,11 @@ import { useRefSafeCallback } from '../hooks/useRefSafeCallback.js';
 import { useInstantEditorEffect } from '../hooks/useInstantEditorEffect.js';
 
 import { appendAllIntegrationPluginsToConfig } from '../plugins/appendAllIntegrationPluginsToConfig.js';
-import { assignMultiRootAttributesPropToEditorConfig } from '../compatibility/assignMultiRootAttributesPropToEditorConfig.js';
+import { assignAttributesPropToMultiRootEditorConfig } from '../compatibility/assignAttributesPropToMultiRootEditorConfig.js';
 import { EditorEditable } from './EditorEditable.js';
 import { EditorToolbarWrapper } from './EditorToolbar.js';
 import { EditorWatchdogAdapter } from '../EditorWatchdogAdapter.js';
+import { assignDataPropToMultiRootEditorConfig } from '../compatibility/assignDataPropToMultirootEditorConfig.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -149,16 +150,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 	 * Returns the editor configuration.
 	 */
 	const _getConfig = useRefSafeCallback( () => {
-		const supports = getInstalledCKBaseFeatures();
-
-		if ( props.data && props.config?.initialData && !supports.rootsConfigEntry ) {
-			console.warn(
-				'Editor data should be provided either using `config.initialData` or `data` property. ' +
-				'The config value takes precedence over `data` property and will be used when both are specified.'
-			);
-		}
-
-		let mappedConfig = assignMultiRootAttributesPropToEditorConfig( attributes, props.config || {} );
+		let mappedConfig = assignAttributesPropToMultiRootEditorConfig( attributes, props.config || {} );
 
 		mappedConfig = appendAllIntegrationPluginsToConfig( mappedConfig );
 
@@ -284,7 +276,6 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		initialData: Record<string, string>,
 		config: EditorConfig
 	): Promise<MultiRootEditor> => {
-		const supports = getInstalledCKBaseFeatures();
 		const Editor = props.editor as unknown as {
 			create( initialData: Record<string, string>, config: EditorConfig ): Promise<MultiRootEditor>;
 			create( config: EditorConfig ): Promise<MultiRootEditor>;
@@ -294,11 +285,8 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		overwriteObject( { ...props.data }, data );
 		overwriteArray( Object.keys( props.data ), roots );
 
-		const editor = await (
-			supports.elementConfigAttachment
-				? Editor.create( config )
-				: Editor.create( initialData, config )
-		);
+		const mergedConfig = assignDataPropToMultiRootEditorConfig( initialData, config );
+		const editor = await Editor.create( mergedConfig );
 
 		const editorData = editor.getFullData();
 

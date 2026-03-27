@@ -4,9 +4,9 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { assignMultiRootAttributesPropToEditorConfig } from '../../src/compatibility/assignMultiRootAttributesPropToEditorConfig.js';
+import { assignAttributesPropToMultiRootEditorConfig } from '../../src/compatibility/assignAttributesPropToMultiRootEditorConfig.js';
 
-describe( 'assignMultiRootAttributesPropToEditorConfig', () => {
+describe( 'assignAttributesPropToMultiRootEditorConfig', () => {
 	let originalVersion: string | undefined;
 
 	beforeEach( () => {
@@ -24,7 +24,7 @@ describe( 'assignMultiRootAttributesPropToEditorConfig', () => {
 		} );
 
 		it( 'should assign attributes to roots[rootName].modelAttributes', () => {
-			const config = assignMultiRootAttributesPropToEditorConfig( {
+			const config = assignAttributesPropToMultiRootEditorConfig( {
 				intro: { order: 1 },
 				outro: { order: 2 }
 			}, {} );
@@ -38,7 +38,7 @@ describe( 'assignMultiRootAttributesPropToEditorConfig', () => {
 		} );
 
 		it( 'should set modelAttributes to empty object when no attributes are provided', () => {
-			const config = assignMultiRootAttributesPropToEditorConfig( undefined, {
+			const config = assignAttributesPropToMultiRootEditorConfig( undefined, {
 				roots: { intro: { initialData: 'hello' } }
 			} );
 
@@ -50,7 +50,7 @@ describe( 'assignMultiRootAttributesPropToEditorConfig', () => {
 		} );
 
 		it( 'should merge attributes with existing config.roots properties', () => {
-			const config = assignMultiRootAttributesPropToEditorConfig( {
+			const config = assignAttributesPropToMultiRootEditorConfig( {
 				intro: { order: 1 }
 			}, {
 				roots: { intro: { initialData: 'hello' } }
@@ -64,7 +64,7 @@ describe( 'assignMultiRootAttributesPropToEditorConfig', () => {
 		} );
 
 		it( 'should prefer passed attributes over config.roots[rootName].modelAttributes', () => {
-			const config = assignMultiRootAttributesPropToEditorConfig( {
+			const config = assignAttributesPropToMultiRootEditorConfig( {
 				intro: { order: 1 }
 			}, {
 				roots: { intro: { modelAttributes: { order: 99 } } }
@@ -78,7 +78,7 @@ describe( 'assignMultiRootAttributesPropToEditorConfig', () => {
 		} );
 
 		it( 'should fall back to config.roots[rootName].modelAttributes when no attributes entry for that root', () => {
-			const config = assignMultiRootAttributesPropToEditorConfig( {}, {
+			const config = assignAttributesPropToMultiRootEditorConfig( {}, {
 				roots: { intro: { modelAttributes: { order: 5 } } }
 			} );
 
@@ -90,7 +90,7 @@ describe( 'assignMultiRootAttributesPropToEditorConfig', () => {
 		} );
 
 		it( 'should include roots from attributes that are absent in config.roots', () => {
-			const config = assignMultiRootAttributesPropToEditorConfig( {
+			const config = assignAttributesPropToMultiRootEditorConfig( {
 				intro: { order: 1 },
 				outro: { order: 2 }
 			}, {
@@ -103,7 +103,7 @@ describe( 'assignMultiRootAttributesPropToEditorConfig', () => {
 		} );
 
 		it( 'should include roots from config.roots that are absent in attributes', () => {
-			const config = assignMultiRootAttributesPropToEditorConfig( {
+			const config = assignAttributesPropToMultiRootEditorConfig( {
 				intro: { order: 1 }
 			}, {
 				roots: {
@@ -118,7 +118,7 @@ describe( 'assignMultiRootAttributesPropToEditorConfig', () => {
 		} );
 
 		it( 'should preserve other config properties alongside roots', () => {
-			const config = assignMultiRootAttributesPropToEditorConfig( { intro: { order: 1 } }, {
+			const config = assignAttributesPropToMultiRootEditorConfig( { intro: { order: 1 } }, {
 				language: 'pl',
 				roots: { intro: {} }
 			} ) as any;
@@ -138,19 +138,19 @@ describe( 'assignMultiRootAttributesPropToEditorConfig', () => {
 				outro: { order: 2 }
 			};
 
-			expect( assignMultiRootAttributesPropToEditorConfig( attributes, {} ) ).toEqual( {
+			expect( assignAttributesPropToMultiRootEditorConfig( attributes, {} ) ).toEqual( {
 				rootsAttributes: attributes
 			} );
 		} );
 
 		it( 'should assign undefined to rootsAttributes when no attributes are provided', () => {
-			expect( assignMultiRootAttributesPropToEditorConfig( undefined, {} ) ).toEqual( {
+			expect( assignAttributesPropToMultiRootEditorConfig( undefined, {} ) ).toEqual( {
 				rootsAttributes: undefined
 			} );
 		} );
 
 		it( 'should preserve other config properties alongside rootsAttributes', () => {
-			const config = assignMultiRootAttributesPropToEditorConfig( { intro: { order: 1 } }, {
+			const config = assignAttributesPropToMultiRootEditorConfig( { intro: { order: 1 } }, {
 				language: 'pl'
 			} ) as any;
 

@@ -18,6 +18,9 @@ import { createDefer } from '../_utils/defer.js';
 import { createTestMultiRootWatchdog, TestMultiRootEditor } from '../_utils/multirooteditor.js';
 import { turnOffErrors } from '../_utils/turnOffErrors.js';
 import { ReactIntegrationUsageDataPlugin } from '../../src/plugins/ReactIntegrationUsageDataPlugin.js';
+import { getInstalledCKBaseFeatures, mapObjectValues } from '@ckeditor/ckeditor5-integrations-common';
+
+const SUPPORTED_FEATURES = getInstalledCKBaseFeatures();
 
 describe( 'useMultiRootEditor', () => {
 	const rootsContent = {
@@ -63,25 +66,60 @@ describe( 'useMultiRootEditor', () => {
 	} );
 
 	describe( 'editor props', () => {
-		it( 'should raise proper warning when `data` and `initialData` is passed to config at the same time', async () => {
-			const spy = vi.spyOn( console, 'warn' );
+		if ( SUPPORTED_FEATURES.rootsConfigEntry ) {
+			it( 'should raise proper warning when `data` and `initialData` is passed to config at the same time', async () => {
+				const spy = vi.spyOn( console, 'warn' );
 
-			renderHook( () => useMultiRootEditor( {
-				...editorProps,
-				disableWatchdog: true,
-				config: {
-					...editorProps.config,
-					initialData: rootsContent
-				}
-			} ) );
+				renderHook( () => useMultiRootEditor( {
+					...editorProps,
+					disableWatchdog: true,
+					config: {
+						...editorProps.config,
+						roots: {
+							intro: {
+								initialData: '<h2>Sample</h2><p>This is an instance of the.</p>'
+							},
+							content: {
+								initialData: '<p>It is the custom content</p>'
+							},
+							footer: {
+								initialData: '<p>Footer content</p>'
+							}
+						}
+					}
+				} ) );
 
-			await waitFor( () => {
-				expect( spy ).toHaveBeenCalledWith(
-					'Editor data should be provided either using `config.initialData` or `data` property. ' +
-					'The config value takes precedence over `data` property and will be used when both are specified.'
-				);
+				await waitFor( () => {
+					for ( const rootName of Object.keys( rootsContent ) ) {
+						expect( spy ).toHaveBeenCalledWith(
+							`Editor data should be provided either using \`config.roots['${ rootName }'].initialData\`` +
+							' or `data` property. The config value takes precedence over `data` property and ' +
+							'will be used when both are specified.'
+						);
+					}
+				} );
 			} );
-		} );
+		} else {
+			it( 'should raise proper warning when `data` and `initialData` is passed to config at the same time', async () => {
+				const spy = vi.spyOn( console, 'warn' );
+
+				renderHook( () => useMultiRootEditor( {
+					...editorProps,
+					disableWatchdog: true,
+					config: {
+						...editorProps.config,
+						initialData: rootsContent
+					}
+				} ) );
+
+				await waitFor( () => {
+					expect( spy ).toHaveBeenCalledWith(
+						'Editor data should be provided either using `config.initialData` or `data` property. ' +
+						'The config value takes precedence over `data` property and will be used when both are specified.'
+					);
+				} );
+			} );
+		}
 
 		it( 'should not crash if config property is not provided', async () => {
 			const { result } = renderHook( () => useMultiRootEditor( {
@@ -899,10 +937,14 @@ describe( 'useMultiRootEditor', () => {
 				class SlowEditor extends TestMultiRootEditor {
 					public declare data: any;
 
-					constructor( initialData, config ) {
-						super( initialData, config );
+					constructor( configOrData, config ) {
+						super( configOrData, config );
 
-						let value = initialData || {};
+						let value = configOrData ?? {};
+
+						if ( SUPPORTED_FEATURES.rootsConfigEntry ) {
+							value = mapObjectValues( configOrData.roots ?? {}, ( val: any ) => val.initialData );
+						}
 
 						this.data = {
 							get() {
@@ -925,7 +967,7 @@ describe( 'useMultiRootEditor', () => {
 				const { result } = renderHook( () => useMultiRootEditor( {
 					...editorProps,
 					disableWatchdog: !enableWatchdog,
-					editor: SlowEditor
+					editor: SlowEditor as any
 				} ) );
 
 				await timeout( 500 );
@@ -958,9 +1000,9 @@ describe( 'useMultiRootEditor', () => {
 				class SlowEditor extends TestMultiRootEditor {
 					public declare key: any;
 
-					constructor( initialData, config ) {
-						super( initialData, config );
-						this.key = config.key;
+					constructor( configOrData, config ) {
+						super( configOrData, config );
+						this.key = config?.key ?? configOrData.key;
 					}
 
 					public static async create( ...args: ConstructorParameters<typeof SlowEditor> ) {

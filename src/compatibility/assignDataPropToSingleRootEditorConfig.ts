@@ -4,8 +4,9 @@
  */
 
 import type { EditorConfig } from 'ckeditor5';
-
 import { getInstalledCKBaseFeatures } from '@ckeditor/ckeditor5-integrations-common';
+
+import type { EditorRelaxedConfig } from '../types/EditorRelaxedConfig.js';
 
 /**
  * Assigns the `data` property to the correct field in the editor configuration object, depending on the loaded CKEditor version.
@@ -22,7 +23,7 @@ import { getInstalledCKBaseFeatures } from '@ckeditor/ckeditor5-integrations-com
  * @param config The editor configuration.
  * @returns Editor config.
  */
-export function assignDataPropToSingleRootEditorConfig( data: string | undefined, config: Record<string, any> ): EditorConfig {
+export function assignDataPropToSingleRootEditorConfig( data: string | undefined, config: EditorRelaxedConfig ): EditorConfig {
 	const supports = getInstalledCKBaseFeatures();
 
 	if ( supports.rootsConfigEntry ) {
