@@ -12,7 +12,8 @@ import {
 	overwriteArray,
 	overwriteObject,
 	uniq,
-	getInstalledCKBaseFeatures
+	getInstalledCKBaseFeatures,
+	omit
 } from '@ckeditor/ckeditor5-integrations-common';
 
 import type {
@@ -286,7 +287,13 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		overwriteArray( Object.keys( props.data ), roots );
 
 		const mergedConfig = assignDataPropToMultiRootEditorConfig( initialData, config );
-		const editor = await Editor.create( mergedConfig );
+		const supports = getInstalledCKBaseFeatures();
+
+		const editor = await (
+			supports.elementConfigAttachment ?
+				Editor.create( mergedConfig ) :
+				Editor.create( mergedConfig.initialData, omit( [ 'initialData' ], mergedConfig ) )
+		);
 
 		const editorData = editor.getFullData();
 
