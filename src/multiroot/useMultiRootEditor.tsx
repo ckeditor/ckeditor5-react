@@ -595,8 +595,13 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 						instance.registerRootAttribute( attr );
 					} );
 
-					writer.clearAttributes( instance.model.document.getRoot( rootName )! );
-					writer.setAttributes( attributes![ rootName ], instance.model.document.getRoot( rootName )! );
+					const root = instance.model.document.getRoot( rootName )!;
+
+					for ( const key of Object.keys( instance.getRootsAttributes() ) ) {
+						writer.removeAttribute( key, root );
+					}
+
+					writer.setAttributes( attributes![ rootName ], root );
 				} );
 			};
 
