@@ -12,8 +12,7 @@ import {
 	overwriteArray,
 	overwriteObject,
 	uniq,
-	getInstalledCKBaseFeatures,
-	omit
+	getInstalledCKBaseFeatures
 } from '@ckeditor/ckeditor5-integrations-common';
 
 import type {
@@ -286,13 +285,14 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		overwriteObject( { ...props.data }, data );
 		overwriteArray( Object.keys( props.data ), roots );
 
-		const mergedConfig = assignDataPropToMultiRootEditorConfig( initialData, config );
+		const { initialData: mergedInitialData, ...mergedConfig } = assignDataPropToMultiRootEditorConfig( initialData, config );
 		const supports = getInstalledCKBaseFeatures();
 
 		const editor = await (
 			supports.elementConfigAttachment ?
-				Editor.create( mergedConfig ) :
-				Editor.create( mergedConfig.initialData, omit( [ 'initialData' ], mergedConfig ) )
+				Editor.create( { ...mergedConfig, initialData: mergedInitialData } ) :
+				/* istanbul ignore next -- @preserve */
+				Editor.create( mergedInitialData, mergedConfig )
 		);
 
 		const editorData = editor.getFullData();
@@ -590,19 +590,19 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 			};
 
 			const _updateEditorAttributes = ( writer: ModelWriter, roots: Array<string> ) => {
-				roots.forEach( rootName => {
-					Object.keys( attributes![ rootName ] ).forEach( attr => {
-						instance.registerRootAttribute( attr );
-					} );
+				for ( const rootName of roots ) {
+					for ( const key of Object.keys( attributes![ rootName ] ) ) {
+						instance.registerRootAttribute( key );
+					}
 
 					const root = instance.model.document.getRoot( rootName )!;
 
-					for ( const key of Object.keys( instance.getRootsAttributes() ) ) {
+					for ( const key of Object.keys( instance.getRootAttributes( rootName ) ) ) {
 						writer.removeAttribute( key, root );
 					}
 
 					writer.setAttributes( attributes![ rootName ], root );
-				} );
+				}
 			};
 
 			// React struggles with rerendering during `instance.model.change` callbacks.
