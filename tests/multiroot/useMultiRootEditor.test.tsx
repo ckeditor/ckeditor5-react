@@ -92,9 +92,9 @@ describe( 'useMultiRootEditor', () => {
 				await waitFor( () => {
 					for ( const rootName of Object.keys( rootsContent ) ) {
 						expect( spy ).toHaveBeenCalledWith(
-							`Editor data should be provided either using \`config.roots['${ rootName }'].initialData\`` +
-							' or `data` property. The config value takes precedence over `data` property and ' +
-							'will be used when both are specified.'
+							`Editor data should be provided either using \`config.roots['${ rootName }'].initialData\` ` +
+							'or the bound component property. The config value takes precedence ' +
+							'over the bound component property and will be used when both are specified.'
 						);
 					}
 				} );
@@ -114,8 +114,9 @@ describe( 'useMultiRootEditor', () => {
 
 				await waitFor( () => {
 					expect( spy ).toHaveBeenCalledWith(
-						'Editor data should be provided either using `config.initialData` or `data` property. ' +
-						'The config value takes precedence over `data` property and will be used when both are specified.'
+						'Editor data should be provided either using `config.initialData` ' +
+						'or the bound component property. The config value takes precedence ' +
+						'over the bound component property and will be used when both are specified.'
 					);
 				} );
 			} );
@@ -957,10 +958,10 @@ describe( 'useMultiRootEditor', () => {
 						};
 					}
 
-					public static async create( ...args: ConstructorParameters<typeof SlowEditor> ) {
+					public static async create( ...args: Array<any> ) {
 						await deferInitialization.promise;
 
-						return new SlowEditor( ...args );
+						return new SlowEditor( args[ 0 ], args[ 1 ] );
 					}
 				}
 
@@ -1005,8 +1006,8 @@ describe( 'useMultiRootEditor', () => {
 						this.key = config?.key ?? configOrData.key;
 					}
 
-					public static async create( ...args: ConstructorParameters<typeof SlowEditor> ) {
-						const editor = new SlowEditor( ...args );
+					public static async create( ...args: Array<any> ) {
+						const editor = new SlowEditor( args[ 0 ], args[ 1 ] );
 
 						await editor.initPlugins();
 						await timeout( 300 );

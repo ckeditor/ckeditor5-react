@@ -12,7 +12,9 @@ import {
 	overwriteArray,
 	overwriteObject,
 	uniq,
-	getInstalledCKBaseFeatures
+	getInstalledCKBaseFeatures,
+	assignAttributesPropToMultiRootEditorConfig,
+	assignInitialDataToMultirootEditorConfig
 } from '@ckeditor/ckeditor5-integrations-common';
 
 import type {
@@ -37,11 +39,9 @@ import { useRefSafeCallback } from '../hooks/useRefSafeCallback.js';
 import { useInstantEditorEffect } from '../hooks/useInstantEditorEffect.js';
 
 import { appendAllIntegrationPluginsToConfig } from '../plugins/appendAllIntegrationPluginsToConfig.js';
-import { assignAttributesPropToMultiRootEditorConfig } from '../compatibility/assignAttributesPropToMultiRootEditorConfig.js';
 import { EditorEditable } from './EditorEditable.js';
 import { EditorToolbarWrapper } from './EditorToolbar.js';
 import { EditorWatchdogAdapter } from '../EditorWatchdogAdapter.js';
-import { assignDataPropToMultiRootEditorConfig } from '../compatibility/assignDataPropToMultirootEditorConfig.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -285,7 +285,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		overwriteObject( { ...props.data }, data );
 		overwriteArray( Object.keys( props.data ), roots );
 
-		const { initialData: mergedInitialData, ...mergedConfig } = assignDataPropToMultiRootEditorConfig( initialData, config );
+		const { initialData: mergedInitialData, ...mergedConfig } = assignInitialDataToMultirootEditorConfig( initialData, config );
 		const supports = getInstalledCKBaseFeatures();
 
 		const editor = await (

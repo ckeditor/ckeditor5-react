@@ -10,11 +10,11 @@ import type {
 	Editor,
 	EditorConfig,
 	EditorWatchdog,
-	WatchdogConfig
+	WatchdogConfig,
+	ContextWatchdog
 } from 'ckeditor5';
 
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore.js';
-import type { EditorConstructor } from './types/EditorConstructor.js';
 
 import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore.js';
 
@@ -30,10 +30,14 @@ import {
 } from './context/ckeditorcontext.js';
 
 import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
-import { assignDataPropToSingleRootEditorConfig } from './compatibility/assignDataPropToSingleRootEditorConfig.js';
 import { EditorWatchdogAdapter } from './EditorWatchdogAdapter.js';
-import { compareInstalledCKBaseVersion, getInstalledCKBaseFeatures } from '@ckeditor/ckeditor5-integrations-common';
-import { assignElementToEditorConfig } from './compatibility/assignElementToEditorConfig.js';
+import {
+	assignInitialDataToEditorConfig,
+	assignElementToEditorConfig,
+	compareInstalledCKBaseVersion,
+	getInstalledCKBaseFeatures,
+	type EditorRelaxedConstructor
+} from '@ckeditor/ckeditor5-integrations-common';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -363,7 +367,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		}
 
 		if ( resetData ) {
-			mappedConfig = assignDataPropToSingleRootEditorConfig( this.props.data, mappedConfig );
+			mappedConfig = assignInitialDataToEditorConfig( mappedConfig, this.props.data || '' );
 		}
 
 		return mappedConfig;
@@ -449,7 +453,10 @@ function assertMinimumSupportedVersion(): void {
 }
 
 export interface Props<TEditor extends Editor> {
-	editor: EditorConstructor<TEditor>;
+	editor: EditorRelaxedConstructor<TEditor> & {
+		EditorWatchdog: typeof EditorWatchdog;
+		ContextWatchdog: typeof ContextWatchdog;
+	};
 	contextItemMetadata?: CKEditorConfigContextMetadata;
 	config?: EditorConfig;
 	watchdogConfig?: WatchdogConfig;

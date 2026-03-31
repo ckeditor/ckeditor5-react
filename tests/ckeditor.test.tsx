@@ -354,8 +354,8 @@ describe( '<CKEditor> Component', () => {
 
 			expect( consoleWarnStub ).toHaveBeenCalledOnce();
 			expect( consoleWarnStub.mock.calls[ 0 ][ 0 ] ).to.equal(
-				'Editor data should be provided either using `config.initialData` or `data` property. ' +
-				'The config value takes precedence over `data` property and will be used when both are specified.'
+				'Editor data should be provided either via the config (`config.initialData`) or the component\'s `data` property, ' +
+				'but not both. The configuration value takes precedence.'
 			);
 		} );
 
