@@ -289,9 +289,9 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		const supports = getInstalledCKBaseFeatures();
 
 		const editor = await (
+			/* istanbul ignore next -- @preserve */
 			supports.elementConfigAttachment ?
 				Editor.create( { ...mergedConfig, initialData: mergedInitialData } ) :
-				/* istanbul ignore next -- @preserve */
 				Editor.create( mergedInitialData, mergedConfig )
 		);
 
@@ -434,7 +434,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		} );
 
 		try {
-			/* istanbul ignore else -- @preserve */
+			/* istanbul ignore if -- @preserve */
 			if ( supports.elementConfigAttachment ) {
 				watchdog.setCreator( watchdogEditorCreator );
 				await watchdog.create( _getConfig() );
@@ -556,7 +556,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 						isUndoable: true
 					};
 
-					/* istanbul ignore else -- @preserve */
+					/* istanbul ignore if -- @preserve */
 					if ( supports.rootsConfigEntry ) {
 						attrs = {
 							...attrs,

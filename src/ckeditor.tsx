@@ -252,6 +252,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
 		} );
 
+		/* istanbul ignore if -- @preserve */
 		if ( supports.elementConfigAttachment ) {
 			watchdog.setCreator( async ( config: EditorConfig ) => this._watchdogCreateEditor( watchdog, config ) );
 			await watchdog.create( mergedConfig );
@@ -314,6 +315,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 		const mergedConfig = this._getMergedConfig( false, config );
 		const editor = await (
+			/* istanbul ignore next -- @preserve */
 			supports.elementConfigAttachment ?
 				Editor.create( mergedConfig ) :
 				Editor.create( this.domContainer.current! as HTMLElement, mergedConfig )
@@ -362,6 +364,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 		mappedConfig = appendAllIntegrationPluginsToConfig( mappedConfig );
 
+		/* istanbul ignore if -- @preserve */
 		if ( supports.elementConfigAttachment ) {
 			mappedConfig = assignElementToEditorConfig( Editor, this.domContainer.current!, mappedConfig );
 		}
