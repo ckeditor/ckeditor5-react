@@ -4,7 +4,7 @@
  */
 
 import { EditorWatchdog, ContextWatchdog } from 'ckeditor5';
-import type { EditorRelaxedConfig } from '../../src/types/EditorRelaxedConfig.js';
+import type { EditorRelaxedConfig } from '@ckeditor/ckeditor5-integrations-common';
 
 /**
  * Mock of class that representing a basic, generic editor.
