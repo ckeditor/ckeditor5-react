@@ -5,7 +5,7 @@
 
 export { default as CKEditor } from './ckeditor.js';
 export { default as CKEditorContext } from './context/ckeditorcontext.js';
-export { default as useMultiRootEditor, type MultiRootHookProps, type MultiRootHookReturns } from './useMultiRootEditor.js';
+export { useMultiRootEditor, type MultiRootHookProps, type MultiRootHookReturns } from './multiroot/useMultiRootEditor.js';
 
 export { default as useCKEditorCloud } from './cloud/useCKEditorCloud.js';
 export {

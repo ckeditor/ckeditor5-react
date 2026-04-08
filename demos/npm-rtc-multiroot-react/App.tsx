@@ -29,7 +29,11 @@ export default function App(): JSX.Element {
 						<div className="demo-editor-header">
 							<h2 className="demo-editor-label">Client A</h2>
 						</div>
-						<RTCEditor />
+						<RTCEditor
+							onReady={editor => {
+								window.editor1 = editor;
+							}}
+						/>
 					</section>
 
 					<div className="demo-divider" aria-hidden="true" />
@@ -38,7 +42,11 @@ export default function App(): JSX.Element {
 						<div className="demo-editor-header">
 							<h2 className="demo-editor-label">Client B</h2>
 						</div>
-						<RTCEditor />
+						<RTCEditor
+							onReady={editor => {
+								window.editor2 = editor;
+							}}
+						/>
 					</section>
 				</div>
 			</div>

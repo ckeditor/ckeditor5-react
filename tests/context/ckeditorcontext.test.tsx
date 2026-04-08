@@ -169,7 +169,10 @@ describe( '<CKEditorContext> Component', () => {
 			expect( editorRef.current!.editor ).to.be.a( 'object' );
 			expect( editorCreateSpy ).toHaveBeenCalledOnce();
 
-			expect( editorCreateSpy.mock.calls[ 0 ][ 1 ] ).to.have.property( 'context' );
+			const firstCall = editorCreateSpy.mock.calls[ 0 ];
+
+			// <= v47 versions of the editor use the second parameter to pass config.
+			expect( firstCall[ 1 ] ?? firstCall[ 0 ] ).to.have.property( 'context' );
 		} );
 
 		it( 'should initialize its inner editors correctly', async () => {
@@ -211,12 +214,15 @@ describe( '<CKEditorContext> Component', () => {
 
 			const calls = editorCreateSpy.mock.calls as any;
 
-			expect( calls[ 0 ][ 1 ].initialData ).to.equal( '<p>Foo</p>' );
-			expect( calls[ 1 ][ 1 ].initialData ).to.equal( '<p>Bar</p>' );
+			const pickConfigEntry = ( callArgs: any ) => callArgs[ 1 ] ?? callArgs[ 0 ];
+			const pickInitialData = ( config: any ) => config.initialData ?? config.roots?.main?.initialData;
 
-			expect( calls[ 0 ][ 1 ].context ).to.be.instanceOf( ContextMock );
-			expect( calls[ 1 ][ 1 ].context ).to.be.instanceOf( ContextMock );
-			expect( calls[ 0 ][ 1 ].context ).to.equal( calls[ 1 ][ 1 ].context );
+			expect( pickInitialData( pickConfigEntry( calls[ 0 ] ) ) ).to.equal( '<p>Foo</p>' );
+			expect( pickInitialData( pickConfigEntry( calls[ 1 ] ) ) ).to.equal( '<p>Bar</p>' );
+
+			expect( pickConfigEntry( calls[ 0 ] ).context ).to.be.instanceOf( ContextMock );
+			expect( pickConfigEntry( calls[ 1 ] ).context ).to.be.instanceOf( ContextMock );
+			expect( pickConfigEntry( calls[ 0 ] ).context ).to.equal( ( calls[ 1 ][ 1 ] ?? calls[ 1 ][ 0 ] ).context );
 		} );
 
 		it( 'should wait for the `ContextWatchdog#destroy()` promise when destroying the context feature', async () => {
@@ -659,7 +665,11 @@ describe( '<CKEditorContext> Component', () => {
 
 			await waitForInitialize();
 
-			expect( ( editorCreateSpy.mock.calls as any )[ 0 ][ 1 ].initialData ).to.equal( 'Hello World' );
+			const editorCreateCalls = editorCreateSpy.mock.calls as any;
+			const pickInitialDataFromCallArgs = ( callArgs: any ) => callArgs[ 1 ]?.initialData ?? callArgs[ 0 ].roots?.main?.initialData;
+
+			// <= 47 version of editor uses two parameters initialization syntax
+			expect( pickInitialDataFromCallArgs( editorCreateCalls[ 0 ] ) ).to.equal( 'Hello World' );
 
 			rerender( {
 				isLayoutReady: true,
@@ -684,8 +694,8 @@ describe( '<CKEditorContext> Component', () => {
 			await manager.all();
 			await waitFor( () => {
 				expect( editorCreateSpy ).toHaveBeenCalledTimes( 3 );
-				expect( ( editorCreateSpy.mock.calls as any )[ 1 ][ 1 ].initialData ).to.equal( 'Foo' );
-				expect( ( editorCreateSpy.mock.calls as any )[ 2 ][ 1 ].initialData ).to.equal( 'Bar' );
+				expect( pickInitialDataFromCallArgs( editorCreateCalls[ 1 ] ) ).to.equal( 'Foo' );
+				expect( pickInitialDataFromCallArgs( editorCreateCalls[ 2 ] ) ).to.equal( 'Bar' );
 			} );
 		} );
 	} );

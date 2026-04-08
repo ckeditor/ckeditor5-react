@@ -4,11 +4,18 @@
  */
 
 import React, {
-	forwardRef, useState, useEffect, useRef, useContext, useCallback, memo,
+	useState, useEffect, useRef, useContext, useCallback,
 	type Dispatch, type SetStateAction, type RefObject, type JSX
 } from 'react';
 
-import { overwriteArray, overwriteObject, uniq } from '@ckeditor/ckeditor5-integrations-common';
+import {
+	overwriteArray,
+	overwriteObject,
+	uniq,
+	getInstalledCKBaseFeatures,
+	assignAttributesPropToMultiRootEditorConfig,
+	assignInitialDataToMultirootEditorConfig
+} from '@ckeditor/ckeditor5-integrations-common';
 
 import type {
 	InlineEditableUIView,
@@ -22,28 +29,28 @@ import type {
 	EventInfo
 } from 'ckeditor5';
 
-import { ContextWatchdogContext, isContextWatchdogReadyToUse } from './context/ckeditorcontext.js';
-import { EditorWatchdogAdapter } from './ckeditor.js';
+import { ContextWatchdogContext, isContextWatchdogReadyToUse } from '../context/ckeditorcontext.js';
 
-import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore.js';
+import type { EditorSemaphoreMountResult } from '../lifecycle/LifeCycleEditorSemaphore.js';
 
-import { useLifeCycleSemaphoreSyncRef, type LifeCycleSemaphoreSyncRefResult } from './lifecycle/useLifeCycleSemaphoreSyncRef.js';
-import { mergeRefs } from './utils/mergeRefs.js';
-import { LifeCycleElementSemaphore } from './lifecycle/LifeCycleElementSemaphore.js';
-import { useRefSafeCallback } from './hooks/useRefSafeCallback.js';
-import { useInstantEditorEffect } from './hooks/useInstantEditorEffect.js';
+import { useLifeCycleSemaphoreSyncRef } from '../lifecycle/useLifeCycleSemaphoreSyncRef.js';
+import { LifeCycleElementSemaphore } from '../lifecycle/LifeCycleElementSemaphore.js';
+import { useRefSafeCallback } from '../hooks/useRefSafeCallback.js';
+import { useInstantEditorEffect } from '../hooks/useInstantEditorEffect.js';
 
-import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
-import { assignMultiRootAttributesPropToEditorConfig, isRootsMapConfigurationSupported } from './utils/assignPropsToEditorConfig.js';
+import { appendAllIntegrationPluginsToConfig } from '../plugins/appendAllIntegrationPluginsToConfig.js';
+import { EditorEditable } from './EditorEditable.js';
+import { EditorToolbarWrapper } from './EditorToolbar.js';
+import { EditorWatchdogAdapter } from '../EditorWatchdogAdapter.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
 /* eslint-disable @typescript-eslint/no-use-before-define */
-const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns => {
+export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns => {
 	const semaphoreElementRef = useRef<HTMLElement>( props.semaphoreElement || null );
 	const semaphore = useLifeCycleSemaphoreSyncRef<LifeCycleMountResult>();
 
-	const editorRefs: LifeCycleSemaphoreRefs<MultiRootEditor> = {
+	const editorRefs: LifeCycleSemaphoreRefs = {
 		watchdog: semaphore.createAttributeRef( 'watchdog' ),
 		instance: semaphore.createAttributeRef( 'instance' )
 	};
@@ -143,14 +150,11 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 * Returns the editor configuration.
 	 */
 	const _getConfig = useRefSafeCallback( () => {
-		if ( props.data && props.config?.initialData && !isRootsMapConfigurationSupported() ) {
-			console.warn(
-				'Editor data should be provided either using `config.initialData` or `data` property. ' +
-				'The config value takes precedence over `data` property and will be used when both are specified.'
-			);
-		}
+		let mappedConfig = assignAttributesPropToMultiRootEditorConfig( attributes, props.config || {} );
 
-		return assignMultiRootAttributesPropToEditorConfig( props.config || {}, attributes );
+		mappedConfig = appendAllIntegrationPluginsToConfig( mappedConfig );
+
+		return mappedConfig;
 	} );
 
 	/**
@@ -268,56 +272,65 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 * @param initialData The initial data.
 	 * @param config CKEditor 5 editor configuration.
 	 */
-	const _createEditor = useRefSafeCallback( (
-		initialData: Record<string, string> | Record<string, HTMLElement>,
+	const _createEditor = useRefSafeCallback( async (
+		initialData: Record<string, string>,
 		config: EditorConfig
 	): Promise<MultiRootEditor> => {
+		const Editor = props.editor as unknown as {
+			create( initialData: Record<string, string>, config: EditorConfig ): Promise<MultiRootEditor>;
+			create( config: EditorConfig ): Promise<MultiRootEditor>;
+		};
+
 		overwriteObject( { ...props.rootsAttributes }, attributes );
 		overwriteObject( { ...props.data }, data );
 		overwriteArray( Object.keys( props.data ), roots );
 
-		return props.editor.create(
-			initialData,
-			appendAllIntegrationPluginsToConfig( config )
-		)
-			.then( ( editor: MultiRootEditor ) => {
-				const editorData = editor.getFullData();
+		const { initialData: mergedInitialData, ...mergedConfig } = assignInitialDataToMultirootEditorConfig( initialData, config );
+		const supports = getInstalledCKBaseFeatures();
 
-				// Rerender will be called anyway.
-				overwriteObject( { ...editorData }, data );
-				overwriteObject( { ...editor.getRootsAttributes() }, attributes );
-				overwriteArray( Object.keys( editorData ), roots );
+		const editor = await (
+			/* istanbul ignore next -- @preserve */
+			supports.elementConfigAttachment ?
+				Editor.create( { ...mergedConfig, initialData: mergedInitialData } ) :
+				Editor.create( mergedInitialData, mergedConfig )
+		);
 
-				if ( props.disabled ) {
-					// Switch to the read-only mode if the `[disabled]` attribute is specified.
-					/* istanbul ignore else -- @preserve */
-					editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
-				}
+		const editorData = editor.getFullData();
 
-				const modelDocument = editor.model.document;
-				const viewDocument = editor.editing.view.document;
+		// Rerender will be called anyway.
+		overwriteObject( { ...editorData }, data );
+		overwriteObject( { ...editor.getRootsAttributes() }, attributes );
+		overwriteArray( Object.keys( editorData ), roots );
 
-				modelDocument.on( 'change:data', evt => onChangeData( editor, evt ) );
+		if ( props.disabled ) {
+			// Switch to the read-only mode if the `[disabled]` attribute is specified.
+			/* istanbul ignore else -- @preserve */
+			editor.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
+		}
 
-				editor.on<AddRootEvent>( 'addRoot', ( evt, root ) => onAddRoot( editor, evt, root ) );
-				editor.on<DetachRootEvent>( 'detachRoot', ( evt, root ) => onDetachRoot( editor, evt, root ) );
+		const modelDocument = editor.model.document;
+		const viewDocument = editor.editing.view.document;
 
-				viewDocument.on( 'focus', event => {
-					/* istanbul ignore else -- @preserve */
-					if ( props.onFocus ) {
-						props.onFocus( event, editor );
-					}
-				} );
+		modelDocument.on( 'change:data', evt => onChangeData( editor, evt ) );
 
-				viewDocument.on( 'blur', event => {
-					/* istanbul ignore else -- @preserve */
-					if ( props.onBlur ) {
-						props.onBlur( event, editor );
-					}
-				} );
+		editor.on<AddRootEvent>( 'addRoot', ( evt, root ) => onAddRoot( editor, evt, root ) );
+		editor.on<DetachRootEvent>( 'detachRoot', ( evt, root ) => onDetachRoot( editor, evt, root ) );
 
-				return editor;
-			} );
+		viewDocument.on( 'focus', event => {
+			/* istanbul ignore else -- @preserve */
+			if ( props.onFocus ) {
+				props.onFocus( event, editor );
+			}
+		} );
+
+		viewDocument.on( 'blur', event => {
+			/* istanbul ignore else -- @preserve */
+			if ( props.onBlur ) {
+				props.onBlur( event, editor );
+			}
+		} );
+
+		return editor;
 	} );
 
 	/**
@@ -359,6 +372,8 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
 	 */
 	const _initializeEditor = async (): Promise<LifeCycleMountResult> => {
+		const supports = getInstalledCKBaseFeatures();
+
 		if ( props.disableWatchdog ) {
 			const instance = await _createEditor( props.data as any, _getConfig() );
 
@@ -386,7 +401,7 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 		// with the current react state. To prevent this, we are using the `data` from the hook state.
 		// It's not super optimal, but it's the most stable solution at this moment.
 		// See more: https://github.com/ckeditor/ckeditor5-react/issues/542
-		watchdog.setCreator( async ( _, config ) => {
+		const watchdogEditorCreator = async ( config: EditorConfig ) => {
 			const { onAfterDestroy } = props;
 
 			if ( totalRestartsRef.current > 0 && onAfterDestroy && editorRefs.instance.current ) {
@@ -411,20 +426,29 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 
 			totalRestartsRef.current++;
 			return instance;
-		} );
+		};
 
 		watchdog.on( 'error', ( _, { error, causesRestart } ) => {
 			const onError = props.onError || console.error;
 			onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
 		} );
 
-		await watchdog
-			.create( data as any, _getConfig() )
-			.catch( error => {
-				const onError = props.onError || console.error;
-				onError( error, { phase: 'initialization', willEditorRestart: false } );
-				throw error;
-			} );
+		try {
+			/* istanbul ignore if -- @preserve */
+			if ( supports.elementConfigAttachment ) {
+				watchdog.setCreator( watchdogEditorCreator );
+				await watchdog.create( _getConfig() );
+			} else {
+				watchdog.setCreator( async ( _, config ) => watchdogEditorCreator( config ) );
+				await watchdog.create( data as any, _getConfig() );
+			}
+		} catch ( error ) {
+			const onError = props.onError || console.error;
+
+			onError( error, { phase: 'initialization', willEditorRestart: false } );
+
+			throw error;
+		}
 
 		return {
 			watchdog,
@@ -521,14 +545,34 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 				JSON.stringify( editorAttributes[ rootName ] ) !== JSON.stringify( attributes[ rootName ] ) );
 
 			const _handleNewRoots = ( roots: Array<string> ) => {
-				roots.forEach( rootName => {
-					instance!.addRoot( rootName, {
-						data: data[ rootName ] || '',
-						attributes: attributes?.[ rootName ] ||
-						/* istanbul ignore next -- @preserve: attributes should be in sync with root keys */ {},
+				const supports = getInstalledCKBaseFeatures();
+
+				for ( const rootName of roots ) {
+					/* istanbul ignore next -- @preserve: attributes should be in sync with root keys */
+					const rootAttributes = attributes?.[ rootName ] || {};
+					const rootData = data[ rootName ] || '';
+
+					let attrs: Record<string, any> = {
 						isUndoable: true
-					} );
-				} );
+					};
+
+					/* istanbul ignore if -- @preserve */
+					if ( supports.rootsConfigEntry ) {
+						attrs = {
+							...attrs,
+							initialData: rootData,
+							modelAttributes: rootAttributes
+						};
+					} else {
+						attrs = {
+							...attrs,
+							data: rootData,
+							attributes: rootAttributes
+						};
+					}
+
+					instance.addRoot( rootName, attrs );
+				}
 			};
 
 			const _handleRemovedRoots = ( roots: Array<string> ) => {
@@ -546,14 +590,19 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 			};
 
 			const _updateEditorAttributes = ( writer: ModelWriter, roots: Array<string> ) => {
-				roots.forEach( rootName => {
-					Object.keys( attributes![ rootName ] ).forEach( attr => {
-						instance.registerRootAttribute( attr );
-					} );
+				for ( const rootName of roots ) {
+					for ( const key of Object.keys( attributes![ rootName ] ) ) {
+						instance.registerRootAttribute( key );
+					}
 
-					writer.clearAttributes( instance.model.document.getRoot( rootName )! );
-					writer.setAttributes( attributes![ rootName ], instance.model.document.getRoot( rootName )! );
-				} );
+					const root = instance.model.document.getRoot( rootName )!;
+
+					for ( const key of Object.keys( instance.getRootAttributes( rootName ) ) ) {
+						writer.removeAttribute( key, root );
+					}
+
+					writer.setAttributes( attributes![ rootName ], root );
+				}
 			};
 
 			// React struggles with rerendering during `instance.model.change` callbacks.
@@ -594,93 +643,10 @@ const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookReturns =
 	};
 };
 
-export const EditorEditable = memo( forwardRef( ( { id, semaphore, rootName }: {
-	id: string;
-	rootName: string;
-	semaphore: LifeCycleSemaphoreSyncRefResult<LifeCycleMountResult>;
-}, ref ) => {
-	const innerRef = useRef<HTMLDivElement>( null );
-
-	useEffect( () => {
-		let editable: InlineEditableUIView | null;
-		let editor: MultiRootEditor | null;
-
-		semaphore.runAfterMount( ( { instance } ) => {
-			if ( !innerRef.current ) {
-				return;
-			}
-
-			editor = instance;
-
-			const { ui, model } = editor;
-			const root = model.document.getRoot( rootName );
-
-			if ( root && editor.ui.getEditableElement( rootName ) ) {
-				editor.detachEditable( root );
-			}
-
-			editable = ui.view.createEditable( rootName, innerRef.current );
-			ui.addEditable( editable );
-
-			instance.editing.view.forceRender();
-		} );
-
-		return () => {
-			/* istanbul ignore next -- @preserve: It depends on the version of the React and may not happen all of the times. */
-			if ( editor && editor.state !== 'destroyed' && innerRef.current ) {
-				const root = editor.model.document.getRoot( rootName );
-
-				/* istanbul ignore else -- @preserve */
-				if ( root ) {
-					editor.detachEditable( root );
-				}
-			}
-		};
-	}, [ semaphore.revision ] );
-
-	return (
-		<div
-			key={semaphore.revision}
-			id={id}
-			ref={ mergeRefs( ref, innerRef ) }
-		/>
-	);
-} ) );
-
-EditorEditable.displayName = 'EditorEditable';
-
-export const EditorToolbarWrapper = forwardRef( ( { editor }: any, ref ) => {
-	const toolbarRef = useRef<HTMLDivElement>( null );
-
-	useEffect( () => {
-		const toolbarContainer = toolbarRef.current;
-
-		if ( !editor || !toolbarContainer ) {
-			return undefined;
-		}
-
-		const element = editor.ui.view.toolbar.element!;
-
-		toolbarContainer.appendChild( element! );
-
-		return () => {
-			if ( toolbarContainer.contains( element ) ) {
-				toolbarContainer.removeChild( element! );
-			}
-		};
-	}, [ editor && editor.id ] );
-
-	return <div ref={mergeRefs( toolbarRef, ref )}></div>;
-} );
-
-EditorToolbarWrapper.displayName = 'EditorToolbarWrapper';
-
-export default useMultiRootEditor;
-
 type LifeCycleMountResult = EditorSemaphoreMountResult<MultiRootEditor>;
 
-type LifeCycleSemaphoreRefs<TEditor extends MultiRootEditor> = {
-	[ K in keyof EditorSemaphoreMountResult<TEditor> ]: RefObject<EditorSemaphoreMountResult<TEditor>[ K ]>
+type LifeCycleSemaphoreRefs = {
+	[ K in keyof EditorSemaphoreMountResult<MultiRootEditor> ]: RefObject<EditorSemaphoreMountResult<MultiRootEditor>[ K ]>
 };
 
 interface ErrorDetails {

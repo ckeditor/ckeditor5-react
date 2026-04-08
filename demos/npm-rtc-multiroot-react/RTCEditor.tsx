@@ -55,9 +55,10 @@ const INITIAL_DATA = {
 
 interface RTCEditorProps {
 	initialData?: Record<string, string>;
+	onReady?: ( editor: MultiRootEditor ) => void;
 }
 
-export function RTCEditor( { initialData = INITIAL_DATA }: RTCEditorProps ): JSX.Element {
+export function RTCEditor( { initialData = INITIAL_DATA, onReady }: RTCEditorProps ): JSX.Element {
 	const cachedInitialData = useMemo( () => initialData, [] );
 	const cachedInitialRoots = useMemo(
 		() => Object.fromEntries( Object.keys( cachedInitialData ).map( name => [ name, {} ] ) ),
@@ -134,6 +135,7 @@ export function RTCEditor( { initialData = INITIAL_DATA }: RTCEditorProps ): JSX
 			}
 		},
 
+		onReady,
 		onError: ( error, { willEditorRestart } ) => {
 			if ( willEditorRestart ) {
 				console.warn( '[RTCEditor] Crashed – watchdog will restart.', error );

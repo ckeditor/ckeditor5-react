@@ -4,6 +4,7 @@
  */
 
 import { EditorWatchdog, ContextWatchdog } from 'ckeditor5';
+import type { EditorRelaxedConfig } from '@ckeditor/ckeditor5-integrations-common';
 
 /**
  * Mock of class that representing a basic, generic editor.
@@ -31,7 +32,7 @@ export default class MockEditor {
 
 	public declare state?: string;
 	public declare element?: HTMLElement;
-	public declare config?: Record<string, any>;
+	public declare config?: EditorRelaxedConfig;
 	public declare model: any;
 	public declare editing: any;
 	public declare on: any;
@@ -42,7 +43,7 @@ export default class MockEditor {
 	public declare plugins: Set<any>;
 	public declare _readOnlyLocks: Set<any>;
 
-	constructor( element?: HTMLElement, config?: Record<string, any> ) {
+	constructor( element?: HTMLElement, config?: EditorRelaxedConfig ) {
 		this.element = element;
 		this.config = config;
 
@@ -106,7 +107,7 @@ export default class MockEditor {
 		return this.data.get.call( this, ...args );
 	}
 
-	public static create( element?: HTMLElement, config?: Record<string, any> ): Promise<MockEditor> {
+	public static create( element?: HTMLElement, config?: EditorRelaxedConfig ): Promise<MockEditor> {
 		return Promise.resolve( new this( element, config ) );
 	}
 }
