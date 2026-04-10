@@ -7,14 +7,14 @@ onlyBuiltDependencies:
 
 overrides:
   'diff@^7': '^8.0.3'
-  'semver': '^7.0.0' # https://github.com/ckeditor/ckeditor5-react/commit/a227541a86c4529fcfb19dd791fe6560e06991dd
-  'serialize-javascript@^6': '^7.0.3'
+  'serialize-javascript@^6': '^7.0.5'
 
 minimumReleaseAge: 4320 # 3 days
 minimumReleaseAgeExclude:
   - '@ckeditor/*'
   - '@cksource/*'
   - '*ckeditor5*'
+  - 'basic-ftp' # Remove after 2026-04-11.
 
 shellEmulator: true
 shamefullyHoist: true
