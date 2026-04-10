@@ -15,7 +15,6 @@ minimumReleaseAgeExclude:
   - '@cksource/*'
   - '*ckeditor5*'
   - 'basic-ftp' # Remove after 2026-04-11.
-  - 'vite' # Remove after 2026-04-09.
 
 shellEmulator: true
 shamefullyHoist: true
