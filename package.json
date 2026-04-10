@@ -74,7 +74,6 @@
     "react18-dom": "npm:react-dom@^18.0.0",
     "react19": "npm:react@19.0.0",
     "react19-dom": "npm:react-dom@19.0.0",
-    "semver": "^7.0.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2",
     "upath": "^2.0.1",

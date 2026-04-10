@@ -133,9 +133,6 @@ importers:
       react19-dom:
         specifier: npm:react-dom@19.0.0
         version: react-dom@19.0.0(react@18.3.1)
-      semver:
-        specifier: ^7.0.0
-        version: 7.7.4
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -6178,6 +6175,8 @@ snapshots:
       '@ckeditor/ckeditor5-utils': 47.6.1
       '@ckeditor/ckeditor5-widget': 47.6.1
       es-toolkit: 1.39.5
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-cloud-services@47.6.1':
     dependencies:
