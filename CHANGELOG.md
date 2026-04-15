@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## [11.1.2](https://github.com/ckeditor/ckeditor5-react/compare/v11.1.1...v11.1.2) (April 15, 2026)
+
+### Bug fixes
+
+* Fixed an issue where the editor's alpha version was being compared incorrectly.
+
+
 ## [11.1.1](https://github.com/ckeditor/ckeditor5-react/compare/v11.1.0...v11.1.1) (April 13, 2026)
 
 ### Other changes
@@ -31,14 +38,6 @@ Changelog
 ### Features
 
 * Added support for CKEditor 5 `48.0.0` and the new `roots` editor configuration. Closes [#653](https://github.com/ckeditor/ckeditor5-react/issues/653).
-
-
-## [11.0.1](https://github.com/ckeditor/ckeditor5-react/compare/v11.0.0...v11.0.1) (December 18, 2025)
-
-### Other changes
-
-* Upgrade the development environment to Node v24.11.
-* Extend the `ckeditor5` peer dependency range to accept an internal release (`^0.0.0-internal`) in addition to stable and nightly versions. Closes [#637](https://github.com/ckeditor/ckeditor5-react/issues/637).
 
 ---
 
