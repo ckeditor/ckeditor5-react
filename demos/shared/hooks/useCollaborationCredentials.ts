@@ -22,7 +22,7 @@ export function useCollaborationCredentials(): CollaborationCredentials {
 		if ( MISSING.length ) {
 			throw new Error(
 				`[RTCEditor] Missing required env variables:\n  ${ MISSING.join( '\n  ' ) }\n` +
-				'Copy .env.example to .env.local and fill in the values.'
+				'Copy .env.dist to .env and fill in the values.'
 			);
 		}
 

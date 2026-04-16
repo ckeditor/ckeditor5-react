@@ -7,6 +7,8 @@ declare const __REACT_VERSION__: number;
 
 declare const __REACT_INTEGRATION_VERSION__: string;
 
+declare const __CKEDITOR_LICENSE_KEY__: string;
+
 interface ImportMetaEnv {
 	readonly VITE_CKE_LICENSE_KEY: string;
 	readonly VITE_CKE_TOKEN_URL: string;

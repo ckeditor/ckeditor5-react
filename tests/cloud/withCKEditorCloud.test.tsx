@@ -39,6 +39,8 @@ describe( 'withCKEditorCloud', { timeout: 5000 }, () => {
 			}
 		} )( MockComponent );
 
+		expect( WrappedComponent.displayName ).toBe( 'ComponentWithCKEditorCloud' );
+
 		const { findByText } = render( <WrappedComponent editorId={ 1 } /> );
 
 		expect( await findByText( 'Your Editor 1' ) ).toBeVisible();

@@ -13,7 +13,7 @@ declare global {
 	}
 }
 
-window.CKEDITOR_GLOBAL_LICENSE_KEY = 'GPL';
+window.CKEDITOR_GLOBAL_LICENSE_KEY = __CKEDITOR_LICENSE_KEY__;
 
 beforeEach( cleanup );
 afterEach( cleanup );

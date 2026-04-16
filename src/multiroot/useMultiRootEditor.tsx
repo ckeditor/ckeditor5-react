@@ -439,7 +439,9 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 				watchdog.setCreator( watchdogEditorCreator );
 				await watchdog.create( _getConfig() );
 			} else {
+				/* istanbul ignore next -- compatibility branch for older CKEditor 5 versions */
 				watchdog.setCreator( async ( _, config ) => watchdogEditorCreator( config ) );
+				/* istanbul ignore next -- compatibility branch for older CKEditor 5 versions */
 				await watchdog.create( data as any, _getConfig() );
 			}
 		} catch ( error ) {
@@ -564,6 +566,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 							modelAttributes: rootAttributes
 						};
 					} else {
+						/* istanbul ignore next -- compatibility branch for older CKEditor 5 versions */
 						attrs = {
 							...attrs,
 							data: rootData,

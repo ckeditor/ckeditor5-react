@@ -63,6 +63,7 @@ export class EditorWatchdogAdapter<TEditor extends Editor> {
 		/* istanbul ignore else -- @preserve */
 		if ( config ) {
 			// <= 47 legacy config approach to watchdog configuration.
+			/* istanbul ignore next -- compatibility branch for older CKEditor 5 versions */
 			watchdogItemConfiguration = {
 				...watchdogItemConfiguration,
 				sourceElementOrData: sourceElementOrDataOrConfig,

@@ -27,6 +27,9 @@ After cloning this repository, install necessary dependencies:
 pnpm install
 ```
 
+If you need to run tests or demos with a commercial license, copy `.env.dist` to `.env` and fill in `CKEDITOR_LICENSE_KEY`.
+Keep `.env` local only. In CI, provide the same value via the `CKEDITOR_LICENSE_KEY` environment variable.
+
 ### Running the development server
 
 To manually test the editor integration with different versions of React, you can start the development server using one of the commands below:
@@ -43,6 +46,12 @@ To test the editor integration against a set of automated tests, run the followi
 
 ```bash
 pnpm run test
+```
+
+To run only the real-editor integration coverage used by the CI version matrix, use:
+
+```bash
+pnpm run test:integration
 ```
 
 If you want to run the tests in watch mode, use the following command:

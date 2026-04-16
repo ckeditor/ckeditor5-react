@@ -4,6 +4,5 @@ dist/
 .idea
 .tmp
 .env
-.env.local
 /release/
 yarn.lock

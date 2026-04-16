@@ -115,7 +115,7 @@ jobs:
           name: Check types of tests
           command: pnpm run test:check:types
       - run:
-          name: Run unit tests
+          name: Run tests
           command: pnpm run test
       - run:
           name: Verify the code coverage
@@ -148,6 +148,46 @@ jobs:
             - codecov/upload:
                 files: coverage/lcov.info
                 disable_search: true
+
+  integration_tests_lts:
+    docker:
+      - image: cimg/node:24.11.0-browsers
+    steps:
+      - checkout
+      - bootstrap_repository_command
+      - browser-tools/install_chrome
+      - run:
+          name: Resolve editor versions and skip duplicated major
+          command: |
+            #!/bin/bash
+
+            LTS_VERSION=$( pnpm view ckeditor5@lts-v47 version )
+            LATEST_VERSION=$( pnpm view ckeditor5@latest version )
+
+            echo "Resolved ckeditor5@lts-v47 -> ${LTS_VERSION}"
+            echo "Resolved ckeditor5@latest -> ${LATEST_VERSION}"
+
+            if [[ "${LTS_VERSION%%.*}" == "${LATEST_VERSION%%.*}" ]];
+            then
+              echo "Skipping duplicated integration run because lts-v47 and latest resolve to the same major version."
+              circleci-agent step halt
+            fi
+      - run:
+          name: Verify whether the LTS track needs a hidden license key
+          command: |
+            #!/bin/bash
+
+            if [[ -z ${CKEDITOR_LICENSE_KEY} ]];
+            then
+              echo "Skipping the lts-v47 integration run because CKEDITOR_LICENSE_KEY is not available in this environment."
+              circleci-agent step halt
+            fi
+      - run:
+          name: Install CKEditor packages for lts-v47
+          command: pnpm add -D ckeditor5@lts-v47 ckeditor5-premium-features@lts-v47
+      - run:
+          name: Run integration tests for lts-v47
+          command: pnpm run test:integration
 
   release_prepare:
     docker:
@@ -251,10 +291,12 @@ workflows:
         - equal: [ false, << pipeline.parameters.isRelease >> ]
     jobs:
       - validate_and_tests
+      - integration_tests_lts
       - release_prepare
       - trigger_release_process:
           requires:
             - validate_and_tests
+            - integration_tests_lts
             - release_prepare
           filters:
             branches:
@@ -285,6 +327,7 @@ workflows:
         - equal: [ false, << pipeline.parameters.isRelease >> ]
     jobs:
       - validate_and_tests
+      - integration_tests_lts
       - notify_ci_failure:
           hideAuthor: "true"
           filters:
