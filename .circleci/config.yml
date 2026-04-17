@@ -152,6 +152,9 @@ jobs:
   integration_tests_lts:
     docker:
       - image: cimg/node:24.11.0-browsers
+    parameters:
+      ckeditorDistTag:
+        type: string
     steps:
       - checkout
       - bootstrap_repository_command
@@ -161,15 +164,16 @@ jobs:
           command: |
             #!/bin/bash
 
-            LTS_VERSION=$( pnpm view ckeditor5@lts-v47 version )
+            EDITOR_VERSION_TAG=<< parameters.ckeditorDistTag >>
+            LTS_VERSION=$( pnpm view ckeditor5@${EDITOR_VERSION_TAG} version )
             LATEST_VERSION=$( pnpm view ckeditor5@latest version )
 
-            echo "Resolved ckeditor5@lts-v47 -> ${LTS_VERSION}"
+            echo "Resolved ckeditor5@${EDITOR_VERSION_TAG} -> ${LTS_VERSION}"
             echo "Resolved ckeditor5@latest -> ${LATEST_VERSION}"
 
             if [[ "${LTS_VERSION%%.*}" == "${LATEST_VERSION%%.*}" ]];
             then
-              echo "Skipping duplicated integration run because lts-v47 and latest resolve to the same major version."
+              echo "Skipping duplicated integration run because ${EDITOR_VERSION_TAG} and latest resolve to the same major version."
               circleci-agent step halt
             fi
       - run:
@@ -179,14 +183,14 @@ jobs:
 
             if [[ -z ${CKEDITOR_LICENSE_KEY} ]];
             then
-              echo "Skipping the lts-v47 integration run because CKEDITOR_LICENSE_KEY is not available in this environment."
+              echo "Skipping the << parameters.ckeditorDistTag >> integration run because CKEDITOR_LICENSE_KEY is not available in this environment."
               circleci-agent step halt
             fi
       - run:
-          name: Install CKEditor packages for lts-v47
-          command: pnpm add -D ckeditor5@lts-v47 ckeditor5-premium-features@lts-v47
+          name: Install CKEditor packages for << parameters.ckeditorDistTag >>
+          command: pnpm add -D ckeditor5@<< parameters.ckeditorDistTag >> ckeditor5-premium-features@<< parameters.ckeditorDistTag >>
       - run:
-          name: Run integration tests for lts-v47
+          name: Run integration tests for << parameters.ckeditorDistTag >>
           command: pnpm run test:integration
 
   release_prepare:
@@ -291,12 +295,17 @@ workflows:
         - equal: [ false, << pipeline.parameters.isRelease >> ]
     jobs:
       - validate_and_tests
-      - integration_tests_lts
+      - integration_tests_lts:
+          matrix:
+            parameters:
+              ckeditorDistTag: &lts_editor_version_tags
+                - lts-v47
+          alias: integration_tests_lts_matrix
       - release_prepare
       - trigger_release_process:
           requires:
             - validate_and_tests
-            - integration_tests_lts
+            - integration_tests_lts_matrix
             - release_prepare
           filters:
             branches:
@@ -327,7 +336,10 @@ workflows:
         - equal: [ false, << pipeline.parameters.isRelease >> ]
     jobs:
       - validate_and_tests
-      - integration_tests_lts
+      - integration_tests_lts:
+          matrix:
+            parameters:
+              ckeditorDistTag: *lts_editor_version_tags
       - notify_ci_failure:
           hideAuthor: "true"
           filters:
