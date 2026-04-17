@@ -434,7 +434,6 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		} );
 
 		try {
-			/* istanbul ignore if -- @preserve */
 			/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
 			let initializeWatchdog: () => Promise<void>;
 
