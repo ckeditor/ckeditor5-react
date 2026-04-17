@@ -6,16 +6,16 @@ import { useMemo } from 'react';
 
 export function useCollaborationCredentials(): CollaborationCredentials {
 	return useMemo( () => {
-		const LICENSE_KEY = import.meta.env.VITE_CKE_LICENSE_KEY;
-		const TOKEN_URL = import.meta.env.VITE_CKE_TOKEN_URL;
-		const WEBSOCKET_URL = import.meta.env.VITE_CKE_WEBSOCKET_URL;
-		const CLOUD_SERVICE_UPLOAD_URL = import.meta.env.VITE_CKE_UPLOAD_URL;
+		const LICENSE_KEY = __CKEDITOR_LICENSE_KEY__;
+		const TOKEN_URL = __CKEDITOR_TOKEN_URL__;
+		const WEBSOCKET_URL = __CKEDITOR_WEBSOCKET_URL__;
+		const CLOUD_SERVICE_UPLOAD_URL = __CKEDITOR_UPLOAD_URL__;
 
 		const MISSING = (
 			[
-				[ 'VITE_CKE_LICENSE_KEY', LICENSE_KEY ],
-				[ 'VITE_CKE_TOKEN_URL', TOKEN_URL ],
-				[ 'VITE_CKE_WEBSOCKET_URL', WEBSOCKET_URL ]
+				[ 'CKEDITOR_LICENSE_KEY', LICENSE_KEY ],
+				[ 'CKEDITOR_TOKEN_URL', TOKEN_URL ],
+				[ 'CKEDITOR_WEBSOCKET_URL', WEBSOCKET_URL ]
 			] satisfies Array<[ string, string ]>
 		).filter( ( [ , v ] ) => !v ).map( ( [ k ] ) => k );
 

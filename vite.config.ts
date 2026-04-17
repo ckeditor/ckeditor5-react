@@ -23,6 +23,9 @@ export default defineConfig( ( { mode } ) => {
 	const REACT_VERSION = Number( process.env.REACT_VERSION ) || 18;
 	const TEST_SCOPE = process.env.TEST_SCOPE;
 	const CKEDITOR_LICENSE_KEY = process.env.CKEDITOR_LICENSE_KEY || env.CKEDITOR_LICENSE_KEY || 'GPL';
+	const CKEDITOR_TOKEN_URL = process.env.CKEDITOR_TOKEN_URL || env.CKEDITOR_TOKEN_URL || '';
+	const CKEDITOR_WEBSOCKET_URL = process.env.CKEDITOR_WEBSOCKET_URL || env.CKEDITOR_WEBSOCKET_URL || '';
+	const CKEDITOR_UPLOAD_URL = process.env.CKEDITOR_UPLOAD_URL || env.CKEDITOR_UPLOAD_URL || '';
 
 	return {
 		plugins: [
@@ -134,6 +137,9 @@ export default defineConfig( ( { mode } ) => {
 
 		define: {
 			__CKEDITOR_LICENSE_KEY__: JSON.stringify( CKEDITOR_LICENSE_KEY ),
+			__CKEDITOR_TOKEN_URL__: JSON.stringify( CKEDITOR_TOKEN_URL ),
+			__CKEDITOR_WEBSOCKET_URL__: JSON.stringify( CKEDITOR_WEBSOCKET_URL ),
+			__CKEDITOR_UPLOAD_URL__: JSON.stringify( CKEDITOR_UPLOAD_URL ),
 			__REACT_VERSION__: REACT_VERSION,
 			__REACT_INTEGRATION_VERSION__: JSON.stringify( pkg.version )
 		}

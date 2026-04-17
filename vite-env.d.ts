@@ -8,14 +8,6 @@ declare const __REACT_VERSION__: number;
 declare const __REACT_INTEGRATION_VERSION__: string;
 
 declare const __CKEDITOR_LICENSE_KEY__: string;
-
-interface ImportMetaEnv {
-	readonly VITE_CKE_LICENSE_KEY: string;
-	readonly VITE_CKE_TOKEN_URL: string;
-	readonly VITE_CKE_WEBSOCKET_URL: string;
-	readonly VITE_CKE_UPLOAD_URL: string;
-}
-
-interface ImportMeta {
-	readonly env: ImportMetaEnv;
-}
+declare const __CKEDITOR_TOKEN_URL__: string;
+declare const __CKEDITOR_WEBSOCKET_URL__: string;
+declare const __CKEDITOR_UPLOAD_URL__: string;
