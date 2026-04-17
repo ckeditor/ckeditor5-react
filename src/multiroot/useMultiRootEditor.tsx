@@ -435,22 +435,14 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 
 		try {
 			/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
-			let initializeWatchdog: () => Promise<void>;
-
 			if ( supports.elementConfigAttachment ) {
-				initializeWatchdog = async () => {
-					watchdog.setCreator( watchdogEditorCreator );
-					await watchdog.create( _getConfig() );
-				};
+				watchdog.setCreator( watchdogEditorCreator );
+				await watchdog.create( _getConfig() );
 			} else {
-				initializeWatchdog = async () => {
-					watchdog.setCreator( async ( _, config ) => watchdogEditorCreator( config ) );
-					await watchdog.create( data as any, _getConfig() );
-				};
+				watchdog.setCreator( async ( _, config ) => watchdogEditorCreator( config ) );
+				await watchdog.create( data as any, _getConfig() );
 			}
 			/* istanbul ignore end -- compatibility branch for older CKEditor 5 versions */
-
-			await initializeWatchdog();
 		} catch ( error ) {
 			const onError = props.onError || console.error;
 
