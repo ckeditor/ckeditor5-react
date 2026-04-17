@@ -95,13 +95,12 @@ jobs:
           command: pnpm ckeditor5-dev-ci-circle-workflow-notifier --task "pnpm ckeditor5-dev-ci-notify-circle-status --pipeline-id << pipeline.number >> --hide-author << parameters.hideAuthor >>"
           no_output_timeout: 1h
 
-  validate_and_tests:
+  validate:
     docker:
-      - image: cimg/node:24.11.0-browsers
+      - image: cimg/node:24.11.0
     steps:
       - checkout
       - bootstrap_repository_command
-      - browser-tools/install_chrome
       - run:
           name: Execute ESLint
           command: pnpm run lint
@@ -114,6 +113,14 @@ jobs:
       - run:
           name: Check types of tests
           command: pnpm run test:check:types
+
+  tests_current:
+    docker:
+      - image: cimg/node:24.11.0-browsers
+    steps:
+      - checkout
+      - bootstrap_repository_command
+      - browser-tools/install_chrome
       - run:
           name: Run tests
           command: pnpm run test
@@ -149,7 +156,7 @@ jobs:
                 files: coverage/lcov.info
                 disable_search: true
 
-  integration_tests_lts:
+  integration_tests:
     docker:
       - image: cimg/node:24.11.0-browsers
     parameters:
@@ -165,23 +172,23 @@ jobs:
             #!/bin/bash
 
             EDITOR_VERSION_TAG=<< parameters.ckeditorDistTag >>
-            LTS_VERSION=$( pnpm view ckeditor5@${EDITOR_VERSION_TAG} version )
+            SELECTED_VERSION=$( pnpm view ckeditor5@${EDITOR_VERSION_TAG} version )
             LATEST_VERSION=$( pnpm view ckeditor5@latest version )
 
-            echo "Resolved ckeditor5@${EDITOR_VERSION_TAG} -> ${LTS_VERSION}"
+            echo "Resolved ckeditor5@${EDITOR_VERSION_TAG} -> ${SELECTED_VERSION}"
             echo "Resolved ckeditor5@latest -> ${LATEST_VERSION}"
 
-            if [[ "${LTS_VERSION%%.*}" == "${LATEST_VERSION%%.*}" ]];
+            if [[ "${EDITOR_VERSION_TAG}" != "latest" && "${SELECTED_VERSION%%.*}" == "${LATEST_VERSION%%.*}" ]];
             then
               echo "Skipping duplicated integration run because ${EDITOR_VERSION_TAG} and latest resolve to the same major version."
               circleci-agent step halt
             fi
       - run:
-          name: Verify whether the LTS track needs a hidden license key
+          name: Verify whether the selected track needs a hidden license key
           command: |
             #!/bin/bash
 
-            if [[ -z ${CKEDITOR_LICENSE_KEY} ]];
+            if [[ "<< parameters.ckeditorDistTag >>" != "latest" && -z ${CKEDITOR_LICENSE_KEY} ]];
             then
               echo "Skipping the << parameters.ckeditorDistTag >> integration run because CKEDITOR_LICENSE_KEY is not available in this environment."
               circleci-agent step halt
@@ -294,18 +301,21 @@ workflows:
         - equal: [ false, << pipeline.parameters.isNightly >> ]
         - equal: [ false, << pipeline.parameters.isRelease >> ]
     jobs:
-      - validate_and_tests
-      - integration_tests_lts:
+      - validate
+      - tests_current
+      - integration_tests:
           matrix:
-            alias: integration_tests_lts_matrix
+            alias: integration_tests_matrix
             parameters:
-              ckeditorDistTag: &lts_editor_version_tags
+              ckeditorDistTag: &integration_editor_version_tags
+                - latest
                 - lts-v47
       - release_prepare
       - trigger_release_process:
           requires:
-            - validate_and_tests
-            - integration_tests_lts_matrix
+            - validate
+            - tests_current
+            - integration_tests_matrix
             - release_prepare
           filters:
             branches:
@@ -335,11 +345,12 @@ workflows:
         - equal: [ true, << pipeline.parameters.isNightly >> ]
         - equal: [ false, << pipeline.parameters.isRelease >> ]
     jobs:
-      - validate_and_tests
-      - integration_tests_lts:
+      - validate
+      - tests_current
+      - integration_tests:
           matrix:
             parameters:
-              ckeditorDistTag: *lts_editor_version_tags
+              ckeditorDistTag: *integration_editor_version_tags
       - notify_ci_failure:
           hideAuthor: "true"
           filters:
