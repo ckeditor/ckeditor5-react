@@ -67,11 +67,13 @@ export default defineConfig( {
 		unstubEnvs: true,
 		unstubGlobals: true,
 		setupFiles: [ './vitest-setup.ts' ],
+		// `integration` is an addressable subset used by the CI version matrix.
+		// It intentionally overlaps with the full `all` suite.
 		projects: [
 			{
 				extends: true,
 				test: {
-					name: 'default',
+					name: 'all',
 					include: DEFAULT_TESTS
 				}
 			},

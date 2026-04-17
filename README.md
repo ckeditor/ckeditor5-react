@@ -43,7 +43,7 @@ pnpm run dev:19 # Open the demo projects using React 19.
 
 ### Executing tests
 
-To run the default automated test suite, use:
+To run the full automated test suite, use:
 
 ```bash
 pnpm run test
