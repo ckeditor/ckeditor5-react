@@ -167,7 +167,7 @@ jobs:
       - bootstrap_repository_command
       - browser-tools/install_chrome
       - run:
-          name: Resolve editor versions and skip duplicated major
+          name: Resolve and deduplicate versions
           command: |
             #!/bin/bash
 
@@ -184,7 +184,7 @@ jobs:
               circleci-agent step halt
             fi
       - run:
-          name: Verify whether the selected track needs a hidden license key
+          name: Verify license key
           command: |
             #!/bin/bash
 

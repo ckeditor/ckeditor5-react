@@ -436,15 +436,19 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		try {
 			/* istanbul ignore if -- @preserve */
 			/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
-			const initializeWatchdog = supports.elementConfigAttachment ?
-				async () => {
+			let initializeWatchdog: () => Promise<void>;
+
+			if ( supports.elementConfigAttachment ) {
+				initializeWatchdog = async () => {
 					watchdog.setCreator( watchdogEditorCreator );
 					await watchdog.create( _getConfig() );
-				} :
-				async () => {
+				};
+			} else {
+				initializeWatchdog = async () => {
 					watchdog.setCreator( async ( _, config ) => watchdogEditorCreator( config ) );
 					await watchdog.create( data as any, _getConfig() );
 				};
+			}
 			/* istanbul ignore end -- compatibility branch for older CKEditor 5 versions */
 
 			await initializeWatchdog();
@@ -563,17 +567,21 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 					};
 
 					/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
-					const attrs: Record<string, any> = supports.rootsConfigEntry ?
-						{
+					let attrs: Record<string, any>;
+
+					if ( supports.rootsConfigEntry ) {
+						attrs = {
 							...baseAttrs,
 							initialData: rootData,
 							modelAttributes: rootAttributes
-						} :
-						{
+						};
+					} else {
+						attrs = {
 							...baseAttrs,
 							data: rootData,
 							attributes: rootAttributes
 						};
+					}
 					/* istanbul ignore end -- compatibility branch for older CKEditor 5 versions */
 
 					instance.addRoot( rootName, attrs );

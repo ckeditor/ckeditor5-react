@@ -147,5 +147,4 @@ export default defineConfig( {
 		__REACT_VERSION__: REACT_VERSION,
 		__REACT_INTEGRATION_VERSION__: JSON.stringify( pkg.version )
 	}
-}
-);
+} );
