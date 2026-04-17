@@ -13,11 +13,8 @@ const DEFAULT_TESTS = [ 'tests/**/*.test.[j|t]sx' ];
 
 const INTEGRATION_TESTS = [
 	'tests/integrations/**/*.test.tsx',
-	'tests/issues/39-frozen-browser.test.tsx',
-	'tests/issues/349-destroy-context-and-editor.test.tsx',
-	'tests/issues/354-destroy-editor-inside-context.test.tsx',
-	'tests/multiroot/useMultiRootEditor.legacy-features.test.tsx',
-	'tests/multiroot/useMultiRootEditor.test.tsx'
+	'tests/issues/*.test.tsx',
+	'tests/multiroot/*.test.tsx'
 ];
 
 const REACT_VERSION = Number( process.env.REACT_VERSION ) || 18;
