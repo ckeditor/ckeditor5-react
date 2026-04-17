@@ -434,7 +434,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		} );
 
 		try {
-			/* istanbul ignore if -- @preserve */
+			/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
 			if ( supports.elementConfigAttachment ) {
 				watchdog.setCreator( watchdogEditorCreator );
 				await watchdog.create( _getConfig() );
@@ -442,6 +442,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 				watchdog.setCreator( async ( _, config ) => watchdogEditorCreator( config ) );
 				await watchdog.create( data as any, _getConfig() );
 			}
+			/* istanbul ignore end -- compatibility branch for older CKEditor 5 versions */
 		} catch ( error ) {
 			const onError = props.onError || console.error;
 
@@ -552,24 +553,27 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 					const rootAttributes = attributes?.[ rootName ] || {};
 					const rootData = data[ rootName ] || '';
 
-					let attrs: Record<string, any> = {
+					const baseAttrs: Record<string, any> = {
 						isUndoable: true
 					};
 
-					/* istanbul ignore if -- @preserve */
+					/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
+					let attrs: Record<string, any>;
+
 					if ( supports.rootsConfigEntry ) {
 						attrs = {
-							...attrs,
+							...baseAttrs,
 							initialData: rootData,
 							modelAttributes: rootAttributes
 						};
 					} else {
 						attrs = {
-							...attrs,
+							...baseAttrs,
 							data: rootData,
 							attributes: rootAttributes
 						};
 					}
+					/* istanbul ignore end -- compatibility branch for older CKEditor 5 versions */
 
 					instance.addRoot( rootName, attrs );
 				}
