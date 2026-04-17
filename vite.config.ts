@@ -4,7 +4,6 @@
  */
 
 import { resolve } from 'node:path';
-import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
 import { webdriverio } from '@vitest/browser-webdriverio';
 import react from '@vitejs/plugin-react';
@@ -21,109 +20,102 @@ const INTEGRATION_TESTS = [
 	'tests/multiroot/useMultiRootEditor.test.tsx'
 ];
 
-export default defineConfig( ( { mode } ) => {
-	const env = loadEnv( mode, __dirname, '' );
+const REACT_VERSION = Number( process.env.REACT_VERSION ) || 18;
 
-	const REACT_VERSION = Number( process.env.REACT_VERSION ) || 18;
-	const {
-		CKEDITOR_LICENSE_KEY = 'GPL',
-		CKEDITOR_TOKEN_URL = '',
-		CKEDITOR_WEBSOCKET_URL = '',
-		CKEDITOR_UPLOAD_URL = ''
-	} = env;
+export default defineConfig( {
+	plugins: [
+		react( { jsxRuntime: 'classic' } )
+	],
 
-	return {
-		plugins: [
-			react( { jsxRuntime: 'classic' } )
+	envPrefix: 'CKEDITOR_',
+
+	publicDir: false,
+
+	optimizeDeps: {
+		include: [ 'react-dom/client' ]
+	},
+
+	build: {
+		minify: false,
+		sourcemap: true,
+		target: 'es2019',
+
+		// https://vitejs.dev/guide/build#library-mode
+		lib: {
+			entry: resolve( __dirname, 'src/index.ts' ),
+			name: 'CKEDITOR_REACT',
+			fileName: 'index'
+		},
+
+		rollupOptions: {
+			external: Object.keys( {
+				...pkg.dependencies,
+				...pkg.peerDependencies
+			} ),
+
+			output: {
+				globals: {
+					'react': 'React',
+					'@ckeditor/ckeditor5-integrations-common': 'CKEDITOR_INTEGRATIONS_COMMON'
+				}
+			}
+		}
+	},
+
+	// https://vitest.dev/config/
+	test: {
+		restoreMocks: true,
+		clearMocks: true,
+		mockReset: true,
+		unstubEnvs: true,
+		unstubGlobals: true,
+		setupFiles: [ './vitest-setup.ts' ],
+		projects: [
+			{
+				extends: true,
+				test: {
+					name: 'default',
+					include: DEFAULT_TESTS
+				}
+			},
+			{
+				extends: true,
+				test: {
+					name: 'integration',
+					include: INTEGRATION_TESTS
+				}
+			}
 		],
-
-		publicDir: false,
-
-		optimizeDeps: {
-			include: [ 'react-dom/client' ]
-		},
-
-		build: {
-			minify: false,
-			sourcemap: true,
-			target: 'es2019',
-
-			// https://vitejs.dev/guide/build#library-mode
-			lib: {
-				entry: resolve( __dirname, 'src/index.ts' ),
-				name: 'CKEDITOR_REACT',
-				fileName: 'index'
+		coverage: {
+			provider: 'istanbul',
+			include: [ 'src/*' ],
+			exclude: [ 'src/demos' ],
+			thresholds: {
+				branches: 100,
+				functions: 100,
+				lines: 100,
+				statements: 100
 			},
-
-			rollupOptions: {
-				external: Object.keys( {
-					...pkg.dependencies,
-					...pkg.peerDependencies
-				} ),
-
-				output: {
-					globals: {
-						'react': 'React',
-						'@ckeditor/ckeditor5-integrations-common': 'CKEDITOR_INTEGRATIONS_COMMON'
-					}
-				}
-			}
+			reporter: [
+				'text-summary',
+				'text',
+				'html',
+				'lcovonly',
+				'json'
+			]
 		},
+		browser: {
+			enabled: true,
+			headless: true,
+			provider: webdriverio(),
+			screenshotFailures: false,
+			instances: [
+				{ browser: 'chrome' }
+			]
+		}
+	},
 
-		// https://vitest.dev/config/
-		test: {
-			restoreMocks: true,
-			clearMocks: true,
-			mockReset: true,
-			unstubEnvs: true,
-			unstubGlobals: true,
-			setupFiles: [ './vitest-setup.ts' ],
-			projects: [
-				{
-					extends: true,
-					test: {
-						name: 'default',
-						include: DEFAULT_TESTS
-					}
-				},
-				{
-					extends: true,
-					test: {
-						name: 'integration',
-						include: INTEGRATION_TESTS
-					}
-				}
-			],
-			coverage: {
-				provider: 'istanbul',
-				include: [ 'src/*' ],
-				exclude: [ 'src/demos' ],
-				thresholds: {
-					branches: 100,
-					functions: 100,
-					lines: 100,
-					statements: 100
-				},
-				reporter: [
-					'text-summary',
-					'text',
-					'html',
-					'lcovonly',
-					'json'
-				]
-			},
-			browser: {
-				enabled: true,
-				headless: true,
-				provider: webdriverio(),
-				screenshotFailures: false,
-				instances: [
-					{ browser: 'chrome' }
-				]
-			}
-		},
-
-		/**
+	/**
 		 * Code needed to run the demos using different React versions.
 		 *
 		 * Notice that in `package.json`, aside from the regular `react` and `react-dom` dependencies,
@@ -136,31 +128,27 @@ export default defineConfig( ( { mode } ) => {
 		 * These point to the respective React versions, and are used to test the demos with different
 		 * React versions, depending on the `REACT_VERSION` environment variable.
 		 */
-		resolve: {
-			alias: {
-				'react': resolve( __dirname, `node_modules/react${ REACT_VERSION }` ),
-				'react-dom/client': resolve(
-					__dirname,
-					`node_modules/react${ REACT_VERSION }-dom${ REACT_VERSION <= 17 ? '' : '/client' }`
-				),
-				'react-dom': resolve( __dirname, `node_modules/react${ REACT_VERSION }-dom` )
-			}
-		},
-
-		preview: {
-			port: 8080,
-			strictPort: true,
-			cors: true,
-			host: true
-		},
-
-		define: {
-			__CKEDITOR_LICENSE_KEY__: JSON.stringify( CKEDITOR_LICENSE_KEY ),
-			__CKEDITOR_TOKEN_URL__: JSON.stringify( CKEDITOR_TOKEN_URL ),
-			__CKEDITOR_WEBSOCKET_URL__: JSON.stringify( CKEDITOR_WEBSOCKET_URL ),
-			__CKEDITOR_UPLOAD_URL__: JSON.stringify( CKEDITOR_UPLOAD_URL ),
-			__REACT_VERSION__: REACT_VERSION,
-			__REACT_INTEGRATION_VERSION__: JSON.stringify( pkg.version )
+	resolve: {
+		alias: {
+			'react': resolve( __dirname, `node_modules/react${ REACT_VERSION }` ),
+			'react-dom/client': resolve(
+				__dirname,
+				`node_modules/react${ REACT_VERSION }-dom${ REACT_VERSION <= 17 ? '' : '/client' }`
+			),
+			'react-dom': resolve( __dirname, `node_modules/react${ REACT_VERSION }-dom` )
 		}
-	};
-} );
+	},
+
+	preview: {
+		port: 8080,
+		strictPort: true,
+		cors: true,
+		host: true
+	},
+
+	define: {
+		__REACT_VERSION__: REACT_VERSION,
+		__REACT_INTEGRATION_VERSION__: JSON.stringify( pkg.version )
+	}
+}
+);

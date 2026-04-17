@@ -6,10 +6,10 @@ import { useMemo } from 'react';
 
 export function useCollaborationCredentials(): CollaborationCredentials {
 	return useMemo( () => {
-		const LICENSE_KEY = __CKEDITOR_LICENSE_KEY__;
-		const TOKEN_URL = __CKEDITOR_TOKEN_URL__;
-		const WEBSOCKET_URL = __CKEDITOR_WEBSOCKET_URL__;
-		const CLOUD_SERVICE_UPLOAD_URL = __CKEDITOR_UPLOAD_URL__;
+		const LICENSE_KEY = import.meta.env.CKEDITOR_LICENSE_KEY;
+		const TOKEN_URL = import.meta.env.CKEDITOR_TOKEN_URL;
+		const WEBSOCKET_URL = import.meta.env.CKEDITOR_WEBSOCKET_URL;
+		const CLOUD_SERVICE_UPLOAD_URL = import.meta.env.CKEDITOR_UPLOAD_URL;
 
 		const MISSING = (
 			[
