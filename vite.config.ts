@@ -15,6 +15,7 @@ const INTEGRATION_TESTS = [
 	'tests/issues/39-frozen-browser.test.tsx',
 	'tests/issues/349-destroy-context-and-editor.test.tsx',
 	'tests/issues/354-destroy-editor-inside-context.test.tsx',
+	'tests/multiroot/useMultiRootEditor.legacy-features.test.tsx',
 	'tests/multiroot/useMultiRootEditor.test.tsx'
 ];
 

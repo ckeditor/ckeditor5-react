@@ -435,15 +435,19 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 
 		try {
 			/* istanbul ignore if -- @preserve */
-			if ( supports.elementConfigAttachment ) {
-				watchdog.setCreator( watchdogEditorCreator );
-				await watchdog.create( _getConfig() );
-			} else {
-				/* istanbul ignore next -- compatibility branch for older CKEditor 5 versions */
-				watchdog.setCreator( async ( _, config ) => watchdogEditorCreator( config ) );
-				/* istanbul ignore next -- compatibility branch for older CKEditor 5 versions */
-				await watchdog.create( data as any, _getConfig() );
-			}
+			/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
+			const initializeWatchdog = supports.elementConfigAttachment ?
+				async () => {
+					watchdog.setCreator( watchdogEditorCreator );
+					await watchdog.create( _getConfig() );
+				} :
+				async () => {
+					watchdog.setCreator( async ( _, config ) => watchdogEditorCreator( config ) );
+					await watchdog.create( data as any, _getConfig() );
+				};
+			/* istanbul ignore end -- compatibility branch for older CKEditor 5 versions */
+
+			await initializeWatchdog();
 		} catch ( error ) {
 			const onError = props.onError || console.error;
 
@@ -554,25 +558,23 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 					const rootAttributes = attributes?.[ rootName ] || {};
 					const rootData = data[ rootName ] || '';
 
-					let attrs: Record<string, any> = {
+					const baseAttrs: Record<string, any> = {
 						isUndoable: true
 					};
 
-					/* istanbul ignore if -- @preserve */
-					if ( supports.rootsConfigEntry ) {
-						attrs = {
-							...attrs,
+					/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
+					const attrs: Record<string, any> = supports.rootsConfigEntry ?
+						{
+							...baseAttrs,
 							initialData: rootData,
 							modelAttributes: rootAttributes
-						};
-					} else {
-						/* istanbul ignore next -- compatibility branch for older CKEditor 5 versions */
-						attrs = {
-							...attrs,
+						} :
+						{
+							...baseAttrs,
 							data: rootData,
 							attributes: rootAttributes
 						};
-					}
+					/* istanbul ignore end -- compatibility branch for older CKEditor 5 versions */
 
 					instance.addRoot( rootName, attrs );
 				}

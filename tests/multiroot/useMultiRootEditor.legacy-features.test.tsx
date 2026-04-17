@@ -6,21 +6,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 
-vi.mock( '@ckeditor/ckeditor5-integrations-common', async importOriginal => {
-	const actual = await importOriginal() as Record<string, any>;
-
-	return {
-		...actual,
-		getInstalledCKBaseFeatures: () => ( {
-			...actual.getInstalledCKBaseFeatures(),
-			elementConfigAttachment: false,
-			rootsConfigEntry: false
-		} )
-	};
-} );
-
 import { useMultiRootEditor } from '../../src/multiroot/useMultiRootEditor.js';
 import { TestMultiRootEditor } from '../_utils/multirooteditor.js';
+import { getInstalledCKBaseFeatures } from '@ckeditor/ckeditor5-integrations-common';
+
+const SUPPORTED_FEATURES = getInstalledCKBaseFeatures();
+
+const legacyWatchdogTest = SUPPORTED_FEATURES.elementConfigAttachment ? it.skip : it;
+const legacyRootConfigTest = SUPPORTED_FEATURES.rootsConfigEntry ? it.skip : it;
 
 describe( 'useMultiRootEditor legacy features', () => {
 	const rootsContent = {
@@ -60,7 +53,15 @@ describe( 'useMultiRootEditor legacy features', () => {
 		vi.spyOn( console, 'warn' ).mockImplementation( () => {} );
 	} );
 
-	it( 'should support the legacy watchdog creator signature and root configuration shape', async () => {
+	legacyWatchdogTest( 'should support the legacy watchdog creator signature', async () => {
+		const { result } = renderHook( () => useMultiRootEditor( editorProps ) );
+
+		await waitFor( () => {
+			expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+		} );
+	} );
+
+	legacyRootConfigTest( 'should support the legacy root configuration shape', async () => {
 		const { result } = renderHook( () => useMultiRootEditor( editorProps ) );
 
 		await waitFor( () => {
