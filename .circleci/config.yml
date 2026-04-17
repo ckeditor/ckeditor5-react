@@ -198,7 +198,7 @@ jobs:
           command: pnpm add -D ckeditor5@<< parameters.ckeditorDistTag >> ckeditor5-premium-features@<< parameters.ckeditorDistTag >>
       - run:
           name: Run integration tests for << parameters.ckeditorDistTag >>
-          command: pnpm run test:integration
+          command: pnpm exec vitest run --project integration
 
   release_prepare:
     docker:

@@ -51,7 +51,7 @@ pnpm run test
 To run only the real-editor integration coverage used by the CI version matrix, use:
 
 ```bash
-pnpm run test:integration
+pnpm exec vitest run --project integration
 ```
 
 If you want to run the tests in watch mode, use the following command:

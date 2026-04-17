@@ -10,6 +10,8 @@ import { webdriverio } from '@vitest/browser-webdriverio';
 import react from '@vitejs/plugin-react';
 import pkg from './package.json' with { type: 'json' };
 
+const DEFAULT_TESTS = [ 'tests/**/*.test.[j|t]sx' ];
+
 const INTEGRATION_TESTS = [
 	'tests/integrations/**/*.test.tsx',
 	'tests/issues/39-frozen-browser.test.tsx',
@@ -27,8 +29,7 @@ export default defineConfig( ( { mode } ) => {
 		CKEDITOR_LICENSE_KEY = 'GPL',
 		CKEDITOR_TOKEN_URL = '',
 		CKEDITOR_WEBSOCKET_URL = '',
-		CKEDITOR_UPLOAD_URL = '',
-		TEST_SCOPE
+		CKEDITOR_UPLOAD_URL = ''
 	} = env;
 
 	return {
@@ -77,8 +78,22 @@ export default defineConfig( ( { mode } ) => {
 			unstubEnvs: true,
 			unstubGlobals: true,
 			setupFiles: [ './vitest-setup.ts' ],
-			include: TEST_SCOPE === 'integration' ? INTEGRATION_TESTS : [ 'tests/**/*.test.[j|t]sx' ],
-			exclude: TEST_SCOPE === 'non-integration' ? INTEGRATION_TESTS : [],
+			projects: [
+				{
+					extends: true,
+					test: {
+						name: 'default',
+						include: DEFAULT_TESTS
+					}
+				},
+				{
+					extends: true,
+					test: {
+						name: 'integration',
+						include: INTEGRATION_TESTS
+					}
+				}
+			],
 			coverage: {
 				provider: 'istanbul',
 				include: [ 'src/*' ],
