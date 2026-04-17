@@ -297,10 +297,10 @@ workflows:
       - validate_and_tests
       - integration_tests_lts:
           matrix:
+            alias: integration_tests_lts_matrix
             parameters:
               ckeditorDistTag: &lts_editor_version_tags
                 - lts-v47
-          alias: integration_tests_lts_matrix
       - release_prepare
       - trigger_release_process:
           requires:
