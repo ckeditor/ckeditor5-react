@@ -36,19 +36,20 @@ To manually test the editor integration with different versions of React, you ca
 
 ```bash
 pnpm run dev:16 # Open the demo projects using React 16.
+pnpm run dev:17 # Open the demo projects using React 17.
 pnpm run dev:18 # Open the demo projects using React 18.
 pnpm run dev:19 # Open the demo projects using React 19.
 ```
 
 ### Executing tests
 
-To test the editor integration against a set of automated tests, run the following command:
+To run the default automated test suite, use:
 
 ```bash
 pnpm run test
 ```
 
-To run only the real-editor integration coverage used by the CI version matrix, use:
+To run only the real-editor integration suite used by the CI version matrix, use:
 
 ```bash
 pnpm exec vitest run --project integration
