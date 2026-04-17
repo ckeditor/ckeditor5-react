@@ -156,7 +156,7 @@ jobs:
                 files: coverage/lcov.info
                 disable_search: true
 
-  integration_tests:
+  tests_integration:
     docker:
       - image: cimg/node:24.11.0-browsers
     parameters:
@@ -303,9 +303,9 @@ workflows:
     jobs:
       - validate
       - tests_current
-      - integration_tests:
+      - tests_integration:
           matrix:
-            alias: integration_tests_matrix
+            alias: tests_integration_matrix
             parameters:
               ckeditorDistTag: &integration_editor_version_tags
                 - latest
@@ -315,7 +315,7 @@ workflows:
           requires:
             - validate
             - tests_current
-            - integration_tests_matrix
+            - tests_integration_matrix
             - release_prepare
           filters:
             branches:
@@ -347,7 +347,7 @@ workflows:
     jobs:
       - validate
       - tests_current
-      - integration_tests:
+      - tests_integration:
           matrix:
             parameters:
               ckeditorDistTag: *integration_editor_version_tags
