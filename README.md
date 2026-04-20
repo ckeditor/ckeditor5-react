@@ -55,6 +55,16 @@ To run only the real-editor integration suite used by the CI version matrix, use
 pnpm exec vitest run --project integration
 ```
 
+This command runs the integration subset against the `ckeditor5` and `ckeditor5-premium-features` versions currently installed in `node_modules`.
+After a regular `pnpm install`, that means the default dependency versions from `package.json`, not the LTS version from the CI matrix.
+
+To reproduce an LTS matrix run locally, install the matching `lts-v*` packages first and provide `CKEDITOR_LICENSE_KEY`, just like the CI job does:
+
+```bash
+pnpm add -D ckeditor5@lts-v* ckeditor5-premium-features@lts-v*
+CKEDITOR_LICENSE_KEY=<your-key> pnpm exec vitest run --project integration
+```
+
 If you want to run the tests in watch mode, use the following command:
 
 ```bash
