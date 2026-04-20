@@ -14,6 +14,7 @@ import CKEditorContext, {
 } from '../../src/context/ckeditorcontext.js';
 
 import CKEditor from '../../src/ckeditor.js';
+import { EditorWatchdogAdapter } from '../../src/EditorWatchdogAdapter.js';
 import MockedEditor from '../_utils/editor.js';
 import { ClassicEditor, ContextWatchdog, CKEditorError } from 'ckeditor5';
 import ContextMock, { DeferredContextMock } from '../_utils/context.js';
@@ -896,6 +897,25 @@ describe( 'EditorWatchdogAdapter', () => {
 	afterEach( () => {
 		component?.unmount();
 		manager.clear();
+	} );
+
+	it( 'should support the legacy watchdog create signature', async () => {
+		const contextWatchdog = {
+			add: vi.fn().mockResolvedValue( undefined )
+		} as any;
+		const adapter = new EditorWatchdogAdapter( contextWatchdog );
+		const creator = vi.fn();
+
+		adapter.setCreator( creator as any );
+
+		await adapter.create( 'legacy-data', { licenseKey: 'GPL' } as any );
+
+		expect( contextWatchdog.add ).toHaveBeenCalledWith( expect.objectContaining( {
+			creator,
+			type: 'editor',
+			sourceElementOrData: 'legacy-data',
+			config: { licenseKey: 'GPL' }
+		} ) );
 	} );
 
 	describe( '#on', () => {

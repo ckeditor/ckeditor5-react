@@ -9,6 +9,14 @@ import { webdriverio } from '@vitest/browser-webdriverio';
 import react from '@vitejs/plugin-react';
 import pkg from './package.json' with { type: 'json' };
 
+const DEFAULT_TESTS = [ 'tests/**/*.test.[j|t]sx' ];
+
+const INTEGRATION_TESTS = [
+	'tests/integrations/**/*.test.tsx',
+	'tests/issues/*.test.tsx',
+	'tests/multiroot/*.test.tsx'
+];
+
 const REACT_VERSION = Number( process.env.REACT_VERSION ) || 18;
 
 export default defineConfig( {
@@ -16,7 +24,13 @@ export default defineConfig( {
 		react( { jsxRuntime: 'classic' } )
 	],
 
+	envPrefix: 'CKEDITOR_',
+
 	publicDir: false,
+
+	optimizeDeps: {
+		include: [ 'react-dom/client' ]
+	},
 
 	build: {
 		minify: false,
@@ -53,8 +67,23 @@ export default defineConfig( {
 		unstubEnvs: true,
 		unstubGlobals: true,
 		setupFiles: [ './vitest-setup.ts' ],
-		include: [
-			'tests/**/*.test.[j|t]sx'
+		// `integration` is an addressable subset used by the CI version matrix.
+		// It intentionally overlaps with the full `all` suite.
+		projects: [
+			{
+				extends: true,
+				test: {
+					name: 'all',
+					include: DEFAULT_TESTS
+				}
+			},
+			{
+				extends: true,
+				test: {
+					name: 'integration',
+					include: INTEGRATION_TESTS
+				}
+			}
 		],
 		coverage: {
 			provider: 'istanbul',
@@ -86,22 +115,25 @@ export default defineConfig( {
 	},
 
 	/**
-	 * Code needed to run the demos using different React versions.
-	 *
-	 * Notice that in `package.json`, aside from the regular `react` and `react-dom` dependencies,
-	 * there are also:
-	 *
-	 * - `react16` and `react16-dom`,
-	 * - `react18` and `react18-dom`,
-	 * - `react19` and `react19-dom`.
-	 *
-	 * These point to the respective React versions, and are used to test the demos with different
-	 * React versions, depending on the `REACT_VERSION` environment variable.
-	 */
+		 * Code needed to run the demos using different React versions.
+		 *
+		 * Notice that in `package.json`, aside from the regular `react` and `react-dom` dependencies,
+		 * there are also:
+		 *
+		 * - `react16` and `react16-dom`,
+		 * - `react18` and `react18-dom`,
+		 * - `react19` and `react19-dom`.
+		 *
+		 * These point to the respective React versions, and are used to test the demos with different
+		 * React versions, depending on the `REACT_VERSION` environment variable.
+		 */
 	resolve: {
 		alias: {
 			'react': resolve( __dirname, `node_modules/react${ REACT_VERSION }` ),
-			'react-dom/client': resolve( __dirname, `node_modules/react${ REACT_VERSION }-dom${ REACT_VERSION <= 17 ? '' : '/client' }` ),
+			'react-dom/client': resolve(
+				__dirname,
+				`node_modules/react${ REACT_VERSION }-dom${ REACT_VERSION <= 17 ? '' : '/client' }`
+			),
 			'react-dom': resolve( __dirname, `node_modules/react${ REACT_VERSION }-dom` )
 		}
 	},

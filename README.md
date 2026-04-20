@@ -27,22 +27,42 @@ After cloning this repository, install necessary dependencies:
 pnpm install
 ```
 
+If you need to run tests or demos with a commercial license, copy `.env.example` to `.env` and fill in the required `CKEDITOR_*` variables.
+Keep `.env` local only. In CI, provide the same value via the `CKEDITOR_LICENSE_KEY` environment variable.
+
 ### Running the development server
 
 To manually test the editor integration with different versions of React, you can start the development server using one of the commands below:
 
 ```bash
 pnpm run dev:16 # Open the demo projects using React 16.
+pnpm run dev:17 # Open the demo projects using React 17.
 pnpm run dev:18 # Open the demo projects using React 18.
 pnpm run dev:19 # Open the demo projects using React 19.
 ```
 
 ### Executing tests
 
-To test the editor integration against a set of automated tests, run the following command:
+To run the full automated test suite, use:
 
 ```bash
 pnpm run test
+```
+
+To run only the real-editor integration suite used by the CI version matrix, use:
+
+```bash
+pnpm exec vitest run --project integration
+```
+
+This command runs the integration subset against the `ckeditor5` and `ckeditor5-premium-features` versions currently installed in `node_modules`.
+After a regular `pnpm install`, that means the default dependency versions from `package.json`, not the LTS version from the CI matrix.
+
+To reproduce an LTS matrix run locally, install the matching `lts-v*` packages first and provide `CKEDITOR_LICENSE_KEY`, just like the CI job does:
+
+```bash
+pnpm add -D ckeditor5@lts-v* ckeditor5-premium-features@lts-v*
+CKEDITOR_LICENSE_KEY=<your-key> pnpm exec vitest run --project integration
 ```
 
 If you want to run the tests in watch mode, use the following command:
