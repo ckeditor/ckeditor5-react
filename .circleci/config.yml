@@ -182,6 +182,7 @@ jobs:
             then
               echo "Skipping duplicated integration run because ${EDITOR_VERSION_TAG} and latest resolve to the same major version."
               circleci-agent step halt
+              exit 0
             fi
       - run:
           name: Verify license key
@@ -190,8 +191,15 @@ jobs:
 
             if [[ "<< parameters.ckeditorDistTag >>" != "latest" && -z ${CKEDITOR_LICENSE_KEY} ]];
             then
-              echo "Skipping the << parameters.ckeditorDistTag >> integration run because CKEDITOR_LICENSE_KEY is not available in this environment."
-              circleci-agent step halt
+              if [[ -z ${CODECOV_TOKEN} ]];
+              then
+                echo "Skipping the << parameters.ckeditorDistTag >> integration run because CKEDITOR_LICENSE_KEY is not available in this community environment."
+                circleci-agent step halt
+                exit 0
+              fi
+
+              echo "Failing the << parameters.ckeditorDistTag >> integration run because CKEDITOR_LICENSE_KEY is required in this environment."
+              exit 1
             fi
       - run:
           name: Install CKEditor packages for << parameters.ckeditorDistTag >>
