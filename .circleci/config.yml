@@ -190,8 +190,14 @@ jobs:
 
             if [[ "<< parameters.ckeditorDistTag >>" != "latest" && -z ${CKEDITOR_LICENSE_KEY} ]];
             then
-              echo "Skipping the << parameters.ckeditorDistTag >> integration run because CKEDITOR_LICENSE_KEY is not available in this environment."
-              circleci-agent step halt
+              if [[ -z ${CODECOV_TOKEN} ]];
+              then
+                echo "Skipping the << parameters.ckeditorDistTag >> integration run because CKEDITOR_LICENSE_KEY is not available in this community environment."
+                circleci-agent step halt
+              fi
+
+              echo "Failing the << parameters.ckeditorDistTag >> integration run because CKEDITOR_LICENSE_KEY is required in this environment."
+              exit 1
             fi
       - run:
           name: Install CKEditor packages for << parameters.ckeditorDistTag >>
