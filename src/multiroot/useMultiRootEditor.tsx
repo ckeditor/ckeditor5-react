@@ -493,13 +493,6 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		[ setAttributes ]
 	);
 
-	const toolbarElement = (
-		<EditorToolbarWrapper
-			ref={ semaphoreElementRef }
-			editor={editorRefs.instance.current}
-		/>
-	);
-
 	useInstantEditorEffect( semaphore.current, ( { instance } ) => {
 		if ( props.disabled ) {
 			instance.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
@@ -627,13 +620,20 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		}
 	}, [ data, attributes ] );
 
+	const toolbarElement = (
+		<EditorToolbarWrapper
+			ref={ semaphoreElementRef }
+			editor={editorRefs.instance.current}
+		/>
+	);
+
 	const editableElements = roots.map(
 		rootName => (
 			<EditorEditable
 				key={rootName}
 				id={rootName}
 				rootName={rootName}
-				semaphore={semaphore}
+				editor={editorRefs.instance.current}
 			/>
 		)
 	);

@@ -3,62 +3,66 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-import React, { forwardRef, useEffect, useRef, memo } from 'react';
+import React, { forwardRef, useEffect, useRef, memo, type ElementType, useMemo } from 'react';
 
 import { mergeRefs } from '../utils/mergeRefs.js';
-
-import type { LifeCycleSemaphoreSyncRefResult } from '../lifecycle/useLifeCycleSemaphoreSyncRef.js';
-import type { EditorSemaphoreMountResult } from '../lifecycle/LifeCycleEditorSemaphore.js';
-import type { InlineEditableUIView, MultiRootEditor } from 'ckeditor5';
+import type { MultiRootEditor } from 'ckeditor5';
 
 /**
  * A React component that renders a single editable area (root) for the `MultiRootEditor`.
- * It handles the lifecycle of the editable element by attaching it to the editor
- * instance once mounted and safely detaching it during cleanup.
  */
-export const EditorEditable = memo( forwardRef<HTMLDivElement, Props>( ( { id, semaphore, rootName }, ref ) => {
+export const EditorEditable = memo( forwardRef<HTMLDivElement, Props>( ( { id, editor, rootName }, ref ) => {
 	const innerRef = useRef<HTMLDivElement>( null );
 
+	const root = useMemo( () => editor?.model.document.getRoot( rootName ), [ editor, rootName ] );
+	const rootEditableOptions = useMemo( () => {
+		if ( !root ) {
+			return null;
+		}
+
+		const options = root.getAttribute( '$rootEditableOptions' ) as RootEditableOptionsAttribute | undefined;
+
+		return options ?? {};
+	}, [ root ] );
+
 	useEffect( () => {
-		let editable: InlineEditableUIView | null;
-		let editor: MultiRootEditor | null;
+		if ( !editor || !root || !rootEditableOptions ) {
+			return;
+		}
 
-		semaphore.runAfterMount( ( { instance } ) => {
-			if ( !innerRef.current ) {
-				return;
-			}
+		// Detach already attached editable if any.
+		if ( editor.ui.getEditableElement( rootName ) ) {
+			editor.detachEditable( root );
+		}
 
-			editor = instance;
+		const editableElement = innerRef.current!;
+		const editable = editor.ui.view.createEditable( rootName, editableElement );
 
-			const { ui, model } = editor;
-			const root = model.document.getRoot( rootName );
-
-			if ( root && editor.ui.getEditableElement( rootName ) ) {
-				editor.detachEditable( root );
-			}
-
-			editable = ui.view.createEditable( rootName, innerRef.current );
-			ui.addEditable( editable );
-
-			instance.editing.view.forceRender();
-		} );
+		editor.ui.addEditable( editable );
+		editor.editing.view.forceRender();
 
 		return () => {
 			/* istanbul ignore next -- @preserve: It depends on the version of the React and may not happen all of the times. */
-			if ( editor && editor.state !== 'destroyed' && innerRef.current ) {
-				const root = editor.model.document.getRoot( rootName );
+			if ( editor && editor.state !== 'destroyed' ) {
+				const currentRoot = editor.model.document.getRoot( rootName );
 
 				/* istanbul ignore else -- @preserve */
-				if ( root ) {
+				if ( currentRoot === root ) {
 					editor.detachEditable( root );
 				}
 			}
 		};
-	}, [ semaphore.revision ] );
+	}, [ editor, root, rootEditableOptions ] );
+
+	if ( !rootEditableOptions ) {
+		return null;
+	}
+
+	const { name: TagName } = rootEditableOptions.element ?? { name: 'div' };
 
 	return (
-		<div
-			key={semaphore.revision}
+		<TagName
+			key={editor?.id}
 			id={id}
 			ref={ mergeRefs( ref, innerRef ) }
 		/>
@@ -70,5 +74,46 @@ EditorEditable.displayName = 'EditorEditable';
 type Props = {
 	id: string;
 	rootName: string;
-	semaphore: LifeCycleSemaphoreSyncRefResult<EditorSemaphoreMountResult<MultiRootEditor>>;
+	editor: MultiRootEditor | null;
+};
+
+type RootEditableOptionsAttribute = {
+
+	/**
+	 * Placeholder for the editable element. If not set, placeholder value from the editor configuration will be used (if it was provided).
+	 */
+	placeholder?: string;
+
+	/**
+	 * The accessible label text describing the editable to the assistive technologies.
+	 */
+	label?: string;
+
+	/**
+	 * A description of the editable root element to create.
+	 */
+	element?: ViewRootElementDefinition;
+};
+
+type ViewRootElementDefinition = {
+
+	/**
+	 * The DOM tag name to use.
+	 */
+	name: ElementType;
+
+	/**
+	 * Class name or array of class names to apply to the editable element. Each name can be provided as a string.
+	 */
+	classes?: string | Array<string>;
+
+	/**
+	 * Inline styles to apply to the editable element as a record of style properties.
+	 */
+	styles?: Record<string, string>;
+
+	/**
+	 * Additional DOM attributes to apply to the editable element.
+	 */
+	attributes?: Record<string, string>;
 };

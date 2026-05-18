@@ -4,6 +4,8 @@
  */
 
 import React, { forwardRef, useEffect, useRef } from 'react';
+import type { MultiRootEditor } from 'ckeditor5';
+
 import { mergeRefs } from '../utils/mergeRefs.js';
 
 /**
@@ -11,7 +13,7 @@ import { mergeRefs } from '../utils/mergeRefs.js';
  * It extracts the toolbar DOM element from the provided editor instance
  * and safely appends it to a local `div` container, handling cleanup on unmount.
  */
-export const EditorToolbarWrapper = forwardRef( ( { editor }: any, ref ) => {
+export const EditorToolbarWrapper = forwardRef( ( { editor }: Props, ref ) => {
 	const toolbarRef = useRef<HTMLDivElement>( null );
 
 	useEffect( () => {
@@ -30,9 +32,13 @@ export const EditorToolbarWrapper = forwardRef( ( { editor }: any, ref ) => {
 				toolbarContainer.removeChild( element! );
 			}
 		};
-	}, [ editor && editor.id ] );
+	}, [ editor ] );
 
 	return <div ref={mergeRefs( toolbarRef, ref )}></div>;
 } );
 
 EditorToolbarWrapper.displayName = 'EditorToolbarWrapper';
+
+type Props = {
+	editor: MultiRootEditor | null;
+};
