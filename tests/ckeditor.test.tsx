@@ -1038,6 +1038,29 @@ describe( '<CKEditor> Component', () => {
 			} );
 		} );
 
+		describe( '#tagName', () => {
+			it( 'should render editor element as div if tagName is not specified', async () => {
+				component = render( <CKEditor editor={MockEditor} /> );
+
+				await waitFor( () => {
+					expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'DIV' );
+				} );
+			} );
+
+			it( 'should be possible to pass custom tag name to rendered element', async () => {
+				component = render(
+					<CKEditor
+						editor={MockEditor}
+						tagName='section'
+					/>
+				);
+
+				await waitFor( () => {
+					expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'SECTION' );
+				} );
+			} );
+		} );
+
 		describe( '#disableWatchdog', () => {
 			it( 'should not initialize watchdog if disableWatchdog is set to true', async () => {
 				component = render(
