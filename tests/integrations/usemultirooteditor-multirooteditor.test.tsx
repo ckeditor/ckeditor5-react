@@ -5,7 +5,7 @@
 
 import { describe, beforeEach, it, expect } from 'vitest';
 import React from 'react';
-import { render, type RenderResult } from '@testing-library/react';
+import { waitFor, render, type RenderResult } from '@testing-library/react';
 import { useMultiRootEditor } from '../../src/multiroot/useMultiRootEditor.js';
 import { TestMultiRootEditor } from '../_utils/multirooteditor.js';
 
@@ -57,7 +57,9 @@ describe( 'useMultiRootEditor Hook + MultiRootEditor Build', () => {
 	it( 'should initialize the MultiRootEditor properly', async () => {
 		component = render( <AppUsingHooks { ...editorProps } /> );
 
-		expect( component.getByTestId( 'toolbar' ).children ).to.have.length( 1 );
-		expect( component.getByTestId( 'roots' ).children ).to.have.length( 2 );
+		await waitFor( () => {
+			expect( component!.getByTestId( 'toolbar' ).children ).to.have.length( 1 );
+			expect( component!.getByTestId( 'roots' ).children ).to.have.length( 2 );
+		} );
 	} );
 } );

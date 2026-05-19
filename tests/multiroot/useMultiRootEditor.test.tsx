@@ -1215,33 +1215,16 @@ describe( 'useMultiRootEditor', () => {
 			} );
 		} );
 
-		it( 'should ensure that the editable container is rendered before running semaphore logic', async () => {
-			const defer = createDefer();
-			const postMountSpy = vi.fn();
-
-			const mockSemaphore = {
-				revision: 1,
-				runAfterMount: callback => {
-					defer.promise
-						.then( () => callback( { instance: null } ) )
-						.then( postMountSpy );
-				}
-			} as any;
-
-			const { unmount } = render(
+		it( 'should not crash if editor is null', async () => {
+			const { container } = render(
 				<EditorEditable
 					rootName="intro"
 					id="intro"
-					semaphore={mockSemaphore}
+					editor={null}
 				/>
 			);
 
-			unmount();
-			defer.resolve();
-
-			await waitFor( () => {
-				expect( postMountSpy ).toHaveBeenCalledOnce();
-			} );
+			expect( container.firstChild ).toBeNull();
 		} );
 	} );
 
