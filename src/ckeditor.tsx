@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-import React from 'react';
+import React, { type ElementType } from 'react';
 
 import type {
 	EventInfo,
@@ -209,8 +209,10 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Render a <div> element which will be replaced by CKEditor.
 	 */
 	public override render(): React.ReactNode {
+		const { tagName: TagName = 'div' } = this.props;
+
 		return (
-			<div ref={ this.domContainer }></div>
+			<TagName ref={ this.domContainer }></TagName>
 		);
 	}
 
@@ -473,6 +475,7 @@ export interface Props<TEditor extends Editor> {
 	data?: string;
 	disabled?: boolean;
 	id?: any;
+	tagName?: ElementType;
 }
 
 interface ErrorDetails {
