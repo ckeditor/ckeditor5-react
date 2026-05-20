@@ -36,9 +36,9 @@ export const EditorEditable = memo( forwardRef<HTMLDivElement, Props>( ( { id, e
 		}
 
 		const editableElement = innerRef.current!;
-		const editable = editor.ui.view.createEditable( rootName, editableElement );
+		const editable = editor.ui.view.createEditable( rootName, editableElement, rootEditableOptions.label );
 
-		editor.ui.addEditable( editable );
+		editor.ui.addEditable( editable, rootEditableOptions.placeholder );
 		editor.editing.view.forceRender();
 
 		return () => {
@@ -77,7 +77,7 @@ type Props = {
 	editor: MultiRootEditor | null;
 };
 
-type RootEditableOptionsAttribute = {
+export type RootEditableOptionsAttribute = {
 
 	/**
 	 * Placeholder for the editable element. If not set, placeholder value from the editor configuration will be used (if it was provided).

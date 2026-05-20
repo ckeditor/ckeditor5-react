@@ -14,7 +14,8 @@ import {
 	uniq,
 	getInstalledCKBaseFeatures,
 	assignAttributesPropToMultiRootEditorConfig,
-	assignInitialDataToMultirootEditorConfig
+	assignInitialDataToMultirootEditorConfig,
+	omit
 } from '@ckeditor/ckeditor5-integrations-common';
 
 import type {
@@ -39,7 +40,7 @@ import { useRefSafeCallback } from '../hooks/useRefSafeCallback.js';
 import { useInstantEditorEffect } from '../hooks/useInstantEditorEffect.js';
 
 import { appendAllIntegrationPluginsToConfig } from '../plugins/appendAllIntegrationPluginsToConfig.js';
-import { EditorEditable } from './EditorEditable.js';
+import { EditorEditable, type RootEditableOptionsAttribute } from './EditorEditable.js';
 import { EditorToolbarWrapper } from './EditorToolbar.js';
 import { EditorWatchdogAdapter } from '../EditorWatchdogAdapter.js';
 
@@ -638,13 +639,46 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		)
 	);
 
+	const removeRoot = ( rootName: string ) => {
+		_externalSetAttributes( attributes => omit( [ rootName ], attributes ) );
+		_externalSetData( attributes => omit( [ rootName ], attributes ) );
+	};
+
+	const addRoot = ( { name, data, attributes, options }: AddRootOptions ) => {
+		_externalSetAttributes( rootsAttributes => ( {
+			...rootsAttributes,
+			[ name ]: {
+				...attributes,
+				...options && {
+					$rootEditableOptions: options
+				}
+			}
+		} ) );
+
+		_externalSetData( rootsData => ( {
+			...rootsData,
+			[ name ]: data || ''
+		} ) );
+	};
+
 	return {
 		editor: editorRefs.instance.current,
 		editableElements,
 		toolbarElement,
-		data, setData: _externalSetData,
-		attributes, setAttributes: _externalSetAttributes
+		data,
+		setData: _externalSetData,
+		attributes,
+		setAttributes: _externalSetAttributes,
+		removeRoot,
+		addRoot
 	};
+};
+
+type AddRootOptions = {
+	name: string;
+	data?: string;
+	attributes?: Record<string, unknown>;
+	options?: RootEditableOptionsAttribute;
 };
 
 type LifeCycleMountResult = EditorSemaphoreMountResult<MultiRootEditor>;
@@ -689,4 +723,6 @@ export type MultiRootHookReturns = {
 	setData: Dispatch<SetStateAction<Record<string, string>>>;
 	attributes: Record<string, Record<string, unknown>>;
 	setAttributes: Dispatch<SetStateAction<Record<string, Record<string, unknown>>>>;
+	addRoot: ( options: AddRootOptions ) => void;
+	removeRoot: ( name: string ) => void;
 };
