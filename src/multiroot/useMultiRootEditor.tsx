@@ -547,29 +547,30 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 					const rootAttributes = attributes?.[ rootName ] || {};
 					const rootData = data[ rootName ] || '';
 
-					const baseAttrs: Record<string, any> = {
-						isUndoable: true
+					/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
+					let options: Record<string, any> = {
+						isUndoable: true,
+						...rootAttributes.$createRootOptions ?? {}
 					};
 
-					/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
-					let attrs: Record<string, any>;
+					delete rootAttributes.$createRootOptions;
 
 					if ( supports.rootsConfigEntry ) {
-						attrs = {
-							...baseAttrs,
+						options = {
+							...options,
 							initialData: rootData,
 							modelAttributes: rootAttributes
 						};
 					} else {
-						attrs = {
-							...baseAttrs,
+						options = {
+							...options,
 							data: rootData,
 							attributes: rootAttributes
 						};
 					}
 					/* istanbul ignore end -- compatibility branch for older CKEditor 5 versions */
 
-					instance.addRoot( rootName, attrs );
+					instance.addRoot( rootName, options );
 				}
 			};
 
@@ -644,13 +645,16 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		_externalSetData( attributes => omit( [ rootName ], attributes ) );
 	};
 
-	const addRoot = ( { name, data, attributes, options }: AddRootOptions ) => {
+	const addRoot = ( { name, data, attributes, rootOptions, editableOptions }: AddRootOptions ) => {
 		_externalSetAttributes( rootsAttributes => ( {
 			...rootsAttributes,
 			[ name ]: {
 				...attributes,
-				...options && {
-					$rootEditableOptions: options
+				...rootOptions && {
+					$createRootOptions: rootOptions
+				},
+				...editableOptions && {
+					$rootEditableOptions: editableOptions
 				}
 			}
 		} ) );
@@ -678,7 +682,8 @@ type AddRootOptions = {
 	name: string;
 	data?: string;
 	attributes?: Record<string, unknown>;
-	options?: RootEditableOptionsAttribute;
+	rootOptions?: Record<string, unknown>;
+	editableOptions?: RootEditableOptionsAttribute;
 };
 
 type LifeCycleMountResult = EditorSemaphoreMountResult<MultiRootEditor>;
