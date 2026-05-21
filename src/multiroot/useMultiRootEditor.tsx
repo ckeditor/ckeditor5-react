@@ -544,13 +544,13 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 
 				for ( const rootName of roots ) {
 					/* istanbul ignore next -- @preserve: attributes should be in sync with root keys */
-					const rootAttributes = attributes?.[ rootName ] || {};
+					const { $createRootOptions = {}, ...rootAttributes } = attributes?.[ rootName ] || {};
 					const rootData = data[ rootName ] || '';
 
 					/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
 					let options: Record<string, any> = {
 						isUndoable: true,
-						...rootAttributes.$createRootOptions ?? {}
+						...$createRootOptions as Record<string, unknown>
 					};
 
 					delete rootAttributes.$createRootOptions;
