@@ -35,7 +35,7 @@ EditorElement.displayName = 'EditorElement';
  * @param definition The definition to normalize.
  * @returns A strictly typed object definition containing at least the element name.
  */
-function normalizeEditorElementDefinition( definition: EditorElementDefinition ): EditorElementObjectDefinition {
+export function normalizeEditorElementDefinition( definition: EditorElementDefinition ): EditorElementObjectDefinition {
 	if ( typeof HTMLElement !== 'undefined' && definition instanceof HTMLElement ) {
 		throw new Error(
 			'An HTMLElement cannot be used as an editor element definition. ' +

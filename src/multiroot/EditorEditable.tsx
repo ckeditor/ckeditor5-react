@@ -7,7 +7,13 @@ import React, { forwardRef, useEffect, useRef, memo, useMemo } from 'react';
 
 import { mergeRefs } from '../utils/mergeRefs.js';
 import type { MultiRootEditor } from 'ckeditor5';
-import { EditorElement, type EditorElementObjectDefinition } from '../EditorElement.js';
+import {
+	EditorElement,
+	normalizeEditorElementDefinition,
+	type EditorElementDefinition
+} from '../EditorElement.js';
+
+export const ROOT_EDITABLE_OPTIONS_ATTRIBUTE = '$rootEditableOptions';
 
 /**
  * A React component that renders a single editable area (root) for the `MultiRootEditor`.
@@ -21,7 +27,7 @@ export const EditorEditable = memo( forwardRef<HTMLElement, Props>( ( { id, edit
 			return null;
 		}
 
-		const options = root.getAttribute( '$rootEditableOptions' ) as RootEditableOptionsAttribute | undefined;
+		const options = root.getAttribute( ROOT_EDITABLE_OPTIONS_ATTRIBUTE ) as RootEditableOptionsAttribute | undefined;
 
 		return { ...options };
 	}, [ root ] );
@@ -36,8 +42,7 @@ export const EditorEditable = memo( forwardRef<HTMLElement, Props>( ( { id, edit
 			editor.detachEditable( root );
 		}
 
-		const editableElement = innerRef.current!;
-		const editable = editor.ui.view.createEditable( rootName, editableElement, rootEditableOptions.label );
+		const editable = editor.ui.view.createEditable( rootName, innerRef.current!, rootEditableOptions.label );
 
 		editor.ui.addEditable( editable, rootEditableOptions.placeholder );
 		editor.editing.view.forceRender();
@@ -65,8 +70,9 @@ export const EditorEditable = memo( forwardRef<HTMLElement, Props>( ( { id, edit
 			ref={ mergeRefs( ref, innerRef ) }
 			definition={{
 				id,
-				name: 'div',
-				...rootEditableOptions.element
+				...normalizeEditorElementDefinition( rootEditableOptions?.element ?? {
+					name: 'div'
+				} )
 			}}
 		/>
 	);
@@ -95,5 +101,5 @@ export type RootEditableOptionsAttribute = {
 	/**
 	 * A description of the editable root element to create.
 	 */
-	element?: EditorElementObjectDefinition;
+	element?: EditorElementDefinition;
 };

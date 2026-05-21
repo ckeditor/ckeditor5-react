@@ -14,8 +14,7 @@ import {
 	uniq,
 	getInstalledCKBaseFeatures,
 	assignAttributesPropToMultiRootEditorConfig,
-	assignInitialDataToMultirootEditorConfig,
-	omit
+	assignInitialDataToMultirootEditorConfig
 } from '@ckeditor/ckeditor5-integrations-common';
 
 import type {
@@ -40,9 +39,13 @@ import { useRefSafeCallback } from '../hooks/useRefSafeCallback.js';
 import { useInstantEditorEffect } from '../hooks/useInstantEditorEffect.js';
 
 import { appendAllIntegrationPluginsToConfig } from '../plugins/appendAllIntegrationPluginsToConfig.js';
-import { EditorEditable, type RootEditableOptionsAttribute } from './EditorEditable.js';
 import { EditorToolbarWrapper } from './EditorToolbar.js';
 import { EditorWatchdogAdapter } from '../EditorWatchdogAdapter.js';
+import {
+	EditorEditable,
+	ROOT_EDITABLE_OPTIONS_ATTRIBUTE,
+	type RootEditableOptionsAttribute
+} from './EditorEditable.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -544,16 +547,17 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 
 				for ( const rootName of roots ) {
 					/* istanbul ignore next -- @preserve: attributes should be in sync with root keys */
-					const { $createRootOptions = {}, ...rootAttributes } = attributes?.[ rootName ] || {};
+					const rootAttributes = attributes?.[ rootName ] || {};
 					const rootData = data[ rootName ] || '';
+
+					for ( const key of Object.keys( rootAttributes ) ) {
+						instance.registerRootAttribute( key );
+					}
 
 					/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
 					let options: Record<string, any> = {
-						isUndoable: true,
-						...$createRootOptions as Record<string, unknown>
+						isUndoable: true
 					};
-
-					delete rootAttributes.$createRootOptions;
 
 					if ( supports.rootsConfigEntry ) {
 						options = {
@@ -640,29 +644,61 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		)
 	);
 
-	const removeRoot = ( rootName: string ) => {
-		_externalSetAttributes( attributes => omit( [ rootName ], attributes ) );
-		_externalSetData( attributes => omit( [ rootName ], attributes ) );
+	const removeRoot = async ( rootName: string ) => {
+		const { instance } = await semaphore.current!.waitFor();
+
+		instance.model.change( () => {
+			instance.detachRoot( rootName, true );
+		} );
 	};
 
-	const addRoot = ( { name, data, attributes, rootOptions, editableOptions }: AddRootOptions ) => {
-		_externalSetAttributes( rootsAttributes => ( {
-			...rootsAttributes,
-			[ name ]: {
-				...attributes,
-				...rootOptions && {
-					$createRootOptions: rootOptions
-				},
-				...editableOptions && {
-					$rootEditableOptions: editableOptions
-				}
-			}
-		} ) );
+	const addRoot = async (
+		{
+			name, data,
+			attributes = {},
+			editableOptions,
+			...rootOptions
+		}: AddRootOptions
+	) => {
+		const { instance } = await semaphore.current!.waitFor();
+		const supports = getInstalledCKBaseFeatures();
 
-		_externalSetData( rootsData => ( {
-			...rootsData,
-			[ name ]: data || ''
-		} ) );
+		instance.model.change( () => {
+			const mappedAttributes = {
+				...attributes,
+				...!supports.rootsConfigEntry && editableOptions && {
+					[ ROOT_EDITABLE_OPTIONS_ATTRIBUTE ]: editableOptions
+				}
+			};
+
+			for ( const key of Object.keys( mappedAttributes ) ) {
+				instance.registerRootAttribute( key );
+			}
+
+			/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
+			let options: Record<string, any> = {
+				isUndoable: true,
+				...rootOptions
+			};
+
+			if ( supports.rootsConfigEntry ) {
+				options = {
+					...options,
+					...editableOptions,
+					initialData: data || '',
+					modelAttributes: mappedAttributes
+				};
+			} else {
+				options = {
+					...options,
+					data: data || '',
+					attributes: mappedAttributes
+				};
+			}
+			/* istanbul ignore end -- compatibility branch for older CKEditor 5 versions */
+
+			instance.addRoot( name, options );
+		} );
 	};
 
 	return {
@@ -682,8 +718,10 @@ type AddRootOptions = {
 	name: string;
 	data?: string;
 	attributes?: Record<string, unknown>;
-	rootOptions?: Record<string, unknown>;
+	isUndoable?: boolean;
+	modelElementName?: string;
 	editableOptions?: RootEditableOptionsAttribute;
+	[ key: string ]: unknown;
 };
 
 type LifeCycleMountResult = EditorSemaphoreMountResult<MultiRootEditor>;
@@ -728,6 +766,6 @@ export type MultiRootHookReturns = {
 	setData: Dispatch<SetStateAction<Record<string, string>>>;
 	attributes: Record<string, Record<string, unknown>>;
 	setAttributes: Dispatch<SetStateAction<Record<string, Record<string, unknown>>>>;
-	addRoot: ( options: AddRootOptions ) => void;
-	removeRoot: ( name: string ) => void;
+	addRoot: ( options: AddRootOptions ) => Promise<void>;
+	removeRoot: ( name: string ) => Promise<void>;
 };
