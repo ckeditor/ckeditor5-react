@@ -3,16 +3,17 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-import React, { forwardRef, useEffect, useRef, memo, type ElementType, useMemo } from 'react';
+import React, { forwardRef, useEffect, useRef, memo, useMemo } from 'react';
 
 import { mergeRefs } from '../utils/mergeRefs.js';
 import type { MultiRootEditor } from 'ckeditor5';
+import { EditorElement, type EditorElementObjectDefinition } from '../EditorElement.js';
 
 /**
  * A React component that renders a single editable area (root) for the `MultiRootEditor`.
  */
-export const EditorEditable = memo( forwardRef<HTMLDivElement, Props>( ( { id, editor, rootName }, ref ) => {
-	const innerRef = useRef<HTMLDivElement>( null );
+export const EditorEditable = memo( forwardRef<HTMLElement, Props>( ( { id, editor, rootName }, ref ) => {
+	const innerRef = useRef<HTMLElement>( null );
 
 	const root = useMemo( () => editor?.model.document.getRoot( rootName ), [ editor, rootName ] );
 	const rootEditableOptions = useMemo( () => {
@@ -58,13 +59,15 @@ export const EditorEditable = memo( forwardRef<HTMLDivElement, Props>( ( { id, e
 		return null;
 	}
 
-	const { name: TagName } = rootEditableOptions.element ?? { name: 'div' };
-
 	return (
-		<TagName
+		<EditorElement
 			key={editor?.id}
-			id={id}
 			ref={ mergeRefs( ref, innerRef ) }
+			definition={{
+				id,
+				name: 'div',
+				...rootEditableOptions.element
+			}}
 		/>
 	);
 } ) );
@@ -92,28 +95,5 @@ export type RootEditableOptionsAttribute = {
 	/**
 	 * A description of the editable root element to create.
 	 */
-	element?: ViewRootElementDefinition;
-};
-
-type ViewRootElementDefinition = {
-
-	/**
-	 * The DOM tag name to use.
-	 */
-	name: ElementType;
-
-	/**
-	 * Class name or array of class names to apply to the editable element. Each name can be provided as a string.
-	 */
-	classes?: string | Array<string>;
-
-	/**
-	 * Inline styles to apply to the editable element as a record of style properties.
-	 */
-	styles?: Record<string, string>;
-
-	/**
-	 * Additional DOM attributes to apply to the editable element.
-	 */
-	attributes?: Record<string, string>;
+	element?: EditorElementObjectDefinition;
 };

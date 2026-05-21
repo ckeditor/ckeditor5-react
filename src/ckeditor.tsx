@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-import React, { type ElementType } from 'react';
+import React from 'react';
 
 import type {
 	EventInfo,
@@ -36,8 +36,10 @@ import {
 	assignElementToEditorConfig,
 	compareInstalledCKBaseVersion,
 	getInstalledCKBaseFeatures,
-	type EditorRelaxedConstructor
+	type EditorRelaxedConstructor,
+	type EditorRelaxedConfig
 } from '@ckeditor/ckeditor5-integrations-common';
+import { EditorElement, type EditorElementObjectDefinition } from './EditorElement.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -209,10 +211,14 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Render a <div> element which will be replaced by CKEditor.
 	 */
 	public override render(): React.ReactNode {
-		const { tagName: TagName = 'div' } = this.props;
+		const config = ( this.props.config ?? {} ) as EditorRelaxedConfig;
+		const definition = ( config.roots?.main?.element ?? config.root?.element ) as EditorElementObjectDefinition | undefined;
 
 		return (
-			<TagName ref={ this.domContainer }></TagName>
+			<EditorElement
+				ref={ this.domContainer }
+				definition={definition}
+			/>
 		);
 	}
 
@@ -475,7 +481,6 @@ export interface Props<TEditor extends Editor> {
 	data?: string;
 	disabled?: boolean;
 	id?: any;
-	tagName?: ElementType;
 }
 
 interface ErrorDetails {

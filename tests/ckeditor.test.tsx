@@ -7,6 +7,8 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import React, { createRef, type RefObject } from 'react';
 import { CKEditorError, EditorWatchdog } from 'ckeditor5';
 import { render, waitFor, type RenderResult } from '@testing-library/react';
+import type { EditorRelaxedConfig } from '@ckeditor/ckeditor5-integrations-common';
+
 import MockedEditor from './_utils/editor.js';
 import { timeout } from './_utils/timeout.js';
 import { createDefer } from './_utils/defer.js';
@@ -1038,8 +1040,8 @@ describe( '<CKEditor> Component', () => {
 			} );
 		} );
 
-		describe( '#tagName', () => {
-			it( 'should render editor element as div if tagName is not specified', async () => {
+		describe( 'editor element definition via config', () => {
+			it( 'should render editor element as div if element is not specified in config', async () => {
 				component = render( <CKEditor editor={MockEditor} /> );
 
 				await waitFor( () => {
@@ -1047,16 +1049,49 @@ describe( '<CKEditor> Component', () => {
 				} );
 			} );
 
-			it( 'should be possible to pass custom tag name to rendered element', async () => {
+			it( 'should be possible to pass custom tag name to rendered element via config.root.element', async () => {
 				component = render(
 					<CKEditor
 						editor={MockEditor}
-						tagName='section'
+						config={{
+							root: { element: 'section' }
+						} as EditorRelaxedConfig}
 					/>
 				);
 
 				await waitFor( () => {
 					expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'SECTION' );
+				} );
+			} );
+
+			it( 'should be possible to pass custom tag name to rendered element via config.roots.main.element', async () => {
+				component = render(
+					<CKEditor
+						editor={MockEditor}
+						config={{
+							roots: { main: { element: 'article' } }
+						} as EditorRelaxedConfig}
+					/>
+				);
+
+				await waitFor( () => {
+					expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'ARTICLE' );
+				} );
+			} );
+
+			it( 'should prefer config.roots.main.element over config.root.element if both are provided', async () => {
+				component = render(
+					<CKEditor
+						editor={MockEditor}
+						config={{
+							root: { element: 'section' },
+							roots: { main: { element: 'header' } }
+						} as EditorRelaxedConfig}
+					/>
+				);
+
+				await waitFor( () => {
+					expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'HEADER' );
 				} );
 			} );
 		} );
