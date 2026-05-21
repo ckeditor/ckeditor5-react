@@ -22,7 +22,7 @@ export const EditorEditable = memo( forwardRef<HTMLDivElement, Props>( ( { id, e
 
 		const options = root.getAttribute( '$rootEditableOptions' ) as RootEditableOptionsAttribute | undefined;
 
-		return options ?? {};
+		return { ...options };
 	}, [ root ] );
 
 	useEffect( () => {

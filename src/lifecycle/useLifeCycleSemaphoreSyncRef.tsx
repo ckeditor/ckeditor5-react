@@ -46,9 +46,7 @@ export const useLifeCycleSemaphoreSyncRef = <R extends object>(): LifeCycleSemap
 	};
 
 	const runAfterMount = ( callback: LifeCycleAfterMountCallback<R> ) => {
-		if ( semaphoreRef.current ) {
-			semaphoreRef.current.runAfterMount( callback );
-		}
+		semaphoreRef.current?.runAfterMount( callback );
 	};
 
 	const replace = ( newSemaphore: () => LifeCycleElementSemaphore<R> ) => {
