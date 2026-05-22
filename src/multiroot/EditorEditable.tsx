@@ -69,10 +69,10 @@ export const EditorEditable = memo( forwardRef<HTMLElement, Props>( ( { id, edit
 			key={editor?.id}
 			ref={ mergeRefs( ref, innerRef ) }
 			definition={{
-				id,
 				...normalizeEditorElementDefinition( rootEditableOptions?.element ?? {
 					name: 'div'
-				} )
+				} ),
+				id
 			}}
 		/>
 	);
