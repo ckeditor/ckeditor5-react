@@ -1049,49 +1049,147 @@ describe( '<CKEditor> Component', () => {
 				} );
 			} );
 
-			it( 'should be possible to pass custom tag name to rendered element via config.root.element', async () => {
-				component = render(
-					<CKEditor
-						editor={MockEditor}
-						config={{
-							root: { element: 'section' }
-						} as EditorRelaxedConfig}
-					/>
-				);
+			describe( 'when Editor.editorName is not set', () => {
+				beforeEach( () => {
+					delete ( MockEditor as any ).editorName;
+				} );
 
-				await waitFor( () => {
-					expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'SECTION' );
+				afterEach( () => {
+					( MockEditor as any ).editorName = undefined;
+				} );
+
+				it( 'should always render a div regardless of config.root.element', async () => {
+					component = render(
+						<CKEditor
+							editor={MockEditor}
+							config={{
+								root: { element: 'section' }
+							} as EditorRelaxedConfig}
+						/>
+					);
+
+					await waitFor( () => {
+						expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'DIV' );
+					} );
+				} );
+
+				it( 'should always render a div regardless of config.roots.main.element', async () => {
+					component = render(
+						<CKEditor
+							editor={MockEditor}
+							config={{
+								roots: { main: { element: 'article' } }
+							} as EditorRelaxedConfig}
+						/>
+					);
+
+					await waitFor( () => {
+						expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'DIV' );
+					} );
 				} );
 			} );
 
-			it( 'should be possible to pass custom tag name to rendered element via config.roots.main.element', async () => {
-				component = render(
-					<CKEditor
-						editor={MockEditor}
-						config={{
-							roots: { main: { element: 'article' } }
-						} as EditorRelaxedConfig}
-					/>
-				);
+			describe( 'when Editor.editorName is "ClassicEditor"', () => {
+				beforeEach( () => {
+					( MockEditor as any ).editorName = 'ClassicEditor';
+				} );
 
-				await waitFor( () => {
-					expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'ARTICLE' );
+				afterEach( () => {
+					( MockEditor as any ).editorName = undefined;
+				} );
+
+				it( 'should always render a div regardless of config.root.element', async () => {
+					component = render(
+						<CKEditor
+							editor={MockEditor}
+							config={{
+								root: { element: 'section' }
+							} as EditorRelaxedConfig}
+						/>
+					);
+
+					await waitFor( () => {
+						expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'DIV' );
+					} );
+				} );
+
+				it( 'should always render a div regardless of config.roots.main.element', async () => {
+					component = render(
+						<CKEditor
+							editor={MockEditor}
+							config={{
+								roots: { main: { element: 'article' } }
+							} as EditorRelaxedConfig}
+						/>
+					);
+
+					await waitFor( () => {
+						expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'DIV' );
+					} );
 				} );
 			} );
 
-			it( 'should prefer config.roots.main.element over config.root.element if both are provided', async () => {
-				component = render(
-					<CKEditor
-						editor={MockEditor}
-						config={{
-							root: { element: 'section' },
-							roots: { main: { element: 'header' } }
-						} as EditorRelaxedConfig}
-					/>
-				);
+			describe( 'when Editor.editorName is set to a non-ClassicEditor value', () => {
+				beforeEach( () => {
+					( MockEditor as any ).editorName = 'MultiRootEditor';
+				} );
 
-				await waitFor( () => {
-					expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'HEADER' );
+				afterEach( () => {
+					( MockEditor as any ).editorName = undefined;
+				} );
+
+				it( 'should be possible to pass custom tag name to rendered element via config.root.element', async () => {
+					component = render(
+						<CKEditor
+							editor={MockEditor}
+							config={{
+								root: { element: 'section' }
+							} as EditorRelaxedConfig}
+						/>
+					);
+
+					await waitFor( () => {
+						expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'SECTION' );
+					} );
+				} );
+
+				it( 'should be possible to pass custom tag name to rendered element via config.roots.main.element', async () => {
+					component = render(
+						<CKEditor
+							editor={MockEditor}
+							config={{
+								roots: { main: { element: 'article' } }
+							} as EditorRelaxedConfig}
+						/>
+					);
+
+					await waitFor( () => {
+						expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'ARTICLE' );
+					} );
+				} );
+
+				it( 'should prefer config.roots.main.element over config.root.element if both are provided', async () => {
+					component = render(
+						<CKEditor
+							editor={MockEditor}
+							config={{
+								root: { element: 'section' },
+								roots: { main: { element: 'header' } }
+							} as EditorRelaxedConfig}
+						/>
+					);
+
+					await waitFor( () => {
+						expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'HEADER' );
+					} );
+				} );
+
+				it( 'should render a div when neither config.root.element nor config.roots.main.element is set', async () => {
+					component = render( <CKEditor editor={MockEditor} /> );
+
+					await waitFor( () => {
+						expect( component!.container.firstElementChild!.tagName ).to.be.equal( 'DIV' );
+					} );
 				} );
 			} );
 		} );
@@ -1511,4 +1609,3 @@ describe( '<CKEditor> Component', () => {
 		}
 	} );
 } );
-

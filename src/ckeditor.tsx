@@ -212,7 +212,13 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 */
 	public override render(): React.ReactNode {
 		const config = ( this.props.config ?? {} ) as EditorRelaxedConfig;
-		const definition = ( config.roots?.main?.element ?? config.root?.element ) as EditorElementObjectDefinition | undefined;
+		const { editor: Editor } = this.props;
+
+		// Classic editor does not use editor element at all.
+		const definition: EditorElementObjectDefinition | undefined =
+			!Editor.editorName || Editor.editorName === 'ClassicEditor'
+				? undefined
+				: ( config.roots?.main?.element ?? config.root?.element );
 
 		return (
 			<EditorElement
