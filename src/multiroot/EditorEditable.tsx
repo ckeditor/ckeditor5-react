@@ -7,11 +7,11 @@ import React, { forwardRef, useEffect, useRef, memo, useMemo } from 'react';
 
 import { mergeRefs } from '../utils/mergeRefs.js';
 import type { MultiRootEditor } from 'ckeditor5';
+import { EditorElement } from '../EditorElement.js';
 import {
-	EditorElement,
-	normalizeEditorElementDefinition,
-	type EditorElementDefinition
-} from '../EditorElement.js';
+	type EditorElementDefinition,
+	normalizeEditorElementDefinition
+} from '../utils/normalizeEditorElementDefinition.js';
 
 export const ROOT_EDITABLE_OPTIONS_ATTRIBUTE = '$rootEditableOptions';
 

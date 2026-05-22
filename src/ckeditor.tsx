@@ -39,7 +39,9 @@ import {
 	type EditorRelaxedConstructor,
 	type EditorRelaxedConfig
 } from '@ckeditor/ckeditor5-integrations-common';
-import { EditorElement, type EditorElementObjectDefinition } from './EditorElement.js';
+
+import { EditorElement } from './EditorElement.js';
+import type { EditorElementObjectDefinition } from './utils/normalizeEditorElementDefinition.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
