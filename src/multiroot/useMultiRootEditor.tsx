@@ -715,7 +715,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 	};
 };
 
-type AddRootOptions = {
+export type AddRootOptions = {
 	name: string;
 	data?: string;
 	attributes?: Record<string, unknown>;

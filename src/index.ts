@@ -19,7 +19,8 @@ export {
 export {
 	useMultiRootEditor,
 	type MultiRootHookProps,
-	type MultiRootHookReturns
+	type MultiRootHookReturns,
+	type AddRootOptions
 } from './multiroot/useMultiRootEditor.js';
 
 export { default as useCKEditorCloud } from './cloud/useCKEditorCloud.js';
