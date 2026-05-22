@@ -720,7 +720,7 @@ export type AddRootOptions = {
 	data?: string;
 	attributes?: Record<string, unknown>;
 	isUndoable?: boolean;
-	modelElementName?: string;
+	modelElement?: string;
 	editableOptions?: RootEditableOptionsAttribute;
 	[ key: string ]: unknown;
 };
