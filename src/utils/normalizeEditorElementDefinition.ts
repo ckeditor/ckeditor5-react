@@ -45,11 +45,6 @@ export type EditorElementObjectDefinition = {
 	name: ElementType;
 
 	/**
-     * The unique identifier (ID) to apply to the editable element.
-     */
-	id?: string;
-
-	/**
      * Class name or array of class names to apply to the editable element. Each name can be provided as a string.
      */
 	classes?: string | Array<string>;

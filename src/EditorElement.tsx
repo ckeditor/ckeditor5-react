@@ -4,6 +4,8 @@
  */
 
 import React, { forwardRef, memo } from 'react';
+import { kebabToCamelCase, mapObjectKeys } from '@ckeditor/ckeditor5-integrations-common';
+
 import { normalizeClassList } from './utils/normalizeClassList.js';
 import {
 	type EditorElementDefinition,
@@ -16,17 +18,18 @@ import {
  * @param props The component properties.
  */
 export const EditorElement = memo( forwardRef<HTMLElement, Props>( ( { definition }, ref ) => {
-	const { id, name: Tag, classes, styles, attributes } = normalizeEditorElementDefinition( definition ?? {
+	const { name: Tag, classes, styles, attributes } = normalizeEditorElementDefinition( definition ?? {
 		name: 'div'
 	} );
+
+	const mappedStyles = styles && mapObjectKeys( styles, kebabToCamelCase );
 
 	return (
 		<Tag
 			ref={ref}
 			{...attributes}
-			id={id}
 			className={normalizeClassList( classes )}
-			style={styles}
+			style={mappedStyles}
 		/>
 	);
 } ) );

@@ -64,16 +64,24 @@ export const EditorEditable = memo( forwardRef<HTMLElement, Props>( ( { id, edit
 		return null;
 	}
 
+	// Enforce ID attribute from component's props.
+	let normalizedDefinition = normalizeEditorElementDefinition( rootEditableOptions?.element ?? {
+		name: 'div'
+	} );
+
+	normalizedDefinition = {
+		...normalizedDefinition,
+		attributes: {
+			...normalizedDefinition.attributes,
+			id
+		}
+	};
+
 	return (
 		<EditorElement
 			key={editor?.id}
 			ref={ mergeRefs( ref, innerRef ) }
-			definition={{
-				...normalizeEditorElementDefinition( rootEditableOptions?.element ?? {
-					name: 'div'
-				} ),
-				id
-			}}
+			definition={normalizedDefinition}
 		/>
 	);
 } ) );

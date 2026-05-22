@@ -34,7 +34,6 @@ describe( 'EditorElement', () => {
 	it( 'renders an element based on an object definition with id, classes, styles, and attributes', () => {
 		const definition: EditorElementObjectDefinition = {
 			name: 'p',
-			id: 'my-custom-id',
 			classes: [ 'class1', 'class2' ],
 			styles: { color: 'red', marginTop: '10px' },
 			attributes: { 'data-test': 'value123', 'aria-label': 'test-label' }
@@ -44,7 +43,6 @@ describe( 'EditorElement', () => {
 		const element = container.firstElementChild as HTMLElement;
 
 		expect( element.tagName ).toBe( 'P' );
-		expect( element.id ).toBe( 'my-custom-id' );
 
 		expect( element.className ).toContain( 'class1' );
 		expect( element.className ).toContain( 'class2' );
@@ -77,5 +75,35 @@ describe( 'EditorElement', () => {
 
 		expect( ref.current ).not.toBeNull();
 		expect( ref.current?.tagName ).toBe( 'SPAN' );
+	} );
+
+	it( 'should be possible to pass styles in camel case', () => {
+		const { container } = render(
+			<EditorElement
+				definition={{
+					name: 'section',
+					styles: {
+						fontWeight: 'bold'
+					}
+				}}
+			/>
+		);
+
+		expect( ( container.firstElementChild as HTMLElement ).style.fontWeight ).toBe( 'bold' );
+	} );
+
+	it( 'should be possible to pass styles in kebab case', () => {
+		const { container } = render(
+			<EditorElement
+				definition={{
+					name: 'section',
+					styles: {
+						'font-weight': 'bold'
+					}
+				}}
+			/>
+		);
+
+		expect( ( container.firstElementChild as HTMLElement ).style.fontWeight ).toBe( 'bold' );
 	} );
 } );
