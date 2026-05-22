@@ -426,6 +426,8 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
  * Get definition of the element used to create editor.
  */
 function getEditorElementDefinition( editor: EditorRelaxedConstructor, config: EditorRelaxedConfig ): EditorElementDefinition {
+	// Classic editor hides element rendered by React, so it makes no sense
+	// to use custom tag in this case. Let's render `div`.
 	if ( !editor.editorName || editor.editorName === 'ClassicEditor' ) {
 		return 'div';
 	}
