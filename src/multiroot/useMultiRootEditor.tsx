@@ -46,6 +46,7 @@ import {
 	ROOT_EDITABLE_OPTIONS_ATTRIBUTE,
 	type RootEditableOptionsAttribute
 } from './EditorEditable.js';
+import type { EditorErrorDetails } from '../ckeditor.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -730,11 +731,6 @@ type LifeCycleSemaphoreRefs = {
 	[ K in keyof EditorSemaphoreMountResult<MultiRootEditor> ]: RefObject<EditorSemaphoreMountResult<MultiRootEditor>[ K ]>
 };
 
-interface ErrorDetails {
-	phase: 'initialization' | 'runtime';
-	willEditorRestart?: boolean;
-}
-
 export type MultiRootHookProps = {
 	id?: any;
 	semaphoreElement?: HTMLElement;
@@ -750,7 +746,7 @@ export type MultiRootHookProps = {
 
 	onReady?: ( editor: MultiRootEditor ) => void;
 	onAfterDestroy?: ( editor: MultiRootEditor ) => void;
-	onError?: ( error: Error, details: ErrorDetails ) => void;
+	onError?: ( error: Error, details: EditorErrorDetails ) => void;
 	onChange?: ( event: EventInfo, editor: MultiRootEditor ) => void;
 	onFocus?: ( event: EventInfo, editor: MultiRootEditor ) => void;
 	onBlur?: ( event: EventInfo, editor: MultiRootEditor ) => void;

@@ -474,7 +474,7 @@ export interface Props<TEditor extends Editor> {
 	disableWatchdog?: boolean;
 	onReady?: ( editor: TEditor ) => void;
 	onAfterDestroy?: ( editor: TEditor ) => void;
-	onError?: ( error: Error, details: ErrorDetails ) => void;
+	onError?: ( error: Error, details: EditorErrorDetails ) => void;
 	onChange?: ( event: EventInfo, editor: TEditor ) => void;
 	onFocus?: ( event: EventInfo, editor: TEditor ) => void;
 	onBlur?: ( event: EventInfo, editor: TEditor ) => void;
@@ -483,7 +483,10 @@ export interface Props<TEditor extends Editor> {
 	id?: any;
 }
 
-interface ErrorDetails {
+/**
+ * Error thrown by editor watchdog.
+ */
+export type EditorErrorDetails = {
 	phase: 'initialization' | 'runtime';
 	willEditorRestart?: boolean;
-}
+};

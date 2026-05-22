@@ -3,9 +3,24 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-export { default as CKEditor } from './ckeditor.js';
-export { default as CKEditorContext } from './context/ckeditorcontext.js';
-export { useMultiRootEditor, type MultiRootHookProps, type MultiRootHookReturns } from './multiroot/useMultiRootEditor.js';
+export {
+	default as CKEditor,
+	type EditorErrorDetails
+} from './ckeditor.js';
+
+export {
+	default as CKEditorContext,
+	ContextWatchdogContext,
+	useCKEditorWatchdogContext,
+	type ContextErrorDetails,
+	type ContextWatchdogValue
+} from './context/ckeditorcontext.js';
+
+export {
+	useMultiRootEditor,
+	type MultiRootHookProps,
+	type MultiRootHookReturns
+} from './multiroot/useMultiRootEditor.js';
 
 export { default as useCKEditorCloud } from './cloud/useCKEditorCloud.js';
 export {
