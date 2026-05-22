@@ -41,7 +41,7 @@ import {
 } from '@ckeditor/ckeditor5-integrations-common';
 
 import { EditorElement } from './EditorElement.js';
-import type { EditorElementObjectDefinition } from './utils/normalizeEditorElementDefinition.js';
+import type { EditorElementDefinition } from './utils/normalizeEditorElementDefinition.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -213,14 +213,8 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Render a <div> element which will be replaced by CKEditor.
 	 */
 	public override render(): React.ReactNode {
-		const config = ( this.props.config ?? {} ) as EditorRelaxedConfig;
-		const { editor: Editor } = this.props;
-
-		// Classic editor does not use editor element at all.
-		const definition: EditorElementObjectDefinition | undefined =
-			!Editor.editorName || Editor.editorName === 'ClassicEditor'
-				? undefined
-				: ( config.roots?.main?.element ?? config.root?.element );
+		const { editor: Editor, config = {} } = this.props;
+		const definition = getEditorElementDefinition( Editor, config );
 
 		return (
 			<EditorElement
@@ -426,6 +420,17 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 			} );
 		} );
 	}
+}
+
+/**
+ * Get definition of the element used to create editor.
+ */
+function getEditorElementDefinition( editor: EditorRelaxedConstructor, config: EditorRelaxedConfig ): EditorElementDefinition {
+	if ( !editor.editorName || editor.editorName === 'ClassicEditor' ) {
+		return 'div';
+	}
+
+	return config.roots?.main?.element ?? config.root?.element ?? 'div';
 }
 
 /**
