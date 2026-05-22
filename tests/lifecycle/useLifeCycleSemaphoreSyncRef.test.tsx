@@ -119,4 +119,61 @@ describe( 'useLifeCycleSemaphoreSyncRef', () => {
 
 		expect( attributeRef.current ).toBe( 'value' );
 	} );
+
+	it( 'should resolve `waitFor` promise when semaphore mounts successfully', async () => {
+		const { result } = renderHook( () => useLifeCycleSemaphoreSyncRef<{ key: string }>() );
+
+		let resolved: { key: string } | undefined;
+
+		act( () => {
+			result.current.replace( () => semaphore );
+			result.current.waitFor().then( value => {
+				resolved = value;
+			} );
+
+			result.current.unsafeSetValue( { key: 'value' } );
+		} );
+
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+		expect( resolved ).toEqual( { key: 'value' } );
+	} );
+
+	it( 'should reject `waitFor` promise when semaphore is released before mount', async () => {
+		const { result } = renderHook( () => useLifeCycleSemaphoreSyncRef<{ key: string }>() );
+
+		let rejected: unknown;
+
+		act( () => {
+			result.current.replace( () => semaphore );
+			result.current.waitFor().catch( err => {
+				rejected = err;
+			} );
+
+			result.current.release();
+		} );
+
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+		expect( rejected ).toBeInstanceOf( Error );
+		expect( ( rejected as Error ).message ).toContain( 'destroyed before initialization' );
+	} );
+
+	it( 'should resolve `waitFor` promise via direct `unsafeSetValue` call (watchdog restart scenario)', async () => {
+		const { result } = renderHook( () => useLifeCycleSemaphoreSyncRef<{ key: string }>() );
+
+		let resolved: { key: string } | undefined;
+
+		act( () => {
+			result.current.waitFor().then( value => {
+				resolved = value;
+			} );
+
+			result.current.unsafeSetValue( { key: 'restarted' } );
+		} );
+
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+		expect( resolved ).toEqual( { key: 'restarted' } );
+	} );
 } );

@@ -120,16 +120,6 @@ export class LifeCycleElementSemaphore<R> {
 	}
 
 	/**
-	 * Returns a promise that resolves with the value of the semaphore when it is successfully mounted.
-	 * Useful for safely awaiting the editor initialization before performing direct API calls.
-	 */
-	public waitFor(): Promise<R> {
-		return new Promise<R>( resolve => {
-			this.runAfterMount( resolve );
-		} );
-	}
-
-	/**
 	 * Resets the semaphore to its initial state.
 	 */
 	public discard(): void {

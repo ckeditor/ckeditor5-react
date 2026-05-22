@@ -646,7 +646,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 	);
 
 	const removeRoot = async ( rootName: string ) => {
-		const { instance } = await semaphore.current!.waitFor();
+		const { instance } = await semaphore.waitFor();
 
 		instance.model.change( () => {
 			instance.detachRoot( rootName, true );
@@ -661,7 +661,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 			...rootOptions
 		}: AddRootOptions
 	) => {
-		const { instance } = await semaphore.current!.waitFor();
+		const { instance } = await semaphore.waitFor();
 		const supports = getInstalledCKBaseFeatures();
 
 		instance.model.change( () => {
