@@ -6,7 +6,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import React, { createRef } from 'react';
 import { render } from '@testing-library/react';
-import { EditorElement, type EditorElementObjectDefinition } from '../src/EditorElement.js';
+import { EditorElement } from '../src/EditorElement.js';
+import type { EditorElementObjectDefinition } from '../src/utils/normalizeEditorElementDefinition.js';
 
 describe( 'EditorElement', () => {
 	it( 'renders a default <div> element when no definition is provided', () => {
