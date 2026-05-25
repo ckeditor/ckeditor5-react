@@ -19,3 +19,9 @@ minimumReleaseAgeExclude:
 shellEmulator: true
 shamefullyHoist: true
 preferFrozenLockfile: true
+allowBuilds:
+  edgedriver: true
+  esbuild: true
+  geckodriver: true
+  protobufjs: true
+  snyk: false
