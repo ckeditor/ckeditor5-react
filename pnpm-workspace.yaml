@@ -17,10 +17,6 @@ minimumReleaseAgeExclude:
   - '@cksource/*'
   - '*ckeditor5*'
 
-  - 'engine.io-client' # Temporary. Remove after 2026-05-23
-  - 'protobufjs' # Temporary. Remove after 2026-05-23
-  - '@protobufjs/inquire' # Temporary. Remove after 2026-05-23
-
 shellEmulator: true
 shamefullyHoist: true
 preferFrozenLockfile: true
