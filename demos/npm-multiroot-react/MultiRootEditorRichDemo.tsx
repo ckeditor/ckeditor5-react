@@ -44,8 +44,10 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 
 	const {
 		editor, editableElements, toolbarElement,
-		data, setData,
-		attributes, setAttributes
+		data,
+		attributes,
+		addRoot,
+		removeRoot
 	} = useMultiRootEditor( editorProps );
 
 	// The <select> element state, used to pick the root to remove.
@@ -95,32 +97,32 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 		} );
 	};
 
-	const addRoot = ( newRootAttributes: Record<string, unknown>, rootId?: string ) => {
+	const onAddRoot = ( newRootAttributes: Record<string, unknown>, rootId?: string ) => {
 		const id = rootId || new Date().getTime();
 
 		for ( let i = 1; i <= numberOfRoots; i++ ) {
 			const rootName = `root-${ i }-${ id }`;
 
-			data[ rootName ] = '';
-
-			// Remove code related to rows if you don't need to handle multiple roots in one row.
-			attributes[ rootName ] = { ...newRootAttributes, order: i * 10, row: id };
+			addRoot( {
+				name: rootName,
+				attributes: {
+					...newRootAttributes,
+					order: i * 10, row: id
+				},
+				editableOptions: {
+					element: 'section',
+					placeholder: 'Test placeholder',
+					label: 'Test label'
+				}
+			} );
 		}
 
-		setData( { ...data } );
-		setAttributes( { ...attributes } );
 		// Reset the <input> element to the default value.
 		setNumberOfRoots( 1 );
 	};
 
-	const removeRoot = ( rootName: string ) => {
-		setData( previousData => {
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			const { [ rootName! ]: _, ...newData } = previousData;
-
-			return { ...newData };
-		} );
-
+	const onRemoveRoot = ( rootName: string ) => {
+		removeRoot( rootName );
 		setSelectedRoot( '' );
 	};
 
@@ -175,7 +177,7 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 
 			<div className="buttons">
 				<button
-					onClick={ () => removeRoot( selectedRoot! ) }
+					onClick={ () => onRemoveRoot( selectedRoot! ) }
 					disabled={ !selectedRoot }
 				>
 					Remove root
@@ -194,7 +196,7 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 
 			<div className="buttons">
 				<button
-					onClick={ () => addRoot( { row: 'section-1' } ) }
+					onClick={ () => onAddRoot( { row: 'section-1' } ) }
 				>
 					Add row with roots
 				</button>

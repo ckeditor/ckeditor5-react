@@ -36,8 +36,12 @@ import {
 	assignElementToEditorConfig,
 	compareInstalledCKBaseVersion,
 	getInstalledCKBaseFeatures,
-	type EditorRelaxedConstructor
+	type EditorRelaxedConstructor,
+	type EditorRelaxedConfig
 } from '@ckeditor/ckeditor5-integrations-common';
+
+import { EditorElement } from './EditorElement.js';
+import type { EditorElementDefinition } from './utils/normalizeEditorElementDefinition.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -209,8 +213,14 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Render a <div> element which will be replaced by CKEditor.
 	 */
 	public override render(): React.ReactNode {
+		const { editor: Editor, config = {} } = this.props;
+		const definition = getEditorElementDefinition( Editor, config );
+
 		return (
-			<div ref={ this.domContainer }></div>
+			<EditorElement
+				ref={ this.domContainer }
+				definition={definition}
+			/>
 		);
 	}
 
@@ -413,6 +423,19 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 }
 
 /**
+ * Get definition of the element used to create editor.
+ */
+function getEditorElementDefinition( editor: EditorRelaxedConstructor, config: EditorRelaxedConfig ): EditorElementDefinition {
+	// Classic editor hides element rendered by React, so it makes no sense
+	// to use custom tag in this case. Let's render `div`.
+	if ( !editor.editorName || editor.editorName === 'ClassicEditor' ) {
+		return 'div';
+	}
+
+	return config.roots?.main?.element ?? config.root?.element ?? 'div';
+}
+
+/**
  * Returns true when the editor should be updated.
  *
  * @param prevProps Previous react's properties.
@@ -466,7 +489,7 @@ export interface Props<TEditor extends Editor> {
 	disableWatchdog?: boolean;
 	onReady?: ( editor: TEditor ) => void;
 	onAfterDestroy?: ( editor: TEditor ) => void;
-	onError?: ( error: Error, details: ErrorDetails ) => void;
+	onError?: ( error: Error, details: EditorErrorDetails ) => void;
 	onChange?: ( event: EventInfo, editor: TEditor ) => void;
 	onFocus?: ( event: EventInfo, editor: TEditor ) => void;
 	onBlur?: ( event: EventInfo, editor: TEditor ) => void;
@@ -475,7 +498,10 @@ export interface Props<TEditor extends Editor> {
 	id?: any;
 }
 
-interface ErrorDetails {
+/**
+ * Error thrown by editor watchdog.
+ */
+export type EditorErrorDetails = {
 	phase: 'initialization' | 'runtime';
 	willEditorRestart?: boolean;
-}
+};

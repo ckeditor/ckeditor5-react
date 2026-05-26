@@ -218,7 +218,7 @@ export type ContextWatchdogValue<TContext extends Context = Context> =
 	}
 	| {
 		status: 'error';
-		error: ErrorDetails;
+		error: ContextErrorDetails;
 	};
 
 /**
@@ -248,10 +248,13 @@ export type Props<TContext extends Context> =
 		watchdogConfig?: WatchdogConfig;
 		config?: ContextConfig;
 		onReady?: ( context: TContext, watchdog: ContextWatchdog<TContext> ) => void;
-		onError?: ( error: Error, details: ErrorDetails ) => void;
+		onError?: ( error: Error, details: ContextErrorDetails ) => void;
 	};
 
-type ErrorDetails = {
+/**
+ * Error thrown by context watchdog.
+ */
+export type ContextErrorDetails = {
 	phase: 'initialization' | 'runtime';
 	willContextRestart: boolean;
 };

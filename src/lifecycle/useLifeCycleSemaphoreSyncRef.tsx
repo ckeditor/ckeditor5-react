@@ -24,16 +24,21 @@ import type { LifeCycleElementSemaphore, LifeCycleAfterMountCallback } from './L
 export const useLifeCycleSemaphoreSyncRef = <R extends object>(): LifeCycleSemaphoreSyncRefResult<R> => {
 	const semaphoreRef = useRef<LifeCycleElementSemaphore<R> | null>( null );
 	const [ revision, setRevision ] = useState( () => Date.now() );
+	const pendingWaiters = useRef<Array<PendingWaiter<R>>>( [] );
 
 	const refresh = () => {
 		setRevision( Date.now() );
 	};
 
 	const release = ( rerender: boolean = true ) => {
-		if ( semaphoreRef.current ) {
-			semaphoreRef.current.release();
-			semaphoreRef.current = null;
-		}
+		semaphoreRef.current?.release();
+		semaphoreRef.current = null;
+
+		const waiters = pendingWaiters.current.splice( 0 );
+
+		waiters.forEach( ( { reject } ) => {
+			reject( new Error( 'CKEditor: editor was destroyed before initialization completed.' ) );
+		} );
 
 		if ( rerender ) {
 			setRevision( Date.now() );
@@ -42,21 +47,49 @@ export const useLifeCycleSemaphoreSyncRef = <R extends object>(): LifeCycleSemap
 
 	const unsafeSetValue = ( value: R ) => {
 		semaphoreRef.current?.unsafeSetValue( value );
+
+		const waiters = pendingWaiters.current.splice( 0 );
+
+		waiters.forEach( ( { resolve } ) => resolve( value ) );
+
 		refresh();
 	};
 
 	const runAfterMount = ( callback: LifeCycleAfterMountCallback<R> ) => {
-		if ( semaphoreRef.current ) {
-			semaphoreRef.current.runAfterMount( callback );
-		}
+		semaphoreRef.current?.runAfterMount( callback );
 	};
 
 	const replace = ( newSemaphore: () => LifeCycleElementSemaphore<R> ) => {
-		release( false );
+		semaphoreRef.current?.release();
 		semaphoreRef.current = newSemaphore();
+		semaphoreRef.current.runAfterMount( value => {
+			const waiters = pendingWaiters.current.splice( 0 );
+
+			waiters.forEach( ( { resolve } ) => resolve( value ) );
+		} );
 
 		refresh();
 		runAfterMount( refresh );
+	};
+
+	/**
+	 * Returns a Promise that resolves with the current semaphore value once the editor is ready.
+	 *
+	 * Unlike `semaphore.current.waitFor()`, this hook-level version survives semaphore replacements:
+	 * if the current semaphore is replaced before it mounts, the promise will wait for the next one
+	 * rather than hanging indefinitely. The promise is only rejected when the hook is fully torn down
+	 * via `release()`.
+	 */
+	const waitFor = (): Promise<R> => {
+		const currentValue = semaphoreRef.current?.value;
+
+		if ( currentValue ) {
+			return Promise.resolve( currentValue );
+		}
+
+		return new Promise<R>( ( resolve, reject ) => {
+			pendingWaiters.current.push( { resolve, reject } );
+		} );
 	};
 
 	const createAttributeRef = <K extends keyof R>( key: K ): RefObject<R[ K ]> => ( {
@@ -78,8 +111,14 @@ export const useLifeCycleSemaphoreSyncRef = <R extends object>(): LifeCycleSemap
 		unsafeSetValue,
 		release,
 		replace,
-		runAfterMount
+		runAfterMount,
+		waitFor
 	};
+};
+
+type PendingWaiter<R> = {
+	resolve: ( value: R ) => void;
+	reject: ( reason: unknown ) => void;
 };
 
 export type LifeCycleSemaphoreSyncRefResult<R> = RefObject<LifeCycleElementSemaphore<R>> & {
@@ -89,4 +128,5 @@ export type LifeCycleSemaphoreSyncRefResult<R> = RefObject<LifeCycleElementSemap
 	release: ( rerender?: boolean ) => void;
 	replace: ( newSemaphore: () => LifeCycleElementSemaphore<R> ) => void;
 	createAttributeRef: <K extends keyof R>( key: K ) => RefObject<R[ K ]>;
+	waitFor: () => Promise<R>;
 };
