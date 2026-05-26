@@ -35,11 +35,11 @@
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@ckeditor/ckeditor5-dev-bump-year": "^55.4.0",
-    "@ckeditor/ckeditor5-dev-changelog": "^55.4.0",
-    "@ckeditor/ckeditor5-dev-ci": "^55.4.0",
-    "@ckeditor/ckeditor5-dev-release-tools": "^55.4.0",
-    "@ckeditor/ckeditor5-dev-utils": "^55.4.0",
+    "@ckeditor/ckeditor5-dev-bump-year": "^55.6.0",
+    "@ckeditor/ckeditor5-dev-changelog": "^55.6.0",
+    "@ckeditor/ckeditor5-dev-ci": "^55.6.0",
+    "@ckeditor/ckeditor5-dev-release-tools": "^55.6.0",
+    "@ckeditor/ckeditor5-dev-utils": "^55.6.0",
     "@testing-library/dom": "^10.3.1",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
@@ -79,7 +79,7 @@
     "upath": "^2.0.1",
     "vite": "^7.3.2",
     "vitest": "^4.0.18",
-    "webdriverio": "^9.24.0"
+    "webdriverio": "^9.27.1"
   },
   "engines": {
     "node": ">=24.11.0",
