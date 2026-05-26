@@ -14,119 +14,119 @@ importers:
   .:
     dependencies:
       '@ckeditor/ckeditor5-integrations-common':
-        specifier: ^2.3.1
-        version: 2.3.1(ckeditor5@48.0.1)
+        specifier: ^2.4.0
+        version: 2.4.0(ckeditor5@48.0.1)
     devDependencies:
       '@ckeditor/ckeditor5-dev-bump-year':
-        specifier: ^55.5.0
+        specifier: ^55.4.0
         version: 55.5.0
       '@ckeditor/ckeditor5-dev-changelog':
-        specifier: ^55.5.0
+        specifier: ^55.4.0
         version: 55.5.0(@babel/core@7.29.0)(@types/node@25.6.0)(webpack@5.105.4)
       '@ckeditor/ckeditor5-dev-ci':
-        specifier: ^55.5.0
+        specifier: ^55.4.0
         version: 55.5.0
       '@ckeditor/ckeditor5-dev-release-tools':
-        specifier: ^55.5.0
+        specifier: ^55.4.0
         version: 55.5.0(@babel/core@7.29.0)(@types/node@25.6.0)(webpack@5.105.4)
       '@ckeditor/ckeditor5-dev-utils':
-        specifier: ^55.5.0
+        specifier: ^55.4.0
         version: 55.5.0(@babel/core@7.29.0)(webpack@5.105.4)
       '@testing-library/dom':
-        specifier: ^10.4.1
+        specifier: ^10.3.1
         version: 10.4.1
       '@testing-library/jest-dom':
-        specifier: ^6.9.1
+        specifier: ^6.4.8
         version: 6.9.1
       '@testing-library/react':
-        specifier: ^16.3.2
+        specifier: ^16.0.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/react':
-        specifier: ^18.3.28
+        specifier: ^18.0.0
         version: 18.3.28
       '@types/react-dom':
-        specifier: ^18.3.7
+        specifier: ^18.0.0
         version: 18.3.7(@types/react@18.3.28)
       '@vitejs/plugin-react':
-        specifier: ^5.2.0
+        specifier: ^5.0.4
         version: 5.2.0(vite@7.3.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.2)(yaml@2.8.3))
       '@vitest/browser':
-        specifier: ^4.1.5
+        specifier: ^4.0.18
         version: 4.1.5(vite@7.3.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.2)(yaml@2.8.3))(vitest@4.1.5)
       '@vitest/browser-webdriverio':
-        specifier: ^4.1.5
+        specifier: ^4.0.18
         version: 4.1.5(vite@7.3.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.2)(yaml@2.8.3))(vitest@4.1.5)(webdriverio@9.27.0)
       '@vitest/coverage-istanbul':
-        specifier: ^4.1.5
+        specifier: ^4.0.18
         version: 4.1.5(vitest@4.1.5)
       '@vitest/coverage-v8':
-        specifier: ^4.1.5
+        specifier: ^4.0.18
         version: 4.1.5(@vitest/browser@4.1.5)(vitest@4.1.5)
       '@vitest/ui':
-        specifier: ^4.1.5
+        specifier: ^4.0.18
         version: 4.1.5(vitest@4.1.5)
       ckeditor5:
-        specifier: ^48.0.1
+        specifier: ^48.0.0
         version: 48.0.1
       ckeditor5-premium-features:
-        specifier: ^48.0.1
+        specifier: ^48.0.0
         version: 48.0.1(ckeditor5@48.0.1)
       concurrently:
         specifier: ^9.2.1
         version: 9.2.1
       eslint:
-        specifier: ^9.39.4
+        specifier: ^9.38.0
         version: 9.39.4(jiti@2.6.1)
       eslint-config-ckeditor5:
-        specifier: ^13.0.1
+        specifier: ^13.0.0
         version: 13.0.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
       eslint-plugin-ckeditor5-rules:
-        specifier: ^13.0.1
+        specifier: ^13.0.0
         version: 13.0.1
       eslint-plugin-react:
         specifier: ^7.37.5
         version: 7.37.5(eslint@9.39.4(jiti@2.6.1))
       globals:
-        specifier: ^16.5.0
+        specifier: ^16.1.0
         version: 16.5.0
       husky:
         specifier: ^9.1.7
         version: 9.1.7
       lint-staged:
-        specifier: ^10.5.4
+        specifier: ^10.2.11
         version: 10.5.4
       listr2:
-        specifier: ^6.6.1
+        specifier: ^6.5.0
         version: 6.6.1(enquirer@2.4.1)
       minimist:
-        specifier: ^1.2.8
+        specifier: ^1.2.5
         version: 1.2.8
       prop-types:
         specifier: ^15.8.1
         version: 15.8.1
       react:
-        specifier: ^18.3.1
+        specifier: ^18.0.0
         version: 18.3.1
       react-dom:
-        specifier: ^18.3.1
+        specifier: ^18.0.0
         version: 18.3.1(react@18.3.1)
       react16:
-        specifier: npm:react@^16.14.0
+        specifier: npm:react@^16.0.0
         version: react@16.14.0
       react16-dom:
-        specifier: npm:react-dom@^16.14.0
+        specifier: npm:react-dom@^16.0.0
         version: react-dom@16.14.0(react@18.3.1)
       react17:
-        specifier: npm:react@^17.0.2
+        specifier: npm:react@^17.0.0
         version: react@17.0.2
       react17-dom:
-        specifier: npm:react-dom@^17.0.2
+        specifier: npm:react-dom@^17.0.0
         version: react-dom@17.0.2(react@18.3.1)
       react18:
-        specifier: npm:react@^18.3.1
+        specifier: npm:react@^18.0.0
         version: react@18.3.1
       react18-dom:
-        specifier: npm:react-dom@^18.3.1
+        specifier: npm:react-dom@^18.0.0
         version: react-dom@18.3.1(react@18.3.1)
       react19:
         specifier: npm:react@19.0.0
@@ -138,7 +138,7 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       typescript-eslint:
-        specifier: ^8.59.0
+        specifier: ^8.46.2
         version: 8.59.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
       upath:
         specifier: ^2.0.1
@@ -147,10 +147,10 @@ importers:
         specifier: ^7.3.2
         version: 7.3.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.2)(yaml@2.8.3)
       vitest:
-        specifier: ^4.1.5
+        specifier: ^4.0.18
         version: 4.1.5(@types/node@25.6.0)(@vitest/browser-webdriverio@4.1.5)(@vitest/coverage-istanbul@4.1.5)(@vitest/coverage-v8@4.1.5)(@vitest/ui@4.1.5)(vite@7.3.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.2)(yaml@2.8.3))
       webdriverio:
-        specifier: ^9.27.0
+        specifier: ^9.24.0
         version: 9.27.0
 
 packages:
@@ -417,8 +417,8 @@ packages:
   '@ckeditor/ckeditor5-indent@48.0.1':
     resolution: {integrity: sha512-0YShggoO85v9WILMF07Ld9afhcpekH8NeH76QYSoBQm7hk5RRUVbAFRHnTTxXwe8KY02m/mymgtHoToZFnrZeg==}
 
-  '@ckeditor/ckeditor5-integrations-common@2.3.1':
-    resolution: {integrity: sha512-YcNvRhPMBIHjExmSVGypx98N8E5AiESUZTBzphrzstfxtunJFFVvFJ3KuzHwKLaBUPs7YIpqS6cNVft1gFRH7Q==}
+  '@ckeditor/ckeditor5-integrations-common@2.4.0':
+    resolution: {integrity: sha512-kPhR1yLSrww6WRMjkCOF9jhL9RlrRZbrrnbN8z/yr6aFILasNQxMgHpAjYpo1z5ChgUiNHQho0XUFvle86QnQg==}
     peerDependencies:
       ckeditor5: '>=42.0.0 || ^0.0.0-nightly'
 
@@ -1551,6 +1551,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@uploadcare/cname-prefix@6.18.4':
     resolution: {integrity: sha512-dEDkoMneA01UoJNpS7KcxxCkuP87fdWfK111Q/3nt5WO1gb6VpvZuUse9ac+A/h9iVEkaPxsO7cNsEtLxGKOpQ==}
@@ -5786,7 +5787,7 @@ snapshots:
       '@ckeditor/ckeditor5-ui': 48.0.1
       '@ckeditor/ckeditor5-utils': 48.0.1
 
-  '@ckeditor/ckeditor5-integrations-common@2.3.1(ckeditor5@48.0.1)':
+  '@ckeditor/ckeditor5-integrations-common@2.4.0(ckeditor5@48.0.1)':
     dependencies:
       ckeditor5: 48.0.1
 
@@ -7155,11 +7156,11 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 20.19.39
+      '@types/node': 25.6.0
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 20.19.39
+      '@types/node': 25.6.0
     optional: true
 
   '@typescript-eslint/eslint-plugin@8.59.0(@typescript-eslint/parser@8.59.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)':

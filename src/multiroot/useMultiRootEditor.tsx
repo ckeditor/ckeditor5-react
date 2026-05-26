@@ -39,9 +39,14 @@ import { useRefSafeCallback } from '../hooks/useRefSafeCallback.js';
 import { useInstantEditorEffect } from '../hooks/useInstantEditorEffect.js';
 
 import { appendAllIntegrationPluginsToConfig } from '../plugins/appendAllIntegrationPluginsToConfig.js';
-import { EditorEditable } from './EditorEditable.js';
 import { EditorToolbarWrapper } from './EditorToolbar.js';
 import { EditorWatchdogAdapter } from '../EditorWatchdogAdapter.js';
+import {
+	EditorEditable,
+	ROOT_EDITABLE_OPTIONS_ATTRIBUTE,
+	type RootEditableOptionsAttribute
+} from './EditorEditable.js';
+import type { EditorErrorDetails } from '../ckeditor.js';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -493,13 +498,6 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		[ setAttributes ]
 	);
 
-	const toolbarElement = (
-		<EditorToolbarWrapper
-			ref={ semaphoreElementRef }
-			editor={editorRefs.instance.current}
-		/>
-	);
-
 	useInstantEditorEffect( semaphore.current, ( { instance } ) => {
 		if ( props.disabled ) {
 			instance.enableReadOnlyMode( REACT_INTEGRATION_READ_ONLY_LOCK_ID );
@@ -553,29 +551,31 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 					const rootAttributes = attributes?.[ rootName ] || {};
 					const rootData = data[ rootName ] || '';
 
-					const baseAttrs: Record<string, any> = {
+					for ( const key of Object.keys( rootAttributes ) ) {
+						instance.registerRootAttribute( key );
+					}
+
+					/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
+					let options: Record<string, any> = {
 						isUndoable: true
 					};
 
-					/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
-					let attrs: Record<string, any>;
-
 					if ( supports.rootsConfigEntry ) {
-						attrs = {
-							...baseAttrs,
+						options = {
+							...options,
 							initialData: rootData,
 							modelAttributes: rootAttributes
 						};
 					} else {
-						attrs = {
-							...baseAttrs,
+						options = {
+							...options,
 							data: rootData,
 							attributes: rootAttributes
 						};
 					}
 					/* istanbul ignore end -- compatibility branch for older CKEditor 5 versions */
 
-					instance.addRoot( rootName, attrs );
+					instance.addRoot( rootName, options );
 				}
 			};
 
@@ -627,24 +627,102 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		}
 	}, [ data, attributes ] );
 
+	const toolbarElement = (
+		<EditorToolbarWrapper
+			ref={ semaphoreElementRef }
+			editor={editorRefs.instance.current}
+		/>
+	);
+
 	const editableElements = roots.map(
 		rootName => (
 			<EditorEditable
 				key={rootName}
 				id={rootName}
 				rootName={rootName}
-				semaphore={semaphore}
+				editor={editorRefs.instance.current}
 			/>
 		)
 	);
+
+	const removeRoot = async ( rootName: string ) => {
+		const { instance } = await semaphore.waitFor();
+
+		instance.model.change( () => {
+			instance.detachRoot( rootName, true );
+		} );
+	};
+
+	const addRoot = async (
+		{
+			name, data,
+			attributes = {},
+			editableOptions,
+			...rootOptions
+		}: AddRootOptions
+	) => {
+		const { instance } = await semaphore.waitFor();
+		const supports = getInstalledCKBaseFeatures();
+
+		instance.model.change( () => {
+			const mappedAttributes = {
+				...attributes,
+				...!supports.rootsConfigEntry && editableOptions && {
+					[ ROOT_EDITABLE_OPTIONS_ATTRIBUTE ]: editableOptions
+				}
+			};
+
+			for ( const key of Object.keys( mappedAttributes ) ) {
+				instance.registerRootAttribute( key );
+			}
+
+			/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
+			let options: Record<string, any> = {
+				isUndoable: true,
+				...rootOptions
+			};
+
+			if ( supports.rootsConfigEntry ) {
+				options = {
+					...options,
+					...editableOptions,
+					initialData: data || '',
+					modelAttributes: mappedAttributes
+				};
+			} else {
+				options = {
+					...options,
+					data: data || '',
+					attributes: mappedAttributes
+				};
+			}
+			/* istanbul ignore end -- compatibility branch for older CKEditor 5 versions */
+
+			instance.addRoot( name, options );
+		} );
+	};
 
 	return {
 		editor: editorRefs.instance.current,
 		editableElements,
 		toolbarElement,
-		data, setData: _externalSetData,
-		attributes, setAttributes: _externalSetAttributes
+		data,
+		setData: _externalSetData,
+		attributes,
+		setAttributes: _externalSetAttributes,
+		removeRoot,
+		addRoot
 	};
+};
+
+export type AddRootOptions = {
+	name: string;
+	data?: string;
+	attributes?: Record<string, unknown>;
+	isUndoable?: boolean;
+	modelElement?: string;
+	editableOptions?: RootEditableOptionsAttribute;
+	[ key: string ]: unknown;
 };
 
 type LifeCycleMountResult = EditorSemaphoreMountResult<MultiRootEditor>;
@@ -652,11 +730,6 @@ type LifeCycleMountResult = EditorSemaphoreMountResult<MultiRootEditor>;
 type LifeCycleSemaphoreRefs = {
 	[ K in keyof EditorSemaphoreMountResult<MultiRootEditor> ]: RefObject<EditorSemaphoreMountResult<MultiRootEditor>[ K ]>
 };
-
-interface ErrorDetails {
-	phase: 'initialization' | 'runtime';
-	willEditorRestart?: boolean;
-}
 
 export type MultiRootHookProps = {
 	id?: any;
@@ -673,7 +746,7 @@ export type MultiRootHookProps = {
 
 	onReady?: ( editor: MultiRootEditor ) => void;
 	onAfterDestroy?: ( editor: MultiRootEditor ) => void;
-	onError?: ( error: Error, details: ErrorDetails ) => void;
+	onError?: ( error: Error, details: EditorErrorDetails ) => void;
 	onChange?: ( event: EventInfo, editor: MultiRootEditor ) => void;
 	onFocus?: ( event: EventInfo, editor: MultiRootEditor ) => void;
 	onBlur?: ( event: EventInfo, editor: MultiRootEditor ) => void;
@@ -689,4 +762,6 @@ export type MultiRootHookReturns = {
 	setData: Dispatch<SetStateAction<Record<string, string>>>;
 	attributes: Record<string, Record<string, unknown>>;
 	setAttributes: Dispatch<SetStateAction<Record<string, Record<string, unknown>>>>;
+	addRoot: ( options: AddRootOptions ) => Promise<void>;
+	removeRoot: ( name: string ) => Promise<void>;
 };

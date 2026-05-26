@@ -10,7 +10,7 @@ import { render, waitFor, renderHook, act } from '@testing-library/react';
 
 import { useMultiRootEditor } from '../../src/multiroot/useMultiRootEditor.js';
 import { EditorToolbarWrapper } from '../../src/multiroot/EditorToolbar.js';
-import { EditorEditable } from '../../src/multiroot/EditorEditable.js';
+import { EditorEditable, type RootEditableOptionsAttribute } from '../../src/multiroot/EditorEditable.js';
 
 import { ContextWatchdogContext } from '../../src/context/ckeditorcontext.js';
 import { timeout } from '../_utils/timeout.js';
@@ -1192,6 +1192,298 @@ describe( 'useMultiRootEditor', () => {
 		} );
 	} );
 
+	describe( 'removeRoot', () => {
+		it( 'should remove the root from the `data` state', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			await act( async () => {
+				await result.current.removeRoot( 'intro' );
+			} );
+
+			await waitFor( () => {
+				expect( result.current.data ).to.not.have.property( 'intro' );
+				expect( result.current.data ).to.have.property( 'content' );
+				expect( result.current.data ).to.have.property( 'footer' );
+			} );
+		} );
+
+		it( 'should remove the root from the `attributes` state', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			await act( async () => {
+				await result.current.removeRoot( 'intro' );
+			} );
+
+			await waitFor( () => {
+				expect( result.current.attributes ).to.not.have.property( 'intro' );
+				expect( result.current.attributes ).to.have.property( 'content' );
+				expect( result.current.attributes ).to.have.property( 'footer' );
+			} );
+		} );
+
+		it( 'should call `detachRoot` on the editor instance', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			const spy = vi.spyOn( result.current.editor!, 'detachRoot' );
+
+			await act( async () => {
+				await result.current.removeRoot( 'intro' );
+			} );
+
+			await waitFor( () => {
+				expect( spy ).toHaveBeenCalledOnce();
+				expect( spy ).toHaveBeenCalledWith( 'intro', true );
+			} );
+		} );
+
+		it( 'should decrease the number of `editableElements`', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+				expect( result.current.editableElements.length ).to.equal( 3 );
+			} );
+
+			await act( async () => {
+				await result.current.removeRoot( 'intro' );
+			} );
+
+			await waitFor( () => {
+				expect( result.current.editableElements.length ).to.equal( 2 );
+			} );
+		} );
+
+		it( 'should remove the root from the editor internal data', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			await act( async () => {
+				await result.current.removeRoot( 'footer' );
+			} );
+
+			await waitFor( () => {
+				expect( result.current.editor!.getFullData() ).to.not.have.property( 'footer' );
+			} );
+		} );
+	} );
+
+	describe( 'addRoot', () => {
+		it( 'should add a new root with the provided data', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			await act( async () => {
+				await result.current.addRoot( { name: 'outro', data: 'Hello outro' } );
+			} );
+
+			await waitFor( () => {
+				expect( result.current.data ).to.have.property( 'outro' );
+				expect( result.current.editor!.getFullData().outro ).to.equal( '<p>Hello outro</p>' );
+			} );
+		} );
+
+		it( 'should default to an empty string when `data` is not provided', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			await act( async () => {
+				await result.current.addRoot( { name: 'outro' } );
+			} );
+
+			await waitFor( () => {
+				expect( result.current.data.outro ).to.equal( '' );
+				expect( result.current.editor!.getFullData().outro ).to.equal( '' );
+			} );
+		} );
+
+		it( 'should increase the number of `editableElements`', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+				expect( result.current.editableElements.length ).to.equal( 3 );
+			} );
+
+			await act( async () => {
+				await result.current.addRoot( { name: 'outro' } );
+			} );
+
+			await waitFor( () => {
+				expect( result.current.editableElements.length ).to.equal( 4 );
+			} );
+		} );
+
+		it( 'should call `instance.addRoot` on the editor', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			const spy = vi.spyOn( result.current.editor!, 'addRoot' );
+
+			await act( async () => {
+				await result.current.addRoot( { name: 'outro', data: 'Test' } );
+			} );
+
+			await waitFor( () => {
+				expect( spy ).toHaveBeenCalledOnce();
+				expect( spy.mock.calls[ 0 ][ 0 ] ).to.equal( 'outro' );
+			} );
+		} );
+
+		it( 'should store custom `attributes` in the `attributes` state', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			await act( async () => {
+				await result.current.addRoot( {
+					name: 'outro',
+					attributes: { row: '3', order: 99 }
+				} );
+			} );
+
+			await waitFor( () => {
+				const { row, order } = result.current.editor!.getRootAttributes( 'outro' );
+
+				expect( row ).to.equal( '3' );
+				expect( order ).to.equal( 99 );
+			} );
+		} );
+
+		it( 'should pass `isUndoable: true` to `instance.addRoot` call', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			const spy = vi.spyOn( result.current.editor!, 'addRoot' );
+
+			await act( async () => {
+				await result.current.addRoot( {
+					name: 'outro',
+					data: 'Test',
+					isUndoable: true
+				} );
+			} );
+
+			await waitFor( () => {
+				const callOptions = spy.mock.calls[ 0 ][ 1 ] as Record<string, unknown>;
+
+				expect( callOptions ).to.include( { isUndoable: true } );
+			} );
+		} );
+
+		it( 'should store `editableOptions` as `$rootEditableOptions` in the root attributes', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			const editableOptions: RootEditableOptionsAttribute = {
+				placeholder: 'Type here…',
+				label: 'Outro section'
+			};
+
+			await act( async () => {
+				await result.current.addRoot( {
+					name: 'outro',
+					editableOptions
+				} );
+			} );
+
+			await waitFor( () => {
+				const root = result.current.editor!.model.document.getRoot( 'outro' )!;
+
+				expect( root.getAttribute( '$rootEditableOptions' ) ).to.be.deep.equal( {
+					placeholder: 'Type here…',
+					label: 'Outro section'
+				} );
+			} );
+		} );
+
+		it( 'should not set `$rootEditableOptions` in attributes when `editableOptions` is not provided', async () => {
+			const { result } = renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				disableWatchdog: true
+			} ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			await act( async () => {
+				await result.current.addRoot( { name: 'outro', data: 'Test' } );
+			} );
+
+			await waitFor( () => {
+				expect( result.current.attributes.outro ).to.not.have.property( '$rootEditableOptions' );
+			} );
+		} );
+	} );
+
 	describe( 'EditorEditable', () => {
 		it( 'should render editable containers returned from `useMultiRootEditor` with proper class names', async () => {
 			const Component = () => {
@@ -1215,33 +1507,16 @@ describe( 'useMultiRootEditor', () => {
 			} );
 		} );
 
-		it( 'should ensure that the editable container is rendered before running semaphore logic', async () => {
-			const defer = createDefer();
-			const postMountSpy = vi.fn();
-
-			const mockSemaphore = {
-				revision: 1,
-				runAfterMount: callback => {
-					defer.promise
-						.then( () => callback( { instance: null } ) )
-						.then( postMountSpy );
-				}
-			} as any;
-
-			const { unmount } = render(
+		it( 'should not crash if editor is null', async () => {
+			const { container } = render(
 				<EditorEditable
 					rootName="intro"
 					id="intro"
-					semaphore={mockSemaphore}
+					editor={null}
 				/>
 			);
 
-			unmount();
-			defer.resolve();
-
-			await waitFor( () => {
-				expect( postMountSpy ).toHaveBeenCalledOnce();
-			} );
+			expect( container.firstChild ).toBeNull();
 		} );
 	} );
 
