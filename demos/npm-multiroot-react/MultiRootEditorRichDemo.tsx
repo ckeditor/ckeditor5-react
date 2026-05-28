@@ -119,6 +119,7 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 							{
 								name: 'span',
 								styles: {
+									display: 'inline-block',
 									margin: '0',
 									width: '100%',
 									paddingTop: 'var(--ck-spacing-large)',
