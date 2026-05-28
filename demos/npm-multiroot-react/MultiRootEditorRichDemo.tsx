@@ -58,6 +58,10 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 	// This is for demo purposes, and you may remove it in the actual integration or change accordingly to your needs.
 	const [ numberOfRoots, setNumberOfRoots ] = useState<number>( 1 );
 
+	// Whether newly added roots should be inline roots (using modelElement: '$inlineRoot').
+	// This is for demo purposes, and you may remove it in the actual integration or change accordingly to your needs.
+	const [ isInlineRoot, setIsInlineRoot ] = useState<boolean>( false );
+
 	// A set with disabled roots. It is used to support read-only feature in multi root editor.
 	// This is for demo purposes, and you may remove it in the actual integration or change accordingly to your needs.
 	const [ disabledRoots, setDisabledRoots ] = useState<Set<string>>( new Set() );
@@ -110,9 +114,25 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 					order: i * 10, row: id
 				},
 				editableOptions: {
-					element: 'section',
+					element: (
+						isInlineRoot ?
+							{
+								name: 'span',
+								styles: {
+									display: 'inline-block',
+									margin: '0',
+									width: '100%',
+									paddingTop: 'var(--ck-spacing-large)',
+									paddingBottom: 'var(--ck-spacing-large)'
+								}
+							} :
+							'div'
+					),
 					placeholder: 'Test placeholder',
 					label: 'Test label'
+				},
+				...isInlineRoot && {
+					modelElement: '$inlineRoot'
 				}
 			} );
 		}
@@ -208,6 +228,15 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 					value={ numberOfRoots }
 					onChange={e => Number( e.target.value ) <= 4 && setNumberOfRoots( Number( e.target.value ) )}
 				/>
+
+				<label>
+					<input
+						type="checkbox"
+						checked={ isInlineRoot }
+						onChange={ e => setIsInlineRoot( e.target.checked ) }
+					/>
+					{ ' ' }Inline root (<code>$inlineRoot</code>)
+				</label>
 			</div>
 
 			<br />

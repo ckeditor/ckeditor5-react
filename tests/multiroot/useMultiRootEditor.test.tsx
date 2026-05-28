@@ -7,6 +7,12 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import React, { useEffect } from 'react';
 import { CKEditorError } from 'ckeditor5';
 import { render, waitFor, renderHook, act } from '@testing-library/react';
+import {
+	compareInstalledCKBaseVersion,
+	getInstalledCKBaseFeatures,
+	mapObjectValues,
+	omit
+} from '@ckeditor/ckeditor5-integrations-common';
 
 import { useMultiRootEditor } from '../../src/multiroot/useMultiRootEditor.js';
 import { EditorToolbarWrapper } from '../../src/multiroot/EditorToolbar.js';
@@ -18,7 +24,6 @@ import { createDefer } from '../_utils/defer.js';
 import { createTestMultiRootWatchdog, TestMultiRootEditor } from '../_utils/multirooteditor.js';
 import { turnOffErrors } from '../_utils/turnOffErrors.js';
 import { ReactIntegrationUsageDataPlugin } from '../../src/plugins/ReactIntegrationUsageDataPlugin.js';
-import { getInstalledCKBaseFeatures, mapObjectValues } from '@ckeditor/ckeditor5-integrations-common';
 
 const SUPPORTED_FEATURES = getInstalledCKBaseFeatures();
 
@@ -447,7 +452,7 @@ describe( 'useMultiRootEditor', () => {
 
 			expect( spy.mock.calls.length ).to.equal( editableElements.length );
 			expect( data.outro ).to.equal( '' );
-			expect( attributes.outro ).to.deep.equal( { order: null, row: null } );
+			expect( withoutRootEditableOptions( attributes.outro ) ).to.deep.equal( { order: null, row: null } );
 			expect( editableElements.length ).to.equal( 4 );
 			expect( editor!.getFullData().outro ).to.equal( '' );
 		} );
@@ -563,8 +568,8 @@ describe( 'useMultiRootEditor', () => {
 					row: null
 				};
 
-				expect( attributes.intro ).to.deep.equal( expectedAttributes );
-				expect( editor!.getRootAttributes( 'intro' ) ).to.deep.equal( expectedAttributes );
+				expect( withoutRootEditableOptions( attributes.intro ) ).to.deep.equal( expectedAttributes );
+				expect( withoutRootEditableOptions( editor!.getRootAttributes( 'intro' ) ) ).to.deep.equal( expectedAttributes );
 			} );
 		} );
 
@@ -587,8 +592,8 @@ describe( 'useMultiRootEditor', () => {
 			await waitFor( () => {
 				const { attributes } = result.current;
 
-				expect( attributes.intro ).to.deep.equal( { row: null, order: null } );
-				expect( editor!.getRootAttributes( 'intro' ) ).to.deep.equal( { row: null, order: null } );
+				expect( withoutRootEditableOptions( attributes.intro ) ).to.deep.equal( { row: null, order: null } );
+				expect( withoutRootEditableOptions( editor!.getRootAttributes( 'intro' ) ) ).to.deep.equal( { row: null, order: null } );
 			} );
 		} );
 
@@ -616,7 +621,7 @@ describe( 'useMultiRootEditor', () => {
 			await waitFor( () => {
 				const { attributes } = result.current;
 
-				expect( attributes.intro ).to.deep.equal( {
+				expect( withoutRootEditableOptions( attributes.intro ) ).to.deep.equal( {
 					order: 1,
 					row: null,
 					foo: 'bar'
@@ -898,12 +903,13 @@ describe( 'useMultiRootEditor', () => {
 			await waitFor( () => {
 				const { attributes } = result.current;
 
-				expect( editor!.getRootAttributes( 'intro' ) ).to.deep.equal( {
+				expect( withoutRootEditableOptions( editor!.getRootAttributes( 'intro' ) ) ).to.deep.equal( {
 					order: 1,
 					row: null,
 					foo: 'bar'
 				} );
-				expect( attributes.intro ).to.be.deep.equal( rootsAttributes.intro );
+
+				expect( withoutRootEditableOptions( attributes.intro ) ).to.be.deep.equal( rootsAttributes.intro );
 			} );
 		} );
 
@@ -1464,7 +1470,7 @@ describe( 'useMultiRootEditor', () => {
 			} );
 		} );
 
-		it( 'should not set `$rootEditableOptions` in attributes when `editableOptions` is not provided', async () => {
+		it( 'should not set meaningful `$rootEditableOptions` in attributes when `editableOptions` is not provided', async () => {
 			const { result } = renderHook( () => useMultiRootEditor( {
 				...editorProps,
 				disableWatchdog: true
@@ -1479,7 +1485,16 @@ describe( 'useMultiRootEditor', () => {
 			} );
 
 			await waitFor( () => {
-				expect( result.current.attributes.outro ).to.not.have.property( '$rootEditableOptions' );
+				// Newer editor versions always register `$rootEditableOptions` on the root; when
+				// `editableOptions` was not provided it should be absent or an empty object with
+				// no meaningful values.
+				const rootEditableOptions = result.current.attributes.outro?.$rootEditableOptions as
+					Record<string, unknown> | undefined | null;
+
+				const hasNoMeaningfulOptions =
+					rootEditableOptions == null || Object.keys( rootEditableOptions ).length === 0;
+
+				expect( hasNoMeaningfulOptions ).to.be.true;
 			} );
 		} );
 	} );
@@ -1517,6 +1532,47 @@ describe( 'useMultiRootEditor', () => {
 			);
 
 			expect( container.firstChild ).toBeNull();
+		} );
+
+		it( 'should render editable with placeholder attribute ' +
+				'and `ck-editor__editable_inline-root` class when root is added with placeholder', async () => {
+			const Component = () => {
+				const { editableElements, toolbarElement, addRoot } = useMultiRootEditor( {
+					...editorProps,
+					disableWatchdog: true
+				} );
+
+				useEffect( () => {
+					addRoot( {
+						name: 'outro',
+						modelElement: '$inlineRoot',
+						editableOptions: {
+							placeholder: 'Type here…'
+						}
+					} );
+				}, [] );
+
+				return (
+					<>
+						{editableElements}
+						{toolbarElement}
+					</>
+				);
+			};
+
+			const { container } = render( <Component /> );
+
+			await waitFor( () => {
+				expect( container.getElementsByClassName( 'ck-editor__editable' ).length ).to.equal( 4 );
+			} );
+
+			if ( compareInstalledCKBaseVersion( '48.2.0' )! >= 0 ) {
+				const outroEditable = container.querySelector( '[data-placeholder="Type here…"]' );
+
+				expect( outroEditable ).not.toBeNull();
+				expect( outroEditable!.classList.contains( 'ck-placeholder' ) ).to.be.true;
+				expect( outroEditable!.classList.contains( 'ck-editor__editable_inline-root' ) ).to.be.true;
+			}
 		} );
 	} );
 
@@ -1560,3 +1616,12 @@ describe( 'useMultiRootEditor', () => {
 		}
 	} );
 } );
+
+/**
+ * Strips the internal `$rootEditableOptions` key from a root attributes object.
+ * Newer editor versions always include it (as `null` or `{}`); older ones do not.
+ * Use this helper in assertions that compare only user-defined attributes.
+ */
+function withoutRootEditableOptions( attrs: Record<string, unknown> ): Record<string, unknown> {
+	return omit( [ '$rootEditableOptions' ], attrs );
+}

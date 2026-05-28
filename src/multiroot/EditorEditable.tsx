@@ -44,6 +44,9 @@ export const EditorEditable = memo( forwardRef<HTMLElement, Props>( ( { id, edit
 
 		const editable = editor.ui.view.createEditable( rootName, innerRef.current!, rootEditableOptions.label );
 
+		// Relax typing a little bit to avoid compiler error when compiling for older versions of the editor.
+		( editable as any ).isInlineRoot = !editor.model.schema.checkChild( root, '$block' );
+
 		editor.ui.addEditable( editable, rootEditableOptions.placeholder );
 		editor.editing.view.forceRender();
 
