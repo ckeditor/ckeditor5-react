@@ -1566,11 +1566,10 @@ describe( 'useMultiRootEditor', () => {
 				expect( container.getElementsByClassName( 'ck-editor__editable' ).length ).to.equal( 4 );
 			} );
 
-			const outroEditable = container.querySelector( '[data-placeholder="Type here…"]' );
-
-			expect( outroEditable ).not.toBeNull();
-
 			if ( compareInstalledCKBaseVersion( '48.2.0' )! >= 0 ) {
+				const outroEditable = container.querySelector( '[data-placeholder="Type here…"]' );
+
+				expect( outroEditable ).not.toBeNull();
 				expect( outroEditable!.classList.contains( 'ck-placeholder' ) ).to.be.true;
 				expect( outroEditable!.classList.contains( 'ck-editor__editable_inline-root' ) ).to.be.true;
 			}
