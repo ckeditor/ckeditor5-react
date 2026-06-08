@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   browser-tools: circleci/browser-tools@2.1.2
-  codecov: codecov/codecov@5.4.3
+  codecov: codecov/codecov@6.0.0
 
 parameters:
   triggerCommitHash:
