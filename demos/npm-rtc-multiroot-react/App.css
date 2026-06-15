@@ -70,6 +70,9 @@ body {
 }
 
 .rtc-editor__footer {
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
 	grid-column: 1;
 	grid-row: 4;
 	padding: 0 0 2rem;
