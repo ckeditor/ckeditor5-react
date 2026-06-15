@@ -72,7 +72,7 @@ export function RTCEditor( { initialData = INITIAL_DATA, onReady }: RTCEditorPro
 	const credentials = useCollaborationCredentials();
 	const isLayoutReady = useIsMounted();
 
-	const { editor, toolbarElement, editableElements, data, setData, setAttributes } = useMultiRootEditor( {
+	const { editor, toolbarElement, editableElements, setData, setAttributes, addRoot } = useMultiRootEditor( {
 		isLayoutReady,
 
 		editor: MultiRootEditor,
@@ -152,6 +152,29 @@ export function RTCEditor( { initialData = INITIAL_DATA, onReady }: RTCEditorPro
 		setAttributes( prev => ( { ...prev, [ name ]: {} } ) );
 	};
 
+	const handleAddInlineRoot = () => {
+		const name = `inline-${ crypto.randomUUID() }`;
+
+		addRoot( {
+			name,
+			data: 'Inline content.',
+			attributes: {},
+			editableOptions: {
+				element: {
+					name: 'span',
+					styles: {
+						display: 'inline-block',
+						margin: '0',
+						width: '100%'
+					}
+				},
+				placeholder: 'Inline root…',
+				label: 'Inline root'
+			},
+			modelElement: '$inlineRoot'
+		} );
+	};
+
 	const handleRemoveRoot = ( name: string ) => {
 		setData( prev => {
 			const next = { ...prev };
@@ -166,9 +189,12 @@ export function RTCEditor( { initialData = INITIAL_DATA, onReady }: RTCEditorPro
 		} );
 	};
 
-	const roots = Object.keys( data )
-		.map( ( name, i ) => ( { name, element: ( editableElements as Array<React.ReactElement> )[ i ] } ) )
-		.filter( ( { element } ) => !!element );
+	// Pair each root with its editable element by name. Each editable carries its own `rootName`,
+	// so we derive the list from `editableElements` directly instead of zipping by index – the
+	// `data` and `editableElements` orderings are not guaranteed to match (e.g. for inline roots
+	// added imperatively via `addRoot`).
+	const roots = ( editableElements as Array<React.ReactElement<{ rootName: string }>> )
+		.map( element => ( { name: element.props.rootName, element } ) );
 
 	return (
 		<div className="rtc-editor">
@@ -199,6 +225,13 @@ export function RTCEditor( { initialData = INITIAL_DATA, onReady }: RTCEditorPro
 					disabled={ !editor }
 				>
 					＋ Add root
+				</button>
+				<button
+					className="rtc-btn rtc-btn--add-inline"
+					onClick={ handleAddInlineRoot }
+					disabled={ !editor }
+				>
+					＋ Add inline root
 				</button>
 			</div>
 			<div ref={ sidebarRef } className="rtc-editor__sidebar" />

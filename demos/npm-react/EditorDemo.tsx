@@ -27,6 +27,7 @@ type EditorDemoState = {
 
 export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 	const [ isWatchdogDisabled, setIsWatchdogDisabled ] = useState( false );
+	const [ isInline, setIsInline ] = useState( false );
 	const [ state, setState ] = useState<EditorDemoState>( {
 		documents: [ props.content ],
 		documentID: 0,
@@ -81,6 +82,11 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		setState( prevState => ( { ...prevState, documentID: Math.max( state.documentID - 1, 0 ) } ) );
 	};
 
+	const handleInlineToggle = () => {
+		setState( prevState => ( { ...prevState, editor: null } ) );
+		setIsInline( prev => !prev );
+	};
+
 	return (
 		<>
 			<h2 className="subtitle">Editor Demo</h2>
@@ -113,19 +119,32 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 				>
 					Next document ID
 				</button>
+
 				<button
 					onClick={ () => setIsWatchdogDisabled( !isWatchdogDisabled ) }
 				>
 					{ isWatchdogDisabled ? 'Enable' : 'Disable' } watchdog
 				</button>
+
+				<label>
+					<input
+						type="checkbox"
+						checked={ isInline }
+						onChange={ handleInlineToggle }
+					/>
+					<span>Inline mode</span>
+				</label>
 			</div>
 
 			<CKEditor
-				editor={ ClassicEditor as any }
-				id={ state.documentID }
+				editor={ ClassicEditor }
+				id={ `${ state.documentID }-${ isInline ? 'inline' : 'block' }` }
 				disableWatchdog={ isWatchdogDisabled }
 				data={ state.documents[ state.documentID ] }
 				watchdogConfig={ { crashNumberLimit: 10 } }
+				config={ {
+					root: { modelElement: isInline ? '$inlineRoot' : '$root' }
+				} }
 
 				onReady={ ( editor: any ) => {
 					window.editor = editor;
