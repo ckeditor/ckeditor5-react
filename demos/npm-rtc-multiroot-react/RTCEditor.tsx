@@ -224,7 +224,7 @@ export function RTCEditor( { initialData = INITIAL_DATA, onReady }: RTCEditorPro
 					＋ Add root
 				</button>
 				<button
-					className="rtc-btn--add-inline rtc-btn"
+					className="rtc-btn rtc-btn--add-inline"
 					onClick={ handleAddInlineRoot }
 					disabled={ !editor }
 				>

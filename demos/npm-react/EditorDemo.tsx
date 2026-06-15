@@ -132,7 +132,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 						checked={ isInline }
 						onChange={ handleInlineToggle }
 					/>
-					{ ' ' }Inline mode
+					<span>Inline mode</span>
 				</label>
 			</div>
 
