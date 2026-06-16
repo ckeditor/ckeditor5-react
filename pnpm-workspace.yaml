@@ -14,7 +14,6 @@ overrides:
   'shell-quote@^1': '^1.8.4'
   'uuid@^9': '^11.1.1'
   'esbuild@^0.27': '^0.28.1'
-  'js-yaml@^3': '^4.2.0'
 
 minimumReleaseAge: 4320 # 3 days
 minimumReleaseAgeExclude:
