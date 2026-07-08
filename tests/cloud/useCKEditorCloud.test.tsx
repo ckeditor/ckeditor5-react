@@ -119,7 +119,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 			const { result } = renderHook( () => useCKEditorCloud( {
 				version: '45.0.0',
 				ckbox: {
-					version: '2.12.0'
+					version: '2.13.0'
 				}
 			} ) );
 
