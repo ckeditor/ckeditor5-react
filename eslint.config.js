@@ -61,9 +61,6 @@ export default defineConfig( [
 			'@stylistic/function-call-spacing': [ 'error', 'never' ],
 			'@stylistic/operator-linebreak': 'off',
 			'no-console': 'off',
-
-			// This package supports React 16+, so the legacy `ReactDOM.render()` API (removed in
-			// favour of `createRoot()` only in React 18) is used intentionally in demos and tests.
 			'@eslint-react/dom-no-render': 'off',
 			'@stylistic/no-trailing-spaces': 'error',
 			'ckeditor5-rules/prevent-license-key-leak': 'error',
@@ -88,16 +85,12 @@ export default defineConfig( [
 		files: [ 'tests/**' ],
 
 		'rules': {
-			// Integration tests exercise the legacy `ReactDOM.render()` return value (React 16/17).
 			'@eslint-react/dom-no-render-return-value': 'off',
 			'no-unused-expressions': 'off',
 			'@typescript-eslint/no-unused-expressions': 'off'
 		}
 	},
 
-	// `EditorElement` renders a dynamic HTML tag (e.g. `div`) resolved at runtime from the element
-	// definition. The `static-components` heuristic misreads the capitalized `Tag` local as a
-	// component created during render, but it is a tag name, not a component.
 	{
 		files: [ 'src/EditorElement.tsx' ],
 		rules: {
