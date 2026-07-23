@@ -7,7 +7,7 @@ import globals from 'globals';
 import { defineConfig } from 'eslint/config';
 import ckeditor5Rules from 'eslint-plugin-ckeditor5-rules';
 import ckeditor5Config from 'eslint-config-ckeditor5';
-import pluginReact from 'eslint-plugin-react';
+import eslintReact from '@eslint-react/eslint-plugin';
 import ts from 'typescript-eslint';
 
 export default defineConfig( [
@@ -23,12 +23,17 @@ export default defineConfig( [
 	{
 		extends: [
 			ckeditor5Config,
-			pluginReact.configs.flat.recommended
+			eslintReact.configs.recommended
 		],
 
 		languageOptions: {
 			ecmaVersion: 'latest',
 			sourceType: 'module',
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true
+				}
+			},
 			globals: {
 				...globals.browser
 			}
@@ -44,12 +49,6 @@ export default defineConfig( [
 			'@typescript-eslint': ts.plugin
 		},
 
-		settings: {
-			react: {
-				version: 'detect'
-			}
-		},
-
 		files: [
 			'**/*.js',
 			'**/*.mjs',
@@ -61,9 +60,11 @@ export default defineConfig( [
 			'@stylistic/func-call-spacing': 'off',
 			'@stylistic/function-call-spacing': [ 'error', 'never' ],
 			'@stylistic/operator-linebreak': 'off',
-			'react/prop-types': 'off',
-			'react/no-deprecated': 'off',
 			'no-console': 'off',
+
+			// This package supports React 16+, so the legacy `ReactDOM.render()` API (removed in
+			// favour of `createRoot()` only in React 18) is used intentionally in demos and tests.
+			'@eslint-react/dom-no-render': 'off',
 			'@stylistic/no-trailing-spaces': 'error',
 			'ckeditor5-rules/prevent-license-key-leak': 'error',
 			'ckeditor5-rules/allow-imports-only-from-main-package-entry-point': 'off',
@@ -87,9 +88,20 @@ export default defineConfig( [
 		files: [ 'tests/**' ],
 
 		'rules': {
-			'react/no-render-return-value': 'off',
+			// Integration tests exercise the legacy `ReactDOM.render()` return value (React 16/17).
+			'@eslint-react/dom-no-render-return-value': 'off',
 			'no-unused-expressions': 'off',
 			'@typescript-eslint/no-unused-expressions': 'off'
+		}
+	},
+
+	// `EditorElement` renders a dynamic HTML tag (e.g. `div`) resolved at runtime from the element
+	// definition. The `static-components` heuristic misreads the capitalized `Tag` local as a
+	// component created during render, but it is a tag name, not a component.
+	{
+		files: [ 'src/EditorElement.tsx' ],
+		rules: {
+			'@eslint-react/static-components': 'off'
 		}
 	},
 
