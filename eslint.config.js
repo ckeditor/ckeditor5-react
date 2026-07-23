@@ -61,7 +61,6 @@ export default defineConfig( [
 			'@stylistic/function-call-spacing': [ 'error', 'never' ],
 			'@stylistic/operator-linebreak': 'off',
 			'no-console': 'off',
-			'@eslint-react/dom-no-render': 'off',
 			'@stylistic/no-trailing-spaces': 'error',
 			'ckeditor5-rules/prevent-license-key-leak': 'error',
 			'ckeditor5-rules/allow-imports-only-from-main-package-entry-point': 'off',
@@ -77,6 +76,16 @@ export default defineConfig( [
 					extensions: [ '.ts', '.js', '.json' ]
 				}
 			]
+		}
+	},
+
+	// The legacy `ReactDOM.render()` API (React 16/17) is used intentionally in the demos and
+	// integration tests, so the deprecation rule is disabled there but stays on in `src`.
+	{
+		files: [ 'demos/**', 'tests/**' ],
+
+		rules: {
+			'@eslint-react/dom-no-render': 'off'
 		}
 	},
 
