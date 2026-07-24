@@ -7,7 +7,7 @@ import globals from 'globals';
 import { defineConfig } from 'eslint/config';
 import ckeditor5Rules from 'eslint-plugin-ckeditor5-rules';
 import ckeditor5Config from 'eslint-config-ckeditor5';
-import pluginReact from 'eslint-plugin-react';
+import eslintReact from '@eslint-react/eslint-plugin';
 import ts from 'typescript-eslint';
 
 export default defineConfig( [
@@ -23,12 +23,17 @@ export default defineConfig( [
 	{
 		extends: [
 			ckeditor5Config,
-			pluginReact.configs.flat.recommended
+			eslintReact.configs.recommended
 		],
 
 		languageOptions: {
 			ecmaVersion: 'latest',
 			sourceType: 'module',
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true
+				}
+			},
 			globals: {
 				...globals.browser
 			}
@@ -44,12 +49,6 @@ export default defineConfig( [
 			'@typescript-eslint': ts.plugin
 		},
 
-		settings: {
-			react: {
-				version: 'detect'
-			}
-		},
-
 		files: [
 			'**/*.js',
 			'**/*.mjs',
@@ -61,8 +60,6 @@ export default defineConfig( [
 			'@stylistic/func-call-spacing': 'off',
 			'@stylistic/function-call-spacing': [ 'error', 'never' ],
 			'@stylistic/operator-linebreak': 'off',
-			'react/prop-types': 'off',
-			'react/no-deprecated': 'off',
 			'no-console': 'off',
 			'@stylistic/no-trailing-spaces': 'error',
 			'ckeditor5-rules/prevent-license-key-leak': 'error',
@@ -82,14 +79,31 @@ export default defineConfig( [
 		}
 	},
 
+	// The legacy `ReactDOM.render()` API (React 16/17) is used intentionally in the demos and
+	// integration tests, so the deprecation rule is disabled there but stays on in `src`.
+	{
+		files: [ 'demos/**', 'tests/**' ],
+
+		rules: {
+			'@eslint-react/dom-no-render': 'off'
+		}
+	},
+
 	// Rules specific to `tests` folder.
 	{
 		files: [ 'tests/**' ],
 
 		'rules': {
-			'react/no-render-return-value': 'off',
+			'@eslint-react/dom-no-render-return-value': 'off',
 			'no-unused-expressions': 'off',
 			'@typescript-eslint/no-unused-expressions': 'off'
+		}
+	},
+
+	{
+		files: [ 'src/EditorElement.tsx' ],
+		rules: {
+			'@eslint-react/static-components': 'off'
 		}
 	},
 
