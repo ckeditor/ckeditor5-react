@@ -26,7 +26,7 @@ const tasks = new Listr( [
 		task: async ( _, task ) => {
 			return releaseTools.publishPackages( {
 				packagesDirectory: 'release',
-				npmOwner: 'ckeditor',
+				useOidc: true,
 				npmTag: cliArguments.npmTag,
 				listrTask: task,
 				confirmationCallback: () => {

@@ -39,13 +39,24 @@ commands:
       - add_ssh_keys:
           fingerprints:
             - "a0:41:a2:56:c8:7d:3f:29:41:d1:87:92:fd:50:2b:6b"
+      - run:
+          name: Add GitHub to known hosts
+          command: >-
+            printf '%s\n' 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl'
+            >> ~/.ssh/known_hosts
 
-  npm_login_command:
-    description: "Enable interacting with `npm` using an auth token"
+  npm_oidc_command:
+    description: "Enable publishing to `npm` using OIDC"
     steps:
       - run:
-          name: Login to the npm registry using '.npmrc' file
-          command: echo "//registry.npmjs.org/:_authToken=\${CKE5_NPM_TOKEN}" > ~/.npmrc
+          name: Install npm with CircleCI OIDC support
+          command: sudo npm i -g npm@^11.11.0
+      - run:
+          name: Get npm OIDC token
+          command: |
+            NPM_ID_TOKEN=$(circleci run oidc get \
+              --claims '{"aud":"npm:registry.npmjs.org"}')
+            printf 'export NPM_ID_TOKEN=%q\n' "$NPM_ID_TOKEN" >> "$BASH_ENV"
 
   gpg_credentials_command:
     description: "Setup GPG configuration"
@@ -69,6 +80,7 @@ commands:
             git config --global user.signingkey 3F615B600F38B27B
             git config --global commit.gpgsign true
             git config --global tag.gpgSign true
+            git remote set-url origin git@github.com:ckeditor/ckeditor5-react.git
 
 jobs:
   validate:
@@ -217,7 +229,11 @@ jobs:
             fi
       - run:
           name: Trigger the release pipeline
-          command: pnpm ckeditor5-dev-ci-trigger-circle-build --slug ckeditor/ckeditor5-react --release-branch master
+          command: >-
+            pnpm ckeditor5-dev-ci-trigger-circle-build
+            --slug ckeditor/ckeditor5-react
+            --release-branch master
+            --pipeline-definition-id 686138b9-93ef-4c1f-8889-5b7fb8981e51
 
   release_project:
     docker:
@@ -237,7 +253,7 @@ jobs:
               echo "There is a newer commit in the repository on the \`#master\` branch. Use its build to start the release."
               circleci-agent step halt
             fi
-      - npm_login_command
+      - npm_oidc_command
       - git_credentials_command
       - run:
           name: Verify if a releaser triggered the job
