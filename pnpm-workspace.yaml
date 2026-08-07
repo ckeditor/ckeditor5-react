@@ -7,13 +7,11 @@ allowBuilds:
   snyk: true
 
 overrides:
-  'diff@^7': '^8.0.3'
-  'serialize-javascript@^6': '^7.0.5'
-  'protobufjs@^7': '^7.6.4'
-  'ws@^8': '^8.21.0'
-  'shell-quote@^1': '^1.8.4'
-  'uuid@^9': '^11.1.1'
   'esbuild@^0.27': '^0.28.1'
+  'protobufjs@^7': '^7.6.5'
+  'shell-quote@^1': '^1.8.5'
+  'uuid@^9': '^11.1.1'
+  'ws@^8': '^8.21.0'
 
 minimumReleaseAge: 4320 # 3 days
 minimumReleaseAgeExclude:
