@@ -47,7 +47,7 @@
     "@types/react-dom": "^18.0.0",
     "@vitejs/plugin-react": "^5.0.4",
     "@vitest/browser": "^4.1.10",
-    "@vitest/browser-webdriverio": "^4.1.10",
+    "@vitest/browser-playwright": "^4.1.10",
     "@vitest/coverage-istanbul": "^4.1.10",
     "@vitest/coverage-v8": "^4.1.10",
     "@vitest/ui": "^4.1.10",
@@ -63,6 +63,7 @@
     "lint-staged": "^10.2.11",
     "listr2": "^6.5.0",
     "minimist": "^1.2.5",
+    "playwright": "^1.52.0",
     "prop-types": "^15.8.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
@@ -78,8 +79,7 @@
     "typescript-eslint": "^8.46.2",
     "upath": "^2.0.1",
     "vite": "^7.3.5",
-    "vitest": "^4.1.10",
-    "webdriverio": "^9.27.1"
+    "vitest": "^4.1.10"
   },
   "engines": {
     "node": ">=24.11.0",

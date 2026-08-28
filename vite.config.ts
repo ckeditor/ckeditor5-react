@@ -5,7 +5,7 @@
 
 import { resolve } from 'node:path';
 import { defineConfig } from 'vitest/config';
-import { webdriverio } from '@vitest/browser-webdriverio';
+import { playwright } from '@vitest/browser-playwright';
 import react from '@vitejs/plugin-react';
 import pkg from './package.json' with { type: 'json' };
 
@@ -106,10 +106,14 @@ export default defineConfig( {
 		browser: {
 			enabled: true,
 			headless: true,
-			provider: webdriverio(),
+			provider: playwright( {
+				launchOptions: {
+					channel: 'chrome'
+				}
+			} ),
 			screenshotFailures: false,
 			instances: [
-				{ browser: 'chrome' }
+				{ browser: 'chromium' }
 			]
 		}
 	},

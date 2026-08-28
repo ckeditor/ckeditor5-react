@@ -7,7 +7,6 @@ allowBuilds:
   snyk: true
 
 overrides:
-  'deepmerge-ts@^7': '^8.0.0'
   'esbuild@^0.27': '^0.28.1'
   'protobufjs@^7': '^7.6.5'
   'shell-quote@^1': '^1.8.5'
