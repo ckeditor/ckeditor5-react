@@ -23,6 +23,17 @@ type ContextDemoProps = {
 
 export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 	const [ state, setState ] = useState<Record<string, { instance: ClassicEditor }>>( {} );
+	const [ reports, setReports ] = useState<Array<string>>( [] );
+
+	// Nothing restarts any more, so an error leaves no visible trace unless it is reported. Naming the
+	// editor is the interesting part here: both of them live in one context, and the error still belongs
+	// to just one of them.
+	const report = ( name: string ) => ( error: Error, { phase }: { phase: string } ) => {
+		setReports( current => [
+			...current,
+			`${ new Date().toLocaleTimeString() } · ${ name } · ${ phase } · ${ error.message.split( '\n' )[ 0 ] }`
+		] );
+	};
 
 	const simulateError = ( editor: ClassicEditor ) => {
 		setTimeout( () => {
@@ -62,6 +73,7 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 					}}
 					editor={ ClassicEditor as any }
 					data={ props.content }
+					onError={ report( 'editor1' ) }
 				/>
 
 				<div className="buttons">
@@ -79,8 +91,18 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 					}}
 					editor={ ClassicEditor as any }
 					data="<h2>Another Editor</h2><p>... in common Context</p>"
+					onError={ report( 'editor2' ) }
 				/>
 			</CKEditorContext>
+
+			<h3>Reported errors</h3>
+
+			{ reports.length === 0 ?
+				<p><em>Nothing reported yet. Simulate an error above — the editors keep working.</em></p> :
+				<ol>
+					{ reports.map( entry => <li key={ entry }>{ entry }</li> ) }
+				</ol>
+			}
 		</>
 	);
 }
