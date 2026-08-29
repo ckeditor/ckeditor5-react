@@ -16,6 +16,9 @@ type EditorDemoProps = {
 };
 
 export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.Element {
+	// Errors reported by the editor, listed below the buttons.
+	const [ reports, setReports ] = useState<Array<string>>( [] );
+
 	const editorProps: MultiRootHookProps = {
 		editor: MultiRootEditor,
 		data: props.data,
@@ -35,6 +38,14 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 		},
 		onFocus: ( event, editor ) => {
 			console.log( 'event: onFocus', { event, editor } );
+		},
+
+		// Nothing restarts any more, so an error leaves no visible trace unless it is reported.
+		onError: ( error: Error, { phase }: { phase: string } ) => {
+			setReports( current => [
+				...current,
+				`${ new Date().toLocaleTimeString() } · ${ phase } · ${ error.message.split( '\n' )[ 0 ] }`
+			] );
 		},
 
 		config: {
@@ -193,6 +204,15 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 					Simulate an error
 				</button>
 			</div>
+
+			{ reports.length > 0 && (
+				<>
+					<h3>Reported errors</h3>
+					<ol>
+						{ reports.map( entry => <li key={ entry }>{ entry }</li> ) }
+					</ol>
+				</>
+			) }
 
 			<div className="buttons">
 				<button
