@@ -697,25 +697,33 @@ describe( 'useMultiRootEditor', () => {
 		// without the filter every hook on it would announce every other editor's error as its own.
 		it( 'should not call onError callback for an error from another editor', async () => {
 			const spy = vi.fn();
+			const otherSpy = vi.fn();
 
 			renderHook( () => useMultiRootEditor( { ...editorProps, onError: spy } ) );
 
 			const other = renderHook( () => useMultiRootEditor( {
 				...editorProps,
-				semaphoreElement: document.createElement( 'div' )
+				semaphoreElement: document.createElement( 'div' ),
+				onError: otherSpy
 			} ) );
 
 			await waitFor( () => {
 				expect( other.result.current.editor ).to.be.instanceof( TestMultiRootEditor );
 			} );
 
+			const error = new CKEditorError( 'a-custom-error', other.result.current.editor );
+
 			await turnOffErrors( async () => {
 				setTimeout( () => {
-					throw new CKEditorError( 'a-custom-error', other.result.current.editor );
+					throw error;
 				} );
 			} );
 
-			await timeout( 200 );
+			// The editor the error came from heard about it. Without this, the assertion below would hold
+			// just as well for an error that was never reported to anyone.
+			await waitFor( () => {
+				expect( otherSpy ).toHaveBeenCalledWith( error, { phase: 'runtime' } );
+			} );
 
 			expect( spy ).not.toHaveBeenCalled();
 		} );
