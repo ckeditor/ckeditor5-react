@@ -76,6 +76,11 @@ const ContextEditorDemo = ( { editor }: { editor: any } ): JSX.Element => {
 				This sample demonstrates integration with CKEditorContext.<br />
 			</p>
 			<p className="info">Component&apos;s events are logged to the console.</p>
+			<p className="info">
+				The &apos;Simulate an error&apos; button makes the editor throw. Nothing happens on the page,
+				because nothing restarts any more — the editor keeps its content and its undo history. Look
+				in the console. See the error handling demo for how to handle it yourself.
+			</p>
 			<hr /><br />
 
 			<div>
