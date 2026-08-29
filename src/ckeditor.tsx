@@ -5,13 +5,11 @@
 
 import React from 'react';
 
-import type {
-	EventInfo,
-	Editor,
-	EditorConfig,
-	EditorWatchdog,
-	WatchdogConfig,
-	ContextWatchdog
+import {
+	onEditorError,
+	type EventInfo,
+	type Editor,
+	type EditorConfig
 } from 'ckeditor5';
 
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore.js';
@@ -24,13 +22,12 @@ import {
 } from './context/setCKEditorReactContextMetadata.js';
 
 import {
-	ContextWatchdogContext,
-	isContextWatchdogInitializing,
-	isContextWatchdogReadyToUse
+	CKEditorContextValueContext,
+	isCKEditorContextInitializing,
+	isCKEditorContextReadyToUse
 } from './context/ckeditorcontext.js';
 
 import { appendAllIntegrationPluginsToConfig } from './plugins/appendAllIntegrationPluginsToConfig.js';
-import { EditorWatchdogAdapter } from './EditorWatchdogAdapter.js';
 import {
 	assignInitialDataToEditorConfig,
 	assignElementToEditorConfig,
@@ -57,7 +54,12 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 */
 	private editorSemaphore: LifeCycleElementSemaphore<EditorSemaphoreMountResult<TEditor>> | null = null;
 
-	public static override contextType = ContextWatchdogContext;
+	/**
+	 * Unregisters the error reporting callback when the editor goes away.
+	 */
+	private offEditorError: ( () => void ) | null = null;
+
+	public static override contextType = CKEditorContextValueContext;
 
 	constructor( props: Props<TEditor> ) {
 		super( props );
@@ -68,15 +70,6 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		const { editorSemaphore } = this;
 
 		return editorSemaphore ? editorSemaphore.value : null;
-	}
-
-	/**
-	 * An watchdog instance.
-	 */
-	public get watchdog(): EditorWatchdog<TEditor> | EditorWatchdogAdapter<TEditor> | null {
-		const { _semaphoreValue } = this;
-
-		return _semaphoreValue ? _semaphoreValue.watchdog : null;
 	}
 
 	/**
@@ -97,10 +90,6 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 		// Only when the component identifier changes the whole structure should be re-created once again.
 		if ( nextProps.id !== props.id ) {
-			return true;
-		}
-
-		if ( nextProps.disableWatchdog !== props.disableWatchdog ) {
 			return true;
 		}
 
@@ -129,7 +118,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Initialize the editor when the component is mounted.
 	 */
 	public override componentDidMount(): void {
-		if ( !isContextWatchdogInitializing( this.context ) ) {
+		if ( !isCKEditorContextInitializing( this.context ) ) {
 			this._initLifeCycleSemaphore();
 		}
 	}
@@ -138,7 +127,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Re-render the entire component once again. The old editor will be destroyed and the new one will be created.
 	 */
 	public override componentDidUpdate(): void {
-		if ( !isContextWatchdogInitializing( this.context ) ) {
+		if ( !isCKEditorContextInitializing( this.context ) ) {
 			this._initLifeCycleSemaphore();
 		}
 	}
@@ -171,7 +160,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 				try {
 					return await this._initializeEditor();
 				} catch ( error: any ) {
-					this.props.onError?.( error, { phase: 'initialization', willEditorRestart: false } );
+					this.props.onError?.( error, { phase: 'initialization' } );
 
 					// Rethrow, let's semaphore handle it.
 					throw error;
@@ -225,92 +214,25 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	}
 
 	/**
-	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
+	 * Creates the editor and starts reporting the errors that escape it.
 	 */
 	private async _initializeEditor(): Promise<EditorSemaphoreMountResult<TEditor>> {
-		const supports = getInstalledCKBaseFeatures();
-		const {
-			editor: Editor,
-			disableWatchdog,
-			watchdogConfig
-		} = this.props;
+		const instance = await this._createEditor( this._getMergedConfig( true ) );
 
-		const mergedConfig = this._getMergedConfig( true );
-
-		if ( disableWatchdog ) {
-			const instance = await this._createEditor( mergedConfig );
-
-			return {
-				instance,
-				watchdog: null
-			};
-		}
-
-		const watchdog = ( () => {
-			// There is small delay where React did not update the context yet but watchdog is already destroyed.
-			// However editor should be created again in such case, after receiving new context.
-			if ( isContextWatchdogReadyToUse( this.context ) ) {
-				return new EditorWatchdogAdapter( this.context.watchdog );
+		// The runtime half of `onError`. The other half is the rejected `create()` promise, caught by the
+		// semaphore's `mount` below. Reporting only covers errors that escape a running editor, so both
+		// halves are needed for `onError` to keep meaning what it always has.
+		this.offEditorError = onEditorError( ( { error, source } ) => {
+			if ( source !== instance ) {
+				return;
 			}
 
-			return new Editor.EditorWatchdog( Editor, watchdogConfig );
-		} )() as EditorWatchdogAdapter<TEditor>;
-
-		watchdog.on( 'error', ( _, { error, causesRestart } ) => {
 			const onError = this.props.onError ?? console.error;
 
-			onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
+			onError( error, { phase: 'runtime' } );
 		} );
 
-		/* istanbul ignore if -- @preserve */
-		if ( supports.elementConfigAttachment ) {
-			watchdog.setCreator( async ( config: EditorConfig ) => this._watchdogCreateEditor( watchdog, config ) );
-			await watchdog.create( mergedConfig );
-		} else {
-			watchdog.setCreator( async ( _, config ) => this._watchdogCreateEditor( watchdog, config ) );
-			await watchdog.create( this.domContainer.current!, mergedConfig );
-		}
-
-		return {
-			watchdog,
-			instance: watchdog!.editor
-		};
-	}
-
-	/**
-	 * Creates editor in watchdog context.
-	 *
-	 * @param watchdog Watchdog adapter.
-	 * @param config Editor configuration.
-	 * @returns Editor instance.
-	 */
-	private async _watchdogCreateEditor( watchdog: EditorWatchdogAdapter<TEditor>, config: EditorConfig ): Promise<TEditor> {
-		const { editorSemaphore } = this;
-		const { onAfterDestroy, onReady } = this.props;
-
-		const nonFirstCreate = !!editorSemaphore?.value;
-
-		if ( nonFirstCreate && onAfterDestroy ) {
-			onAfterDestroy( editorSemaphore.value.instance );
-		}
-
-		const instance = await this._createEditor( config );
-
-		// The editor semaphore can be unavailable at this stage. There is a small chance that the component
-		// was destroyed while watchdog was initializing new instance of editor. In such case, we should not
-		// call any callbacks or set any values to the semaphore.
-		if ( nonFirstCreate && editorSemaphore ) {
-			editorSemaphore.unsafeSetValue( {
-				instance,
-				watchdog
-			} );
-
-			setTimeout( () => {
-				onReady?.( watchdog!.editor as TEditor );
-			} );
-		}
-
-		return instance;
+		return { instance };
 	}
 
 	/**
@@ -368,6 +290,12 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 
 		let mappedConfig = { ...config ?? this.props.config };
 
+		// Editors placed inside `<CKEditorContext>` used to be added to a context watchdog. They now take
+		// the context itself, the same way an integrator sharing one would pass it.
+		if ( isCKEditorContextReadyToUse( this.context ) ) {
+			mappedConfig = { ...mappedConfig, context: this.context.context };
+		}
+
 		if ( contextItemMetadata ) {
 			mappedConfig = withCKEditorReactContextMetadata( contextItemMetadata, mappedConfig );
 		}
@@ -387,29 +315,23 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	}
 
 	/**
-	 * Destroys the editor by destroying the watchdog.
+	 * Destroys the editor and stops reporting its errors.
 	 */
 	private async _destroyEditor( initializeResult: EditorSemaphoreMountResult<Editor> ): Promise<void> {
-		const { watchdog, instance } = initializeResult;
+		const { instance } = initializeResult;
+
+		this.offEditorError?.();
+		this.offEditorError = null;
 
 		return new Promise<void>( ( resolve, reject ) => {
-			// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
-			//
-			// Additionally, we need to find a way to detect if the whole context has been destroyed. As `componentWillUnmount()`
-			// could be fired by <CKEditorContext /> and <CKEditor /> at the same time, this `setTimeout()` makes sure
-			// that <CKEditorContext /> component will be destroyed first, so during the code execution
-			// the `ContextWatchdog#state` would have a correct value. See `EditorWatchdogAdapter#destroy()` for more information.
+			// `componentWillUnmount()` can fire on <CKEditorContext /> and <CKEditor /> at the same time, and
+			// destroying a context destroys the editors in it. Deferring by a tick lets the context go first,
+			// so the state check below sees the truth. See: #197.
 			/* istanbul ignore next -- @preserve */
 			setTimeout( async () => {
 				try {
-					if ( watchdog ) {
-						await watchdog.destroy();
-						return resolve();
-					}
-
-					if ( instance ) {
+					if ( instance && instance.state !== 'destroyed' ) {
 						await instance.destroy();
-						return resolve();
 					}
 
 					resolve();
@@ -479,14 +401,9 @@ function assertMinimumSupportedVersion(): void {
 }
 
 export interface Props<TEditor extends Editor> {
-	editor: EditorRelaxedConstructor<TEditor> & {
-		EditorWatchdog: typeof EditorWatchdog;
-		ContextWatchdog: typeof ContextWatchdog;
-	};
+	editor: EditorRelaxedConstructor<TEditor>;
 	contextItemMetadata?: CKEditorConfigContextMetadata;
 	config?: EditorConfig;
-	watchdogConfig?: WatchdogConfig;
-	disableWatchdog?: boolean;
 	onReady?: ( editor: TEditor ) => void;
 	onAfterDestroy?: ( editor: TEditor ) => void;
 	onError?: ( error: Error, details: EditorErrorDetails ) => void;
@@ -499,9 +416,8 @@ export interface Props<TEditor extends Editor> {
 }
 
 /**
- * Error thrown by editor watchdog.
+ * Tells whether the error escaped a running editor or stopped it from being created in the first place.
  */
 export type EditorErrorDetails = {
 	phase: 'initialization' | 'runtime';
-	willEditorRestart?: boolean;
 };
