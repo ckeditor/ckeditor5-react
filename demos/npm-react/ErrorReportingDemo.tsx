@@ -73,9 +73,10 @@ export default function ErrorReportingDemo( props: { content: string } ): JSX.El
 
 			<hr /><br />
 
-			<div className="row">
+			{ /* Side by side on purpose: the demo is about seeing that only one of them reports. */ }
+			<div style={ { display: 'flex', gap: '16px', alignItems: 'flex-start' } }>
 				{ EDITORS.map( name => (
-					<div key={ name } style={ { flex: 1 } }>
+					<div key={ name } style={ { flex: 1, minWidth: 0 } }>
 						<h3>{ name }</h3>
 
 						<CKEditor
