@@ -5,7 +5,7 @@
 
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import React, { createRef, type RefObject } from 'react';
-import { CKEditorError, EditorWatchdog } from 'ckeditor5';
+import { CKEditorError, ClassicEditor } from 'ckeditor5';
 import { render, waitFor, type RenderResult } from '@testing-library/react';
 import type { EditorRelaxedConfig } from '@ckeditor/ckeditor5-integrations-common';
 
@@ -17,8 +17,6 @@ import CKEditor, { type Props } from '../src/ckeditor.js';
 import { expectToBeTruthy } from './_utils/expectToBeTruthy.js';
 import { ReactIntegrationUsageDataPlugin } from '../src/plugins/ReactIntegrationUsageDataPlugin.js';
 
-import type { LifeCycleElementSemaphore } from '../src/lifecycle/LifeCycleElementSemaphore.js';
-import type { EditorSemaphoreMountResult } from '../src/lifecycle/LifeCycleEditorSemaphore.js';
 import { turnOffErrors } from './_utils/turnOffErrors.js';
 
 const MockEditor = MockedEditor as any;
@@ -151,8 +149,7 @@ describe( '<CKEditor> Component', () => {
 				toolbar: {
 					items: [ 'bold' ]
 				},
-				initialData: '',
-				context: undefined
+				initialData: ''
 			} );
 		} );
 
@@ -185,8 +182,7 @@ describe( '<CKEditor> Component', () => {
 						items: [ 'bold' ]
 					},
 					initialData: '',
-					plugins: [],
-					context: undefined
+					plugins: []
 				} );
 			} );
 
@@ -223,8 +219,7 @@ describe( '<CKEditor> Component', () => {
 					},
 					initialData: '',
 					licenseKey: '<YOUR_LICENSE_KEY>',
-					plugins: [],
-					context: undefined
+					plugins: []
 				} );
 			} );
 		} );
@@ -260,8 +255,7 @@ describe( '<CKEditor> Component', () => {
 					},
 					initialData: '',
 					licenseKey: 'GPL',
-					plugins: [],
-					context: undefined
+					plugins: []
 				} );
 			} );
 
@@ -298,8 +292,7 @@ describe( '<CKEditor> Component', () => {
 					},
 					initialData: '',
 					licenseKey: '<YOUR_LICENSE_KEY>',
-					plugins: [],
-					context: undefined
+					plugins: []
 				} );
 			} );
 		} );
@@ -438,63 +431,6 @@ describe( '<CKEditor> Component', () => {
 			expect( consoleErrorStub ).toHaveBeenCalledOnce();
 			expect( consoleErrorStub.mock.calls[ 0 ][ 0 ] ).to.equal( 'CKEditor mounting error:' );
 			expect( consoleErrorStub.mock.calls[ 0 ][ 1 ] ).to.equal( error );
-		} );
-
-		it( 'passes the specified editor class to the watchdog feature', async () => {
-			const constructorSpy = vi.fn();
-
-			class CustomEditorWatchdog extends EditorWatchdog {
-				constructor( ...args: ConstructorParameters<typeof EditorWatchdog> ) {
-					super( ...args );
-					constructorSpy( ...args );
-				}
-			}
-
-			MockEditor.EditorWatchdog = CustomEditorWatchdog;
-
-			component = render(
-				<CKEditor
-					editor={MockEditor}
-					data="<p>Hello CKEditor 5!</p>"
-					onReady={manager.resolveOnRun()}
-				/>
-			);
-
-			await manager.all();
-
-			expect( constructorSpy ).toHaveBeenCalled();
-			expect( constructorSpy.mock.calls[ 0 ][ 0 ] ).to.equal( MockEditor );
-
-			MockEditor.EditorWatchdog = EditorWatchdog;
-		} );
-
-		it( 'passes the watchdog config to the watchdog feature', async () => {
-			const constructorSpy = vi.fn();
-			const myWatchdogConfig = { crashNumberLimit: 678 };
-
-			class CustomEditorWatchdog extends EditorWatchdog {
-				constructor( ...args: ConstructorParameters<typeof EditorWatchdog> ) {
-					super( ...args );
-					constructorSpy( ...args );
-				}
-			}
-
-			MockEditor.EditorWatchdog = CustomEditorWatchdog;
-
-			component = render(
-				<CKEditor
-					editor={MockEditor}
-					watchdogConfig={myWatchdogConfig}
-					onReady={manager.resolveOnRun()}
-				/>
-			);
-
-			await manager.all();
-
-			expect( constructorSpy ).toHaveBeenCalled();
-			expect( constructorSpy.mock.calls[ 0 ][ 1 ] ).to.deep.equal( myWatchdogConfig );
-
-			MockEditor.EditorWatchdog = EditorWatchdog;
 		} );
 	} );
 
@@ -788,70 +724,42 @@ describe( '<CKEditor> Component', () => {
 
 				await manager.all();
 
-				expect( error ).to.equal( error );
+				expect( error ).to.equal( originalError );
 				expect( details.phase ).to.equal( 'initialization' );
-				expect( details.willEditorRestart ).to.equal( false );
 			} );
 
-			it( 'calls the callback if specified when an error occurs (disabledWatchdog)', async () => {
-				let error;
-				let details;
-				const originalError = new Error( 'Error was thrown.' );
-
-				vi.spyOn( MockEditor, 'create' ).mockRejectedValue( originalError );
-
-				component = render(
-					<CKEditor
-						disableWatchdog
-						editor={MockEditor}
-						onError={manager.resolveOnRun( ( err, dets ) => {
-							error = err;
-							details = dets;
-						} )}
-					/>
-				);
-
-				await manager.all();
-
-				expect( error ).to.equal( error );
-				expect( details.phase ).to.equal( 'initialization' );
-				expect( details.willEditorRestart ).to.equal( false );
-			} );
-
+			// A real editor, unlike the mock used elsewhere in this file: reporting finds the editor an error
+			// belongs to among the editors that are actually running, and a mock is not one of them.
 			it( 'calls the callback if the runtime error occurs', async () => {
+				const onErrorSpy = vi.fn();
+				let editorInstance: any = null;
+
 				component = render(
 					<CKEditor
-						ref={instanceRef}
-						editor={MockEditor}
-						onReady={manager.resolveOnRun()}
+						editor={ ClassicEditor as any }
+						onError={ onErrorSpy }
+						onReady={ manager.resolveOnRun( instance => {
+							editorInstance = instance;
+						} ) }
 					/>
 				);
 
 				await manager.all();
 
-				const onErrorSpy = vi.fn();
+				const error = new CKEditorError( 'foo', editorInstance );
 
-				component.rerender(
-					<CKEditor
-						ref={instanceRef}
-						editor={MockEditor}
-						onError={onErrorSpy}
-					/>
-				);
+				await turnOffErrors( async () => {
+					setTimeout( () => {
+						throw error;
+					} );
+				} );
 
-				expect( instanceRef.current ).to.be.toBeTruthy();
+				await waitFor( () => {
+					expect( onErrorSpy ).toHaveBeenCalledOnce();
+				} );
 
-				const error = new CKEditorError( 'foo', instanceRef.current!.editor );
-				const semaphore = (
-					instanceRef.current as any
-				).editorSemaphore as LifeCycleElementSemaphore<EditorSemaphoreMountResult<any>>;
-
-				( semaphore.value?.watchdog as any )._handleError( error );
-
-				expect( onErrorSpy ).toHaveBeenCalledOnce();
 				expect( onErrorSpy.mock.calls[ 0 ][ 0 ] ).to.equal( error );
 				expect( onErrorSpy.mock.calls[ 0 ][ 1 ].phase ).to.equal( 'runtime' );
-				expect( onErrorSpy.mock.calls[ 0 ][ 1 ].willEditorRestart ).to.equal( true );
 			} );
 		} );
 
@@ -999,7 +907,7 @@ describe( '<CKEditor> Component', () => {
 				expect( editorCreate ).not.toHaveBeenCalled();
 			} );
 
-			it( 'should destroy the old watchdog instance while re-mounting the editor', async () => {
+			it( 'should destroy the old editor instance while re-mounting', async () => {
 				component = render(
 					<CKEditor
 						ref={instanceRef}
@@ -1014,7 +922,7 @@ describe( '<CKEditor> Component', () => {
 
 				expectToBeTruthy( instanceRef.current );
 
-				const { watchdog: firstWatchdog } = instanceRef.current;
+				const firstEditor = instanceRef.current.editor;
 
 				component?.rerender(
 					<CKEditor
@@ -1029,14 +937,14 @@ describe( '<CKEditor> Component', () => {
 				await manager.all();
 
 				expectToBeTruthy( instanceRef.current );
-				expectToBeTruthy( firstWatchdog );
+				expectToBeTruthy( firstEditor );
 
-				const { watchdog: secondWatchdog } = instanceRef.current;
+				const secondEditor = instanceRef.current.editor;
 
-				expectToBeTruthy( secondWatchdog );
-				expect( firstWatchdog ).to.not.equal( secondWatchdog );
-				expect( ( firstWatchdog as EditorWatchdog ).state ).to.equal( 'destroyed' );
-				expect( ( secondWatchdog as EditorWatchdog ).state ).to.equal( 'ready' );
+				expectToBeTruthy( secondEditor );
+				expect( firstEditor ).to.not.equal( secondEditor );
+				expect( firstEditor!.state ).to.equal( 'destroyed' );
+				expect( secondEditor!.state ).to.equal( 'ready' );
 			} );
 		} );
 
@@ -1193,106 +1101,6 @@ describe( '<CKEditor> Component', () => {
 				} );
 			} );
 		} );
-
-		describe( '#disableWatchdog', () => {
-			it( 'should not initialize watchdog if disableWatchdog is set to true', async () => {
-				component = render(
-					<CKEditor
-						ref={instanceRef}
-						editor={MockEditor}
-						config={{ initialData: '<p>foo</p>' }}
-						disableWatchdog={true}
-						id="1"
-						onReady={manager.resolveOnRun()}
-					/>
-				);
-
-				await manager.all();
-
-				expectToBeTruthy( instanceRef.current );
-				expect( instanceRef.current.watchdog ).to.be.null;
-			} );
-
-			it( 'should initialize watchdog if disableWatchdog is set to false', async () => {
-				component = render(
-					<CKEditor
-						ref={instanceRef}
-						editor={MockEditor}
-						config={{ initialData: '<p>foo</p>' }}
-						disableWatchdog={false}
-						id="1"
-						onReady={manager.resolveOnRun()}
-					/>
-				);
-
-				await manager.all();
-
-				expectToBeTruthy( instanceRef.current );
-				expect( instanceRef.current.watchdog ).not.to.be.null;
-			} );
-
-			it( 'should initialize watchdog if disableWatchdog is not set', async () => {
-				component = render(
-					<CKEditor
-						ref={instanceRef}
-						editor={MockEditor}
-						config={{ initialData: '<p>foo</p>' }}
-						id="1"
-						onReady={manager.resolveOnRun()}
-					/>
-				);
-
-				await manager.all();
-
-				expectToBeTruthy( instanceRef.current );
-				expect( instanceRef.current.watchdog ).not.to.be.null;
-			} );
-
-			it( 'should re-render when disableWatchdog has changed', async () => {
-				component = render(
-					<CKEditor
-						ref={instanceRef}
-						editor={MockEditor}
-						config={{ initialData: '<p>foo</p>' }}
-						id="1"
-						onReady={manager.resolveOnRun()}
-					/>
-				);
-
-				await manager.all();
-
-				expect( instanceRef.current?.watchdog ).not.to.be.null;
-
-				component?.rerender(
-					<CKEditor
-						disableWatchdog
-						ref={instanceRef}
-						editor={MockEditor}
-						config={{ initialData: '<p>foo</p>' }}
-						id="1"
-						onReady={manager.resolveOnRun()}
-					/>
-				);
-
-				await manager.all();
-
-				expect( instanceRef.current?.watchdog ).to.be.null;
-
-				component?.rerender(
-					<CKEditor
-						disableWatchdog={false}
-						ref={instanceRef}
-						editor={MockEditor}
-						config={{ initialData: '<p>foo</p>' }}
-						id="1"
-						onReady={manager.resolveOnRun()}
-					/>
-				);
-				await manager.all();
-
-				expect( instanceRef.current?.watchdog ).not.to.be.null;
-			} );
-		} );
 	} );
 
 	describe( 'destroy', () => {
@@ -1355,57 +1163,8 @@ describe( '<CKEditor> Component', () => {
 		} );
 	} );
 
-	describe( 'in case of error handling', () => {
-		it( 'should restart the editor if a runtime error occurs', async () => {
-			vi.spyOn( console, 'error' ).mockImplementation( () => {} );
-
-			const onAfterDestroySpy = vi.fn();
-
-			component = render(
-				<CKEditor
-					ref={instanceRef}
-					editor={MockEditor}
-					onReady={manager.resolveOnRun()}
-					onAfterDestroy={onAfterDestroySpy}
-				/>
-			);
-
-			await manager.all();
-
-			const firstEditor = instanceRef.current?.editor;
-
-			expect( firstEditor ).to.be.instanceOf( MockEditor );
-
-			await manager.all();
-			await turnOffErrors( async () => {
-				await new Promise( resolve => {
-					component?.rerender(
-						<CKEditor
-							ref={instanceRef}
-							editor={MockEditor}
-							onReady={resolve}
-							onAfterDestroy={onAfterDestroySpy}
-						/>
-					);
-
-					setTimeout( () => {
-						throw new CKEditorError( 'foo', firstEditor );
-					} );
-				} );
-			} );
-
-			await waitFor( () => {
-				const { editor } = instanceRef.current!;
-
-				expect( editor ).to.be.instanceOf( MockEditor );
-				expect( firstEditor ).to.not.equal( editor );
-				expect( onAfterDestroySpy ).toHaveBeenCalledOnce();
-			} );
-		} );
-	} );
-
 	describe( 'semaphores', () => {
-		const testSemaphoreForWatchdog = () => {
+		const testSemaphores = () => {
 			it( 'should assign properly `data` property to editor even if it is still mounting', async () => {
 				const deferInitialization = createDefer();
 
@@ -1604,8 +1363,6 @@ describe( '<CKEditor> Component', () => {
 			} );
 		};
 
-		for ( const enableWatchdog of [ true, false ] ) {
-			describe( `watchdog=${ enableWatchdog }`, testSemaphoreForWatchdog );
-		}
+		testSemaphores();
 	} );
 } );

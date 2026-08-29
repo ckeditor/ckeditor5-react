@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 
-import type { Editor } from 'ckeditor5';
+import type { Context, Editor } from 'ckeditor5';
 
 import { CKEditor, CKEditorContext } from '../../src/index.js';
 import ClassicEditor from '../npm-react/ClassicEditor.js';
@@ -18,6 +18,7 @@ import ErrorLog, { simulateErrorFrom, toReport, type Report } from './ErrorLog.j
 export default function ContextEditorsDemo( props: { content: string } ): JSX.Element {
 	const [ reports, setReports ] = useState<Array<Report>>( [] );
 	const [ editors, setEditors ] = useState<Record<string, { instance: Editor }>>( {} );
+	const [ context, setContext ] = useState<Context | null>( null );
 
 	const record = ( from: string ) => ( error: Error, { phase }: { phase: string } ) => {
 		setReports( current => [ ...current, toReport( from, error, phase, current.length ) ] );
@@ -39,8 +40,19 @@ export default function ContextEditorsDemo( props: { content: string } ): JSX.El
 			<CKEditorContext
 				context={ ClassicEditor.Context as any }
 				onError={ record( 'the context' ) }
+				onReady={ instance => setContext( instance ) }
 				onChangeInitializedEditors={ initialized => setEditors( initialized as any ) }
 			>
+				<div className="buttons">
+					<button
+						type="button"
+						disabled={ !context }
+						onClick={ () => simulateErrorFrom( context ) }
+					>
+						Simulate an error in the context
+					</button>
+				</div>
+
 				{ [ 'editor1', 'editor2' ].map( name => (
 					<div key={ name }>
 						<div className="buttons">

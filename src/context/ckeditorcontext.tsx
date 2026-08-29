@@ -45,13 +45,18 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 	const isMountedRef = useIsMountedRef();
 	const prevInitializationIDRef = useRef<string | null>( null );
 
+	// Holds the context this component created. Destruction reads it instead of the state, because a
+	// context created moments before the component unmounts never makes it into a render.
+	const contextRef = useRef<TContext | null>( null );
+
 	// The state starts as 'initializing' because the CKEditor component checks it and waits for the context
 	// to be fully initialized before creating an editor in it.
 	const [ currentContext, setCurrentContext ] = useState<CKEditorContextValue<TContext>>( {
 		status: 'initializing'
 	} );
 
-	// Lets initialize the context when the layout is ready.
+	// Lets initialize the context when the layout is ready. The cleanup destroys whatever this run of
+	// the effect created, which covers both the unmount and a re-initialization.
 	useEffect( () => {
 		if ( isLayoutReady ) {
 			initializeContext();
@@ -60,14 +65,14 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 				status: 'initializing'
 			} );
 		}
-	}, [ id, isLayoutReady ] );
 
-	// Cleanup the context when the component is unmounted. Abort if it is not initialized.
-	useEffect( () => () => {
-		if ( currentContext.status === 'initialized' ) {
-			currentContext.context.destroy();
-		}
-	}, [ currentContext ] );
+		return () => {
+			const context = contextRef.current;
+
+			contextRef.current = null;
+			context?.destroy();
+		};
+	}, [ id, isLayoutReady ] );
 
 	// Report the errors that escape the context while it is running. This is one of the two halves of
 	// `onError`; the other one is the rejected `create()` promise below. Reporting only covers a running
@@ -130,6 +135,8 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 			.create( config )
 			.then( context => {
 				if ( canUpdateState( initializationID ) ) {
+					contextRef.current = context;
+
 					if ( onReady ) {
 						onReady( context );
 					}
@@ -202,7 +209,11 @@ export type CKEditorContextValue<TContext extends Context = Context> =
 	}
 	| {
 		status: 'error';
-		error: ContextErrorDetails;
+
+		/**
+		 * What `create()` rejected with. Not the `onError` details — those go to the callback.
+		 */
+		error: Error;
 	};
 
 /**

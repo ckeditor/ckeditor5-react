@@ -160,6 +160,12 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 
 		mappedConfig = appendAllIntegrationPluginsToConfig( mappedConfig );
 
+		// Editors placed inside `<CKEditorContext>` used to be added to a context watchdog. They now take
+		// the context itself, the same way an integrator sharing one would pass it.
+		if ( isCKEditorContextReadyToUse( context ) ) {
+			mappedConfig = { ...mappedConfig, context: context.context };
+		}
+
 		return mappedConfig;
 	} );
 
@@ -372,7 +378,20 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 	 * Creates the editor and starts reporting the errors that escape it.
 	 */
 	const _initializeEditor = async (): Promise<LifeCycleMountResult> => {
-		const instance = await _createEditor( props.data as any, _getConfig() ) as MultiRootEditor;
+		let instance: MultiRootEditor;
+
+		try {
+			instance = await _createEditor( props.data as any, _getConfig() ) as MultiRootEditor;
+		} catch ( error ) {
+			// The initialization half of `onError`. Reporting below only covers a running editor, so an
+			// editor that never started has to be announced from here.
+			const onError = props.onError || console.error;
+
+			onError( error, { phase: 'initialization' } );
+
+			// Rethrow, let the semaphore handle it.
+			throw error;
+		}
 
 		// The runtime half of `onError`. The other half is the rejected `create()` promise, caught by the
 		// semaphore's `mount`. Reporting only covers errors that escape a running editor, so both halves

@@ -3,7 +3,6 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-import { EditorWatchdog, ContextWatchdog } from 'ckeditor5';
 import type { EditorRelaxedConfig } from '@ckeditor/ckeditor5-integrations-common';
 
 /**
@@ -12,9 +11,6 @@ import type { EditorRelaxedConfig } from '@ckeditor/ckeditor5-integrations-commo
  * @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
  */
 export default class MockEditor {
-	public static EditorWatchdog: any = EditorWatchdog;
-	public static ContextWatchdog: any = ContextWatchdog;
-
 	// In order to tests events, we need to somehow mock those properties.
 	public static _on = (): void => {};
 	public static _once = (): void => {};
@@ -51,6 +47,7 @@ export default class MockEditor {
 	}
 
 	public initializeProperties(): void {
+		this.state = 'ready';
 		this.model = MockEditor._model;
 		this.editing = MockEditor._editing;
 		this.on = MockEditor._on;
@@ -94,6 +91,8 @@ export default class MockEditor {
 	}
 
 	public destroy(): Promise<void> {
+		this.state = 'destroyed';
+
 		return Promise.resolve();
 	}
 
