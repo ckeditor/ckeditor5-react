@@ -16,9 +16,6 @@ type EditorDemoProps = {
 };
 
 export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.Element {
-	// Errors reported by the editor, listed below the buttons.
-	const [ reports, setReports ] = useState<Array<string>>( [] );
-
 	const editorProps: MultiRootHookProps = {
 		editor: MultiRootEditor,
 		data: props.data,
@@ -38,14 +35,6 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 		},
 		onFocus: ( event, editor ) => {
 			console.log( 'event: onFocus', { event, editor } );
-		},
-
-		// Nothing restarts any more, so an error leaves no visible trace unless it is reported.
-		onError: ( error: Error, { phase }: { phase: string } ) => {
-			setReports( current => [
-				...current,
-				`${ new Date().toLocaleTimeString() } · ${ phase } · ${ error.message.split( '\n' )[ 0 ] }`
-			] );
 		},
 
 		config: {
@@ -181,10 +170,11 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 				However, they can be a good starting point for your own custom features.
 			</p>
 			<p className="info">
-				The &apos;Simulate an error&apos; button makes the editor throw an error, so you can see it reported
-				through <code>onError</code>.<br />
-				Nothing restarts: the editor keeps its content and its undo history, and it is up to you to
-				decide what should happen next.
+				The &apos;Simulate an error&apos; button makes the editor throw an error. Nothing happens on the
+				page — the editor keeps its content and its undo history, because nothing restarts it any
+				more. Look in the console: the browser logs the uncaught error, and the component logs what
+				it reported, because this demo passes no <code>onError</code> of its own.<br />
+				See the error handling demo for how to handle it yourself.
 			</p>
 			<p className="info">Component&apos;s events are logged to the console.</p>
 			<hr /><br />
@@ -204,15 +194,6 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 					Simulate an error
 				</button>
 			</div>
-
-			{ reports.length > 0 && (
-				<>
-					<h3>Reported errors</h3>
-					<ol>
-						{ reports.map( entry => <li key={ entry }>{ entry }</li> ) }
-					</ol>
-				</>
-			) }
 
 			<div className="buttons">
 				<button
