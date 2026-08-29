@@ -57,8 +57,7 @@ const ContextEditorDemo = ( { editor }: { editor: any } ): JSX.Element => {
 	} as MultiRootHookProps );
 
 	// Function to simulate an error in the editor.
-	// It is used for testing purposes to trigger the Watchdog to restart the editor.
-	// Remove it in the actual integration.
+	// It is used for testing purposes to show how an error is reported. Remove it in the actual integration.
 	const simulateError = ( editor: any ) => {
 		setTimeout( () => {
 			const err: any = new Error( 'foo' );
@@ -132,7 +131,6 @@ const ContextMultiRootEditorDemo = withCKCloud( ( { cloud } ): JSX.Element => {
 	return (
 		<CKEditorContext
 			context={ MultiRootEditor.Context as any }
-			contextWatchdog={ MultiRootEditor.ContextWatchdog as any }
 		>
 			<ContextEditorDemo editor={MultiRootEditor} />
 		</CKEditorContext>

@@ -88,8 +88,7 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 	};
 
 	// Function to simulate an error in the editor.
-	// It is used for testing purposes to trigger the Watchdog to restart the editor.
-	// Remove it in the actual integration.
+	// It is used for testing purposes to show how an error is reported. Remove it in the actual integration.
 	const simulateError = () => {
 		setTimeout( () => {
 			const err: any = new Error( 'foo' );
@@ -171,10 +170,10 @@ export default function MultiRootEditorRichDemo( props: EditorDemoProps ): JSX.E
 				However, they can be a good starting point for your own custom features.
 			</p>
 			<p className="info">
-				The &apos;Simulate an error&apos; button makes the editor throw an error to show you how it is restarted by
-				the <code>Watchdog</code> mechanism.<br />
-				Note, that <code>Watchdog</code> is enabled by default.<br />
-				It can be disabled by passing the `disableWatchdog` flag to the `useMultiRootEditor` hook.
+				The &apos;Simulate an error&apos; button makes the editor throw an error, so you can see it reported
+				through <code>onError</code>.<br />
+				Nothing restarts: the editor keeps its content and its undo history, and it is up to you to
+				decide what should happen next.
 			</p>
 			<p className="info">Component&apos;s events are logged to the console.</p>
 			<hr /><br />
