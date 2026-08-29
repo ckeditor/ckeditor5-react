@@ -6,8 +6,9 @@
 import React, { useState } from 'react';
 import EditorDemo from './EditorDemo.js';
 import ContextDemo from './ContextDemo.js';
+import ErrorReportingDemo from './ErrorReportingDemo.js';
 
-type Demo = 'editor' | 'context';
+type Demo = 'editor' | 'context' | 'errors';
 
 const editorContent = `
 	<h2>Sample</h2>
@@ -45,12 +46,17 @@ export default function App(): JSX.Element {
 				>
 					Context demo
 				</button>
+
+				<button
+					onClick={ () => setDemo( 'errors' ) }
+					disabled={ demo == 'errors' }
+				>
+					Error reporting demo
+				</button>
 			</div>
-			{
-				demo == 'editor' ?
-					<EditorDemo content={editorContent}/> :
-					<ContextDemo content={editorContent}/>
-			}
+			{ demo == 'editor' && <EditorDemo content={editorContent}/> }
+			{ demo == 'context' && <ContextDemo content={editorContent}/> }
+			{ demo == 'errors' && <ErrorReportingDemo content={editorContent}/> }
 		</React.StrictMode>
 	);
 }
