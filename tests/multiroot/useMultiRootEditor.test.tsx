@@ -695,6 +695,28 @@ describe( 'useMultiRootEditor', () => {
 
 		// An editor hears about its own errors only. Reporting is one registration for the whole page, so
 		// without the filter every hook on it would announce every other editor's error as its own.
+		// Reporting is one page-level registry, so a registration that is never removed retains the
+		// editor for the life of the page. A silent component does not prove the removal happened —
+		// the filter inside the callback hides it — so the unsubscribe is asserted directly.
+		it( 'should unregister the reporting when the hook is unmounted', async () => {
+			const off = vi.fn();
+			const register = vi.spyOn( TestMultiRootEditor, 'onEditorError' ).mockReturnValue( off );
+			const { result, unmount } = renderHook( () => useMultiRootEditor( editorProps ) );
+
+			await waitFor( () => {
+				expect( result.current.editor ).to.be.instanceof( TestMultiRootEditor );
+			} );
+
+			expect( register ).toHaveBeenCalledOnce();
+			expect( off ).not.toHaveBeenCalled();
+
+			unmount();
+
+			await waitFor( () => {
+				expect( off ).toHaveBeenCalledOnce();
+			} );
+		} );
+
 		it( 'should not call onError callback for an error from another editor', async () => {
 			const spy = vi.fn();
 			const otherSpy = vi.fn();

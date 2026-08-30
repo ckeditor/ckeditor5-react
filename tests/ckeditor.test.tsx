@@ -734,6 +734,30 @@ describe( '<CKEditor> Component', () => {
 
 			// A real editor, unlike the mock used elsewhere in this file: reporting finds the editor an error
 			// belongs to among the editors that are actually running, and a mock is not one of them.
+			// Reporting is one page-level registry, so a registration that is never removed retains the
+			// editor for the life of the page. A silent component does not prove the removal happened —
+			// the filter inside the callback hides it — so the unsubscribe is asserted directly.
+			it( 'unregisters the reporting when the component unmounts', async () => {
+				const off = vi.fn();
+				const register = vi.spyOn( MockEditor, 'onEditorError' ).mockReturnValue( off );
+
+				component = render(
+					<CKEditor editor={ MockEditor } onReady={ manager.resolveOnRun() } />
+				);
+
+				await manager.all();
+
+				expect( register ).toHaveBeenCalledOnce();
+				expect( off ).not.toHaveBeenCalled();
+
+				component.unmount();
+				component = null;
+
+				await waitFor( () => {
+					expect( off ).toHaveBeenCalledOnce();
+				} );
+			} );
+
 			it( 'calls the callback if the runtime error occurs', async () => {
 				const onErrorSpy = vi.fn();
 				let editorInstance: any = null;

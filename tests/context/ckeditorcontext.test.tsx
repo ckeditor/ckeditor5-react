@@ -269,6 +269,33 @@ describe( '<CKEditorContext> Component', () => {
 			// Reporting is one registration for the whole page and every component listens to it, so what keeps
 			// an error with the editor it came from is the filter each of them applies. Sharing a context must
 			// not make two editors answer for each other, and the context must stay out of what an editor owns.
+			// Reporting is one page-level registry, so a registration that is never removed retains the
+			// editor for the life of the page. A silent component does not prove the removal happened —
+			// the filter inside the callback hides it — so the unsubscribe is asserted directly.
+			it( 'should unregister the reporting when the component is unmounted', async () => {
+				const off = vi.fn();
+				const register = vi.spyOn( ContextMock, 'onEditorError' ).mockReturnValue( off );
+
+				component = render(
+					<CKEditorContext context={ ContextMock } onReady={ manager.resolveOnRun() } />
+				);
+
+				await manager.all();
+
+				await waitFor( () => {
+					expect( register ).toHaveBeenCalledOnce();
+				} );
+
+				expect( off ).not.toHaveBeenCalled();
+
+				component.unmount();
+				component = null;
+
+				await waitFor( () => {
+					expect( off ).toHaveBeenCalledOnce();
+				} );
+			} );
+
 			it( 'should call onError of the editor the error came from, and of nothing else', async () => {
 				const firstSpy = vi.fn();
 				const secondSpy = vi.fn();
