@@ -391,13 +391,13 @@ function shouldUpdateEditorData<TEditor extends Editor>(
  * Checks if currently installed version of the editor is supported by the integration.
  */
 function assertMinimumSupportedVersion(): void {
-	switch ( compareInstalledCKBaseVersion( '42.0.0' ) ) {
+	switch ( compareInstalledCKBaseVersion( '49.0.0' ) ) {
 		case null:
 			console.warn( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
 			break;
 
 		case -1:
-			console.warn( 'The <CKEditor> component requires using CKEditor 5 in version 42+ or nightly build.' );
+			console.warn( 'The <CKEditor> component requires using CKEditor 5 in version 49+ or nightly build.' );
 			break;
 	}
 }

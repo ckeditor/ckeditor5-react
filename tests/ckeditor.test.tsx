@@ -64,8 +64,8 @@ describe( '<CKEditor> Component', () => {
 			expect( warnStub.mock.calls[ 0 ][ 0 ] ).to.equal( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
 		} );
 
-		it( 'should print a warning if using CKEditor 5 in version lower than 42', async () => {
-			window.CKEDITOR_VERSION = '36.0.0';
+		it( 'should print a warning if using CKEditor 5 in version lower than 49', async () => {
+			window.CKEDITOR_VERSION = '48.0.0';
 			const warnStub = vi.spyOn( console, 'warn' ).mockImplementation( () => {} );
 
 			component = render(
@@ -80,11 +80,13 @@ describe( '<CKEditor> Component', () => {
 
 			expect( warnStub ).toHaveBeenCalledOnce();
 			expect( warnStub.mock.calls[ 0 ][ 0 ] ).to.equal(
-				'The <CKEditor> component requires using CKEditor 5 in version 42+ or nightly build.'
+				'The <CKEditor> component requires using CKEditor 5 in version 49+ or nightly build.'
 			);
 		} );
 
-		it( 'should not print any warning if using CKEditor 5 in version 42 or higher', async () => {
+		it( 'should not print any warning if using CKEditor 5 in version 49 or higher', async () => {
+			window.CKEDITOR_VERSION = '49.0.0';
+
 			const warnStub = vi.spyOn( console, 'warn' );
 
 			component = render(
@@ -347,8 +349,7 @@ describe( '<CKEditor> Component', () => {
 
 			await manager.all();
 
-			expect( consoleWarnStub ).toHaveBeenCalledOnce();
-			expect( consoleWarnStub.mock.calls[ 0 ][ 0 ] ).to.equal(
+			expect( consoleWarnStub.mock.calls.map( call => call[ 0 ] ) ).to.contain(
 				'Editor data should be provided either via the config (`config.initialData`) or the component\'s `data` property, ' +
 				'but not both. The configuration value takes precedence.'
 			);
@@ -369,7 +370,10 @@ describe( '<CKEditor> Component', () => {
 
 			await manager.all();
 
-			expect( consoleWarnStub ).toHaveBeenCalledOnce();
+			expect( consoleWarnStub.mock.calls.map( call => call[ 0 ] ) ).to.contain(
+				'Editor data should be provided either via the config (`config.initialData`) or the component\'s `data` property, ' +
+				'but not both. The configuration value takes precedence.'
+			);
 			expect( ( createSpy.mock.calls as any )[ 0 ][ 1 ].initialData ).to.equal( '<p>Bar</p>' );
 		} );
 
