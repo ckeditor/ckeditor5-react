@@ -5,11 +5,11 @@
 
 import React from 'react';
 
-import {
-	onEditorError,
-	type EventInfo,
-	type Editor,
-	type EditorConfig
+import type {
+	EventInfo,
+	Editor,
+	EditorConfig,
+	EditorErrorCallback
 } from 'ckeditor5';
 
 import type { EditorSemaphoreMountResult } from './lifecycle/LifeCycleEditorSemaphore.js';
@@ -222,7 +222,9 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 		// The runtime half of `onError`. The other half is the rejected `create()` promise, caught by the
 		// semaphore's `mount` below. Reporting only covers errors that escape a running editor, so both
 		// halves are needed for `onError` to keep meaning what it always has.
-		this.offEditorError = onEditorError( ( { error, source } ) => {
+		// Off the editor class rather than imported: importing a value from CKEditor loads the npm build,
+		// and an application that meant to load it from a CDN is then refused.
+		this.offEditorError = this.props.editor.onEditorError( ( { error, source } ) => {
 			if ( source !== instance ) {
 				return;
 			}
@@ -401,7 +403,14 @@ function assertMinimumSupportedVersion(): void {
 }
 
 export interface Props<TEditor extends Editor> {
-	editor: EditorRelaxedConstructor<TEditor>;
+	editor: EditorRelaxedConstructor<TEditor> & {
+
+		/**
+		 * Declared here because the component reaches for it instead of importing `onEditorError()`.
+		 * Every editor class has it — it is a static on `Editor`.
+		 */
+		onEditorError: ( callback: EditorErrorCallback ) => () => void;
+	};
 	contextItemMetadata?: CKEditorConfigContextMetadata;
 	config?: EditorConfig;
 	onReady?: ( editor: TEditor ) => void;

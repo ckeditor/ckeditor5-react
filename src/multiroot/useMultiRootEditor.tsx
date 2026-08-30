@@ -17,16 +17,15 @@ import {
 	assignInitialDataToMultirootEditorConfig
 } from '@ckeditor/ckeditor5-integrations-common';
 
-import {
-	onEditorError,
-	type InlineEditableUIView,
-	type EditorConfig,
-	type ModelWriter,
-	type ModelRootElement,
-	type AddRootEvent,
-	type DetachRootEvent,
-	type MultiRootEditor,
-	type EventInfo
+import type {
+	InlineEditableUIView,
+	EditorConfig,
+	ModelWriter,
+	ModelRootElement,
+	AddRootEvent,
+	DetachRootEvent,
+	MultiRootEditor,
+	EventInfo
 } from 'ckeditor5';
 
 import { CKEditorContextValueContext, isCKEditorContextReadyToUse } from '../context/ckeditorcontext.js';
@@ -396,7 +395,8 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		// The runtime half of `onError`. The other half is the rejected `create()` promise, caught by the
 		// semaphore's `mount`. Reporting only covers errors that escape a running editor, so both halves
 		// are needed for `onError` to keep meaning what it always has.
-		offEditorErrorRef.current = onEditorError( ( { error, source } ) => {
+		// Off the editor class rather than imported — see the note in `ckeditor.tsx`.
+		offEditorErrorRef.current = props.editor.onEditorError( ( { error, source } ) => {
 			if ( source !== instance ) {
 				return;
 			}

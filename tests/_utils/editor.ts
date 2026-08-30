@@ -3,6 +3,7 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
+import { onEditorError } from 'ckeditor5';
 import type { EditorRelaxedConfig } from '@ckeditor/ckeditor5-integrations-common';
 
 /**
@@ -11,6 +12,9 @@ import type { EditorRelaxedConfig } from '@ckeditor/ckeditor5-integrations-commo
  * @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
  */
 export default class MockEditor {
+	// A real editor class carries this static, and the component reaches for it instead of importing.
+	public static onEditorError = onEditorError;
+
 	// In order to tests events, we need to somehow mock those properties.
 	public static _on = (): void => {};
 	public static _once = (): void => {};

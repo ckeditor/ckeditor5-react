@@ -16,10 +16,10 @@ import {
 	type InitializedContextEditorsConfig
 } from './useInitializedCKEditorsMap.js';
 
-import {
-	onEditorError,
-	type Context,
-	type ContextConfig
+import type {
+	Context,
+	ContextConfig,
+	EditorErrorCallback
 } from 'ckeditor5';
 
 export const CKEditorContextValueContext = React.createContext<CKEditorContextValue | null>( null );
@@ -84,7 +84,9 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 
 		const { context } = currentContext;
 
-		return onEditorError( ( { error, source } ) => {
+		// Off the context class rather than imported — see the note in `ckeditor.tsx`. This component holds
+		// no editor class, so the context is the only handle it has.
+		return ContextConstructor.onEditorError( ( { error, source } ) => {
 			if ( source !== context ) {
 				return;
 			}
@@ -238,7 +240,15 @@ export type Props<TContext extends Context> =
 	& {
 		id?: string;
 		isLayoutReady?: boolean;
-		context: { create( ...args: any ): Promise<TContext> };
+		context: {
+			create( ...args: any ): Promise<TContext>;
+
+			/**
+			 * Declared here because the component reaches for it instead of importing `onEditorError()`.
+			 * Every context class has it — it is a static on `Context`.
+			 */
+			onEditorError: ( callback: EditorErrorCallback ) => () => void;
+		};
 		config?: ContextConfig;
 		onReady?: ( context: TContext ) => void;
 		onError?: ( error: Error, details: ContextErrorDetails ) => void;
