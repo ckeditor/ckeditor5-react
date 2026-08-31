@@ -343,6 +343,76 @@ describe( '<CKEditorContext> Component', () => {
 				expect( contextSpy ).not.toHaveBeenCalled();
 			} );
 
+			// The cleanup that runs on an `id` change destroys the context the component held, so the state must
+			// stop calling it initialized at that moment. Otherwise children are handed a destroyed context
+			// until the replacement is ready.
+			it( 'should not report a destroyed context as ready while the replacement is created', async () => {
+				const statuses: Array<string> = [];
+
+				const ContextReader = () => {
+					const value = useCKEditorContextValue();
+
+					if ( value ) {
+						statuses.push( value.status );
+					}
+
+					return null;
+				};
+
+				component = render(
+					<CKEditorContext context={ ClassicEditor.Context } id="1">
+						<ContextReader />
+					</CKEditorContext>
+				);
+
+				await waitFor( () => {
+					expect( statuses[ statuses.length - 1 ] ).to.equal( 'initialized' );
+				} );
+
+				component.rerender(
+					<CKEditorContext context={ ClassicEditor.Context } id="2">
+						<ContextReader />
+					</CKEditorContext>
+				);
+
+				await waitFor( () => {
+					expect( statuses[ statuses.length - 1 ] ).to.equal( 'initialized' );
+				} );
+
+				// It went back through `initializing` rather than staying `initialized` across the swap.
+				expect( statuses.lastIndexOf( 'initializing' ) ).to.be.greaterThan( statuses.indexOf( 'initialized' ) );
+			} );
+
+			// A throwing `onReady` is the application's own error. Reporting it as a failure to create the
+			// context would be wrong twice over: the context exists, and the state would say it does not.
+			it( 'should not report a throwing onReady as an initialization failure', async () => {
+				const onError = vi.fn();
+				const contextRef: { current: CKEditorContextValue | null } = { current: null };
+
+				const ContextReader = () => {
+					contextRef.current = useCKEditorContextValue();
+					return null;
+				};
+
+				component = render(
+					<CKEditorContext
+						context={ ContextMock }
+						onError={ onError }
+						onReady={ () => {
+							throw new Error( 'thrown from onReady' );
+						} }
+					>
+						<ContextReader />
+					</CKEditorContext>
+				);
+
+				await waitFor( () => {
+					expect( contextRef.current!.status ).to.equal( 'initialized' );
+				} );
+
+				expect( onError ).not.toHaveBeenCalled();
+			} );
+
 			it( 'displays an error if something went wrong and "onError" callback was not specified', async () => {
 				const error = new Error( 'Something went wrong.' );
 				const consoleErrorStub = vi.spyOn( console, 'error' ).mockImplementation( () => {} );

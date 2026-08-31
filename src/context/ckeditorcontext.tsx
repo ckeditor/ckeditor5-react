@@ -133,26 +133,44 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		// matches. This avoids race conditions and makes sure the right context ends up on the component.
 		const initializationID = regenerateInitializationID()!;
 
+		// Said before anything is created, because the context this component held has just been destroyed by
+		// the cleanup that ran before this. Without it the state would keep naming a destroyed context as
+		// initialized, and children would be handed it until the replacement was ready.
+		setCurrentContext( {
+			status: 'initializing'
+		} );
+
+		// Whether the context made it far enough for a later failure to be something other than a failure to
+		// create one. A throwing `onReady` is the application's own error, not an initialization error.
+		let created = false;
+
 		ContextConstructor
 			.create( config )
 			.then( context => {
-				if ( canUpdateState( initializationID ) ) {
-					contextRef.current = context;
-
-					if ( onReady ) {
-						onReady( context );
-					}
-
-					setCurrentContext( {
-						status: 'initialized',
-						context
-					} );
-				} else {
+				if ( !canUpdateState( initializationID ) ) {
 					// Destroy the context if the state update is no longer valid.
-					context.destroy();
+					return context.destroy();
+				}
+
+				created = true;
+				contextRef.current = context;
+
+				setCurrentContext( {
+					status: 'initialized',
+					context
+				} );
+
+				if ( onReady ) {
+					onReady( context );
 				}
 			} )
 			.catch( error => {
+				// The context exists; whatever threw afterwards is not an initialization failure and must
+				// not be reported as one, nor leave the state saying there is no context.
+				if ( created ) {
+					throw error;
+				}
+
 				if ( canUpdateState( initializationID ) ) {
 					onError( error, { phase: 'initialization' } );
 
