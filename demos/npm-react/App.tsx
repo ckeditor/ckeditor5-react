@@ -46,8 +46,11 @@ export default function App(): JSX.Element {
 					Context demo
 				</button>
 			</div>
-			{ demo == 'editor' && <EditorDemo content={editorContent}/> }
-			{ demo == 'context' && <ContextDemo content={editorContent}/> }
+			{
+				demo == 'editor' ?
+					<EditorDemo content={editorContent}/> :
+					<ContextDemo content={editorContent}/>
+			}
 		</React.StrictMode>
 	);
 }
