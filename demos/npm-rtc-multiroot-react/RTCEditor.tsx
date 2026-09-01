@@ -136,12 +136,10 @@ export function RTCEditor( { initialData = INITIAL_DATA, onReady }: RTCEditorPro
 		},
 
 		onReady,
-		onError: ( error, { willEditorRestart } ) => {
-			if ( willEditorRestart ) {
-				console.warn( '[RTCEditor] Crashed – watchdog will restart.', error );
-			} else {
-				console.error( '[RTCEditor] Fatal error.', error );
-			}
+		onError: ( error, { phase } ) => {
+			// Nothing restarts any more, so the editor stays as it was. `phase` tells you whether it
+			// failed to start at all or broke while running.
+			console.error( `[RTCEditor] Error during ${ phase }.`, error );
 		}
 	} );
 
