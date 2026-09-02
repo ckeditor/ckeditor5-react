@@ -16,7 +16,7 @@ export const CKEditorCKBoxCloudDemo = ( { content }: CKEditorCKBoxCloudDemoProps
 		version: '43.0.0',
 		premium: true,
 		ckbox: {
-			version: '2.13.0'
+			version: '2.13.1'
 		}
 	} );
 
