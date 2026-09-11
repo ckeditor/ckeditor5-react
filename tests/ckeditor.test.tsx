@@ -789,6 +789,34 @@ describe( '<CKEditor> Component', () => {
 				expect( onErrorSpy.mock.calls[ 0 ][ 0 ] ).to.equal( error );
 				expect( onErrorSpy.mock.calls[ 0 ][ 1 ].phase ).to.equal( 'runtime' );
 			} );
+
+			it( 'logs the runtime error to the console if the callback is not passed', async () => {
+				const consoleErrorStub = vi.spyOn( console, 'error' ).mockImplementation( () => {} );
+				let editorInstance: any = null;
+
+				component = render(
+					<CKEditor
+						editor={ ClassicEditor as any }
+						onReady={ manager.resolveOnRun( instance => {
+							editorInstance = instance;
+						} ) }
+					/>
+				);
+
+				await manager.all();
+
+				const error = new CKEditorError( 'foo', editorInstance );
+
+				await turnOffErrors( async () => {
+					setTimeout( () => {
+						throw error;
+					} );
+				} );
+
+				await waitFor( () => {
+					expect( consoleErrorStub ).toHaveBeenCalledWith( error, { phase: 'runtime' } );
+				} );
+			} );
 		} );
 
 		describe( '#disabled', () => {
