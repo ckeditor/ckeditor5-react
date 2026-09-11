@@ -28,7 +28,7 @@ commands:
           # Pinned to 11.14.0. pnpm 11.15.x regressed optional-peer resolution, which forks
           # the CKEditor dependency graph (`debug`'s optional `supports-color` peer) into two
           # copies and breaks the LTS integration tests with `plugincollection-plugin-name-conflict`.
-          command: sudo npm i -g pnpm@11.14.0
+          command: sudo npm i -g pnpm@12.3.4
       - run:
           name: Install dependencies
           command: pnpm install
