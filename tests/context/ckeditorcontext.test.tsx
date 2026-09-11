@@ -383,6 +383,40 @@ describe( '<CKEditorContext> Component', () => {
 				expect( statuses.lastIndexOf( 'initializing' ) ).to.be.greaterThan( statuses.indexOf( 'initialized' ) );
 			} );
 
+			// Destroying a context destroys the editors in it. A nested component must let go of its instance
+			// while the replacement context is being built, rather than keep handing out a destroyed editor.
+			it( 'should release the nested editor while the context is being replaced', async () => {
+				const editorRef = createRef<CKEditor<any>>();
+				const manager = new PromiseManager();
+
+				component = render(
+					<CKEditorContext context={ ContextMock as any } id="1">
+						<CKEditor ref={ editorRef } editor={ MockEditor } onReady={ manager.resolveOnRun() } />
+					</CKEditorContext>
+				);
+
+				await manager.all();
+				await waitFor( () => {
+					expect( editorRef.current!.editor ).to.not.be.null;
+				} );
+
+				// The replacement hangs until the deferred context is resolved, which holds the window open long
+				// enough to observe it instead of racing it.
+				const deferred = DeferredContextMock.create();
+
+				component.rerender(
+					<CKEditorContext context={ deferred } id="2">
+						<CKEditor ref={ editorRef } editor={ MockEditor } />
+					</CKEditorContext>
+				);
+
+				await waitFor( () => {
+					expect( editorRef.current!.editor ).to.be.null;
+				} );
+
+				deferred.defer.resolve();
+			} );
+
 			// A throwing `onReady` is the application's own error. Reporting it as a failure to create the
 			// context would be wrong twice over: the context exists, and the state would say it does not.
 			it( 'should not report a throwing onReady as an initialization failure', async () => {

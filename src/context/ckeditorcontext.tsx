@@ -74,6 +74,12 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		};
 	}, [ id, isLayoutReady ] );
 
+	// Read when an error arrives rather than closed over, because the subscription below is tied to the
+	// context rather than to the render. A callback replaced on a later render has to be the one that runs.
+	const onErrorRef = useRef( onError );
+
+	onErrorRef.current = onError;
+
 	// Report the errors that escape the context while it is running. This is one of the two halves of
 	// `onError`; the other one is the rejected `create()` promise below. Reporting only covers a running
 	// context, so both are needed.
@@ -91,7 +97,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 				return;
 			}
 
-			onError( error, { phase: 'runtime' } );
+			onErrorRef.current( error, { phase: 'runtime' } );
 		} );
 	}, [ currentContext ] );
 
@@ -172,7 +178,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 				}
 
 				if ( canUpdateState( initializationID ) ) {
-					onError( error, { phase: 'initialization' } );
+					onErrorRef.current( error, { phase: 'initialization' } );
 
 					setCurrentContext( {
 						status: 'error',

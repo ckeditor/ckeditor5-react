@@ -127,9 +127,16 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * Re-render the entire component once again. The old editor will be destroyed and the new one will be created.
 	 */
 	public override componentDidUpdate(): void {
-		if ( !isCKEditorContextInitializing( this.context ) ) {
-			this._initLifeCycleSemaphore();
+		// A context that went back to initializing has destroyed itself, and `Context#destroy()` took this
+		// editor with it. Let go of the instance instead of waiting for the replacement context while still
+		// handing out a destroyed editor, and let the teardown run so that `onAfterDestroy` fires.
+		if ( isCKEditorContextInitializing( this.context ) ) {
+			this._unlockLifeCycleSemaphore();
+
+			return;
 		}
+
+		this._initLifeCycleSemaphore();
 	}
 
 	/**
