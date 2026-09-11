@@ -22,14 +22,13 @@ import type {
 	EditorConfig,
 	ModelWriter,
 	ModelRootElement,
-	WatchdogConfig,
 	AddRootEvent,
 	DetachRootEvent,
 	MultiRootEditor,
 	EventInfo
 } from 'ckeditor5';
 
-import { ContextWatchdogContext, isContextWatchdogReadyToUse } from '../context/ckeditorcontext.js';
+import { CKEditorContextValueContext, isCKEditorContextReadyToUse } from '../context/ckeditorcontext.js';
 
 import type { EditorSemaphoreMountResult } from '../lifecycle/LifeCycleEditorSemaphore.js';
 
@@ -40,7 +39,6 @@ import { useInstantEditorEffect } from '../hooks/useInstantEditorEffect.js';
 
 import { appendAllIntegrationPluginsToConfig } from '../plugins/appendAllIntegrationPluginsToConfig.js';
 import { EditorToolbarWrapper } from './EditorToolbar.js';
-import { EditorWatchdogAdapter } from '../EditorWatchdogAdapter.js';
 import {
 	EditorEditable,
 	ROOT_EDITABLE_OPTIONS_ATTRIBUTE,
@@ -56,11 +54,13 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 	const semaphore = useLifeCycleSemaphoreSyncRef<LifeCycleMountResult>();
 
 	const editorRefs: LifeCycleSemaphoreRefs = {
-		watchdog: semaphore.createAttributeRef( 'watchdog' ),
 		instance: semaphore.createAttributeRef( 'instance' )
 	};
 
-	const context = useContext( ContextWatchdogContext );
+	// Unregisters the error reporting callback when the editor goes away.
+	const offEditorErrorRef = useRef<( () => void ) | null>( null );
+
+	const context = useContext( CKEditorContextValueContext );
 
 	// List of editor root elements.
 	const [ roots, setRoots ] = useState<Array<string>>( () => Object.keys( props.data ) );
@@ -103,7 +103,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		const semaphoreElement = semaphoreElementRef.current;
 
 		// Check if parent context is ready (only if it is provided).
-		if ( context && !isContextWatchdogReadyToUse( context ) ) {
+		if ( context && !isCKEditorContextReadyToUse( context ) ) {
 			return;
 		}
 
@@ -158,6 +158,12 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		let mappedConfig = assignAttributesPropToMultiRootEditorConfig( attributes, props.config || {} );
 
 		mappedConfig = appendAllIntegrationPluginsToConfig( mappedConfig );
+
+		// Editors placed inside `<CKEditorContext>` used to be added to a context watchdog. They now take
+		// the context itself, the same way an integrator sharing one would pass it.
+		if ( isCKEditorContextReadyToUse( context ) ) {
+			mappedConfig = { ...mappedConfig, context: context.context };
+		}
 
 		return mappedConfig;
 	} );
@@ -339,29 +345,23 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 	} );
 
 	/**
-	 * Destroys the editor by destroying the watchdog.
+	 * Destroys the editor and stops reporting its errors.
 	 */
 	const _destroyEditor = ( initializeResult: EditorSemaphoreMountResult<MultiRootEditor> ): Promise<void> => {
-		const { watchdog, instance } = initializeResult;
+		const { instance } = initializeResult;
+
+		offEditorErrorRef.current?.();
+		offEditorErrorRef.current = null;
 
 		return new Promise<void>( ( resolve, reject ) => {
-			// It may happen during the tests that the watchdog instance is not assigned before destroying itself. See: #197.
-			//
-			// Additionally, we need to find a way to detect if the whole context has been destroyed. As `componentWillUnmount()`
-			// could be fired by <CKEditorContext /> and <CKEditor /> at the same time, this `setTimeout()` makes sure
-			// that <CKEditorContext /> component will be destroyed first, so during the code execution
-			// the `ContextWatchdog#state` would have a correct value. See `EditorWatchdogAdapter#destroy()` for more information.
+			// `componentWillUnmount()` can fire on <CKEditorContext /> and the hook at the same time, and
+			// destroying a context destroys the editors in it. Deferring by a tick lets the context go first,
+			// so the state check below sees the truth. See: #197.
 			/* istanbul ignore next -- @preserve */
 			setTimeout( async () => {
 				try {
-					if ( watchdog ) {
-						await watchdog.destroy();
-						return resolve();
-					}
-
-					if ( instance ) {
+					if ( instance && instance.state !== 'destroyed' ) {
 						await instance.destroy();
-						return resolve();
 					}
 
 					resolve();
@@ -374,92 +374,39 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 	};
 
 	/**
-	 * Initializes the editor by creating a proper watchdog and initializing it with the editor's configuration.
+	 * Creates the editor and starts reporting the errors that escape it.
 	 */
 	const _initializeEditor = async (): Promise<LifeCycleMountResult> => {
-		const supports = getInstalledCKBaseFeatures();
-
-		if ( props.disableWatchdog ) {
-			const instance = await _createEditor( props.data as any, _getConfig() );
-
-			return {
-				instance: instance as MultiRootEditor,
-				watchdog: null
-			};
-		}
-
-		const watchdog = ( () => {
-			if ( isContextWatchdogReadyToUse( context ) ) {
-				return new EditorWatchdogAdapter( context.watchdog );
-			}
-
-			return new props.editor.EditorWatchdog( props.editor, props.watchdogConfig );
-		} )() as EditorWatchdogAdapter<MultiRootEditor>;
-
-		const totalRestartsRef = {
-			current: 0
-		};
-
-		// Keeping using `data` from creator function callback seems to be a good idea in theory,
-		// but in practice, it leads to instability. The `data` object can be changed during the editor
-		// initialization, which can lead to unexpected reset of value in the editor, that do not match
-		// with the current react state. To prevent this, we are using the `data` from the hook state.
-		// It's not super optimal, but it's the most stable solution at this moment.
-		// See more: https://github.com/ckeditor/ckeditor5-react/issues/542
-		const watchdogEditorCreator = async ( config: EditorConfig ) => {
-			const { onAfterDestroy } = props;
-
-			if ( totalRestartsRef.current > 0 && onAfterDestroy && editorRefs.instance.current ) {
-				onAfterDestroy( editorRefs.instance.current );
-			}
-
-			const instance = await _createEditor( data as any, config );
-
-			if ( totalRestartsRef.current > 0 ) {
-				semaphore.unsafeSetValue( {
-					instance,
-					watchdog
-				} );
-
-				setTimeout( () => {
-					/* istanbul ignore next -- @preserve */
-					if ( props.onReady ) {
-						props.onReady( watchdog!.editor );
-					}
-				} );
-			}
-
-			totalRestartsRef.current++;
-			return instance;
-		};
-
-		watchdog.on( 'error', ( _, { error, causesRestart } ) => {
-			const onError = props.onError || console.error;
-			onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
-		} );
+		let instance: MultiRootEditor;
 
 		try {
-			/* istanbul ignore start -- compatibility branch for older CKEditor 5 versions */
-			if ( supports.elementConfigAttachment ) {
-				watchdog.setCreator( watchdogEditorCreator );
-				await watchdog.create( _getConfig() );
-			} else {
-				watchdog.setCreator( async ( _, config ) => watchdogEditorCreator( config ) );
-				await watchdog.create( data as any, _getConfig() );
-			}
-			/* istanbul ignore end -- compatibility branch for older CKEditor 5 versions */
+			instance = await _createEditor( props.data as any, _getConfig() ) as MultiRootEditor;
 		} catch ( error ) {
+			// The initialization half of `onError`. Reporting below only covers a running editor, so an
+			// editor that never started has to be announced from here.
 			const onError = props.onError || console.error;
 
-			onError( error, { phase: 'initialization', willEditorRestart: false } );
+			onError( error, { phase: 'initialization' } );
 
+			// Rethrow, let the semaphore handle it.
 			throw error;
 		}
 
-		return {
-			watchdog,
-			instance: watchdog!.editor
-		};
+		// The runtime half of `onError`. The other half is the rejected `create()` promise, caught by the
+		// semaphore's `mount`. Reporting only covers errors that escape a running editor, so both halves
+		// are needed for `onError` to keep meaning what it always has.
+		// Off the editor class rather than imported — see the note in `ckeditor.tsx`.
+		offEditorErrorRef.current = props.editor.onEditorError( ( { error, source } ) => {
+			if ( source !== instance ) {
+				return;
+			}
+
+			const onError = props.onError || console.error;
+
+			onError( error, { phase: 'runtime' } );
+		} );
+
+		return { instance };
 	};
 
 	const _getStateDiff = (
@@ -740,8 +687,6 @@ export type MultiRootHookProps = {
 	data: Record<string, string>;
 	rootsAttributes?: Record<string, Record<string, unknown>>;
 	editor: typeof MultiRootEditor;
-	watchdogConfig?: WatchdogConfig;
-	disableWatchdog?: boolean;
 	disableTwoWayDataBinding?: boolean;
 
 	onReady?: ( editor: MultiRootEditor ) => void;

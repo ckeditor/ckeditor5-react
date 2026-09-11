@@ -17,77 +17,108 @@ import {
 } from './useInitializedCKEditorsMap.js';
 
 import type {
-	ContextWatchdog,
-	WatchdogConfig,
 	Context,
-	ContextConfig
+	ContextConfig,
+	EditorErrorCallback
 } from 'ckeditor5';
 
-export const ContextWatchdogContext = React.createContext<ContextWatchdogValue | null>( null );
+export const CKEditorContextValueContext = React.createContext<CKEditorContextValue | null>( null );
 
 /**
- * Custom hook that returns the CKEditor Watchdog context value.
+ * Custom hook that returns the CKEditor context value.
  */
-export const useCKEditorWatchdogContext = (): ContextWatchdogValue | null =>
-	useContext( ContextWatchdogContext );
+export const useCKEditorContextValue = (): CKEditorContextValue | null =>
+	useContext( CKEditorContextValueContext );
 
 /**
  * A React component that provides a context for CKEditor.
  */
 const CKEditorContext = <TContext extends Context = Context>( props: Props<TContext> ): ReactElement | null => {
 	const {
-		id, context, watchdogConfig,
+		id, context: ContextConstructor,
 		children, config, onReady,
-		contextWatchdog: ContextWatchdogConstructor,
 		isLayoutReady = true,
 		onChangeInitializedEditors,
 		onError = ( error, details ) => console.error( error, details )
 	} = props;
 
 	const isMountedRef = useIsMountedRef();
-	const prevWatchdogInitializationIDRef = useRef<string | null>( null );
+	const prevInitializationIDRef = useRef<string | null>( null );
 
-	// The currentContextWatchdog state is set to 'initializing' because it is checked later in the CKEditor component
-	// which is waiting for the full initialization of the context watchdog.
-	const [ currentContextWatchdog, setCurrentContextWatchdog ] = useState<ContextWatchdogValue<TContext>>( {
+	// Holds the context this component created. Destruction reads it instead of the state, because a
+	// context created moments before the component unmounts never makes it into a render.
+	const contextRef = useRef<TContext | null>( null );
+
+	// The state starts as 'initializing' because the CKEditor component checks it and waits for the context
+	// to be fully initialized before creating an editor in it.
+	const [ currentContext, setCurrentContext ] = useState<CKEditorContextValue<TContext>>( {
 		status: 'initializing'
 	} );
 
-	// Lets initialize the context watchdog when the layout is ready.
+	// Lets initialize the context when the layout is ready. The cleanup destroys whatever this run of
+	// the effect created, which covers both the unmount and a re-initialization.
 	useEffect( () => {
 		if ( isLayoutReady ) {
-			initializeContextWatchdog();
+			initializeContext();
 		} else {
-			setCurrentContextWatchdog( {
+			setCurrentContext( {
 				status: 'initializing'
 			} );
 		}
+
+		return () => {
+			const context = contextRef.current;
+
+			contextRef.current = null;
+			context?.destroy();
+		};
 	}, [ id, isLayoutReady ] );
 
-	// Cleanup the context watchdog when the component is unmounted. Abort if the watchdog is not initialized.
-	useEffect( () => () => {
-		if ( currentContextWatchdog.status === 'initialized' ) {
-			currentContextWatchdog.watchdog.destroy();
+	// Read when an error arrives rather than closed over, because the subscription below is tied to the
+	// context rather than to the render. A callback replaced on a later render has to be the one that runs.
+	const onErrorRef = useRef( onError );
+
+	onErrorRef.current = onError;
+
+	// Report the errors that escape the context while it is running. This is one of the two halves of
+	// `onError`; the other one is the rejected `create()` promise below. Reporting only covers a running
+	// context, so both are needed.
+	useEffect( () => {
+		if ( currentContext.status !== 'initialized' ) {
+			return;
 		}
-	}, [ currentContextWatchdog ] );
+
+		const { context } = currentContext;
+
+		// Off the context class rather than imported — see the note in `ckeditor.tsx`. This component holds
+		// no editor class, so the context is the only handle it has.
+		return ContextConstructor.onEditorError( ( { error, source } ) => {
+			if ( source !== context ) {
+				return;
+			}
+
+			onErrorRef.current( error, { phase: 'runtime' } );
+		} );
+	}, [ currentContext ] );
 
 	// Listen for the editor initialization and destruction events and call the onChangeInitializedEditors function.
 	useInitializedCKEditorsMap( {
-		currentContextWatchdog,
+		currentContext,
 		onChangeInitializedEditors
 	} );
 
 	/**
-	 * Regenerates the initialization ID by generating a random ID and updating the previous watchdog initialization ID.
-	 * This is necessary to ensure that the state update is performed only if the current initialization ID matches the previous one.
-	 * This helps to avoid race conditions and ensures that the correct context watchdog is associated with the component.
+	 * Regenerates the initialization ID by generating a random ID and updating the previous initialization ID.
+	 * This is necessary to ensure that the state update is performed only if the current initialization ID matches
+	 * the previous one. This helps to avoid race conditions and ensures that the correct context is associated with
+	 * the component.
 	 *
 	 * @returns The regenerated initialization ID.
 	 */
 	function regenerateInitializationID() {
-		prevWatchdogInitializationIDRef.current = uid();
+		prevInitializationIDRef.current = uid();
 
-		return prevWatchdogInitializationIDRef.current;
+		return prevInitializationIDRef.current;
 	}
 
 	/**
@@ -97,140 +128,130 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 	 * @returns A boolean indicating whether the state can be updated.
 	 */
 	function canUpdateState( initializationID: string ) {
-		return prevWatchdogInitializationIDRef.current === initializationID && isMountedRef.current;
+		return prevInitializationIDRef.current === initializationID && isMountedRef.current;
 	}
 
 	/**
-	 * Initializes the context watchdog.
-	 *
-	 * @returns Watchdog instance.
+	 * Initializes the context.
 	 */
-	function initializeContextWatchdog() {
-		// The prevWatchdogInitializationID variable is used to keep track of the previous initialization ID.
-		// It is used to ensure that the state update is performed only if the current initialization ID matches the previous one.
-		// This helps to avoid race conditions and ensures that the correct context watchdog is associated with the component.
-		const watchdogInitializationID = regenerateInitializationID()!;
-		const contextWatchdog = new ContextWatchdogConstructor( context!, watchdogConfig );
+	function initializeContext() {
+		// The ID keeps track of the previous initialization, so that a state update is performed only when it
+		// matches. This avoids race conditions and makes sure the right context ends up on the component.
+		const initializationID = regenerateInitializationID()!;
 
-		// Handle error event from context watchdog.
-		contextWatchdog.on( 'error', ( _, errorEvent ) => {
-			/* istanbul ignore else -- @preserve */
-			if ( canUpdateState( watchdogInitializationID ) ) {
-				onError( errorEvent.error, {
-					phase: 'runtime',
-					willContextRestart: errorEvent.causesRestart
-				} );
-			}
+		// Said before anything is created, because the context this component held has just been destroyed by
+		// the cleanup that ran before this. Without it the state would keep naming a destroyed context as
+		// initialized, and children would be handed it until the replacement was ready.
+		setCurrentContext( {
+			status: 'initializing'
 		} );
 
-		// Handle state change event from context watchdog.
-		contextWatchdog.on( 'stateChange', () => {
-			if ( onReady && contextWatchdog.state === 'ready' && canUpdateState( watchdogInitializationID ) ) {
-				onReady(
-					contextWatchdog.context! as TContext,
-					contextWatchdog
-				);
-			}
-		} );
+		// Whether the context made it far enough for a later failure to be something other than a failure to
+		// create one. A throwing `onReady` is the application's own error, not an initialization error.
+		let created = false;
 
-		// Create the context watchdog and initialize it with the provided config.
-		contextWatchdog
+		ContextConstructor
 			.create( config )
-			.then( () => {
-				// Check if the state update is still valid and update the current context watchdog.
-				if ( canUpdateState( watchdogInitializationID ) ) {
-					setCurrentContextWatchdog( {
-						status: 'initialized',
-						watchdog: contextWatchdog
-					} );
-				} else {
-					// Destroy the context watchdog if the state update is no longer valid.
-					contextWatchdog.destroy();
+			.then( context => {
+				if ( !canUpdateState( initializationID ) ) {
+					// Destroy the context if the state update is no longer valid.
+					return context.destroy();
+				}
+
+				created = true;
+				contextRef.current = context;
+
+				setCurrentContext( {
+					status: 'initialized',
+					context
+				} );
+
+				if ( onReady ) {
+					onReady( context );
 				}
 			} )
 			.catch( error => {
-				// Update the current context watchdog with the error status.
-				if ( canUpdateState( watchdogInitializationID ) ) {
-					// Handle error during context watchdog initialization.
-					onError( error, {
-						phase: 'initialization',
-						willContextRestart: false
-					} );
+				// The context exists; whatever threw afterwards is not an initialization failure and must
+				// not be reported as one, nor leave the state saying there is no context.
+				if ( created ) {
+					throw error;
+				}
 
-					setCurrentContextWatchdog( {
+				if ( canUpdateState( initializationID ) ) {
+					onErrorRef.current( error, { phase: 'initialization' } );
+
+					setCurrentContext( {
 						status: 'error',
 						error
 					} );
 				}
 			} );
-
-		return contextWatchdog;
 	}
 
 	return (
-		<ContextWatchdogContext.Provider value={currentContextWatchdog}>
+		<CKEditorContextValueContext.Provider value={currentContext}>
 			{children}
-		</ContextWatchdogContext.Provider>
+		</CKEditorContextValueContext.Provider>
 	);
 };
 
 /**
- * Checks if the given object is of type ContextWatchdogValue.
+ * Checks if the given object is of type CKEditorContextValue.
  *
  * @param obj The object to be checked.
- * @returns True if the object is of type ContextWatchdogValue, false otherwise.
+ * @returns True if the object is of type CKEditorContextValue, false otherwise.
  */
-export const isContextWatchdogValue = ( obj: any ): obj is ContextWatchdogValue =>
+export const isCKEditorContextValue = ( obj: any ): obj is CKEditorContextValue =>
 	!!obj && typeof obj === 'object' && 'status' in obj && [ 'initializing', 'initialized', 'error' ].includes( obj.status );
 
 /**
- * Checks if the provided object is a context watchdog value with the specified status.
+ * Checks if the provided object is a context value with the specified status.
  */
-export const isContextWatchdogValueWithStatus = <S extends ContextWatchdogValueStatus>( status: S ) =>
-	( obj: any ): obj is ExtractContextWatchdogValueByStatus<S> =>
-		isContextWatchdogValue( obj ) && obj.status === status;
+export const isCKEditorContextValueWithStatus = <S extends CKEditorContextValueStatus>( status: S ) =>
+	( obj: any ): obj is ExtractCKEditorContextValueByStatus<S> =>
+		isCKEditorContextValue( obj ) && obj.status === status;
 
 /**
- * Checks if the context watchdog is currently initializing.
+ * Checks if the context is currently initializing.
  */
-export const isContextWatchdogInitializing = isContextWatchdogValueWithStatus( 'initializing' );
+export const isCKEditorContextInitializing = isCKEditorContextValueWithStatus( 'initializing' );
 
 /**
- * Checks if the provided object is a fully initialized context watchdog value. It prevents race conditions between
- * watchdog state that is not fully synchronized with the context state. For example, the watchdog state can be 'destroyed'
- * while the context is still being initialized because context setState is pending.
+ * Checks if the provided object is a fully initialized context value.
  */
-export const isContextWatchdogReadyToUse = ( obj: any ): obj is ExtractContextWatchdogValueByStatus<'initialized'> => (
-	isContextWatchdogValueWithStatus( 'initialized' )( obj ) &&
-	obj.watchdog.state === 'ready'
-);
+export const isCKEditorContextReadyToUse = ( obj: any ): obj is ExtractCKEditorContextValueByStatus<'initialized'> =>
+	isCKEditorContextValueWithStatus( 'initialized' )( obj );
 
 /**
- * Represents the value of the ContextWatchdog in the CKEditor context.
+ * Represents the value of the context in the CKEditor React context.
  */
-export type ContextWatchdogValue<TContext extends Context = Context> =
+export type CKEditorContextValue<TContext extends Context = Context> =
 	| {
 		status: 'initializing';
 	}
 	| {
 		status: 'initialized';
-		watchdog: ContextWatchdog<TContext>;
+		context: TContext;
 	}
 	| {
 		status: 'error';
-		error: ContextErrorDetails;
+
+		/**
+		 * What `create()` rejected with. Not the `onError` details — those go to the callback.
+		 */
+		error: Error;
 	};
 
 /**
- * Represents the status of the ContextWatchdogValue.
+ * Represents the status of the CKEditorContextValue.
  */
-export type ContextWatchdogValueStatus = ContextWatchdogValue[ 'status' ];
+export type CKEditorContextValueStatus = CKEditorContextValue[ 'status' ];
 
 /**
- * Extracts a specific type of `ContextWatchdogValue` based on its status.
+ * Extracts a specific type of `CKEditorContextValue` based on its status.
  */
-export type ExtractContextWatchdogValueByStatus<S extends ContextWatchdogValueStatus> = Extract<
-	ContextWatchdogValue,
+export type ExtractCKEditorContextValueByStatus<S extends CKEditorContextValueStatus> = Extract<
+	CKEditorContextValue,
 	{ status: S }
 >;
 
@@ -243,20 +264,25 @@ export type Props<TContext extends Context> =
 	& {
 		id?: string;
 		isLayoutReady?: boolean;
-		context?: { create( ...args: any ): Promise<TContext> };
-		contextWatchdog: typeof ContextWatchdog<TContext>;
-		watchdogConfig?: WatchdogConfig;
+		context: {
+			create( ...args: any ): Promise<TContext>;
+
+			/**
+			 * Declared here because the component reaches for it instead of importing `onEditorError()`.
+			 * Every context class has it — it is a static on `Context`.
+			 */
+			onEditorError: ( callback: EditorErrorCallback ) => () => void;
+		};
 		config?: ContextConfig;
-		onReady?: ( context: TContext, watchdog: ContextWatchdog<TContext> ) => void;
+		onReady?: ( context: TContext ) => void;
 		onError?: ( error: Error, details: ContextErrorDetails ) => void;
 	};
 
 /**
- * Error thrown by context watchdog.
+ * Tells whether the error escaped a running context or stopped it from being created in the first place.
  */
 export type ContextErrorDetails = {
 	phase: 'initialization' | 'runtime';
-	willContextRestart: boolean;
 };
 
 export default CKEditorContext;
