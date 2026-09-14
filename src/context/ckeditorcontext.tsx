@@ -11,6 +11,7 @@ import React, {
 
 import { uid } from '@ckeditor/ckeditor5-integrations-common';
 import { useIsMountedRef } from '../hooks/useIsMountedRef.js';
+import { useRefSafeCallback } from '../hooks/useRefSafeCallback.js';
 import {
 	useInitializedCKEditorsMap,
 	type InitializedContextEditorsConfig
@@ -74,11 +75,9 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		};
 	}, [ id, isLayoutReady ] );
 
-	// Read when an error arrives rather than closed over, because the subscription below is tied to the
-	// context rather than to the render. A callback replaced on a later render has to be the one that runs.
-	const onErrorRef = useRef( onError );
-
-	onErrorRef.current = onError;
+	// A stable reference, because the subscription below is tied to the context rather than to the
+	// render. A callback replaced on a later render has to be the one that runs.
+	const reportError = useRefSafeCallback( onError );
 
 	// Report the errors that escape the context while it is running. This is one of the two halves of
 	// `onError`; the other one is the rejected `create()` promise below. Reporting only covers a running
@@ -97,7 +96,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 				return;
 			}
 
-			onErrorRef.current( error, { phase: 'runtime' } );
+			reportError( error, { phase: 'runtime' } );
 		} );
 	}, [ currentContext ] );
 
@@ -178,7 +177,7 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 				}
 
 				if ( canUpdateState( initializationID ) ) {
-					onErrorRef.current( error, { phase: 'initialization' } );
+					reportError( error, { phase: 'initialization' } );
 
 					setCurrentContext( {
 						status: 'error',
