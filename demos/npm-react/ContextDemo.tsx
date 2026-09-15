@@ -39,10 +39,14 @@ export default function ContextDemo( props: ContextDemoProps ): JSX.Element {
 		<>
 			<h2 className="subtitle">Editor Context Demo</h2>
 			<p className="info">Component&apos;s events are logged to the console.</p>
+			<p className="info">
+				The &apos;Simulate an error&apos; buttons make an editor throw. Nothing happens on the page,
+				because nothing restarts any more — look in the console. See the error handling demo for how
+				to handle it yourself.
+			</p>
 
 			<CKEditorContext
 				context={ ClassicEditor.Context as any }
-				contextWatchdog={ ClassicEditor.ContextWatchdog as any }
 				onChangeInitializedEditors={ editors => {
 					console.log( 'Initialized editors:', editors );
 					setState( editors as any );

@@ -57,8 +57,7 @@ const ContextEditorDemo = ( { editor }: { editor: any } ): JSX.Element => {
 	} as MultiRootHookProps );
 
 	// Function to simulate an error in the editor.
-	// It is used for testing purposes to trigger the Watchdog to restart the editor.
-	// Remove it in the actual integration.
+	// It is used for testing purposes to show how an error is reported. Remove it in the actual integration.
 	const simulateError = ( editor: any ) => {
 		setTimeout( () => {
 			const err: any = new Error( 'foo' );
@@ -77,6 +76,11 @@ const ContextEditorDemo = ( { editor }: { editor: any } ): JSX.Element => {
 				This sample demonstrates integration with CKEditorContext.<br />
 			</p>
 			<p className="info">Component&apos;s events are logged to the console.</p>
+			<p className="info">
+				The &apos;Simulate an error&apos; button makes the editor throw. Nothing happens on the page,
+				because nothing restarts any more — the editor keeps its content and its undo history. Look
+				in the console. See the error handling demo for how to handle it yourself.
+			</p>
 			<hr /><br />
 
 			<div>
@@ -132,7 +136,6 @@ const ContextMultiRootEditorDemo = withCKCloud( ( { cloud } ): JSX.Element => {
 	return (
 		<CKEditorContext
 			context={ MultiRootEditor.Context as any }
-			contextWatchdog={ MultiRootEditor.ContextWatchdog as any }
 		>
 			<ContextEditorDemo editor={MultiRootEditor} />
 		</CKEditorContext>
