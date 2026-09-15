@@ -57,8 +57,27 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		instance: semaphore.createAttributeRef( 'instance' )
 	};
 
-	// Unregisters the error reporting callback when the editor goes away.
-	const offEditorErrorRef = useRef<( () => void ) | null>( null );
+	// The runtime half of `onError`. The other half is the rejected `create()` promise, caught by the
+	// semaphore's `mount`. Reporting only covers errors that escape a running editor, so both halves are
+	// needed for `onError` to keep meaning what it always has.
+	//
+	// Reads the current editor and the current callback rather than closing over either, so replacing the
+	// editor does not need this taken down and set up again.
+	const reportRuntimeError = useRefSafeCallback( ( error: Error, source: unknown ): void => {
+		if ( source !== editorRefs.instance.current ) {
+			return;
+		}
+
+		const onError = props.onError || console.error;
+
+		onError( error, { phase: 'runtime' } );
+	} );
+
+	// Off the editor class rather than imported — see the note in `ckeditor.tsx`.
+	useEffect(
+		() => props.editor.onEditorError( ( { error, source } ) => reportRuntimeError( error, source ) ),
+		[]
+	);
 
 	const context = useContext( CKEditorContextValueContext );
 
@@ -350,9 +369,6 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 	const _destroyEditor = ( initializeResult: EditorSemaphoreMountResult<MultiRootEditor> ): Promise<void> => {
 		const { instance } = initializeResult;
 
-		offEditorErrorRef.current?.();
-		offEditorErrorRef.current = null;
-
 		return new Promise<void>( ( resolve, reject ) => {
 			// `componentWillUnmount()` can fire on <CKEditorContext /> and the hook at the same time, and
 			// destroying a context destroys the editors in it. Deferring by a tick lets the context go first,
@@ -391,20 +407,6 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 			// Rethrow, let the semaphore handle it.
 			throw error;
 		}
-
-		// The runtime half of `onError`. The other half is the rejected `create()` promise, caught by the
-		// semaphore's `mount`. Reporting only covers errors that escape a running editor, so both halves
-		// are needed for `onError` to keep meaning what it always has.
-		// Off the editor class rather than imported — see the note in `ckeditor.tsx`.
-		offEditorErrorRef.current = props.editor.onEditorError( ( { error, source } ) => {
-			if ( source !== instance ) {
-				return;
-			}
-
-			const onError = props.onError || console.error;
-
-			onError( error, { phase: 'runtime' } );
-		} );
 
 		return { instance };
 	};

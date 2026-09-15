@@ -46,18 +46,10 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 	const isMountedRef = useIsMountedRef();
 	const prevInitializationIDRef = useRef<string | null>( null );
 
-	// Holds the context this component created. Destruction reads it instead of the state, because a
-	// context created moments before the component unmounts never makes it into a render.
-	const contextRef = useRef<TContext | null>( null );
+	const [ currentContext, setCurrentContext ] = useCKEditorContextState<TContext>();
 
-	// The state starts as 'initializing' because the CKEditor component checks it and waits for the context
-	// to be fully initialized before creating an editor in it.
-	const [ currentContext, setCurrentContext ] = useState<CKEditorContextValue<TContext>>( {
-		status: 'initializing'
-	} );
-
-	// Lets initialize the context when the layout is ready. The cleanup destroys whatever this run of
-	// the effect created, which covers both the unmount and a re-initialization.
+	// Lets initialize the context when the layout is ready. Saying the context is initializing is what
+	// releases the one held before, so a re-initialization and an unmount both end up destroying it.
 	useEffect( () => {
 		if ( isLayoutReady ) {
 			initializeContext();
@@ -66,13 +58,6 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 				status: 'initializing'
 			} );
 		}
-
-		return () => {
-			const context = contextRef.current;
-
-			contextRef.current = null;
-			context?.destroy();
-		};
 	}, [ id, isLayoutReady ] );
 
 	// A stable reference, because the subscription below is tied to the context rather than to the
@@ -138,9 +123,9 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		// matches. This avoids race conditions and makes sure the right context ends up on the component.
 		const initializationID = regenerateInitializationID()!;
 
-		// Said before anything is created, because the context this component held has just been destroyed by
-		// the cleanup that ran before this. Without it the state would keep naming a destroyed context as
-		// initialized, and children would be handed it until the replacement was ready.
+		// Said before anything is created, because saying it is what destroys the context this component
+		// held. Without it the state would keep naming a destroyed context as initialized, and children
+		// would be handed it until the replacement was ready.
 		setCurrentContext( {
 			status: 'initializing'
 		} );
@@ -158,7 +143,6 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 				}
 
 				created = true;
-				contextRef.current = context;
 
 				setCurrentContext( {
 					status: 'initialized',
@@ -193,6 +177,42 @@ const CKEditorContext = <TContext extends Context = Context>( props: Props<TCont
 		</CKEditorContextValueContext.Provider>
 	);
 };
+
+/**
+ * The context the component created: the value children render from, and the instance to destroy.
+ *
+ * The instance is kept in a ref beside the state because the teardown has to reach a context created moments
+ * before the component went away, which never makes it into a render. Naming a new state is what releases the
+ * one held before, so the two can never disagree about which context is live, and the caller has one way in.
+ */
+function useCKEditorContextState<TContext extends Context>() {
+	const liveContextRef = useRef<TContext | null>( null );
+
+	// Starts as 'initializing' because the CKEditor component checks it and waits for the context to be
+	// fully initialized before creating an editor in it.
+	const [ currentContext, setCurrentContext ] = useState<CKEditorContextValue<TContext>>( {
+		status: 'initializing'
+	} );
+
+	const setContextState = ( state: CKEditorContextValue<TContext> ): void => {
+		const released = liveContextRef.current;
+
+		liveContextRef.current = state.status === 'initialized' ? state.context : null;
+
+		released?.destroy();
+
+		setCurrentContext( state );
+	};
+
+	useEffect( () => () => {
+		const context = liveContextRef.current;
+
+		liveContextRef.current = null;
+		context?.destroy();
+	}, [] );
+
+	return [ currentContext, setContextState ] as const;
+}
 
 /**
  * Checks if the given object is of type CKEditorContextValue.
