@@ -1,0 +1,6 @@
+# Dependency and CI files are owned by the platform team - see ckeditor5-internal#4697.
+/.github/                            @ckeditor/ckeditor-5-platform
+/.circleci/                          @ckeditor/ckeditor-5-platform
+/package.json                        @ckeditor/ckeditor-5-platform
+/pnpm-lock.yaml                      @ckeditor/ckeditor-5-platform
+/pnpm-workspace.yaml                 @ckeditor/ckeditor-5-platform
