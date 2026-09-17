@@ -67,12 +67,18 @@ function ShadowRootEditor( { shadowRoot, content }: { shadowRoot: ShadowRoot; co
 		return <div>Loading...</div>;
 	}
 
-	const CKEditorClassic = getCKCdnClassicEditor( { cloud } );
+	const CKEditorClassic = getCKCdnClassicEditor( {
+		cloud,
+		overrideConfig: {
+			licenseKey: 'GPL'
+		}
+	} );
 
 	return (
 		<CKEditor
 			editor={ CKEditorClassic }
 			data={ content }
+			disableWatchdog
 		/>
 	);
 }
