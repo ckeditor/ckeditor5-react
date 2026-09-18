@@ -3,51 +3,30 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-import React, { useCallback, useState, type ReactNode } from 'react';
-import { createPortal } from 'react-dom';
+import React, { type ReactNode } from 'react';
 
 import { getCKCdnClassicEditor } from './getCKCdnClassicEditor.js';
+import { ShadowRootHost } from '../_internal/ShadowRootHost.js';
 import { CKEditor, useCKEditorCloud } from '../../src/index.js';
-
-const SHADOW_ROOTS = new WeakMap<Element, ShadowRoot>();
 
 type CKEditorShadowRootCloudDemoProps = {
 	content: string;
 	mode: ShadowRootMode;
 };
 
-export const CKEditorShadowRootCloudDemo = ( { content, mode }: CKEditorShadowRootCloudDemoProps ): ReactNode => {
-	const [ shadowRoot, setShadowRoot ] = useState<ShadowRoot | null>( null );
+/**
+ * Renders the editor inside a shadow root and asks the loader to inject the editor stylesheets there
+ * instead of `document.head`.
+ */
+export const CKEditorShadowRootCloudDemo = ( { content, mode }: CKEditorShadowRootCloudDemoProps ): ReactNode => (
+	<ShadowRootHost key={ mode } mode={ mode }>
+		{ shadowRoot => <ShadowRootEditor shadowRoot={ shadowRoot } content={ content } /> }
+	</ShadowRootHost>
+);
 
-	const hostRef = useCallback( ( host: HTMLDivElement | null ) => {
-		if ( host ) {
-			setShadowRoot( attachShadowRoot( host, mode ) );
-		}
-	}, [ mode ] );
-
-	return (
-		<>
-			<div ref={ hostRef } />
-
-			{ shadowRoot && createPortal(
-				<ShadowRootEditor shadowRoot={ shadowRoot } content={ content } />,
-				shadowRoot
-			) }
-		</>
-	);
-};
-
-function attachShadowRoot( host: HTMLDivElement, mode: ShadowRootMode ): ShadowRoot {
-	let shadowRoot = SHADOW_ROOTS.get( host );
-
-	if ( !shadowRoot ) {
-		shadowRoot = host.attachShadow( { mode } );
-		SHADOW_ROOTS.set( host, shadowRoot );
-	}
-
-	return shadowRoot;
-}
-
+/**
+ * Loads the bundles into the given shadow root and creates the editor in it.
+ */
 function ShadowRootEditor( { shadowRoot, content }: { shadowRoot: ShadowRoot; content: string } ): ReactNode {
 	const cloud = useCKEditorCloud( {
 		version: 'nightly',
