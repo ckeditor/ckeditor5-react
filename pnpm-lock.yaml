@@ -16,8 +16,8 @@ importers:
   .:
     dependencies:
       '@ckeditor/ckeditor5-integrations-common':
-        specifier: ^2.4.0
-        version: 2.4.0(ckeditor5@48.2.0(supports-color@8.1.1))
+        specifier: ^3.0.0
+        version: 3.0.0(ckeditor5@48.2.0(supports-color@8.1.1))
     devDependencies:
       '@ckeditor/ckeditor5-dev-bump-year':
         specifier: ^58.0.0
@@ -423,8 +423,8 @@ packages:
   '@ckeditor/ckeditor5-indent@48.2.0':
     resolution: {integrity: sha512-Nwu0HqLzpHdqOpKHNjk4KDcGGS3BwAELjH2piIDQsc3HkHQRfmfi25KlTk/gfbnwBebTvKfPyy/1opD69aJxBA==}
 
-  '@ckeditor/ckeditor5-integrations-common@2.4.0':
-    resolution: {integrity: sha512-kPhR1yLSrww6WRMjkCOF9jhL9RlrRZbrrnbN8z/yr6aFILasNQxMgHpAjYpo1z5ChgUiNHQho0XUFvle86QnQg==}
+  '@ckeditor/ckeditor5-integrations-common@3.0.0':
+    resolution: {integrity: sha512-QWfxERusrwReOLxNEswHxJCn9thUw1ZSAftSRD8qpyjkYvRPjT5TyCTM3Ch1dmwUXWpwuTuTChwD8fw1lGZV+g==}
     peerDependencies:
       ckeditor5: '>=42.0.0 || ^0.0.0-nightly'
 
@@ -4694,7 +4694,7 @@ snapshots:
       '@ckeditor/ckeditor5-ui': 48.2.0
       '@ckeditor/ckeditor5-utils': 48.2.0
 
-  '@ckeditor/ckeditor5-integrations-common@2.4.0(ckeditor5@48.2.0(supports-color@8.1.1))':
+  '@ckeditor/ckeditor5-integrations-common@3.0.0(ckeditor5@48.2.0(supports-color@8.1.1))':
     dependencies:
       ckeditor5: 48.2.0(supports-color@8.1.1)
 
