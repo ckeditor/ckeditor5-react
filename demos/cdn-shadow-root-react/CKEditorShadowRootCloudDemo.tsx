@@ -49,7 +49,7 @@ function ShadowRootEditor( { shadowRoot, content }: { shadowRoot: ShadowRoot; co
 	const CKEditorClassic = getCKCdnClassicEditor( {
 		cloud,
 		overrideConfig: {
-			licenseKey: 'GPL'
+			licenseKey: import.meta.env.CKEDITOR_LICENSE_KEY ?? 'GPL'
 		}
 	} );
 
