@@ -5,7 +5,7 @@
 
 import React, { useState, type ReactNode } from 'react';
 
-import { ShadowRootModeSelect } from '../_internal/ShadowRootModeSelect.js';
+import { ShadowRootModeSelect } from '../shared/components/ShadowRootModeSelect.js';
 import { CKEditorShadowRootDemo } from './CKEditorShadowRootDemo.js';
 
 const EDITOR_CONTENT = `

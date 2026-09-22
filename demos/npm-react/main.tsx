@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-import { renderReactRoot } from '../_internal/renderReactRoot.js';
+import { renderReactRoot } from '../shared/renderReactRoot.js';
 import App from './App.js';
 
-renderReactRoot( App );
+await renderReactRoot( App );

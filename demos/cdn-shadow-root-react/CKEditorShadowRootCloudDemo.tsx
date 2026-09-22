@@ -6,7 +6,7 @@
 import React, { type ReactNode } from 'react';
 
 import { getCKCdnClassicEditor } from './getCKCdnClassicEditor.js';
-import { ShadowRootHost } from '../_internal/ShadowRootHost.js';
+import { ShadowRootHost } from '../shared/components/ShadowRootHost.js';
 import { CKEditor, useCKEditorCloud } from '../../src/index.js';
 
 type CKEditorShadowRootCloudDemoProps = {

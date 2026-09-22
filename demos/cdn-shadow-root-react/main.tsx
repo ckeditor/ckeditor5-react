@@ -4,6 +4,6 @@
  */
 
 import { App } from './App.js';
-import { renderReactRoot } from '../_internal/renderReactRoot.js';
+import { renderReactRoot } from '../shared/renderReactRoot.js';
 
-renderReactRoot( App );
+await renderReactRoot( App );

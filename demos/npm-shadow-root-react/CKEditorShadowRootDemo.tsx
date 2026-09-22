@@ -7,8 +7,8 @@ import React, { type ReactNode } from 'react';
 
 import { ClassicEditor, Bold, Essentials, Heading, Italic, Paragraph } from 'ckeditor5';
 
-import { getCKEditorStyleSheet } from '../_internal/getCKEditorStyleSheet.js';
-import { ShadowRootHost } from '../_internal/ShadowRootHost.js';
+import { getCKEditorStyleSheet } from '../shared/helpers/getCKEditorStyleSheet.js';
+import { ShadowRootHost } from '../shared/components/ShadowRootHost.js';
 import { CKEditor } from '../../src/index.js';
 
 type CKEditorShadowRootDemoProps = {
