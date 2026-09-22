@@ -10,10 +10,10 @@ export {
 
 export {
 	default as CKEditorContext,
-	ContextWatchdogContext,
-	useCKEditorWatchdogContext,
+	CKEditorContextValueContext,
+	useCKEditorContextValue,
 	type ContextErrorDetails,
-	type ContextWatchdogValue
+	type CKEditorContextValue
 } from './context/ckeditorcontext.js';
 
 export {

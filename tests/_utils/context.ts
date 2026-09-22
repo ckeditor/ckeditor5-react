@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
  */
 
-import type { Context } from 'ckeditor5';
+import { onEditorError, type Context } from 'ckeditor5';
 import { createDefer } from './defer.js';
 
 /**
@@ -12,6 +12,9 @@ import { createDefer } from './defer.js';
  * @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_context-Context.html
  */
 export default class ContextMock {
+	// A real context class carries this static, and the component reaches for it instead of importing.
+	public static onEditorError = onEditorError;
+
 	public config: any;
 
 	constructor( config: any ) {
@@ -36,6 +39,7 @@ export class DeferredContextMock {
 
 		return {
 			defer,
+			onEditorError,
 			create: ( ...args: ConstructorParameters<typeof ContextMock> ) => defer.promise.then( () => new ContextMock( ...args ) )
 		};
 	}

@@ -26,16 +26,12 @@ import {
 	Table,
 	TableToolbar,
 	TextTransformation,
-	type ContextWatchdog
+	type Context
 } from 'ckeditor5';
 
 export class TestMultiRootEditor extends MultiRootEditor {}
 
-export const createTestMultiRootWatchdog = async (): Promise<ContextWatchdog> => {
-	const contextWatchdog = new TestMultiRootEditor.ContextWatchdog( TestMultiRootEditor.Context );
-	await contextWatchdog.create();
-	return contextWatchdog;
-};
+export const createTestMultiRootContext = async (): Promise<Context> => TestMultiRootEditor.Context.create();
 
 TestMultiRootEditor.builtinPlugins = [
 	Essentials,
