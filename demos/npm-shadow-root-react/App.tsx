@@ -5,12 +5,13 @@
 
 import React, { useState, type ReactNode } from 'react';
 
+import { ShadowRootModeSelect } from '../_internal/ShadowRootModeSelect.js';
 import { CKEditorShadowRootDemo } from './CKEditorShadowRootDemo.js';
 
 const EDITOR_CONTENT = `
 	<h2>Sample</h2>
 	<p>This editor is rendered inside a shadow root and styled with a constructed stylesheet.</p>
-	<p>Open a toolbar dropdown to check the parts of the UI that live outside the shadow root.</p>
+	<p>Open a toolbar dropdown to check that the body collection is scoped to the same root.</p>
 `;
 
 export const App = (): ReactNode => {
@@ -20,17 +21,7 @@ export const App = (): ReactNode => {
 		<React.StrictMode>
 			<h1>CKEditor 5 – React Component – npm shadow root demo</h1>
 
-			<p>
-				Shadow root mode{ ' ' }
-				<select
-					value={ mode }
-					onChange={ event => setMode( event.target.value as ShadowRootMode ) }
-				>
-					{ [ 'open', 'closed' ].map( item => (
-						<option key={ item } value={ item }>{ item }</option>
-					) ) }
-				</select>
-			</p>
+			<ShadowRootModeSelect value={ mode } onChange={ setMode } />
 
 			<CKEditorShadowRootDemo
 				key={ mode }

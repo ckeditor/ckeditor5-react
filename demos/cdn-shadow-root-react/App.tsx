@@ -5,6 +5,7 @@
 
 import React, { useState, type ReactNode } from 'react';
 
+import { ShadowRootModeSelect } from '../_internal/ShadowRootModeSelect.js';
 import { CKEditorShadowRootCloudDemo } from './CKEditorShadowRootCloudDemo.js';
 
 const EDITOR_CONTENT = `
@@ -20,17 +21,7 @@ export const App = (): ReactNode => {
 		<React.StrictMode>
 			<h1>CKEditor 5 – React Component – shadow root CDN demo</h1>
 
-			<p>
-				Shadow root mode{ ' ' }
-				<select
-					value={ mode }
-					onChange={ event => setMode( event.target.value as ShadowRootMode ) }
-				>
-					{ [ 'open', 'closed' ].map( item => (
-						<option key={ item } value={ item }>{ item }</option>
-					) ) }
-				</select>
-			</p>
+			<ShadowRootModeSelect value={ mode } onChange={ setMode } />
 
 			<CKEditorShadowRootCloudDemo
 				key={ mode }
