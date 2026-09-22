@@ -303,19 +303,23 @@ workflows:
     jobs:
       - validate
       - tests_current
-      - tests_integration:
-          matrix:
-            alias: tests_integration_matrix
-            parameters:
-              ckeditorDistTag: &integration_editor_version_tags
-                - latest
-                - lts-v47
+      # TODO: Re-enable after ckeditor5 v49 is released.
+      # This integration requires ckeditor5 >= 49 (see `peerDependencies`); both `latest`
+      # (48.x) and `lts-v47` predate the `onEditorError()` API that replaced the watchdog.
+      # Restore this block together with the two spots marked below - they depend on it.
+      # - tests_integration:
+      #     matrix:
+      #       alias: tests_integration_matrix
+      #       parameters:
+      #         ckeditorDistTag: &integration_editor_version_tags
+      #           - latest
+      #           - lts-v47
       - release_prepare
       - trigger_release_process:
           requires:
             - validate
             - tests_current
-            - tests_integration_matrix
+            # - tests_integration_matrix # TODO: Restore with `tests_integration` (v49).
             - release_prepare
           filters:
             branches:
@@ -342,7 +346,7 @@ workflows:
     jobs:
       - validate
       - tests_current
-      - tests_integration:
-          matrix:
-            parameters:
-              ckeditorDistTag: *integration_editor_version_tags
+      # - tests_integration: # TODO: Restore with `tests_integration` (v49).
+      #     matrix:
+      #       parameters:
+      #         ckeditorDistTag: *integration_editor_version_tags
