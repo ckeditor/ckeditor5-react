@@ -24,7 +24,6 @@ export const App = (): ReactNode => {
 			<ShadowRootModeSelect value={ mode } onChange={ setMode } />
 
 			<CKEditorShadowRootDemo
-				key={ mode }
 				mode={ mode }
 				content={ EDITOR_CONTENT }
 			/>
