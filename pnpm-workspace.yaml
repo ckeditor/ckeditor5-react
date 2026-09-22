@@ -15,11 +15,21 @@ overrides:
 
 minimumReleaseAge: 4320 # 3 days
 minimumReleaseAgeExclude:
+  # Company-owned scopes - every release comes from our own pipelines.
   - '@ckeditor/*'
   - '@cksource/*'
-  - '*ckeditor5*'
+  # Company-owned unscoped names, listed one by one. The `*ckeditor5*` glob used here before
+  # also matched foreign packages with `ckeditor5` in the name - see ckeditor5-internal#4665.
+  - 'ckeditor5' # Owned by the `ckeditor` npm account.
+  - 'ckeditor5-premium-features' # Owned by the `ckeditor` npm account.
+  - 'ckeditor5-collaboration' # Owned by the `ckeditor` npm account.
+  - 'eslint-config-ckeditor5' # Published from `ckeditor/ckeditor5-linters-config`.
+  - 'eslint-plugin-ckeditor5-rules' # Published from `ckeditor/ckeditor5-linters-config`.
 
 shellEmulator: true
 shamefullyHoist: true
 preferFrozenLockfile: true
 verifyDepsBeforeRun: false
+# Only registry tarballs may enter the tree as subdependencies. Direct git/tarball
+# dependencies stay allowed - see ckeditor/ckeditor5#20216.
+blockExoticSubdeps: true
