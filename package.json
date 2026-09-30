@@ -46,11 +46,11 @@
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@vitejs/plugin-react": "^5.0.4",
-    "@vitest/browser": "^4.1.10",
-    "@vitest/browser-playwright": "^4.1.10",
-    "@vitest/coverage-istanbul": "^4.1.10",
-    "@vitest/coverage-v8": "^4.1.10",
-    "@vitest/ui": "^4.1.10",
+    "@vitest/browser": "^5.0.0",
+    "@vitest/browser-playwright": "^5.0.0",
+    "@vitest/coverage-istanbul": "^5.0.0",
+    "@vitest/coverage-v8": "^5.0.0",
+    "@vitest/ui": "^5.0.0",
     "ckeditor5": "nightly",
     "ckeditor5-premium-features": "nightly",
     "concurrently": "^9.2.1",
@@ -79,7 +79,7 @@
     "typescript-eslint": "^8.46.2",
     "upath": "^2.0.1",
     "vite": "^7.3.5",
-    "vitest": "^4.1.10"
+    "vitest": "^5.0.0"
   },
   "engines": {
     "node": ">=24.11.0",
