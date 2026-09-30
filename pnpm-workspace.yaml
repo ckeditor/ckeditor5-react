@@ -29,6 +29,7 @@ minimumReleaseAgeExclude:
 shellEmulator: true
 shamefullyHoist: true
 preferFrozenLockfile: true
+autoDedupe: true
 verifyDepsBeforeRun: false
 # Only registry tarballs may enter the tree as subdependencies. Direct git/tarball
 # dependencies stay allowed - see ckeditor/ckeditor5#20216.
