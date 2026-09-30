@@ -12,7 +12,11 @@ import { removeAllCkCdnResources } from '@ckeditor/ckeditor5-integrations-common
 
 import withCKEditorCloud, { type WithCKEditorCloudHocProps } from '../../src/cloud/withCKEditorCloud.js';
 
-describe( 'withCKEditorCloud', { timeout: 5000 }, () => {
+const CDN_WAIT_OPTIONS = {
+	timeout: 10000
+};
+
+describe( 'withCKEditorCloud', { timeout: 15000 }, () => {
 	const lastRenderedMockProps: MutableRefObject<WithCKEditorCloudHocProps | null> = {
 		current: null
 	};
@@ -43,7 +47,7 @@ describe( 'withCKEditorCloud', { timeout: 5000 }, () => {
 
 		const { findByText } = render( <WrappedComponent editorId={ 1 } /> );
 
-		expect( await findByText( 'Your Editor 1' ) ).toBeVisible();
+		expect( await findByText( 'Your Editor 1', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
 		expect( lastRenderedMockProps.current ).toMatchObject( {
 			editorId: 1,
 			cloud: expect.objectContaining( {
@@ -70,11 +74,11 @@ describe( 'withCKEditorCloud', { timeout: 5000 }, () => {
 
 		const { findByText } = render( <WrappedComponent editorId={ 1 } /> );
 
-		expect( await findByText( 'Loading...' ) ).toBeVisible();
+		expect( await findByText( 'Loading...', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
 
 		deferredPlugin.resolve( 123 );
 
-		expect( await findByText( 'Your Editor 1' ) ).toBeVisible();
+		expect( await findByText( 'Your Editor 1', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
 		expect( lastRenderedMockProps.current?.cloud.loadedPlugins?.Plugin ).toBe( 123 );
 	} );
 
@@ -95,7 +99,7 @@ describe( 'withCKEditorCloud', { timeout: 5000 }, () => {
 
 		const { findByText } = render( <WrappedComponent editorId={ 1 } /> );
 
-		expect( await findByText( 'Error: Failed to load plugin' ) ).toBeVisible();
+		expect( await findByText( 'Error: Failed to load plugin', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
 	} );
 
 	it( 'should render default error message when cloud loading fails and there is no error handler specified', async () => {
@@ -114,6 +118,6 @@ describe( 'withCKEditorCloud', { timeout: 5000 }, () => {
 
 		const { findByText } = render( <WrappedComponent editorId={ 1 } /> );
 
-		expect( await findByText( 'Unable to load CKEditor Cloud data!' ) ).toBeVisible();
+		expect( await findByText( 'Unable to load CKEditor Cloud data!', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
 	} );
 } );
