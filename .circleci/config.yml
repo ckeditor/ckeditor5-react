@@ -53,6 +53,21 @@ commands:
       - run:
           name: Install npm with CircleCI OIDC support
           command: sudo npm i -g npm@11.21.0
+      # npm keeps only 10 debug logs by default. A single publish run executes many npm commands.
+      - run:
+          name: Keep all npm debug logs
+          command: echo 'export npm_config_logs_max=10000' >> "$BASH_ENV"
+
+  # npm debug logs contain the registry responses (for example, a failed OIDC token exchange). The release scripts
+  # do not print the npm output, so the logs are the only place that explains why a package could not be published.
+  # npm does not write tokens to these logs.
+  store_npm_logs_command:
+    description: "Store npm debug logs as artifacts"
+    steps:
+      - store_artifacts:
+          path: ~/.npm/_logs
+          destination: npm-logs
+          when: always
 
   gpg_credentials_command:
     description: "Setup GPG configuration"
@@ -288,6 +303,7 @@ jobs:
       - store_artifacts:
           path: ./release.zip
           when: always
+      - store_npm_logs_command
 
 workflows:
   version: 2
