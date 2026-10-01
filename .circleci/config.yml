@@ -45,18 +45,14 @@ commands:
             printf '%s\n' 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl'
             >> ~/.ssh/known_hosts
 
-  npm_oidc_command:
-    description: "Enable publishing to `npm` using OIDC"
+  # The release tools request a fresh CircleCI OIDC token right before each npm command,
+  # because npm accepts the token only for 5 minutes after it was issued.
+  install_npm_command:
+    description: "Install npm with OIDC support for `npm publish` and `npm dist-tag`"
     steps:
       - run:
           name: Install npm with CircleCI OIDC support
           command: sudo npm i -g npm@11.21.0
-      - run:
-          name: Get npm OIDC token
-          command: |
-            NPM_ID_TOKEN=$(circleci run oidc get \
-              --claims '{"aud":"npm:registry.npmjs.org"}')
-            printf 'export NPM_ID_TOKEN=%q\n' "$NPM_ID_TOKEN" >> "$BASH_ENV"
 
   gpg_credentials_command:
     description: "Setup GPG configuration"
@@ -253,7 +249,7 @@ jobs:
               echo "There is a newer commit in the repository on the \`#master\` branch. Use its build to start the release."
               circleci-agent step halt
             fi
-      - npm_oidc_command
+      - install_npm_command
       - git_credentials_command
       - run:
           name: Verify if a releaser triggered the job
