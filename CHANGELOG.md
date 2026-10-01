@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## [12.0.0-alpha.1](https://github.com/ckeditor/ckeditor5-react/compare/v12.0.0-alpha.0...v12.0.0-alpha.1) (October 1, 2026)
+
+### Features
+
+* Added support for Trusted Types when loading CKEditor 5 from CDN with `useCKEditorCloud()`. Script URLs are now passed through the `ckeditor5-integrations` Trusted Types policy, so applications that enforce Trusted Types with the `require-trusted-types-for 'script'` CSP directive only need to add `ckeditor5-integrations` to the `trusted-types` directive.
+
+
 ## [12.0.0-alpha.0](https://github.com/ckeditor/ckeditor5-react/compare/v11.2.0...v12.0.0-alpha.0) (September 22, 2026)
 
 ### BREAKING CHANGES
@@ -72,17 +79,6 @@ Changelog
 ### Other changes
 
 * Improved compatibility with the latest CKEditor 48.x. Closes [#658](https://github.com/ckeditor/ckeditor5-react/issues/658).
-
-
-## [11.1.0](https://github.com/ckeditor/ckeditor5-react/compare/v11.1.0-alpha.1...v11.1.0) (March 24, 2026)
-
-### Features
-
-* Added support for CKEditor 5 `48.0.0` and the new `roots` editor configuration. Closes [#653](https://github.com/ckeditor/ckeditor5-react/issues/653).
-
-### Bug fixes
-
-* Fixed incorrect nightly version detection. Closes [#659](https://github.com/ckeditor/ckeditor5-react/issues/659).
 
 ---
 
