@@ -75,7 +75,7 @@ export class LifeCycleElementSemaphore<R> {
 	/**
 	 * This is the result of the {@link #_lifecycle:mount} function. This value should be reset to `null`
 	 * once the semaphore is released. It is utilized to store certain data that must be removed following
-	 * the destruction of the editor. This data may include the editor's instance, the assigned watchdog,
+	 * the destruction of the editor. This data may include the editor's instance,
 	 * or handles for additional window listeners.
 	 */
 	private _value: R | null = null;
@@ -133,7 +133,7 @@ export class LifeCycleElementSemaphore<R> {
 	}
 
 	/**
-	 * Occasionally, the Watchdog restarts the editor instance, resulting in a new instance being assigned to the semaphore.
+	 * Replaces the value held by the semaphore without remounting it.
 	 * In terms of race conditions, it's generally safer to simply override the semaphore value rather than recreating it
 	 * with a different one.
 	 */
@@ -281,7 +281,7 @@ export class LifeCycleElementSemaphore<R> {
 				.then( () => _lifecycle.unmount( {
 					element: _element,
 
-					// Mount result might be overridden by watchdog during restart so use instance variable.
+					// Use the instance variable, the mount result may have been replaced in the meantime.
 					mountResult: this.value!
 				} ) )
 

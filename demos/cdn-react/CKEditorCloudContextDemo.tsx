@@ -26,7 +26,6 @@ export const CKEditorCloudContextDemo = (): JSX.Element => {
 	return (
 		<CKEditorContext
 			context={ ClassicEditor.Context }
-			contextWatchdog={ ClassicEditor.ContextWatchdog }
 			onChangeInitializedEditors={ editors => {
 				console.log( 'Initialized editors:', editors );
 			} }

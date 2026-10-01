@@ -5,7 +5,6 @@
 
 import { describe, afterEach, it, expect } from 'vitest';
 import React from 'react';
-import { ContextWatchdog } from 'ckeditor5';
 import { render, type RenderResult } from '@testing-library/react';
 import ContextMock from './_utils/context.js';
 import Editor from './_utils/editor.js';
@@ -47,7 +46,6 @@ describe( 'index.js', () => {
 		component = render(
 			<CKEditorContext
 				context={ ContextMock }
-				contextWatchdog={ ContextWatchdog }
 				onReady={ manager.resolveOnRun( instance => {
 					context = instance;
 				} ) }

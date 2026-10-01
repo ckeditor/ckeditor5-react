@@ -5,7 +5,7 @@
 
 import { describe, it, expect } from 'vitest';
 import React from 'react';
-import { Context, ContextWatchdog } from 'ckeditor5';
+import { Context } from 'ckeditor5';
 import { render, waitFor } from '@testing-library/react';
 import CKEditor from '../../src/ckeditor.js';
 import CKEditorContext from '../../src/context/ckeditorcontext.js';
@@ -40,7 +40,6 @@ class App extends React.Component {
 					<CKEditorContext
 						config={ {} }
 						context={ CustomContext }
-						contextWatchdog={ ContextWatchdog }
 					>
 						{ this.props.renderEditor && (
 							<CKEditor

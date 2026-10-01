@@ -6,8 +6,8 @@
 import { useEffect } from 'react';
 import { useRefSafeCallback } from '../hooks/useRefSafeCallback.js';
 
-import type { CollectionAddEvent, Context, ContextWatchdog, Editor, GetCallback } from 'ckeditor5';
-import type { ContextWatchdogValue } from './ckeditorcontext.js';
+import type { CollectionAddEvent, Context, Editor, GetCallback } from 'ckeditor5';
+import type { CKEditorContextValue } from './ckeditorcontext.js';
 
 import {
 	tryExtractCKEditorReactContextMetadata,
@@ -18,12 +18,12 @@ import {
  * A hook that listens for the editor initialization and destruction events and updates the editors map.
  *
  * @param config The configuration of the hook.
- * @param config.currentContextWatchdog The current context watchdog value.
+ * @param config.currentContext The current context value.
  * @param config.onChangeInitializedEditors The function that updates the editors map.
  * @example
  * ```ts
  * useInitializedCKEditorsMap( {
- * 	currentContextWatchdog,
+ * 	currentContext,
  * 	onChangeInitializedEditors: ( editors, context ) => {
  * 		console.log( 'Editors:', editors );
  * 	}
@@ -32,7 +32,7 @@ import {
  */
 export const useInitializedCKEditorsMap = <TContext extends Context>(
 	{
-		currentContextWatchdog,
+		currentContext,
 		onChangeInitializedEditors
 	}: InitializedContextEditorsConfig<TContext>
 ): void => {
@@ -40,12 +40,12 @@ export const useInitializedCKEditorsMap = <TContext extends Context>(
 	const onChangeInitializedEditorsSafe = useRefSafeCallback( onChangeInitializedEditors || ( () => {} ) );
 
 	useEffect( () => {
-		if ( currentContextWatchdog.status !== 'initialized' ) {
+		if ( currentContext.status !== 'initialized' ) {
 			return;
 		}
 
-		const { watchdog } = currentContextWatchdog;
-		const editors = watchdog?.context?.editors;
+		const { context } = currentContext;
+		const editors = context?.editors;
 
 		if ( !editors ) {
 			return;
@@ -75,7 +75,7 @@ export const useInitializedCKEditorsMap = <TContext extends Context>(
 		const onEditorStatusChange = () => {
 			onChangeInitializedEditorsSafe(
 				getInitializedContextEditors(),
-				watchdog
+				context
 			);
 		};
 
@@ -100,7 +100,7 @@ export const useInitializedCKEditorsMap = <TContext extends Context>(
 		return () => {
 			editors.off( 'add', onAddEditorToCollection );
 		};
-	}, [ currentContextWatchdog ] );
+	}, [ currentContext ] );
 };
 
 /**
@@ -117,15 +117,15 @@ type InitializedEditorsMap = Record<string, {
 export type InitializedContextEditorsConfig<TContext extends Context> = {
 
 	/**
-	 * The current context watchdog value.
+	 * The current context value.
 	 */
-	currentContextWatchdog: ContextWatchdogValue<TContext>;
+	currentContext: CKEditorContextValue<TContext>;
 
 	/**
 	 * The callback called when the editors map changes.
 	 */
 	onChangeInitializedEditors?: (
 		editors: InitializedEditorsMap,
-		watchdog: ContextWatchdog<TContext>
+		context: TContext
 	) => void;
 };

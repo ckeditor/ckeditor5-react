@@ -11,7 +11,11 @@ import { removeAllCkCdnResources } from '@ckeditor/ckeditor5-integrations-common
 
 import useCKEditorCloud from '../../src/cloud/useCKEditorCloud.js';
 
-describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
+const CDN_WAIT_OPTIONS = {
+	timeout: 10000
+};
+
+describe( 'useCKEditorCloud', { timeout: 15000 }, () => {
 	afterEach( () => {
 		removeAllCkCdnResources();
 	} );
@@ -28,7 +32,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 			if ( result.current.status === 'success' ) {
 				expect( result.current.CKEditor ).toBeDefined();
 			}
-		}, { timeout: 8000 } );
+		}, CDN_WAIT_OPTIONS );
 	} );
 
 	it( 'should load additional bundle after updating deps', async () => {
@@ -49,7 +53,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 				expect( result.current.CKEditor ).toBeDefined();
 				expect( result.current.CKEditorPremiumFeatures ).toBeUndefined();
 			}
-		}, { timeout: 8000 } );
+		}, CDN_WAIT_OPTIONS );
 
 		rerender( {
 			version: '45.0.0',
@@ -67,7 +71,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 				expect( result.current.CKEditor ).toBeDefined();
 				expect( result.current.CKEditorPremiumFeatures ).toBeDefined();
 			}
-		}, { timeout: 8000 } );
+		}, CDN_WAIT_OPTIONS );
 	} );
 
 	describe( 'typings', () => {
@@ -79,7 +83,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 			await waitFor( () => {
 				expect( result.current.status ).toBe( 'success' );
-			}, { timeout: 8000 } );
+			}, CDN_WAIT_OPTIONS );
 
 			if ( result.current.status === 'success' ) {
 				expectTypeOf( result.current.CKEditorPremiumFeatures ).not.toBeNullable();
@@ -94,7 +98,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 			await waitFor( () => {
 				expect( result.current.status ).toBe( 'success' );
-			}, { timeout: 8000 } );
+			}, CDN_WAIT_OPTIONS );
 
 			if ( result.current.status === 'success' ) {
 				expectTypeOf( result.current.CKEditorPremiumFeatures ).toBeNullable();
@@ -108,7 +112,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 			await waitFor( () => {
 				expect( result.current.status ).toBe( 'success' );
-			}, { timeout: 8000 } );
+			}, CDN_WAIT_OPTIONS );
 
 			if ( result.current.status === 'success' ) {
 				expectTypeOf( result.current.CKEditorPremiumFeatures ).toBeNullable();
@@ -125,7 +129,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 			await waitFor( () => {
 				expect( result.current.status ).toBe( 'success' );
-			}, { timeout: 8000 } );
+			}, CDN_WAIT_OPTIONS );
 
 			if ( result.current.status === 'success' ) {
 				expectTypeOf( result.current.CKBox ).not.toBeNullable();
@@ -139,7 +143,7 @@ describe( 'useCKEditorCloud', { timeout: 8000 }, () => {
 
 			await waitFor( () => {
 				expect( result.current.status ).toBe( 'success' );
-			}, { timeout: 8000 } );
+			}, CDN_WAIT_OPTIONS );
 
 			if ( result.current.status === 'success' ) {
 				expectTypeOf( result.current.CKBox ).toBeNullable();

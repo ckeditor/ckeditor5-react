@@ -1,6 +1,6 @@
 {
   "name": "@ckeditor/ckeditor5-react",
-  "version": "11.2.0",
+  "version": "12.0.0-alpha.1",
   "description": "Official React component for CKEditor 5 – the best browser-based rich text editor.",
   "keywords": [
     "wysiwyg",
@@ -28,10 +28,10 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-integrations-common": "^2.4.0"
+    "@ckeditor/ckeditor5-integrations-common": "^3.2.0"
   },
   "peerDependencies": {
-    "ckeditor5": ">=46.0.0 || ^0.0.0-nightly || ^0.0.0-internal",
+    "ckeditor5": ">=49.0.0 || ^0.0.0-nightly || ^0.0.0-internal",
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
@@ -46,13 +46,13 @@
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@vitejs/plugin-react": "^5.0.4",
-    "@vitest/browser": "^4.1.10",
-    "@vitest/browser-playwright": "^4.1.10",
-    "@vitest/coverage-istanbul": "^4.1.10",
-    "@vitest/coverage-v8": "^4.1.10",
-    "@vitest/ui": "^4.1.10",
-    "ckeditor5": "^48.2.0",
-    "ckeditor5-premium-features": "^48.2.0",
+    "@vitest/browser": "^5.0.0",
+    "@vitest/browser-playwright": "^5.0.0",
+    "@vitest/coverage-istanbul": "^5.0.0",
+    "@vitest/coverage-v8": "^5.0.0",
+    "@vitest/ui": "^5.0.0",
+    "ckeditor5": "nightly",
+    "ckeditor5-premium-features": "nightly",
     "concurrently": "^9.2.1",
     "eslint": "^10.0.0",
     "eslint-config-ckeditor5": "^19.0.0",
@@ -79,7 +79,7 @@
     "typescript-eslint": "^8.46.2",
     "upath": "^2.0.1",
     "vite": "^7.3.5",
-    "vitest": "^4.1.10"
+    "vitest": "^5.0.0"
   },
   "engines": {
     "node": ">=24.11.0",

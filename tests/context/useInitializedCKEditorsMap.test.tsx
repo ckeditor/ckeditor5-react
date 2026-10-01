@@ -9,7 +9,7 @@ import { Collection } from 'ckeditor5';
 
 import { useInitializedCKEditorsMap } from '../../src/context/useInitializedCKEditorsMap.js';
 
-import type { ContextWatchdogValue } from '../../src/context/ckeditorcontext.js';
+import type { CKEditorContextValue } from '../../src/context/ckeditorcontext.js';
 import type { CKEditorConfigContextMetadata } from '../../src/context/setCKEditorReactContextMetadata.js';
 
 import MockEditor from '../_utils/editor.js';
@@ -17,13 +17,12 @@ import MockEditor from '../_utils/editor.js';
 describe( 'useInitializedCKEditorsMap', () => {
 	it( 'should not call onChangeInitializedEditors when context is not initialized', () => {
 		const onChangeInitializedEditors = vi.fn();
-		const mockWatchdog = {
-			status: 'initializing' as const,
-			watchdog: null
+		const notInitialized = {
+			status: 'initializing' as const
 		};
 
 		renderHook( () => useInitializedCKEditorsMap( {
-			currentContextWatchdog: mockWatchdog,
+			currentContext: notInitialized,
 			onChangeInitializedEditors
 		} ) );
 
@@ -37,7 +36,7 @@ describe( 'useInitializedCKEditorsMap', () => {
 		editors.add( notReadyEditor );
 
 		renderHook( () => useInitializedCKEditorsMap( {
-			currentContextWatchdog: createMockContextWatchdog( editors ),
+			currentContext: createMockContext( editors ),
 			onChangeInitializedEditors
 		} ) );
 
@@ -51,7 +50,7 @@ describe( 'useInitializedCKEditorsMap', () => {
 		editors.add( readyEditor );
 
 		renderHook( () => useInitializedCKEditorsMap( {
-			currentContextWatchdog: createMockContextWatchdog( editors ),
+			currentContext: createMockContext( editors ),
 			onChangeInitializedEditors
 		} ) );
 
@@ -73,7 +72,7 @@ describe( 'useInitializedCKEditorsMap', () => {
 		const onChangeInitializedEditors = vi.fn();
 
 		renderHook( () => useInitializedCKEditorsMap( {
-			currentContextWatchdog: createMockContextWatchdog( editors ),
+			currentContext: createMockContext( editors ),
 			onChangeInitializedEditors
 		} ) );
 
@@ -104,7 +103,7 @@ describe( 'useInitializedCKEditorsMap', () => {
 		editors.add( editor );
 
 		renderHook( () => useInitializedCKEditorsMap( {
-			currentContextWatchdog: createMockContextWatchdog( editors ),
+			currentContext: createMockContext( editors ),
 			onChangeInitializedEditors
 		} ) );
 
@@ -141,13 +140,11 @@ function createMockEditor( state = 'ready', contextMetadata: CKEditorConfigConte
 	return editor;
 }
 
-function createMockContextWatchdog( editors = new Collection() ) {
+function createMockContext( editors = new Collection() ) {
 	return ( {
 		status: 'initialized' as const,
-		watchdog: {
-			context: {
-				editors
-			}
+		context: {
+			editors
 		}
-	} ) as unknown as ContextWatchdogValue<any>;
+	} ) as unknown as CKEditorContextValue<any>;
 }

@@ -26,7 +26,6 @@ type EditorDemoState = {
 };
 
 export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
-	const [ isWatchdogDisabled, setIsWatchdogDisabled ] = useState( false );
 	const [ isInline, setIsInline ] = useState( false );
 	const [ state, setState ] = useState<EditorDemoState>( {
 		documents: [ props.content ],
@@ -91,6 +90,11 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 		<>
 			<h2 className="subtitle">Editor Demo</h2>
 			<p className="info">Component&apos;s events are logged to the console.</p>
+			<p className="info">
+				The &apos;Simulate an error&apos; button makes the editor throw. Nothing happens on the page,
+				because nothing restarts any more — the editor keeps its content and its undo history. Look
+				in the console. See the error handling demo for how to handle it yourself.
+			</p>
 
 			<div className="buttons">
 				<button
@@ -120,12 +124,6 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 					Next document ID
 				</button>
 
-				<button
-					onClick={ () => setIsWatchdogDisabled( !isWatchdogDisabled ) }
-				>
-					{ isWatchdogDisabled ? 'Enable' : 'Disable' } watchdog
-				</button>
-
 				<label>
 					<input
 						type="checkbox"
@@ -139,9 +137,7 @@ export default function EditorDemo( props: EditorDemoProps ): JSX.Element {
 			<CKEditor
 				editor={ ClassicEditor }
 				id={ `${ state.documentID }-${ isInline ? 'inline' : 'block' }` }
-				disableWatchdog={ isWatchdogDisabled }
 				data={ state.documents[ state.documentID ] }
-				watchdogConfig={ { crashNumberLimit: 10 } }
 				config={ {
 					root: { modelElement: isInline ? '$inlineRoot' : '$root' }
 				} }

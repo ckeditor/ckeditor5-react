@@ -6,7 +6,7 @@
 import { describe, beforeEach, afterEach, expect, it, vi } from 'vitest';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Context, ContextWatchdog } from 'ckeditor5';
+import { Context } from 'ckeditor5';
 
 import CKEditor from '../../src/ckeditor.js';
 import CKEditorContext from '../../src/context/ckeditorcontext.js';
@@ -47,7 +47,6 @@ class App extends React.Component {
 				{ this.state.isLayoutReady && (
 					<CKEditorContext
 						config={ {} }
-						contextWatchdog={ ContextWatchdog }
 						context={ CustomContext }
 					>
 						<CKEditor
