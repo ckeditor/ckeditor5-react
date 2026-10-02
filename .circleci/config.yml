@@ -25,10 +25,7 @@ commands:
           command: sudo corepack disable
       - run:
           name: Install pnpm
-          # Pinned to 12.8.2 exactly and bumped deliberately: a floating pnpm version once regressed
-          # optional-peer resolution, which forked the CKEditor dependency graph (`debug`'s optional
-          # `supports-color` peer) into two copies and broke the LTS integration tests with
-          # `plugincollection-plugin-name-conflict`.
+          # Pinned to an exact version and bumped deliberately, as the dependency policy requires.
           command: sudo npm i -g pnpm@12.8.2
       - run:
           name: Install dependencies
