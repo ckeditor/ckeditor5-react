@@ -35,11 +35,11 @@
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@ckeditor/ckeditor5-dev-bump-year": "^58.0.0",
-    "@ckeditor/ckeditor5-dev-changelog": "^58.0.0",
-    "@ckeditor/ckeditor5-dev-ci": "^58.0.0",
-    "@ckeditor/ckeditor5-dev-release-tools": "^58.0.0",
-    "@ckeditor/ckeditor5-dev-utils": "^58.0.0",
+    "@ckeditor/ckeditor5-dev-bump-year": "^62.2.1",
+    "@ckeditor/ckeditor5-dev-changelog": "^62.2.1",
+    "@ckeditor/ckeditor5-dev-ci": "^62.2.1",
+    "@ckeditor/ckeditor5-dev-release-tools": "^62.2.1",
+    "@ckeditor/ckeditor5-dev-utils": "^62.2.1",
     "@testing-library/dom": "^10.3.1",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",

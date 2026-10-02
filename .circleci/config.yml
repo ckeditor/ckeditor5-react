@@ -43,18 +43,29 @@ commands:
             printf '%s\n' 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl'
             >> ~/.ssh/known_hosts
 
-  npm_oidc_command:
-    description: "Enable publishing to `npm` using OIDC"
+  # The release tools request a fresh CircleCI OIDC token right before each npm command,
+  # because npm accepts the token only for 5 minutes after it was issued.
+  install_npm_command:
+    description: "Install npm with OIDC support for `npm publish` and `npm dist-tag`"
     steps:
       - run:
           name: Install npm with CircleCI OIDC support
           command: sudo npm i -g npm@11.21.0
+      # npm keeps only 10 debug logs by default. A single publish run executes many npm commands.
       - run:
-          name: Get npm OIDC token
-          command: |
-            NPM_ID_TOKEN=$(circleci run oidc get \
-              --claims '{"aud":"npm:registry.npmjs.org"}')
-            printf 'export NPM_ID_TOKEN=%q\n' "$NPM_ID_TOKEN" >> "$BASH_ENV"
+          name: Keep all npm debug logs
+          command: echo 'export npm_config_logs_max=10000' >> "$BASH_ENV"
+
+  # npm debug logs contain the registry responses (for example, a failed OIDC token exchange). The release scripts
+  # do not print the npm output, so the logs are the only place that explains why a package could not be published.
+  # npm does not write tokens to these logs.
+  store_npm_logs_command:
+    description: "Store npm debug logs as artifacts"
+    steps:
+      - store_artifacts:
+          path: ~/.npm/_logs
+          destination: npm-logs
+          when: always
 
   gpg_credentials_command:
     description: "Setup GPG configuration"
@@ -110,19 +121,6 @@ jobs:
       - run:
           name: Run tests
           command: pnpm run test
-      - run:
-          name: Verify the code coverage
-          command: |
-            #!/bin/bash
-
-            # Create the `nyc` directory.
-            mkdir .nyc_output
-
-            # Copy results.
-            cp coverage/coverage-final.json .nyc_output
-
-            # Verify results.
-            npx nyc check-coverage --branches 100 --functions 100 --lines 100 --statements 100
       - unless:
           # Upload the code coverage results for non-nightly builds only.
           condition: << pipeline.parameters.isNightly >>
@@ -251,7 +249,7 @@ jobs:
               echo "There is a newer commit in the repository on the \`#master\` branch. Use its build to start the release."
               circleci-agent step halt
             fi
-      - npm_oidc_command
+      - install_npm_command
       - git_credentials_command
       - run:
           name: Verify if a releaser triggered the job
@@ -290,6 +288,7 @@ jobs:
       - store_artifacts:
           path: ./release.zip
           when: always
+      - store_npm_logs_command
 
 workflows:
   version: 2

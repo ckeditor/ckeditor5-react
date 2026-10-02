@@ -27,7 +27,7 @@ bumpYear( {
 			}
 		},
 		{
-			pattern: '!(coverage|.nyc_output|dist|demo-*)/**'
+			pattern: '!(coverage|dist|demo-*)/**'
 		},
 		{
 			pattern: '.husky/*'
