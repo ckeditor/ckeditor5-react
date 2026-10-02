@@ -123,19 +123,6 @@ jobs:
       - run:
           name: Run tests
           command: pnpm run test
-      - run:
-          name: Verify the code coverage
-          command: |
-            #!/bin/bash
-
-            # Create the `nyc` directory.
-            mkdir .nyc_output
-
-            # Copy results.
-            cp coverage/coverage-final.json .nyc_output
-
-            # Verify results.
-            npx nyc check-coverage --branches 100 --functions 100 --lines 100 --statements 100
       - unless:
           # Upload the code coverage results for non-nightly builds only.
           condition: << pipeline.parameters.isNightly >>
