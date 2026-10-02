@@ -19,7 +19,7 @@ See the ["Rich text editor component for React"](https://ckeditor.com/docs/ckedi
 ## Contributing
 
 > [!NOTE]
-> This project requires **pnpm v10** or higher. You can check your version with `pnpm --version` and update if needed with `npm install -g pnpm@latest`.
+> This project requires **pnpm v12.8.2**. You can check your version with `pnpm --version` and update if needed with `npm install -g pnpm@12.8.2`.
 
 After cloning this repository, install necessary dependencies:
 
