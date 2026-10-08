@@ -21,9 +21,6 @@ commands:
     steps:
       - install_ssh_keys_command
       - run:
-          name: Disable Corepack
-          command: sudo corepack disable
-      - run:
           name: Install pnpm
           # Pinned to 11.14.0. pnpm 11.15.x regressed optional-peer resolution, which forks
           # the CKEditor dependency graph (`debug`'s optional `supports-color` peer) into two
