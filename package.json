@@ -1,6 +1,6 @@
 {
   "name": "@ckeditor/ckeditor5-react",
-  "version": "12.0.0-alpha.1",
+  "version": "12.0.0",
   "description": "Official React component for CKEditor 5 – the best browser-based rich text editor.",
   "keywords": [
     "wysiwyg",
@@ -51,8 +51,8 @@
     "@vitest/coverage-istanbul": "^5.0.0",
     "@vitest/coverage-v8": "^5.0.0",
     "@vitest/ui": "^5.0.0",
-    "ckeditor5": "nightly",
-    "ckeditor5-premium-features": "nightly",
+    "ckeditor5": "^49.0.0",
+    "ckeditor5-premium-features": "^49.0.0",
     "concurrently": "^9.2.1",
     "eslint": "^10.0.0",
     "eslint-config-ckeditor5": "^19.0.0",
