@@ -21,9 +21,6 @@ commands:
     steps:
       - install_ssh_keys_command
       - run:
-          name: Disable Corepack
-          command: sudo corepack disable
-      - run:
           name: Install pnpm
           # Pinned to 11.14.0. pnpm 11.15.x regressed optional-peer resolution, which forks
           # the CKEditor dependency graph (`debug`'s optional `supports-color` peer) into two
@@ -96,7 +93,7 @@ commands:
 jobs:
   validate:
     docker:
-      - image: cimg/node:24.11.0
+      - image: cimg/node:26.10.0
     steps:
       - checkout
       - bootstrap_repository_command
@@ -115,7 +112,7 @@ jobs:
 
   tests_current:
     docker:
-      - image: cimg/node:24.11.0-browsers
+      - image: cimg/node:26.10.0-browsers
     steps:
       - checkout
       - bootstrap_repository_command
@@ -144,7 +141,7 @@ jobs:
 
   tests_integration:
     docker:
-      - image: cimg/node:24.11.0-browsers
+      - image: cimg/node:26.10.0-browsers
     parameters:
       ckeditorDistTag:
         type: string
@@ -196,7 +193,7 @@ jobs:
 
   release_prepare:
     docker:
-      - image: cimg/node:24.11.0
+      - image: cimg/node:26.10.0
     steps:
       - checkout
       - bootstrap_repository_command
@@ -206,7 +203,7 @@ jobs:
 
   trigger_release_process:
     docker:
-      - image: cimg/node:24.11.0
+      - image: cimg/node:26.10.0
     steps:
       - checkout
       - bootstrap_repository_command
@@ -235,7 +232,7 @@ jobs:
 
   release_project:
     docker:
-      - image: cimg/node:24.11.0
+      - image: cimg/node:26.10.0
     steps:
       - checkout
       - bootstrap_repository_command
