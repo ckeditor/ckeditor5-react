@@ -53,7 +53,7 @@
     "@vitest/ui": "^5.0.0",
     "ckeditor5": "^49.0.0",
     "ckeditor5-premium-features": "^49.0.0",
-    "concurrently": "^9.2.1",
+    "concurrently": "^9.2.5",
     "eslint": "^10.0.0",
     "eslint-config-ckeditor5": "^19.0.0",
     "eslint-plugin-ckeditor5-rules": "^19.0.0",
