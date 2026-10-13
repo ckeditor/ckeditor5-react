@@ -8,7 +8,6 @@ allowBuilds:
 
 overrides:
   'esbuild@^0.27': '^0.28.1'
-  'simple-git@^3': '^4.0.2'
   'ws@^8': '^8.21.0'
 
 minimumReleaseAge: 4320 # 3 days

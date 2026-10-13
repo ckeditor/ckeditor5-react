@@ -6,7 +6,6 @@ settings:
 
 overrides:
   esbuild@^0.27: ^0.28.1
-  simple-git@^3: ^4.0.2
   ws@^8: ^8.21.0
 
 importers:
@@ -18,20 +17,20 @@ importers:
         version: 3.2.0(ckeditor5@49.0.0(supports-color@8.1.1))
     devDependencies:
       '@ckeditor/ckeditor5-dev-bump-year':
-        specifier: ^62.2.1
-        version: 62.2.1
+        specifier: ^62.5.0
+        version: 62.5.0
       '@ckeditor/ckeditor5-dev-changelog':
-        specifier: ^62.2.1
-        version: 62.2.1(@types/node@25.6.0)(supports-color@8.1.1)
+        specifier: ^62.5.0
+        version: 62.5.0(@types/node@25.6.0)(supports-color@8.1.1)
       '@ckeditor/ckeditor5-dev-ci':
-        specifier: ^62.2.1
-        version: 62.2.1
+        specifier: ^62.5.0
+        version: 62.5.0
       '@ckeditor/ckeditor5-dev-release-tools':
-        specifier: ^62.2.1
-        version: 62.2.1(@types/node@25.6.0)(supports-color@8.1.1)
+        specifier: ^62.5.0
+        version: 62.5.0(@types/node@25.6.0)(supports-color@8.1.1)
       '@ckeditor/ckeditor5-dev-utils':
-        specifier: ^62.2.1
-        version: 62.2.1(supports-color@8.1.1)
+        specifier: ^62.5.0
+        version: 62.5.0(supports-color@8.1.1)
       '@eslint-react/eslint-plugin':
         specifier: ^5.17.3
         version: 5.17.3(eslint@10.7.0(jiti@2.6.1)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
@@ -369,26 +368,26 @@ packages:
   '@ckeditor/ckeditor5-core@49.0.0':
     resolution: {integrity: sha512-0ijLYhCDoRgUufqEmwUfpKOaLbZ70KXaiS8zaAFh28uHDgqOgnz8r0ifu0hGcbYYjk2U5ii5oBdPoY3OKWczdg==}
 
-  '@ckeditor/ckeditor5-dev-bump-year@62.2.1':
-    resolution: {integrity: sha512-AxC5UucZCjotSK663eSkCjbcd/Dg74feyfhAOfrSvLjM6cl7+/i1rYvbwBBU20olKIGa3kpL2i6tvna52rYYJA==}
+  '@ckeditor/ckeditor5-dev-bump-year@62.5.0':
+    resolution: {integrity: sha512-T9XMy7dj2B/pyr6OZaegf/e+660SMc9R8sWq+zTM96XIlGa5ODWgIUDC9XLaftqemRQPD5E6zZc1BiKUokQ8fQ==}
     engines: {node: '>=24.11.0', npm: '>=5.7.1'}
 
-  '@ckeditor/ckeditor5-dev-changelog@62.2.1':
-    resolution: {integrity: sha512-wJiInH9y+RYvQDfIY4w6jFBjGGFaAIV2X/zur0XZJV6KCFhCgZKhfPyoIVNfo40wePetLIjhO3TCwwih+ptgCQ==}
-    engines: {node: '>=24.11.0', npm: '>=5.7.1'}
-    hasBin: true
-
-  '@ckeditor/ckeditor5-dev-ci@62.2.1':
-    resolution: {integrity: sha512-4EAEmKGo5YeJnY97rHkL6Xyoe1qkuSS5NP6e1RBxk3YgD/Le9VQQs1TTWiKldHCoilm6fOxICBOGBjllxm2Rug==}
+  '@ckeditor/ckeditor5-dev-changelog@62.5.0':
+    resolution: {integrity: sha512-by1UFfNm9KWMnTEzkW07Mk8Ph0+x/a3fhieJrOpu0LqLXyEH3aMj8XIk5W8X9OoiD1PeXgL6NOZzFphOpxtoTg==}
     engines: {node: '>=24.11.0', npm: '>=5.7.1'}
     hasBin: true
 
-  '@ckeditor/ckeditor5-dev-release-tools@62.2.1':
-    resolution: {integrity: sha512-TIWRnkV+NlqSF8wjUqslr6OkrbNEWLrG84ApF+SiGrd9+pqytj4pZokfNX8qZNRNNtBUeDhQOIa0YtSR5pCUQQ==}
+  '@ckeditor/ckeditor5-dev-ci@62.5.0':
+    resolution: {integrity: sha512-ri+qaHb/syt/+Gb9/IfCi+upsoEoWMkHlQQrWzlY+CnNQ+UTkcXXx8/88Qn2ogVSuJWCbAyjXe3XtOsReTH9QA==}
+    engines: {node: '>=24.11.0', npm: '>=5.7.1'}
+    hasBin: true
+
+  '@ckeditor/ckeditor5-dev-release-tools@62.5.0':
+    resolution: {integrity: sha512-NlwKq6qRbGyGGF+2yT0e3ccaIgT/ZCkborhztr7fp+SQ5a05XEsExbbkWq8EgFpL6abFX1VH2Z7A5/3AKws6wA==}
     engines: {node: '>=24.11.0', npm: '>=5.7.1'}
 
-  '@ckeditor/ckeditor5-dev-utils@62.2.1':
-    resolution: {integrity: sha512-yax9TIiSue0ChP5ahcUHsyva4U19eJmipRd4pLhRAZzQThg+BCI0FtT1DDFkpgVRixs0pYEsj/EoE0HmUhCyUA==}
+  '@ckeditor/ckeditor5-dev-utils@62.5.0':
+    resolution: {integrity: sha512-BOsGnG15kUZtGC6GzoaauwKHU+/yFuAfPZNK1VZ6jxQR5kicWQRf9vKC6SdOXdS6D7nEKj32iiliaEKUsqT/Og==}
     engines: {node: '>=24.11.0', npm: '>=5.7.1'}
 
   '@ckeditor/ckeditor5-document-outline@49.0.0':
@@ -4537,14 +4536,14 @@ snapshots:
       '@ckeditor/ckeditor5-utils': 49.0.0
       es-toolkit: 1.52.0
 
-  '@ckeditor/ckeditor5-dev-bump-year@62.2.1':
+  '@ckeditor/ckeditor5-dev-bump-year@62.5.0':
     dependencies:
       glob: 13.0.6
 
-  '@ckeditor/ckeditor5-dev-changelog@62.2.1(@types/node@25.6.0)(supports-color@8.1.1)':
+  '@ckeditor/ckeditor5-dev-changelog@62.5.0(@types/node@25.6.0)(supports-color@8.1.1)':
     dependencies:
       '@11ty/gray-matter': 2.1.0
-      '@ckeditor/ckeditor5-dev-utils': 62.2.1(supports-color@8.1.1)
+      '@ckeditor/ckeditor5-dev-utils': 62.5.0(supports-color@8.1.1)
       '@types/semver': 7.8.0
       cac: 7.0.0
       date-fns: 4.1.0
@@ -4556,15 +4555,15 @@ snapshots:
       - '@types/node'
       - supports-color
 
-  '@ckeditor/ckeditor5-dev-ci@62.2.1':
+  '@ckeditor/ckeditor5-dev-ci@62.5.0':
     dependencies:
       '@octokit/rest': 22.0.1
       slack-notify: 2.0.7
       snyk: 1.1304.0
 
-  '@ckeditor/ckeditor5-dev-release-tools@62.2.1(@types/node@25.6.0)(supports-color@8.1.1)':
+  '@ckeditor/ckeditor5-dev-release-tools@62.5.0(@types/node@25.6.0)(supports-color@8.1.1)':
     dependencies:
-      '@ckeditor/ckeditor5-dev-utils': 62.2.1(supports-color@8.1.1)
+      '@ckeditor/ckeditor5-dev-utils': 62.5.0(supports-color@8.1.1)
       '@octokit/rest': 22.0.1
       cli-columns: 4.0.0
       glob: 13.0.6
@@ -4577,7 +4576,7 @@ snapshots:
       - '@types/node'
       - supports-color
 
-  '@ckeditor/ckeditor5-dev-utils@62.2.1(supports-color@8.1.1)':
+  '@ckeditor/ckeditor5-dev-utils@62.5.0(supports-color@8.1.1)':
     dependencies:
       '@types/pacote': 11.1.8
       '@types/shelljs': 0.10.0
