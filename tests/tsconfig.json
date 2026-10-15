@@ -4,7 +4,7 @@
 		"emitDeclarationOnly": false,
 		"noImplicitAny": false,
 		"types": [
-			"@testing-library/jest-dom/vitest",
+			"vitest/browser",
 			"../vite-env.d.ts"
 		]
 	},

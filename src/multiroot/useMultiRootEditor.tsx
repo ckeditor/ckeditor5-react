@@ -319,9 +319,9 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 		const supports = getInstalledCKBaseFeatures();
 
 		const editor = await (
-			/* istanbul ignore next -- @preserve */
 			supports.elementConfigAttachment ?
 				Editor.create( { ...mergedConfig, initialData: mergedInitialData } ) :
+				/* istanbul ignore next -- @preserve: compatibility branch for older CKEditor 5 versions */
 				Editor.create( mergedInitialData, mergedConfig )
 		);
 
@@ -479,10 +479,7 @@ export const useMultiRootEditor = ( props: MultiRootHookProps ): MultiRootHookRe
 			const {
 				addedKeys: newRoots,
 				removedKeys: removedRoots
-			} = _getStateDiff(
-				editorData,
-				data || /* istanbul ignore next -- @preserve: It should never happen, data should be always filled. */ {}
-			);
+			} = _getStateDiff( editorData, data );
 
 			const modifiedRoots = dataKeys.filter( rootName =>
 				editorData[ rootName ] !== undefined &&

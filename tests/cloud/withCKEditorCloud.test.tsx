@@ -47,7 +47,7 @@ describe( 'withCKEditorCloud', { timeout: 15000 }, () => {
 
 		const { findByText } = render( <WrappedComponent editorId={ 1 } /> );
 
-		expect( await findByText( 'Your Editor 1', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
+		await expect.element( await findByText( 'Your Editor 1', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
 		expect( lastRenderedMockProps.current ).toMatchObject( {
 			editorId: 1,
 			cloud: expect.objectContaining( {
@@ -74,11 +74,11 @@ describe( 'withCKEditorCloud', { timeout: 15000 }, () => {
 
 		const { findByText } = render( <WrappedComponent editorId={ 1 } /> );
 
-		expect( await findByText( 'Loading...', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
+		await expect.element( await findByText( 'Loading...', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
 
 		deferredPlugin.resolve( 123 );
 
-		expect( await findByText( 'Your Editor 1', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
+		await expect.element( await findByText( 'Your Editor 1', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
 		expect( lastRenderedMockProps.current?.cloud.loadedPlugins?.Plugin ).toBe( 123 );
 	} );
 
@@ -99,7 +99,7 @@ describe( 'withCKEditorCloud', { timeout: 15000 }, () => {
 
 		const { findByText } = render( <WrappedComponent editorId={ 1 } /> );
 
-		expect( await findByText( 'Error: Failed to load plugin', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
+		await expect.element( await findByText( 'Error: Failed to load plugin', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
 	} );
 
 	it( 'should render default error message when cloud loading fails and there is no error handler specified', async () => {
@@ -118,6 +118,6 @@ describe( 'withCKEditorCloud', { timeout: 15000 }, () => {
 
 		const { findByText } = render( <WrappedComponent editorId={ 1 } /> );
 
-		expect( await findByText( 'Unable to load CKEditor Cloud data!', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
+		await expect.element( await findByText( 'Unable to load CKEditor Cloud data!', {}, CDN_WAIT_OPTIONS ) ).toBeVisible();
 	} );
 } );

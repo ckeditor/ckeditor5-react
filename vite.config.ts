@@ -86,7 +86,7 @@ export default defineConfig( {
 			}
 		],
 		coverage: {
-			provider: 'istanbul',
+			provider: 'v8',
 			include: [ 'src/**' ],
 			thresholds: {
 				branches: 100,
