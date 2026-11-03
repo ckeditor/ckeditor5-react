@@ -35,19 +35,19 @@
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@ckeditor/ckeditor5-dev-bump-year": "^62.5.0",
-    "@ckeditor/ckeditor5-dev-changelog": "^62.5.0",
-    "@ckeditor/ckeditor5-dev-ci": "^62.5.0",
-    "@ckeditor/ckeditor5-dev-release-tools": "^62.5.0",
-    "@ckeditor/ckeditor5-dev-utils": "^62.5.0",
+    "@ckeditor/ckeditor5-dev-bump-year": "^63.1.1",
+    "@ckeditor/ckeditor5-dev-changelog": "^63.1.1",
+    "@ckeditor/ckeditor5-dev-ci": "^63.1.1",
+    "@ckeditor/ckeditor5-dev-release-tools": "^63.1.1",
+    "@ckeditor/ckeditor5-dev-utils": "^63.1.1",
     "@testing-library/dom": "^10.3.1",
     "@testing-library/react": "^16.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@vitejs/plugin-react": "^5.0.4",
-    "@vitest/browser-playwright": "^5.0.0",
-    "@vitest/coverage-v8": "^5.0.0",
-    "@vitest/ui": "^5.0.0",
+    "@vitest/browser-playwright": "^5.0.5",
+    "@vitest/coverage-v8": "^5.0.5",
+    "@vitest/ui": "^5.0.5",
     "ckeditor5": "^49.0.0",
     "ckeditor5-premium-features": "^49.0.0",
     "concurrently": "^9.2.5",
@@ -75,8 +75,8 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2",
     "upath": "^2.0.1",
-    "vite": "^7.3.5",
-    "vitest": "^5.0.0"
+    "vite": "^7.3.7",
+    "vitest": "^5.0.5"
   },
   "engines": {
     "node": ">=26.10.0",
