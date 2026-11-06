@@ -28,7 +28,7 @@ pnpm install
 ```
 
 If you need to run tests or demos with a commercial license, copy `.env.example` to `.env` and fill in the required `CKEDITOR_*` variables.
-Keep `.env` local only. In CI, provide the same value via the `CKEDITOR_LICENSE_KEY` environment variable.
+Keep `.env` local only.
 
 ### Running the development server
 
@@ -49,20 +49,20 @@ To run the full automated test suite, use:
 pnpm run test
 ```
 
-To run only the real-editor integration suite used by the CI version matrix, use:
+To run only the real-editor integration suite used by the `tests_integration` CI job, use:
 
 ```bash
 pnpm exec vitest run --project integration
 ```
 
 This command runs the integration subset against the `ckeditor5` and `ckeditor5-premium-features` versions currently installed in `node_modules`.
-After a regular `pnpm install`, that means the default dependency versions from `package.json`, not the LTS version from the CI matrix.
+After a regular `pnpm install`, these are the versions locked in `pnpm-lock.yaml`, which may be older than the `latest` versions that the CI job installs.
 
-To reproduce an LTS matrix run locally, install the matching `lts-v*` packages first and provide `CKEDITOR_LICENSE_KEY`, just like the CI job does:
+To reproduce the `tests_integration` CI job locally, install the `latest` packages first:
 
 ```bash
-pnpm add -D ckeditor5@lts-v* ckeditor5-premium-features@lts-v*
-CKEDITOR_LICENSE_KEY=<your-key> pnpm exec vitest run --project integration
+pnpm add -D ckeditor5@latest ckeditor5-premium-features@latest
+pnpm exec vitest run --project integration
 ```
 
 If you want to run the tests in watch mode, use the following command:
