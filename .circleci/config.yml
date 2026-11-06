@@ -140,53 +140,15 @@ jobs:
   tests_integration:
     docker:
       - image: cimg/node:26.10.0-browsers
-    parameters:
-      ckeditorDistTag:
-        type: string
     steps:
       - checkout
       - bootstrap_repository_command
       - browser-tools/install_chrome
       - run:
-          name: Resolve and deduplicate versions
-          command: |
-            #!/bin/bash
-
-            EDITOR_VERSION_TAG=<< parameters.ckeditorDistTag >>
-            SELECTED_VERSION=$( pnpm view ckeditor5@${EDITOR_VERSION_TAG} version )
-            LATEST_VERSION=$( pnpm view ckeditor5@latest version )
-
-            echo "Resolved ckeditor5@${EDITOR_VERSION_TAG} -> ${SELECTED_VERSION}"
-            echo "Resolved ckeditor5@latest -> ${LATEST_VERSION}"
-
-            if [[ "${EDITOR_VERSION_TAG}" != "latest" && "${SELECTED_VERSION%%.*}" == "${LATEST_VERSION%%.*}" ]];
-            then
-              echo "Skipping duplicated integration run because ${EDITOR_VERSION_TAG} and latest resolve to the same major version."
-              circleci-agent step halt
-              exit 0
-            fi
+          name: Install the latest CKEditor 5 packages
+          command: pnpm add -D ckeditor5@latest ckeditor5-premium-features@latest
       - run:
-          name: Verify license key
-          command: |
-            #!/bin/bash
-
-            if [[ "<< parameters.ckeditorDistTag >>" != "latest" && -z ${CKEDITOR_LICENSE_KEY} ]];
-            then
-              if [[ -z ${CODECOV_TOKEN} ]];
-              then
-                echo "Skipping the << parameters.ckeditorDistTag >> integration run because CKEDITOR_LICENSE_KEY is not available in this community environment."
-                circleci-agent step halt
-                exit 0
-              fi
-
-              echo "Failing the << parameters.ckeditorDistTag >> integration run because CKEDITOR_LICENSE_KEY is required in this environment."
-              exit 1
-            fi
-      - run:
-          name: Install CKEditor packages for << parameters.ckeditorDistTag >>
-          command: pnpm add -D ckeditor5@<< parameters.ckeditorDistTag >> ckeditor5-premium-features@<< parameters.ckeditorDistTag >>
-      - run:
-          name: Run integration tests for << parameters.ckeditorDistTag >>
+          name: Run integration tests
           command: pnpm exec vitest run --project integration
 
   release_prepare:
@@ -297,23 +259,13 @@ workflows:
     jobs:
       - validate
       - tests_current
-      # TODO: Re-enable after ckeditor5 v49 is released.
-      # This integration requires ckeditor5 >= 49 (see `peerDependencies`); both `latest`
-      # (48.x) and `lts-v47` predate the `onEditorError()` API that replaced the watchdog.
-      # Restore this block together with the two spots marked below - they depend on it.
-      # - tests_integration:
-      #     matrix:
-      #       alias: tests_integration_matrix
-      #       parameters:
-      #         ckeditorDistTag: &integration_editor_version_tags
-      #           - latest
-      #           - lts-v47
+      - tests_integration
       - release_prepare
       - trigger_release_process:
           requires:
             - validate
             - tests_current
-            # - tests_integration_matrix # TODO: Restore with `tests_integration` (v49).
+            - tests_integration
             - release_prepare
           filters:
             branches:
@@ -340,7 +292,4 @@ workflows:
     jobs:
       - validate
       - tests_current
-      # - tests_integration: # TODO: Restore with `tests_integration` (v49).
-      #     matrix:
-      #       parameters:
-      #         ckeditorDistTag: *integration_editor_version_tags
+      - tests_integration

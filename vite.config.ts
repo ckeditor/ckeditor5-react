@@ -67,7 +67,7 @@ export default defineConfig( {
 		unstubEnvs: true,
 		unstubGlobals: true,
 		setupFiles: [ './vitest-setup.ts' ],
-		// `integration` is an addressable subset used by the CI version matrix.
+		// `integration` is an addressable subset that the `tests_integration` CI job runs against the `latest` editor packages.
 		// It intentionally overlaps with the full `all` suite.
 		projects: [
 			{
