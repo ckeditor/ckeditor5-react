@@ -7,12 +7,7 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import React, { useEffect } from 'react';
 import { CKEditorError } from 'ckeditor5';
 import { render, waitFor, renderHook, act } from '@testing-library/react';
-import {
-	compareInstalledCKBaseVersion,
-	getInstalledCKBaseFeatures,
-	mapObjectValues,
-	omit
-} from '@ckeditor/ckeditor5-integrations-common';
+import { mapObjectValues, omit } from '@ckeditor/ckeditor5-integrations-common';
 
 import { useMultiRootEditor } from '../../src/multiroot/useMultiRootEditor.js';
 import { EditorToolbarWrapper } from '../../src/multiroot/EditorToolbar.js';
@@ -24,8 +19,6 @@ import { createDefer } from '../_utils/defer.js';
 import { createTestMultiRootContext, TestMultiRootEditor } from '../_utils/multirooteditor.js';
 import { turnOffErrors } from '../_utils/turnOffErrors.js';
 import { ReactIntegrationUsageDataPlugin } from '../../src/plugins/ReactIntegrationUsageDataPlugin.js';
-
-const SUPPORTED_FEATURES = getInstalledCKBaseFeatures();
 
 describe( 'useMultiRootEditor', () => {
 	const rootsContent = {
@@ -71,59 +64,37 @@ describe( 'useMultiRootEditor', () => {
 	} );
 
 	describe( 'editor props', () => {
-		if ( SUPPORTED_FEATURES.rootsConfigEntry ) {
-			it( 'should raise proper warning when `data` and `initialData` is passed to config at the same time', async () => {
-				const spy = vi.spyOn( console, 'warn' );
+		it( 'should raise proper warning when `data` and `initialData` is passed to config at the same time', async () => {
+			const spy = vi.spyOn( console, 'warn' );
 
-				renderHook( () => useMultiRootEditor( {
-					...editorProps,
-					config: {
-						...editorProps.config,
-						roots: {
-							intro: {
-								initialData: '<h2>Sample</h2><p>This is an instance of the.</p>'
-							},
-							content: {
-								initialData: '<p>It is the custom content</p>'
-							},
-							footer: {
-								initialData: '<p>Footer content</p>'
-							}
+			renderHook( () => useMultiRootEditor( {
+				...editorProps,
+				config: {
+					...editorProps.config,
+					roots: {
+						intro: {
+							initialData: '<h2>Sample</h2><p>This is an instance of the.</p>'
+						},
+						content: {
+							initialData: '<p>It is the custom content</p>'
+						},
+						footer: {
+							initialData: '<p>Footer content</p>'
 						}
 					}
-				} ) );
+				}
+			} ) );
 
-				await waitFor( () => {
-					for ( const rootName of Object.keys( rootsContent ) ) {
-						expect( spy ).toHaveBeenCalledWith(
-							`Editor data should be provided either using \`config.roots['${ rootName }'].initialData\` ` +
-							'or the bound component property. The config value takes precedence ' +
-							'over the bound component property and will be used when both are specified.'
-						);
-					}
-				} );
-			} );
-		} else {
-			it( 'should raise proper warning when `data` and `initialData` is passed to config at the same time', async () => {
-				const spy = vi.spyOn( console, 'warn' );
-
-				renderHook( () => useMultiRootEditor( {
-					...editorProps,
-					config: {
-						...editorProps.config,
-						initialData: rootsContent
-					}
-				} ) );
-
-				await waitFor( () => {
+			await waitFor( () => {
+				for ( const rootName of Object.keys( rootsContent ) ) {
 					expect( spy ).toHaveBeenCalledWith(
-						'Editor data should be provided either using `config.initialData` ' +
+						`Editor data should be provided either using \`config.roots['${ rootName }'].initialData\` ` +
 						'or the bound component property. The config value takes precedence ' +
 						'over the bound component property and will be used when both are specified.'
 					);
-				} );
+				}
 			} );
-		}
+		} );
 
 		it( 'should not crash if config property is not provided', async () => {
 			const { result } = renderHook( () => useMultiRootEditor( {
@@ -1015,11 +986,7 @@ describe( 'useMultiRootEditor', () => {
 					constructor( configOrData, config ) {
 						super( configOrData, config );
 
-						let value = configOrData ?? {};
-
-						if ( SUPPORTED_FEATURES.rootsConfigEntry ) {
-							value = mapObjectValues( configOrData.roots ?? {}, ( val: any ) => val.initialData );
-						}
+						let value = mapObjectValues( configOrData.roots ?? {}, ( val: any ) => val.initialData );
 
 						this.data = {
 							get() {
@@ -1613,13 +1580,11 @@ describe( 'useMultiRootEditor', () => {
 				expect( container.getElementsByClassName( 'ck-editor__editable' ).length ).to.equal( 4 );
 			} );
 
-			if ( compareInstalledCKBaseVersion( '48.2.0' )! >= 0 ) {
-				const outroEditable = container.querySelector( '[data-placeholder="Type here…"]' );
+			const outroEditable = container.querySelector( '[data-placeholder="Type here…"]' );
 
-				expect( outroEditable ).not.toBeNull();
-				expect( outroEditable!.classList.contains( 'ck-placeholder' ) ).to.be.true;
-				expect( outroEditable!.classList.contains( 'ck-editor__editable_inline-root' ) ).to.be.true;
-			}
+			expect( outroEditable ).not.toBeNull();
+			expect( outroEditable!.classList.contains( 'ck-placeholder' ) ).to.be.true;
+			expect( outroEditable!.classList.contains( 'ck-editor__editable_inline-root' ) ).to.be.true;
 		} );
 	} );
 
